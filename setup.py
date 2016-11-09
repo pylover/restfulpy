@@ -9,12 +9,15 @@ with open(join(dirname(__file__), 'restfulpy', '__init__.py')) as v_file:
 
 
 dependencies = [
-    'nanohttp',
+    'wheezy.web',
     'argcomplete',
     'alembic',
     'PyJWT',
+    'ujson',
     'appdirs',
     'sqlalchemy',
+
+    # Testing
     'webtest',
     'nose',
 ]
