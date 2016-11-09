@@ -16,6 +16,7 @@ dependencies = [
     'ujson',
     'appdirs',
     'sqlalchemy',
+    'hashids',
 
     # Testing
     'webtest',
