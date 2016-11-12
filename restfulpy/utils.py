@@ -2,7 +2,11 @@ import sys
 import warnings
 import importlib
 import importlib.util
+from datetime import datetime, timedelta
 from os.path import dirname, abspath
+
+
+ZERO = timedelta(0)
 
 
 def import_python_module_by_filename(name, module_filename):
@@ -61,3 +65,64 @@ def deprecated(func):
     new_func.__doc__ = func.__doc__
     new_func.__dict__.update(func.__dict__)
     return new_func
+
+
+def format_iso_datetime(stamp):
+    """ Return a string representing the date and time in ISO 8601 format.
+        If the time is in UTC, adds a 'Z' directly after the time without
+        a space.
+
+        see http://en.wikipedia.org/wiki/ISO_8601.
+
+        >>> class EET(tzinfo):
+        ...     def utcoffset(self, dt):
+        ...         return timedelta(minutes=120)
+        ...     def dst(self, dt):
+        ...         return timedelta()
+        >>> format_iso_datetime(datetime(2012, 2, 22, 12, 52, 29, 300))
+        '2012-02-22T12:52:29'
+        >>> format_iso_datetime(datetime(2012, 2, 22, 12, 52, 29, 300,
+        ...     tzinfo=UTC))
+        '2012-02-22T12:52:29Z'
+        >>> format_iso_datetime(datetime(2012, 2, 22, 12, 52, 29, 300,
+        ...     tzinfo=EET()))
+        '2012-02-22T12:52:29+02:00'
+    """
+    if stamp.tzinfo:
+        if stamp.utcoffset() == ZERO:
+            return datetime(*stamp.timetuple()[:6]).isoformat() + 'Z'
+    if stamp.microsecond:
+        stamp = stamp.replace(microsecond=0)
+    return stamp.isoformat()
+
+
+def format_iso_time(stamp):
+    """ Return a string representing the time in ISO 8601 format.
+        If the time is in UTC, adds a 'Z' directly after the time without
+        a space.
+
+        see http://en.wikipedia.org/wiki/ISO_8601.
+
+        >>> class EET(tzinfo):
+        ...     def utcoffset(self, dt):
+        ...         return timedelta(minutes=120)
+        ...     def dst(self, dt):
+        ...         return timedelta()
+        >>> format_iso_time(time(12, 52, 29, 300))
+        '12:52:29'
+        >>> format_iso_time(time(12, 52, 29, 300,
+        ...     tzinfo=UTC))
+        '12:52:29Z'
+        >>> format_iso_time(time(12, 52, 29, 300,
+        ...     tzinfo=EET()))
+        '12:52:29+02:00'
+    """
+    if stamp.microsecond:
+        stamp = stamp.replace(microsecond=0)
+    if stamp.tzinfo:
+        if stamp.utcoffset() == ZERO:
+            return stamp.replace(tzinfo=None).isoformat() + 'Z'
+        else:
+            return stamp.isoformat()
+    else:
+        return stamp.isoformat()
