@@ -4,10 +4,10 @@ import argparse
 
 from alembic.config import main as alembic_main
 
-from restfulpy.cli.base import ConfiguredLauncher
+from restfulpy.cli.base import Launcher
 
 
-class MigrateLauncher(ConfiguredLauncher):
+class MigrateLauncher(Launcher):
 
     @classmethod
     def create_parser(cls, subparsers):

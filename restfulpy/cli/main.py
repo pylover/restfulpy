@@ -7,6 +7,7 @@ from restfulpy.cli.admin import AdminLauncher
 from restfulpy.cli.base import Launcher
 from restfulpy.cli.migrate import MigrateLauncher
 from restfulpy.cli.serve import ServeLauncher
+from restfulpy.orm import init_model, create_engine
 
 
 class MainLauncher(Launcher):
@@ -35,8 +36,9 @@ class MainLauncher(Launcher):
             cli_args = self.parser.parse_args()
 
         cli_args.application = self.application
+        self.application.configure(files=cli_args.config_file)
+        init_model(create_engine())
         cli_args.func(cli_args)
-
         sys.exit(0)
 
     @classmethod

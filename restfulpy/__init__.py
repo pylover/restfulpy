@@ -23,22 +23,25 @@ class Application:
     def configure(self, files=None, **kwargs):
 
         context = {
+            'root_path': self.root_path,
             'data_dir': join(self.root_path, 'data'),
             'restfulpy_dir': abspath(dirname(__file__))
         }
 
         files = files or []
         local_config_file = join(user_config_dir(), '%s.yml' % self.name)
+        print(local_config_file)
         if exists(local_config_file):
+
             print('Loading config file: %s' % local_config_file)
             files.insert(0, local_config_file)
 
         configure(config=self.config, files=files, context=context, **kwargs)
 
-    def insert_base_data(self):
+    def insert_basedata(self):
         raise NotImplementedError
 
-    def insert_mockup_data(self):
+    def insert_mockup(self):
         raise NotImplementedError
 
 

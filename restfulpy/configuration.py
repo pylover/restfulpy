@@ -18,6 +18,10 @@ db:
   # administrative_uri: postgresql://postgres:postgres@localhost/postgres
   echo: false
 
+migration:
+  directory: %(root_path)s/lemur/migration
+  ini: %(root_path)s/alembic.ini
+
 security:
   access_control_allow_origin: '*'
 

@@ -13,6 +13,8 @@ from sqlalchemy.orm import SynonymProperty, validates, object_session, relations
 from sqlalchemy.sql.schema import MetaData
 from sqlalchemy.inspection import inspect
 from sqlalchemy.ext.declarative import declared_attr, declarative_base
+from alembic import config, command
+
 from restfulpy.utils import format_iso_datetime, format_iso_time
 from restfulpy.exceptions import ValidationError, OrmException
 
@@ -528,11 +530,9 @@ def setup_schema(session=None):
     session = session or DBSession
     engine = session.bind
     metadata.create_all(bind=engine)
-    from alembic import config, command
-    root_dir = abspath(join(dirname(__file__), '..'))
-    alembic_cfg = config.Config()
-    alembic_cfg.set_main_option("script_location", join(root_dir, "migration"))
-    alembic_cfg.set_main_option("sqlalchemy.url", str(engine.url))
-    alembic_cfg.config_file_name = join(root_dir, 'alembic.ini')
-    command.stamp(alembic_cfg, "head")
 
+    alembic_cfg = config.Config()
+    alembic_cfg.set_main_option("script_location", settings.migration.directory)
+    alembic_cfg.set_main_option("sqlalchemy.url", str(engine.url))
+    alembic_cfg.config_file_name = settings.migration.ini
+    command.stamp(alembic_cfg, "head")

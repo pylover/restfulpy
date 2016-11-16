@@ -1,10 +1,10 @@
 
-from restfulpy.cli.base import Launcher, RequireSubCommand, DatabaseLauncher
+from restfulpy.cli.base import RequireSubCommand, Launcher
 from restfulpy.db import DatabaseManager
 from restfulpy.orm import setup_schema
 
 
-class BasedataLauncher(DatabaseLauncher):
+class BasedataLauncher(Launcher):
 
     @classmethod
     def create_parser(cls, subparsers):
@@ -14,7 +14,7 @@ class BasedataLauncher(DatabaseLauncher):
         self.args.application.insert_basedata()
 
 
-class CreateDatabaseLauncher(DatabaseLauncher):
+class CreateDatabaseLauncher(Launcher):
     @classmethod
     def create_parser(cls, subparsers):
         parser = subparsers.add_parser('create-db', help="Create the server's database.")
@@ -37,7 +37,7 @@ class CreateDatabaseLauncher(DatabaseLauncher):
                     self.args.application.insert_basedata()
 
 
-class DropDatabaseLauncher(DatabaseLauncher):
+class DropDatabaseLauncher(Launcher):
 
     @classmethod
     def create_parser(cls, subparsers):
@@ -48,7 +48,7 @@ class DropDatabaseLauncher(DatabaseLauncher):
             db_admin.drop_database()
 
 
-class SetupDatabaseLauncher(DatabaseLauncher):
+class SetupDatabaseLauncher(Launcher):
 
     @classmethod
     def create_parser(cls, subparsers):
