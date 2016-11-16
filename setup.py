@@ -15,6 +15,7 @@ dependencies = [
     'appdirs',
     'sqlalchemy',
     'alembic',
+    'pyjwt',
 
     # Testing
     'webtest',

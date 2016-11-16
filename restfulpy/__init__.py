@@ -4,6 +4,7 @@ from os.path import abspath, exists, join, dirname
 from appdirs import user_config_dir
 from nanohttp import Controller
 
+from restfulpy.orm import init_model, create_engine
 from restfulpy.cli.main import MainLauncher
 from restfulpy.configuration import configure
 
@@ -13,8 +14,7 @@ __version__ = '0.1.0-planning.1'
 
 class Application:
 
-    def __init__(self, name: str, root: Controller, root_path='.', config=None):
-        self.config = config
+    def __init__(self, name: str, root: Controller, root_path='.'):
         self.root = root
         self.root_path = abspath(root_path)
         self.name = name
@@ -36,7 +36,11 @@ class Application:
             print('Loading config file: %s' % local_config_file)
             files.insert(0, local_config_file)
 
-        configure(config=self.config, files=files, context=context, **kwargs)
+        configure(files=files, context=context, **kwargs)
+        init_model(create_engine())
+
+    def wsgi(self):
+        return self.root.load_app()
 
     def insert_basedata(self):
         raise NotImplementedError

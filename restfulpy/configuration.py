@@ -6,11 +6,6 @@ __builtin_config = """
 
 debug: true
 pretty_json: true
-temp_directory: /tmp
-
-bind:
-  host: 0.0.0.0
-  port: 8002
 
 db:
   uri: sqlite:///%(data_dir)s/devdata.db
@@ -22,42 +17,9 @@ migration:
   directory: %(root_path)s/lemur/migration
   ini: %(root_path)s/alembic.ini
 
-security:
-  access_control_allow_origin: '*'
-
-  key_serializer:
-    secret: 75423727
-    salt: A_VERY_RANDOM_SALT
-
-  jwt:
-    secret: JWT-SECRET
-    algorithm: HS256
-
-  email_validation_token:
-    key: EmailValidationKey
-    salt: EmailValidationSalt
-    max_age: 3600
-
-  registration_token:
-    key: RegistrationTokenKey
-    salt: RegistrationTokenSalt
-    max_age: 3600
-
-  reset_password_token:
-    key: PasswordResetToken
-    salt: PasswordResetTokenSalt
-    max_age: 3600
-
-  auth:
-    cookie:
-      name: _a
-      secure: false
-      domain:
-      path: /
-
-http:
-  request:
-    max_size: 1024000
+jwt:
+  secret: JWT-SECRET
+  algorithm: HS256
 
 messaging:
   default_messenger: restfulpy.messaging.postman.Postman
