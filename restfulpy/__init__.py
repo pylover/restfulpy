@@ -21,7 +21,6 @@ class Application:
         self.cli_main = MainLauncher(self)
 
     def configure(self, files=None, **kwargs):
-
         context = {
             'root_path': self.root_path,
             'data_dir': join(self.root_path, 'data'),

@@ -17,3 +17,10 @@ class JwtPrincipal:
     def decode(cls, encoded):
         payload = jwt.decode(encoded, settings.jwt.secret, algorithms=[settings.jwt.algorithm])
         return cls(payload)
+
+    def is_in_roles(self, *roles):
+        if 'roles' in self.payload:
+            if set(self.payload['roles']).intersection(roles):
+                return True
+        return False
+
