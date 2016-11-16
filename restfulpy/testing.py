@@ -9,6 +9,7 @@ from webtest import TestApp
 from nanohttp import settings
 
 from restfulpy.db import DatabaseManager
+from restfulpy.messaging import Messenger
 from restfulpy.orm import setup_schema, create_engine, session_factory, DBSession
 
 
@@ -150,7 +151,8 @@ You can sort like this:
             return
         path_parts = url.split('?')[0].split('/')[1:]
         if len(path_parts) == 1:
-            entity = filename = path_parts[0]
+            p = path_parts[0].strip()
+            entity = filename = p if p else 'index'
         else:
             version, entity = path_parts[1:3]
             filename = '_'.join(path_parts[:3] + [method.lower()])
@@ -350,3 +352,25 @@ class ModelRestCrudTestCase(WebAppTestCase):
             model=self.__model__,
             **kwargs
         )
+
+
+class DeferredBaseMessenger(object):
+    _last_body = None
+
+    @property
+    def last_body(self):
+        return self.__class__._last_body
+
+    @last_body.setter
+    def last_body(self, value):
+        self.__class__._last_body = value
+
+
+class MockupMessenger(Messenger, DeferredBaseMessenger):
+
+    def send_from(self, from_, to, subject, body, cc=None, bcc=None, template_string=None, template_filename=None):
+        self.last_body = {
+            'to': to,
+            'body': body,
+            'subject': subject
+        }
