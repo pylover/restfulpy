@@ -3,20 +3,18 @@ import re
 import cgi
 from datetime import datetime, date, time
 from decimal import Decimal
-from os.path import join, abspath, dirname
 
 from nanohttp import HttpBadRequest, settings
-from sqlalchemy import Column, Unicode, String, DateTime, Integer, ForeignKey, event, Boolean, \
-    create_engine as sa_create_engine
-from sqlalchemy.orm import SynonymProperty, validates, object_session, relationship as sa_relationship, synonym, \
+from sqlalchemy import Column, Unicode, String, DateTime, Integer, event, create_engine as sa_create_engine
+from sqlalchemy.orm import SynonymProperty, validates, object_session, relationship as sa_relationship, \
     scoped_session, sessionmaker
 from sqlalchemy.sql.schema import MetaData
 from sqlalchemy.inspection import inspect
-from sqlalchemy.ext.declarative import declared_attr, declarative_base
+from sqlalchemy.ext.declarative import declarative_base
 from alembic import config, command
 
 from restfulpy.utils import format_iso_datetime, format_iso_time
-from restfulpy.exceptions import ValidationError, OrmException
+from restfulpy.exceptions import ValidationError
 
 
 # noinspection PyAbstractClass
@@ -256,6 +254,7 @@ class BaseModel(object):
     @classmethod
     def from_request(cls, request):
         model = cls()
+        # noinspection PyUnresolvedReferences
         DBSession.add(model)
         model.update_from_request(request)
         return model
@@ -268,7 +267,6 @@ class BaseModel(object):
             'fields': fields
         }
         for c in cls.iter_json_columns(relationships=True, include_readonly_columns=True):
-            # json_name = c.info['json']
             metadata_fields = MetadataField.from_column(cls.get_column(c), info=c.info)
             for f in metadata_fields:
                 fields[f.key] = f
@@ -387,96 +385,6 @@ class OrderableMixin(object):
     order = Field("order", Integer, default=0, nullable=False)
     __mapper_args__ = dict(order_by=order)
 
-
-class ActivationMixin(object):
-    _is_active = Field(Boolean, default=False, nullable=True)
-    activation_time = Field(DateTime, nullable=True, json='activationTime', readonly=True)
-
-    def _get_is_active(self):
-        return self._is_active
-
-    def _set_is_active(self, v):
-        self._is_active = v
-        self.activation_time = datetime.now()
-
-    @declared_attr
-    def is_active(cls):
-        return synonym('_is_active', descriptor=property(cls._get_is_active, cls._set_is_active),
-                       info=dict(json='isActive'))
-
-    @classmethod
-    def activated_objects(cls):
-        # noinspection PyUnresolvedReferences
-        return cls.query.filter(cls.is_active == true())
-
-
-class AuthoredMixin(ModifiedMixin):
-    __author_id_field_params__ = None
-
-    @staticmethod
-    def get_current_member_id():
-        raise NotImplementedError()
-
-    @declared_attr
-    def author_id(cls):
-        default_params = dict(
-            default=cls.get_current_member_id,
-            nullable=False,
-            unreadable=True,
-            json='authorId',
-            readonly=True)
-
-        if cls.__author_id_field_params__ is not None:
-            default_params.update(cls.__author_id_field_params__)
-
-        return Field('author_id', Integer, ForeignKey('member.id'), **default_params)
-
-    @declared_attr
-    def author(cls):
-        return relationship('Member', foreign_keys=cls.author_id, lazy='joined')
-
-
-class SoftDeleteMixin(object):
-    removed_at = Field(DateTime, nullable=True, json='removedAt', readonly=True)
-
-    def assert_is_not_deleted(self):
-        if self.is_deleted:
-            raise ValueError('Object is already deleted.')
-
-    def assert_is_deleted(self):
-        if not self.is_deleted:
-            raise ValueError('Object is not deleted.')
-
-    @property
-    def is_deleted(self):
-        return self.removed_at is not None
-
-    def soft_delete(self, ignore_errors=False):
-        if not ignore_errors:
-            self.assert_is_not_deleted()
-        self.removed_at = datetime.now()
-
-    def soft_undelete(self, ignore_errors=False):
-        if not ignore_errors:
-            self.assert_is_deleted()
-        self.removed_at = None
-
-    @staticmethod
-    def on_delete(mapper, connection, target):
-        raise OrmException('Cannot remove this object: %s' % target)
-
-    @classmethod
-    def __declare_last__(cls):
-        event.listen(cls, 'before_delete', cls.on_delete)
-
-    @classmethod
-    def filter_deleted(cls, query=None):
-        if query is None:
-            # noinspection PyUnresolvedReferences
-            query = cls.query
-        return query.filter(cls.removed_at.is_(None))
-
-
 # Global session manager: DBSession() returns the Thread-local
 # session object appropriate for the current web request.
 session_factory = sessionmaker(
@@ -508,26 +416,22 @@ def init_model(engine):
     :return:
     """
 
-    # if DBSession.bind:
-    #     return
-    # elif DBSession.registry.has():
-    #     DBSession.registry.clear()
-
     if DBSession.registry.has():
         DBSession.remove()
 
     DBSession.configure(bind=engine)
-    # DBSession.bind = engine
 
 
 def drop_all(session=None):
     session = session or DBSession
+    # noinspection PyUnresolvedReferences
     engine = session.bind
     metadata.drop_all(bind=engine)
 
 
 def setup_schema(session=None):
     session = session or DBSession
+    # noinspection PyUnresolvedReferences
     engine = session.bind
     metadata.create_all(bind=engine)
 
