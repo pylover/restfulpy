@@ -1,14 +1,18 @@
 
 import re
+import cgi
 from datetime import datetime, date, time
 from decimal import Decimal
-import cgi
+from os.path import join, abspath, dirname
 
-from nanohttp import HttpBadRequest
-from sqlalchemy import Column, Unicode, String, DateTime, Integer, ForeignKey, event, Boolean
-from sqlalchemy.orm import SynonymProperty, validates, object_session, relationship as sa_relationship, synonym
+from nanohttp import HttpBadRequest, settings
+from sqlalchemy import Column, Unicode, String, DateTime, Integer, ForeignKey, event, Boolean, \
+    create_engine as sa_create_engine
+from sqlalchemy.orm import SynonymProperty, validates, object_session, relationship as sa_relationship, synonym, \
+    scoped_session, sessionmaker
+from sqlalchemy.sql.schema import MetaData
 from sqlalchemy.inspection import inspect
-from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.ext.declarative import declared_attr, declarative_base
 from restfulpy.utils import format_iso_datetime, format_iso_time
 from restfulpy.exceptions import ValidationError, OrmException
 
@@ -249,7 +253,6 @@ class BaseModel(object):
 
     @classmethod
     def from_request(cls, request):
-        from lemur.models import DBSession
         model = cls()
         DBSession.add(model)
         model.update_from_request(request)
@@ -470,3 +473,66 @@ class SoftDeleteMixin(object):
             # noinspection PyUnresolvedReferences
             query = cls.query
         return query.filter(cls.removed_at.is_(None))
+
+
+# Global session manager: DBSession() returns the Thread-local
+# session object appropriate for the current web request.
+session_factory = sessionmaker(
+    autoflush=False,
+    autocommit=False,
+    expire_on_commit=True,
+    twophase=False)
+
+DBSession = scoped_session(session_factory)
+
+# Global metadata.
+metadata = MetaData()
+
+DeclarativeBase = declarative_base(cls=BaseModel, metadata=metadata)
+
+# There are two convenient ways for you to spare some typing.
+# You can have a query property on all your model classes by doing this:
+DeclarativeBase.query = DBSession.query_property()
+
+
+def create_engine():
+    return sa_create_engine(settings.db.uri, echo=settings.db.echo)
+
+
+def init_model(engine):
+    """
+    Call me before using any of the tables or classes in the model.
+    :param engine: SqlAlchemy engine to bind the session
+    :return:
+    """
+
+    # if DBSession.bind:
+    #     return
+    # elif DBSession.registry.has():
+    #     DBSession.registry.clear()
+
+    if DBSession.registry.has():
+        DBSession.remove()
+
+    DBSession.configure(bind=engine)
+    # DBSession.bind = engine
+
+
+def drop_all(session=None):
+    session = session or DBSession
+    engine = session.bind
+    metadata.drop_all(bind=engine)
+
+
+def setup_schema(session=None):
+    session = session or DBSession
+    engine = session.bind
+    metadata.create_all(bind=engine)
+    from alembic import config, command
+    root_dir = abspath(join(dirname(__file__), '..'))
+    alembic_cfg = config.Config()
+    alembic_cfg.set_main_option("script_location", join(root_dir, "migration"))
+    alembic_cfg.set_main_option("sqlalchemy.url", str(engine.url))
+    alembic_cfg.config_file_name = join(root_dir, 'alembic.ini')
+    command.stamp(alembic_cfg, "head")
+

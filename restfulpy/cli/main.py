@@ -1,0 +1,47 @@
+import argparse
+import sys
+
+import argcomplete
+
+from restfulpy.cli.admin import AdminLauncher
+from restfulpy.cli.base import Launcher
+from restfulpy.cli.migrate import MigrateLauncher
+from restfulpy.cli.serve import ServeLauncher
+
+
+class MainLauncher(Launcher):
+
+    def __init__(self, application):
+        self.application = application
+        self.parser = parser = argparse.ArgumentParser(description='Lemur video sharing system')
+        parser.add_argument('-c', '--config-file', metavar="FILE",
+                            help='List of configuration files separated by space. Default: ""')
+        parser.add_argument('-d', '--config-dir', metavar="DIR",
+                            help='List of configuration directories separated by space. Default: ""')
+        subparsers = parser.add_subparsers(title="sub commands", prog='lemur', dest="command")
+
+        AdminLauncher.register(subparsers)
+
+        ServeLauncher.register(subparsers)
+
+        MigrateLauncher.register(subparsers)
+
+        argcomplete.autocomplete(parser)
+
+    def launch(self, args=None):
+        if args:
+            cli_args = self.parser.parse_args(args)
+        else:
+            cli_args = self.parser.parse_args()
+
+        cli_args.application = self.application
+        cli_args.func(cli_args)
+
+        sys.exit(0)
+
+    @classmethod
+    def create_parser(cls, subparsers):
+        """
+        Do nothing here
+        """
+        pass
