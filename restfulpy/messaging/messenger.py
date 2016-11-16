@@ -1,12 +1,9 @@
 
 from mako.lookup import TemplateLookup, Template
-from wheezy.core.descriptors import attribute
-from restfulpy.http import SingletonPerContext
-
-from old.configuration import settings
+from nanohttp import settings, LazyAttribute
 
 
-class Messenger(object, metaclass=SingletonPerContext):
+class Messenger(object):
     """
     The abstract base class for everyone messaging operations
     """
@@ -24,7 +21,7 @@ class Messenger(object, metaclass=SingletonPerContext):
         else:
             return body
 
-    @attribute
+    @LazyAttribute
     def lookup(self):
         return TemplateLookup(directories=settings.messaging.template_dirs, input_encoding='utf8')
 

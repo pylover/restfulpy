@@ -14,7 +14,8 @@ __version__ = '0.1.0-planning.1'
 
 class Application:
 
-    def __init__(self, name: str, root: Controller, root_path='.'):
+    def __init__(self, name: str, root: Controller, root_path='.', version='0.1.0-dev.0'):
+        self.version = version
         self.root = root
         self.root_path = abspath(root_path)
         self.name = name
