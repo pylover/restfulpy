@@ -1,7 +1,4 @@
 
-from os.path import abspath, join, dirname, exists
-
-from appdirs import user_config_dir
 from nanohttp import configure as nanohttp_configure, settings
 
 
@@ -134,29 +131,12 @@ logging:
 """
 
 
-def configure(config=None, directories=None, files=None, force=False):
-    """
-    Initialize the configuration manager
-    :param config: `string` or `dict`
-    :param directories: semi-colon separated `string` or `list` of director(y|es)
-    :param files: semi-colon separated `string` or `list` of file(s)
-    :param force: force initialization even if it's already initialized
-    """
-
-    context = {
-        'data_dir': abspath(join(dirname(__file__), '../data')),
-        'restfulpy_dir': abspath(dirname(__file__))
-    }
+def configure(config=None, directories=None, files=None, context=None, force=False):
 
     nanohttp_configure(init_value=__builtin_config, context=context, force=force)
 
     if config:
         settings.merge(config)
-
-    local_config_file = join(user_config_dir(), 'lemur.yml')
-    if exists(local_config_file):
-        print('Loading config file: %s' % local_config_file)
-        settings.load_files(local_config_file)
 
     if directories:
         settings.load_dirs(directories)
