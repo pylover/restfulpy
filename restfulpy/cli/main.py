@@ -13,12 +13,12 @@ class MainLauncher(Launcher):
 
     def __init__(self, application):
         self.application = application
-        self.parser = parser = argparse.ArgumentParser(description='Lemur video sharing system')
+        self.parser = parser = argparse.ArgumentParser(description='%s command line interface.' % application.name)
         parser.add_argument('-c', '--config-file', metavar="FILE",
                             help='List of configuration files separated by space. Default: ""')
         parser.add_argument('-d', '--config-dir', metavar="DIR",
                             help='List of configuration directories separated by space. Default: ""')
-        subparsers = parser.add_subparsers(title="sub commands", prog='lemur', dest="command")
+        subparsers = parser.add_subparsers(title="sub commands", prog=application.name, dest="command")
 
         AdminLauncher.register(subparsers)
 

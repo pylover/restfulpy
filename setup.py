@@ -16,8 +16,10 @@ dependencies = [
     'sqlalchemy',
     'alembic',
     'pyjwt',
+    'psycopg2',
 
     # Testing
+    'requests',
     'webtest',
     'nose',
 ]

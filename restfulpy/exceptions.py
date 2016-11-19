@@ -1,6 +1,6 @@
 
 
-class LemurException(Exception):
+class RestfulException(Exception):
     def to_json(self):
         return {
             'type': str(type(self)),
@@ -8,11 +8,11 @@ class LemurException(Exception):
         }
 
 
-class FileNotFoundException(LemurException):
+class FileNotFoundException(RestfulException):
     pass
 
 
-class OrmException(LemurException):
+class OrmException(RestfulException):
     pass
 
 
@@ -20,12 +20,12 @@ class KeyDecodeError(OrmException):
     pass
 
 
-class FormParserError(LemurException):
+class FormParserError(RestfulException):
     def __init__(self):
         super(FormParserError, self).__init__('Cannot parse the form.')
 
 
-class ValidationError(LemurException):
+class ValidationError(RestfulException):
     field = None
 
     def __init__(self, field_name, *args, **kw):

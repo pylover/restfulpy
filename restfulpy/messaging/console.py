@@ -1,5 +1,8 @@
-from lemur.messaging.messenger import Messenger
-from old.configuration import settings
+
+from nanohttp import settings
+
+from restfulpy.messaging.messenger import Messenger
+from restfulpy.configuration import configure
 
 
 class ConsoleMessenger(Messenger):
@@ -13,16 +16,14 @@ class ConsoleMessenger(Messenger):
 
 
 if __name__ == '__main__':
-    from old.configuration import init_config
-
-    init_config()
+    configure()
     settings.merge("""
     smtp:
       host: smtp.gmail.com
       port: 587
       username: *******@gmail.com
       password: **********
-      local_hostname: lemur.carrene.com
+      local_hostname: example.com
     """)
 
     template = """

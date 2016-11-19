@@ -14,7 +14,7 @@ db:
   echo: false
 
 migration:
-  directory: %(root_path)s/lemur/migration
+  directory: %(root_path)s/migration
   ini: %(root_path)s/alembic.ini
 
 jwt:

@@ -1,15 +1,17 @@
 
-from lemur.models import DBSession
-from lemur.messaging.messenger import Messenger
-from old.configuration import settings
 import smtplib
 from email.mime.text import MIMEText
+
+from nanohttp import settings
+
+from restfulpy.orm import DBSession
+from restfulpy.messaging.messenger import Messenger
 
 
 class Postman(Messenger):
 
     def send_from(self, from_, to, subject, body, cc=None, bcc=None, template_string=None, template_filename=None):
-        from lemur.worker.models import SendEmail
+        from restfulpy.worker.models import SendEmail
         task = SendEmail.schedule(
             from_, to, subject, body,
             cc=cc, bcc=bcc, template_filename=template_filename)
