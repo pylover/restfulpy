@@ -21,7 +21,7 @@ class JwtController(Controller):
 
     def __call__(self, *remaining_paths):
         if context.method == 'options':
-            return None
+            return ''
 
         return super(JwtController, self).__call__(*remaining_paths)
 
