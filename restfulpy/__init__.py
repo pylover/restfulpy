@@ -30,10 +30,8 @@ class Application:
 
         files = files or []
         local_config_file = join(user_config_dir(), '%s.yml' % self.name)
-        print(local_config_file)
         if exists(local_config_file):
-
-            print('Loading config file: %s' % local_config_file)
+            print('Gathering config file: %s' % local_config_file)
             files.insert(0, local_config_file)
 
         configure(files=files, context=context, **kwargs)

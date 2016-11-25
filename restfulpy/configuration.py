@@ -109,3 +109,4 @@ def configure(config=None, directories=None, files=None, context=None, force=Fal
 
     if files:
         settings.load_files(files)
+

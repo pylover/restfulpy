@@ -1,7 +1,7 @@
 
 from restfulpy.principal import JwtPrincipal
 
-from nanohttp import Controller, context
+from nanohttp import Controller, context, settings
 
 
 class JwtController(Controller):
@@ -12,6 +12,18 @@ class JwtController(Controller):
             context.identity = JwtPrincipal.decode(context.environ[self.token_key])
         else:
             context.identity = None
+
+    # noinspection PyMethodMayBeStatic
+    def begin_response(self):
+        if settings.debug:
+            context.response_headers.add_header('Access-Control-Allow-Origin', '*')
+            context.response_headers.add_header('Access-Control-Allow-Headers', 'Content-Type')
+
+    def __call__(self, *remaining_paths):
+        if context.method == 'options':
+            return None
+
+        return super(JwtController, self).__call__(*remaining_paths)
 
 
 

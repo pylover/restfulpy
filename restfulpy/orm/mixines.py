@@ -17,7 +17,7 @@ class ModifiedMixin(TimestampMixin):
 
     @property
     def last_modification_time(self):
-        return self.modified_at if self.modified_at else self.created_at
+        return self.modified_at or self.created_at
 
     # noinspection PyUnusedLocal
     @staticmethod

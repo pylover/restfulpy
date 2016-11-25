@@ -325,7 +325,7 @@ class WebAppTestCase(unittest.TestCase):
     def logout(self):
         self.wsgi_app.jwt_token = ''
 
-    def request(self, *args, expected_status=200, **kwargs):
+    def request(self, *args, expected_status=200, expected_headers=None, **kwargs):
         resp = self.wsgi_app.send_request(*args, **kwargs)
 
         if resp.status_code != expected_status:
@@ -335,7 +335,12 @@ class WebAppTestCase(unittest.TestCase):
 
         self.assertEqual(resp.status_code, expected_status)
 
-        if resp.headers['content-type'].startswith('application/json'):
+        if expected_headers:
+            for k, v in expected_headers.items():
+                self.assertIn(k, resp.headers)
+                self.assertEqual(v, resp.headers[k])
+
+        if 'content-type' in resp.headers and resp.headers['content-type'].startswith('application/json'):
             result = ujson.loads(resp.body.decode())
         else:
             result = resp.body
