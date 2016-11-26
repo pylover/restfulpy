@@ -90,8 +90,13 @@ class Field(Column):
         return 'attachment' in self.info
 
 
-def relationship(*args, json=None, **kwargs):
+def relationship(*args, json=None, protected=None, **kwargs):
     info = dict()
-    if json is not None:
+
+    if json:
         info['json'] = json
+
+    if protected:
+        info['protected'] = protected
+
     return sa_relationship(*args, info=info, **kwargs)

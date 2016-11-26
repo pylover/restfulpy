@@ -154,8 +154,8 @@ You can sort like this:
             p = path_parts[0].strip()
             entity = filename = p if p else 'index'
         else:
-            version, entity = path_parts[1:3]
-            filename = '_'.join(path_parts[:3] + [method.lower()])
+            version, entity = path_parts[0:2]
+            filename = '_'.join(path_parts[:2] + [method.lower()])
 
         filename = join(self.destination_dir, '%s.md' % filename)
         f = self._ensure_file(filename, entity)
