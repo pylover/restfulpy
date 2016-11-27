@@ -3,21 +3,21 @@ import functools
 from sqlalchemy.orm import Query
 
 
-def _serialize(obj, pagination=False, filtering=False, sorting=False, type=None):
+def _serialize(obj, pagination=False, filtering=False, sorting=False, type_=None):
 
     if isinstance(obj, Query):
 
-        if not type:
+        if not type_:
             raise ValueError('The `model_class` keyword argument is not provided')
 
         if filtering:
-            obj = type.filter_by_request(obj)
+            obj = type_.filter_by_request(obj)
 
         if sorting:
-            obj = type.sort_by_request(obj)
+            obj = type_.sort_by_request(obj)
 
         if pagination:
-            obj = type.paginate_by_request(obj)
+            obj = type_.paginate_by_request(obj)
 
         obj = [o.to_dict() for o in obj]
 
