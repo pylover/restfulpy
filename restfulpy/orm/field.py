@@ -71,11 +71,12 @@ class Field(Column):
         value_length = len(value)
         if min_length is not None:
             if value_length < min_length:
-                raise ValidationError(self.name, 'Please enter at least %d characters.' % min_length)
+                raise ValidationError(self.name, 'Please enter at least %d characters for field: %s.' %
+                                      (min_length, self.key))
 
         if max_length is not None:
             if value_length > max_length:
-                raise ValidationError(self.name, 'Cannot enter more that : %d in this field.' % max_length)
+                raise ValidationError(self.name, 'Cannot enter more that : %d in field: %s.' % (max_length, self.key))
 
     def validate(self, value):
         if 'pattern' in self.info:
