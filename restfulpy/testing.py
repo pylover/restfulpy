@@ -276,9 +276,7 @@ You can sort like this:
 
 
 class WebAppTestCase(unittest.TestCase):
-    config = None
     application = None
-    db_name = None
 
     @classmethod
     def prepare_database(cls):
@@ -303,8 +301,11 @@ class WebAppTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.application.configure(config=cls.config, force=True)
+        cls.application.configure(force=True)
+        if 'test_uri' in settings.db:
+            settings.db.uri = settings.db.test_uri
         cls.prepare_database()
+        cls.application.initialize_models()
         cls.application.insert_basedata()
         cls.application.insert_mockup()
         cls.wsgi_app = DocumentaryTestApp(

@@ -35,6 +35,9 @@ class Application:
             files.insert(0, local_config_file)
 
         configure(files=files, context=context, **kwargs)
+
+    @classmethod
+    def initialize_models(cls):
         init_model(create_engine())
 
     def wsgi(self):
