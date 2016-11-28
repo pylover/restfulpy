@@ -306,6 +306,7 @@ class WebAppTestCase(unittest.TestCase):
         cls.application.configure(config=cls.config, force=True)
         cls.prepare_database()
         cls.application.insert_basedata()
+        cls.application.insert_mockup()
         cls.wsgi_app = DocumentaryTestApp(
             abspath(join(settings.api_documents.directory, 'api')),
             cls.application
