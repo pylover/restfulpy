@@ -13,6 +13,7 @@ __version__ = '0.1.0-planning.1'
 
 
 class Application:
+    builtin_configuration = None
 
     def __init__(self, name: str, root: Controller, root_path='.', version='0.1.0-dev.0'):
         self.version = version
@@ -34,7 +35,7 @@ class Application:
             print('Gathering config file: %s' % local_config_file)
             files.insert(0, local_config_file)
 
-        configure(files=files, context=context, **kwargs)
+        configure(config=self.builtin_configuration, files=files, context=context, **kwargs)
 
     @classmethod
     def initialize_models(cls):

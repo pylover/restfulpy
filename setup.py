@@ -17,6 +17,7 @@ dependencies = [
     'alembic',
     'pyjwt',
     'psycopg2',
+    'itsdangerous',
 
     # Testing
     'requests',

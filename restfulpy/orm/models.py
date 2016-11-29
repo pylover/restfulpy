@@ -3,7 +3,7 @@ import cgi
 from datetime import datetime, date, time
 from decimal import Decimal
 
-from nanohttp import HttpBadRequest
+from nanohttp import HttpBadRequest, context
 from sqlalchemy import Column, event
 from sqlalchemy.orm import SynonymProperty, validates
 from sqlalchemy.inspection import inspect
@@ -68,11 +68,11 @@ class BaseModel(object):
         return param_name, result
 
     @classmethod
-    def from_request(cls, request):
+    def from_request(cls):
         model = cls()
         # noinspection PyUnresolvedReferences
         DBSession.add(model)
-        model.update_from_request(request)
+        model.update_from_request()
         return model
 
     @classmethod
@@ -84,11 +84,11 @@ class BaseModel(object):
                 fields[f.key] = f
         return fields
 
-    def update_from_request(self, request):
-        for column, value in self.extract_data_from_request(request):
+    def update_from_request(self):
+        for column, value in self.extract_data_from_request():
             if isinstance(column, Field) and column.is_attachment:
                 if value is not None and (isinstance(value, cgi.FieldStorage) or hasattr(value, 'read')):
-                    getattr(self, column.key[1:]).from_request(request, column, value)
+                    getattr(self, column.key[1:]).from_request(column, value)
             else:
                 if 'unreadable' in column.info and (not value or (isinstance(value, str) and not value.strip())):
                     continue
@@ -126,18 +126,15 @@ class BaseModel(object):
             yield c
 
     @classmethod
-    def extract_data_from_request(cls, request):
+    def extract_data_from_request(cls):
         for c in cls.iter_json_columns():
             param_name = c.info['json']
 
-            if 'readonly' in c.info and c.info['readonly'] and \
-                    (param_name in request.form_dict or (request.files and param_name in request.files)):
+            if c.info.get('readonly') and param_name in context.form:
                 raise HttpBadRequest('Invalid parameter: %s' % c.info['json'])
 
-            if param_name in request.form_dict:
-                yield c, request.form_dict[param_name]
-            elif request.files and param_name in request.files:
-                yield c, request.files[param_name][0]
+            if param_name in context.form:
+                yield c, context.form[param_name]
 
     def to_dict(self):
         result = {}

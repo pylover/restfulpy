@@ -2,6 +2,8 @@
 from datetime import datetime
 
 from sqlalchemy import DateTime, Integer
+from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.orm import synonym
 from sqlalchemy.events import event
 
 from restfulpy.orm.field import Field
@@ -69,7 +71,26 @@ class SoftDeleteMixin(object):
 
     @classmethod
     def filter_deleted(cls, query=None):
-        if query is None:
-            # noinspection PyUnresolvedReferences
-            query = cls.query
-        return query.filter(cls.removed_at.is_(None))
+        return (query or cls.query).filter(cls.removed_at.is_(None))
+
+
+class ActivationMixin(object):
+    activation_time = Field(DateTime, nullable=True, json='activationTime', readonly=True, protected=True)
+
+    def _get_is_active(self):
+        return self.activation_time is not None
+
+    def _set_is_active(self, v):
+        self.activation_time = None if not v else datetime.now()
+
+    @declared_attr
+    def is_active(cls):
+        return synonym(
+            '_is_active',
+            descriptor=property(cls._get_is_active, cls._set_is_active),
+            info=dict(json='isActive')
+        )
+
+    @classmethod
+    def filter_activated(cls, query=None):
+        return (query or cls.query).filter(cls.activation_time.isnot(None))

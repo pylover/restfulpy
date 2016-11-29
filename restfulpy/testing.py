@@ -302,6 +302,10 @@ class WebAppTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.application.configure(force=True)
+        settings.merge("""
+        messaging:
+            default_messenger: restfulpy.testing.MockupMessenger
+        """)
         if 'test_uri' in settings.db:
             settings.db.uri = settings.db.test_uri
         cls.prepare_database()

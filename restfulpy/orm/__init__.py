@@ -1,4 +1,6 @@
 
+import functools
+
 from nanohttp import settings
 from sqlalchemy import create_engine as sa_create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
@@ -7,7 +9,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from alembic import config, command
 
 from restfulpy.orm.field import Field, relationship
-from restfulpy.orm.mixines import ModifiedMixin, SoftDeleteMixin, TimestampMixin
+from restfulpy.orm.mixines import ModifiedMixin, SoftDeleteMixin, TimestampMixin, ActivationMixin
 from restfulpy.orm.models import BaseModel
 
 
@@ -66,3 +68,18 @@ def setup_schema(session=None):
     alembic_cfg.set_main_option("sqlalchemy.url", str(engine.url))
     alembic_cfg.config_file_name = settings.migration.ini
     command.stamp(alembic_cfg, "head")
+
+
+def dbsession(func):
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            result = func(*args, **kwargs)
+            DBSession.commit()
+            return result
+        except:
+            DBSession.rollback()
+            raise
+
+    return wrapper
