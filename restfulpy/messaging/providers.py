@@ -5,6 +5,8 @@ from email.mime.text import MIMEText
 from mako.lookup import TemplateLookup, Template
 from nanohttp import settings, LazyAttribute
 
+from restfulpy.utils import construct_class_by_name
+
 
 class Messenger(object):
     """
@@ -70,3 +72,7 @@ class ConsoleMessenger(Messenger):
 
         body = self.render_body(body, template_string, template_filename)
         print(body)
+
+
+def create_messenger() -> Messenger:
+    return construct_class_by_name(settings.messaging.default_messenger)

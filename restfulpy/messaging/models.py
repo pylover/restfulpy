@@ -16,7 +16,7 @@ class Email(Task):
         'polymorphic_identity': __tablename__
     }
 
-    id = Field(Integer, ForeignKey('task.id'), primary_key=True, json='id', unreadable=True)
+    id = Field(Integer, ForeignKey('task.id'), primary_key=True, json='id')
     from_ = Field(Unicode(100), json='from', default=lambda: settings.messaging.default_sender)
     to = Field(Unicode(100), json='to')
     subject = Field(Unicode(256), json='subject')
@@ -28,7 +28,7 @@ class Email(Task):
     def template_filename(self):
         raise NotImplementedError
 
-    def do_(self, context):
+    def do_(self):
         messenger = create_messenger()
         messenger.send(
             self.to,

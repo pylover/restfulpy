@@ -1,6 +1,7 @@
 
 import ujson
 import unittest
+from unittest.util import safe_repr
 from os import makedirs
 from os.path import join, exists, dirname, basename, abspath
 from urllib.parse import quote
@@ -353,6 +354,33 @@ class WebAppTestCase(unittest.TestCase):
 
         return result, None
 
+    def assertDictContainsSubset(self, dictionary, subset, msg=None):
+        """Checks whether dictionary is a superset of subset."""
+
+        missing = []
+        mismatched = []
+        for key, value in subset.items():
+            if key not in dictionary:
+                missing.append(key)
+            elif value != dictionary[key]:
+                mismatched.append('%s, expected: %s, actual: %s' %
+                                  (safe_repr(key), safe_repr(value),
+                                   safe_repr(dictionary[key])))
+
+        if not (missing or mismatched):
+            return
+
+        standard_message = ''
+        if missing:
+            standard_message = 'Missing: %s' % ','.join(safe_repr(m) for m in
+                                                    missing)
+        if mismatched:
+            if standard_message:
+                standard_message += '; '
+            standard_message += 'Mismatched values: %s' % ','.join(mismatched)
+
+        self.fail(self._formatMessage(msg, standard_message))
+
 
 class ModelRestCrudTestCase(WebAppTestCase):
     __model__ = None
@@ -379,7 +407,7 @@ class DeferredBaseMessenger(object):
 
 class MockupMessenger(Messenger, DeferredBaseMessenger):
 
-    def send_from(self, from_, to, subject, body, cc=None, bcc=None, template_string=None, template_filename=None):
+    def send(self, to, subject, body, cc=None, bcc=None, template_string=None, template_filename=None, from_=None):
         self.last_body = {
             'to': to,
             'body': body,

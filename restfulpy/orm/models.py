@@ -10,8 +10,7 @@ from sqlalchemy.inspection import inspect
 from sqlalchemy.orm.relationships import RelationshipProperty
 
 from restfulpy.utils import format_iso_datetime, format_iso_time
-from restfulpy.orm.metadata import MetadataField
-from restfulpy.orm.field import Field
+from restfulpy.orm import MetadataField, Field
 
 
 class BaseModel(object):
@@ -68,14 +67,6 @@ class BaseModel(object):
         return param_name, result
 
     @classmethod
-    def from_request(cls):
-        model = cls()
-        # noinspection PyUnresolvedReferences
-        DBSession.add(model)
-        model.update_from_request()
-        return model
-
-    @classmethod
     def json_metadata(cls):
         fields = {}
         for c in cls.iter_json_columns(relationships=True, include_readonly_columns=True):
@@ -128,7 +119,7 @@ class BaseModel(object):
     @classmethod
     def extract_data_from_request(cls):
         for c in cls.iter_json_columns():
-            param_name = c.info['json']
+            param_name = c.info.get('json', c.key)
 
             if c.info.get('readonly') and param_name in context.form:
                 raise HttpBadRequest('Invalid parameter: %s' % c.info['json'])
