@@ -24,7 +24,7 @@ def _serialize(obj, pagination=False, filtering=False, sorting=False, type_=None
     return obj
 
 
-def serialize(*a, **options):
+def jsonify(*a, **options):
 
     def decorator(func):
 
