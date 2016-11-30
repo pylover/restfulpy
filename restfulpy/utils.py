@@ -134,3 +134,10 @@ def random_password(length=10):
     random = random.upper()  # Make all characters uppercase.
     random = random.replace("-", "")  # Remove the UUID '-'.
     return random[0:length]  # Return the random string.
+
+
+def get_class_by_tablename(base, table_name):
+    # noinspection PyProtectedMember
+    for c in base._decl_class_registry.values():
+        if hasattr(c, '__tablename__') and c.__tablename__ == table_name:
+            return c

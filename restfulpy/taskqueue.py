@@ -1,9 +1,18 @@
 
-from sqlalchemy import Integer, Enum, Unicode, DateTime, or_, and_, select
-from sqlalchemy.sql.expression import text
+import time
+import traceback
+from datetime import datetime
 
-from restfulpy.orm import TimestampMixin, DeclarativeBase, Field, DBSession
+from sqlalchemy import Integer, Enum, Unicode, DateTime, or_, and_
+from sqlalchemy.sql.expression import text
+from nanohttp import settings
+
+from restfulpy.orm import TimestampMixin, DeclarativeBase, Field, DBSession, create_thread_unsafe_session
 from restfulpy.exceptions import RestfulException
+from restfulpy.logging_ import get_logger
+
+
+logger = get_logger('TASK-QUEUE')
 
 
 class TaskPopError(RestfulException):
@@ -31,37 +40,78 @@ class Task(TimestampMixin, DeclarativeBase):
         raise NotImplementedError
 
     @classmethod
-    def pop(cls, statuses={'new'}, include_types=None, exclude_types=None, filters=None):
+    def pop(cls, statuses={'new'}, include_types=None, exclude_types=None, filters=None, session=DBSession):
+
+        find_query = session.query(cls.id.label('id'), cls.created_at, cls.status, cls.type, cls.priority)
+        if filters:
+            find_query = find_query.filter(text(filters))
+        if include_types:
+            find_query = find_query.filter(or_(*[cls.type == task_type for task_type in include_types]))
+        if exclude_types:
+            find_query = find_query.filter(and_(*[cls.type != task_type for task_type in exclude_types]))
+        find_query = find_query \
+            .filter(or_(*[cls.status == status for status in statuses])) \
+            .order_by(cls.priority.desc()) \
+            .order_by(cls.created_at)\
+            .limit(1)\
+            .with_lockmode('update') \
+            .cte('find_query')
+
+        update_query = Task.__table__.update()\
+            .where(Task.id == find_query.c.id) \
+            .values(status='in-progress') \
+            .returning(Task.__table__.c.id)
+
+        task_id = session.execute(update_query).fetchone()
+        session.commit()
+        if not task_id:
+            raise TaskPopError('There is no task to pop')
+        task_id = task_id[0]
+        return Task.query.filter(Task.id == task_id).one()
+
+    def execute(self, context):
         try:
-            find_query = DBSession.query(cls.id.label('id'), cls.created_at, cls.status, cls.type, cls.priority)
-            if filters:
-                find_query = find_query.filter(text(filters))
-            if include_types:
-                find_query = find_query.filter(or_(*[cls.type == task_type for task_type in include_types]))
-            if exclude_types:
-                find_query = find_query.filter(and_(*[cls.type != task_type for task_type in exclude_types]))
-            find_query = find_query \
-                .filter(or_(*[cls.status == status for status in statuses])) \
-                .order_by(cls.priority.desc()) \
-                .order_by(cls.created_at)\
-                .limit(1)\
-                .with_lockmode('update') \
-                .cte('find_query')
-
-            update_query = Task.__table__.update()\
-                .where(Task.id == find_query.c.id) \
-                .values(status='in-progress') \
-                .returning(Task.__table__.c.id)
-
-            task_id = DBSession.execute(update_query).fetchall()
+            isolated_task = DBSession.query(Task).filter(Task.id == self.id).one()
+            isolated_task.do_(context)
             DBSession.commit()
+        except:
+            DBSession.rollback()
+            raise
 
-            try:
-                task_id = task_id[0][0]
-            except IndexError:
-                return None
 
-            return Task.query.filter(Task.id == task_id).one_or_none()
+def worker(statuses={'new'}, include_types=None, exclude_types=None, filters=None):
+    isolated_session = create_thread_unsafe_session()
+    context = {'counter': 0}
+    while True:
+        context['counter'] += 1
+        logger.info("Trying to pop a task, Counter: %s" % context['counter'])
+        # noinspection PyBroadException
+        try:
+            task = Task.pop(
+                include_types=include_types,
+                exclude_types=exclude_types,
+                statuses=statuses,
+                filters=filters,
+                session=isolated_session
+            )
 
-        except Exception as ex:
-            raise TaskPopError(ex)
+            task.execute(context)
+
+            # Task success
+            task.status = 'success'
+            task.terminated_at = datetime.now()
+
+        except TaskPopError:
+            logger.info('No task to pop')
+            isolated_session.rollback()
+
+        except:
+            logger.exception('Error when executing task: %s' % task.id)
+            task.status = 'failed'
+            task.fail_reason = traceback.format_exc()
+
+        finally:
+            if isolated_session.is_active:
+                isolated_session.commit()
+
+        time.sleep(settings.worker.gap)

@@ -7,6 +7,7 @@ from restfulpy.cli.admin import AdminLauncher
 from restfulpy.cli.base import Launcher
 from restfulpy.cli.migrate import MigrateLauncher
 from restfulpy.cli.serve import ServeLauncher
+from restfulpy.cli.worker import WorkerLauncher
 
 
 class MainLauncher(Launcher):
@@ -21,10 +22,9 @@ class MainLauncher(Launcher):
         subparsers = parser.add_subparsers(title="sub commands", prog=application.name, dest="command")
 
         AdminLauncher.register(subparsers)
-
         ServeLauncher.register(subparsers)
-
         MigrateLauncher.register(subparsers)
+        WorkerLauncher.register(subparsers)
 
         argcomplete.autocomplete(parser)
 

@@ -71,6 +71,10 @@ def setup_schema(session=None):
     command.stamp(alembic_cfg, "head")
 
 
+def create_thread_unsafe_session():
+    return session_factory()
+
+
 def commit(func):
 
     @functools.wraps(func)

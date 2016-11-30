@@ -81,6 +81,9 @@ class LoggerProxy(object):
     def critical(self, *args, **kw):
         self.logger.critical(*args, **kw)
 
+    def exception(self, *args, **kw):
+        self.logger.exception(*args, **kw)
+
 
 def get_logger(logger_name='main'):
     logger = _loggers.get(logger_name)
