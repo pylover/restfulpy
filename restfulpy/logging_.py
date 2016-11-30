@@ -1,6 +1,5 @@
 
 from os import path, makedirs
-
 from logging import getLogger, FileHandler, Formatter, NOTSET, DEBUG, INFO, WARNING, ERROR, CRITICAL, StreamHandler
 
 from nanohttp import settings
@@ -56,16 +55,15 @@ def create_logger(logger_name):
 
 
 class LoggerProxy(object):
-    def __init__(self, factory, *args, **kw):
+    def __init__(self, *args, **kw):
         self._internal_logger = None
         self.factory_args = args
         self.factory_kwargs = kw
-        self.factory = factory
 
     @property
     def logger(self):
         if not self._internal_logger:
-            self._internal_logger = self.factory(*self.factory_args, **self.factory_kwargs)
+            self._internal_logger = create_logger(*self.factory_args, **self.factory_kwargs)
         return self._internal_logger
 
     def info(self, *args, **kw):
@@ -85,13 +83,7 @@ class LoggerProxy(object):
 
 
 def get_logger(logger_name='main'):
-    res = _loggers.get(logger_name)
-    if not res:
-        res = _loggers[logger_name] = LoggerProxy(create_logger, logger_name)
-    return res
-
-
-__all__ = [
-    'get_logger',
-    'create_logger'
-]
+    logger = _loggers.get(logger_name)
+    if not logger:
+        logger = _loggers[logger_name] = LoggerProxy(logger_name)
+    return logger

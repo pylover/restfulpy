@@ -26,6 +26,7 @@ class Field(Column):
                  pattern=None,
                  protected=None,
                  watermark=None,
+                 nullable=False,
                  **kwargs):
         info = dict()
 
@@ -53,7 +54,7 @@ class Field(Column):
         if args and isinstance(args[0], (Unicode, String)):
             info['max_length'] = args[0].length
 
-        super(Field, self).__init__(*args, info=info, **kwargs)
+        super(Field, self).__init__(*args, info=info, nullable=nullable, **kwargs)
 
     def _validate_pattern(self, value):
         if value is None:

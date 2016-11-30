@@ -15,8 +15,8 @@ class Task(TimestampMixin, DeclarativeBase):
 
     id = Field(Integer, primary_key=True, json='id', unreadable=True)
     priority = Field(Integer, nullable=False, default=50, json='priority')
-    resolution = Field(Enum('new', 'success', 'in-progress', 'failed', name='task_resolution_enum'),
-                       nullable=True, json='resolution')
+    status = Field(Enum('new', 'success', 'in-progress', 'failed', name='task_resolution_enum'), default='new',
+                   nullable=True, json='status')
     fail_reason = Field(Unicode(2048), nullable=True, json='reason')
     started_at = Field(DateTime, nullable=True, json='startedAt')
     terminated_at = Field(DateTime, nullable=True, json='terminatedAt')
@@ -26,10 +26,6 @@ class Task(TimestampMixin, DeclarativeBase):
         'polymorphic_identity': __tablename__,
         'polymorphic_on': type
     }
-
-    @classmethod
-    def schedule(cls, *args, **kwargs):
-        raise NotImplementedError
 
     def do_(self, context):
         raise NotImplementedError
@@ -45,7 +41,7 @@ class Task(TimestampMixin, DeclarativeBase):
             if exclude_types:
                 find_query = find_query.filter(and_(*[cls.type != task_type for task_type in exclude_types]))
             find_query = find_query \
-                .filter(or_(*[cls.resolution == resolution for resolution in resolutions])) \
+                .filter(or_(*[cls.status == resolution for resolution in resolutions])) \
                 .order_by(cls.priority.desc()) \
                 .order_by(cls.created_at)\
                 .limit(1)\

@@ -18,6 +18,7 @@ dependencies = [
     'pyjwt',
     'psycopg2',
     'itsdangerous',
+    'mako',
 
     # Testing
     'requests',

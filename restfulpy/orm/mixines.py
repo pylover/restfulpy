@@ -81,7 +81,7 @@ class ActivationMixin(object):
         return self.activation_time is not None
 
     def _set_is_active(self, v):
-        self.activation_time = None if not v else datetime.now()
+        self.activation_time = datetime.now() if v else None
 
     @declared_attr
     def is_active(cls):
