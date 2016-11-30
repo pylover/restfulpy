@@ -4,7 +4,7 @@ import importlib
 import importlib.util
 from datetime import datetime, timedelta
 from os.path import dirname, abspath
-
+import uuid
 
 ZERO = timedelta(0)
 
@@ -126,3 +126,11 @@ def format_iso_time(stamp):
             return stamp.isoformat()
     else:
         return stamp.isoformat()
+
+
+def random_password(length=10):
+    """Returns a random string of length string_length."""
+    random = str(uuid.uuid4())  # Convert UUID format to a Python string.
+    random = random.upper()  # Make all characters uppercase.
+    random = random.replace("-", "")  # Remove the UUID '-'.
+    return random[0:length]  # Return the random string.

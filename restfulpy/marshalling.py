@@ -24,7 +24,7 @@ def _serialize(obj, pagination=False, filtering=False, sorting=False, type_=None
     return obj
 
 
-def serialize(**options):
+def serialize(*a, **options):
 
     def decorator(func):
 
@@ -33,4 +33,5 @@ def serialize(**options):
             return _serialize(func(*args, **kwargs), **options)
 
         return wrapper
-    return decorator
+
+    return decorator(a[0]) if a and callable(a[0]) else decorator
