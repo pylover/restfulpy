@@ -71,7 +71,7 @@ def setup_schema(session=None):
     command.stamp(alembic_cfg, "head")
 
 
-def dbsession(func):
+def commit(func):
 
     @functools.wraps(func)
     def wrapper(*args, **kwargs):

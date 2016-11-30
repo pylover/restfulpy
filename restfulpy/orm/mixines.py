@@ -75,13 +75,13 @@ class SoftDeleteMixin(object):
 
 
 class ActivationMixin(object):
-    activation_time = Field(DateTime, nullable=True, json='activationTime', readonly=True, protected=True)
+    activated_at = Field(DateTime, nullable=True, json='activatedAt', readonly=True, protected=True)
 
     def _get_is_active(self):
-        return self.activation_time is not None
+        return self.activated_at is not None
 
     def _set_is_active(self, v):
-        self.activation_time = datetime.now() if v else None
+        self.activated_at = datetime.now() if v else None
 
     @declared_attr
     def is_active(cls):
@@ -93,4 +93,4 @@ class ActivationMixin(object):
 
     @classmethod
     def filter_activated(cls, query=None):
-        return (query or cls.query).filter(cls.activation_time.isnot(None))
+        return (query or cls.query).filter(cls.activated_at.isnot(None))
