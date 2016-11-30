@@ -23,3 +23,7 @@ class JwtPrincipal:
             if set(self.payload['roles']).intersection(roles):
                 return True
         return False
+
+    @property
+    def email(self):
+        return self.payload.get('email')
