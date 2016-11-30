@@ -12,11 +12,16 @@ def authorize(*roles):
         def wrapper(*args, **kwargs):
 
             identity = context.identity
-            if not identity or not identity.is_in_roles(*roles):
+            if not identity or (len(roles) and not identity.is_in_roles(*roles)):
                 raise HttpUnauthorized()
 
             return func(*args, **kwargs)
 
         return wrapper
 
-    return decorator
+    if roles and callable(roles[0]):
+        f = roles[0]
+        roles = []
+        return decorator(f)
+    else:
+        return decorator
