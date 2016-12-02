@@ -53,7 +53,7 @@ class BaseModel(object):
             result = v
 
         elif hasattr(v, 'to_dict'):
-            result = v.to_json()
+            result = v.to_dict()
 
         elif isinstance(v, Decimal):
             result = str(v)
