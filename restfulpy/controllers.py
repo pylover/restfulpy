@@ -24,6 +24,3 @@ class JwtController(Controller):
             return ''
 
         return super(JwtController, self).__call__(*remaining_paths)
-
-
-
