@@ -1,5 +1,6 @@
 
 from restfulpy.principal import JwtPrincipal
+from restfulpy.orm import DBSession
 
 from nanohttp import Controller, context, settings
 
@@ -18,6 +19,10 @@ class JwtController(Controller):
         if settings.debug:
             context.response_headers.add_header('Access-Control-Allow-Origin', '*')
             context.response_headers.add_header('Access-Control-Allow-Headers', 'Content-Type, X-JWT-Token')
+
+    # noinspection PyMethodMayBeStatic
+    def end_response(self):
+        DBSession.remove()
 
     def __call__(self, *remaining_paths):
         if context.method == 'options':
