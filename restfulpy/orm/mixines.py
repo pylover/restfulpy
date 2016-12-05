@@ -70,8 +70,12 @@ class SoftDeleteMixin(object):
         event.listen(cls, 'before_delete', cls.on_delete)
 
     @classmethod
-    def filter_deleted(cls, query=None):
+    def exclude_deleted(cls, query=None):
         return (query or cls.query).filter(cls.removed_at.is_(None))
+
+    @classmethod
+    def filter_deleted(cls, query=None):
+        return (query or cls.query).filter(cls.removed_at.isnot(None))
 
 
 class ActivationMixin(object):
