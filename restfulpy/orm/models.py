@@ -133,6 +133,15 @@ class BaseModel(object):
             result.setdefault(*self.prepare_for_export(c, getattr(self, c.key)))
         return result
 
+    @classmethod
+    def create_sort_criteria(cls, sort_columns):
+        criteria = []
+        for c in cls.iter_json_columns():
+            json_name = c.info.get('json', c.key)
+            if json_name in sort_columns:
+                criteria.append((c, sort_columns[json_name] == 'desc'))
+        return criteria
+
 
 @event.listens_for(BaseModel, 'class_instrument')
 def receive_class_instrument(cls):

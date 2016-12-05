@@ -2,10 +2,10 @@ import functools
 
 from sqlalchemy.orm import Query
 
-from restfulpy.orm import PaginationMixin, FilteringMixin
+from restfulpy.orm import PaginationMixin, FilteringMixin, OrderingMixin
 
 
-def _serialize(query, sorting=False, type_=None):
+def _serialize(query, type_=None):
 
     if isinstance(query, Query):
 
@@ -15,7 +15,7 @@ def _serialize(query, sorting=False, type_=None):
         if issubclass(type_, FilteringMixin):
             query = type_.filter_by_request(query)
 
-        if sorting:
+        if issubclass(type_, OrderingMixin):
             query = type_.sort_by_request(query)
 
         if issubclass(type_, PaginationMixin):
