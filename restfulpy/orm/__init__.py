@@ -9,7 +9,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from alembic import config, command
 
 from restfulpy.orm.field import Field, relationship
-from restfulpy.orm.mixines import ModifiedMixin, SoftDeleteMixin, TimestampMixin, ActivationMixin, PaginationMixin
+from restfulpy.orm.mixines import ModifiedMixin, SoftDeleteMixin, TimestampMixin, ActivationMixin, PaginationMixin, \
+    FilteringMixin
 from restfulpy.orm.metadata import MetadataField
 from restfulpy.orm.models import BaseModel
 

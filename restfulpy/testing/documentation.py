@@ -5,7 +5,7 @@ import warnings
 
 from webtest import TestApp
 
-from restfulpy.testing.constants import DOC_HEADER
+from restfulpy.testing.constants import DOC_HEADER, DOC_LEGEND
 
 
 class RequestSignature(object):
@@ -68,6 +68,10 @@ class DocumentaryTestApp(TestApp):
         super(DocumentaryTestApp, self).__init__(application.wsgi(), *args, **kwargs)
 
     @property
+    def legend_filename(self):
+        return join(self.destination_dir, 'legend.md')
+
+    @property
     def jwt_token(self):
         return self._jwt_token
 
@@ -84,6 +88,10 @@ class DocumentaryTestApp(TestApp):
                 del self.extra_environ[self.__jwt_header_key__]
 
     def _ensure_file(self, filename, entity):
+        if not exists(self.legend_filename):
+            with open(self.legend_filename, 'w') as f:
+                f.write(DOC_LEGEND)
+
         if filename in self._files:
             return open(filename, 'a')
         else:
@@ -182,8 +190,6 @@ class DocumentaryTestApp(TestApp):
             self._signatures.add(signature)
         finally:
             f.write('\n')
-            # f.write(DOC_LEGEND)
-            # f.write('\n')
             f.close()
 
     def send_request(self, role, method, url, query_string=None, url_params=None,

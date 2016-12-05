@@ -1,7 +1,7 @@
 
 from datetime import datetime
 
-from sqlalchemy import DateTime, Integer
+from sqlalchemy import DateTime, Integer, between
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import synonym
 from sqlalchemy.events import event
@@ -124,3 +124,63 @@ class PaginationMixin:
         context.response_headers.add_header(cls.__take_header_key__, str(take))
         context.response_headers.add_header(cls.__skip_header_key__, str(skip))
         return query[skip:skip + take]
+
+
+class FilteringMixin:
+
+    @classmethod
+    def filter_by_request(cls, query=None):
+        # noinspection PyUnresolvedReferences
+        query = query or cls.query
+
+        # noinspection PyUnresolvedReferences
+        for c in cls.iter_json_columns():
+            json_name = c.info.get('json', c.key)
+            if json_name in context.query_string:
+                value = context.query_string[json_name]
+                query = cls._filter_by_column_value(query, c, value)
+
+        return query
+
+    @classmethod
+    def _filter_by_column_value(cls, query, column, value):
+
+        import_value = getattr(cls, 'import_value')
+
+        if value.startswith('^') or value.startswith('!^'):
+            if isinstance(value, str):
+                value = value.split(',')
+            not_ = value[0].startswith('!^')
+            first_item = value[0][2 if not_ else 1:]
+            items = [first_item] + value[1:]
+            l = [import_value(column, j) for j in items]
+            expression = column.in_(l)
+            if not_:
+                expression = ~expression
+
+        elif not isinstance(value, str) or value.startswith('~'):
+            if isinstance(value, str):
+                values = value[1:].split(',')
+            else:
+                values = value
+            start, end = [import_value(column, v) for v in values]
+            expression = between(column, start, end)
+
+        elif value.startswith('!'):
+            expression = column != import_value(column, value[1:])
+        elif value.startswith('>='):
+            expression = column >= import_value(column, value[2:])
+        elif value.startswith('>'):
+            expression = column > import_value(column, value[1:])
+        elif value.startswith('<='):
+            expression = column <= import_value(column, value[2:])
+        elif value.startswith('<'):
+            expression = column < import_value(column, value[1:])
+        elif value.startswith('%~'):
+            expression = column.ilike('%%%s%%' % import_value(column, value[2:]))
+        elif value.startswith('%'):
+            expression = column.like('%%%s%%' % import_value(column, value[1:]))
+        else:
+            expression = column == import_value(column, value)
+
+        return query.filter(expression)

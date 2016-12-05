@@ -26,7 +26,7 @@ class BaseModel(object):
         return column
 
     @classmethod
-    def convert_value(cls, column, v):
+    def import_value(cls, column, v):
         c = cls.get_column(column)
         if isinstance(c, Column):
             if c.type.python_type is bool and not isinstance(v, bool):
@@ -86,7 +86,7 @@ class BaseModel(object):
                 setattr(
                     self,
                     column.key[1:] if column.key.startswith('_') else column.key,
-                    self.convert_value(column, value))
+                    self.import_value(column, value))
 
     @classmethod
     def iter_columns(cls, relationships=True, synonyms=True, use_inspection=True):

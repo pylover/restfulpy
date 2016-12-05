@@ -11,40 +11,39 @@ DOC_HEADER = """
 
 DOC_LEGEND = """
 
-Legend
-======
+#### Legend
 
-Paging
-------
+
+##### Paging
 
 | Param  | Meaning            |
 | ------ | ------------------ |
-| limit  | Rows per page      |
-| offset | Skip N rows        |
+| take   | Rows per page      |
+| skip   | Skip N rows        |
 
 
-Search & Filtering
-------------------
+##### Search & Filtering
 
 You can search and filter the result via query-string:
 
-        /path/to/resource?field=[op]value
+        /path/to/resource?field=[op]value1[,value2]
 
-| Operator  | Meaning |
-| --------- | ------- |
-|           | =       |
-| !         | !=      |
-| >         | >       |
-| >=        | >=      |
-| <         | <       |
-| <=        | <=      |
-| %%        | LIKE    |
-| ^         | IN      |
-| !^        | NOT IN  |
+| Operator  | Meaning | Example    |
+| --------- | ------- | -----------|
+|           | =       | id=2       |
+| !         | !=      | id=!2      |
+| >         | >       | id=>2      |
+| >=        | >=      | id=>=2     |
+| <         | <       | id=<2      |
+| <=        | <=      | id=<=2     |
+| %         | LIKE    | title=%us  |
+| %~        | ILIKE   | title=%~us |
+| ^         | IN      | id=^2,3,4  |
+| !^        | NOT IN  | id=!^2,3,4 |
+| ~         | BETWEEN | id=~2,9    |
 
 
-Sorting
--------
+##### Sorting
 
 You can sort like this:
 

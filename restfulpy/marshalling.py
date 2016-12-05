@@ -2,17 +2,17 @@ import functools
 
 from sqlalchemy.orm import Query
 
-from restfulpy.orm import PaginationMixin
+from restfulpy.orm import PaginationMixin, FilteringMixin
 
 
-def _serialize(query, filtering=False, sorting=False, type_=None):
+def _serialize(query, sorting=False, type_=None):
 
     if isinstance(query, Query):
 
         if not type_:
             raise ValueError('The `model_class` keyword argument is not provided')
 
-        if filtering:
+        if issubclass(type_, FilteringMixin):
             query = type_.filter_by_request(query)
 
         if sorting:
