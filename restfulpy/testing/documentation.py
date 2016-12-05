@@ -5,7 +5,7 @@ import warnings
 
 from webtest import TestApp
 
-from restfulpy.testing.constants import DOC_HEADER, DOC_LEGEND
+from restfulpy.testing.constants import DOC_HEADER
 
 
 class RequestSignature(object):
@@ -97,7 +97,7 @@ class DocumentaryTestApp(TestApp):
             self._files.append(filename)
             return f
 
-    def document(self, role, method, url, resp, model=None, params=None, query_string=None):
+    def document(self, role, method, url, resp, request_headers, model=None, params=None, query_string=None):
         signature = RequestSignature(role, method, url, tuple(query_string.keys()) if query_string else None)
         if signature in self._signatures:
             return
@@ -166,15 +166,24 @@ class DocumentaryTestApp(TestApp):
                         name,
                         str(value)))
 
-            f.write('\n    - Response:\n\n')
+            if request_headers:
+                f.write('\n    - Request Headers:\n\n')
+                for k, v in request_headers.items():
+                    f.write('%s%s: %s\n' % (12 * ' ', k, v))
+
+            f.write('\n    - Response Headers:\n\n')
+            for k, v in resp.headers.items():
+                f.write('%s%s: %s\n' % (12 * ' ', k, v))
+
+            f.write('\n    - Response Body:\n\n')
             for l in resp.body.decode().splitlines():
                 f.write('%s%s\n' % (12 * ' ', l))
             f.write('\n\n')
             self._signatures.add(signature)
         finally:
             f.write('\n')
-            f.write(DOC_LEGEND)
-            f.write('\n')
+            # f.write(DOC_LEGEND)
+            # f.write('\n')
             f.close()
 
     def send_request(self, role, method, url, query_string=None, url_params=None,
@@ -208,7 +217,7 @@ class DocumentaryTestApp(TestApp):
         resp = getattr(self, method.lower())(real_url, **kwargs)
 
         if doc:
-            self.document(role, method, url, resp, model=model, params=params, query_string=query_string)
+            self.document(role, method, url, resp, kwargs.get('headers'), model=model, params=params, query_string=query_string)
         return resp
 
     def metadata(self, url, params='', headers=None, extra_environ=None,
