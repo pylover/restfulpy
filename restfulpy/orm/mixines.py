@@ -78,7 +78,6 @@ class SoftDeleteMixin(object):
         return (query or cls.query).filter(cls.removed_at.isnot(None))
 
 
-
 class ActivationMixin(object):
     activated_at = Field(DateTime, nullable=True, json='activatedAt', readonly=True, protected=True)
 
