@@ -5,12 +5,13 @@ from sqlalchemy import DateTime, Integer
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import synonym
 from sqlalchemy.events import event
+from nanohttp import context, HttpBadRequest
 
 from restfulpy.orm.field import Field
 from restfulpy.exceptions import OrmException
 
 
-class TimestampMixin(object):
+class TimestampMixin:
     created_at = Field(DateTime, default=datetime.now, nullable=False, json='createdAt', readonly=True)
 
 
@@ -31,12 +32,12 @@ class ModifiedMixin(TimestampMixin):
         event.listen(cls, 'before_update', cls.on_update)
 
 
-class OrderableMixin(object):
+class OrderableMixin:
     order = Field("order", Integer, default=0, nullable=False)
     __mapper_args__ = dict(order_by=order)
 
 
-class SoftDeleteMixin(object):
+class SoftDeleteMixin:
     removed_at = Field(DateTime, nullable=True, json='removedAt', readonly=True)
 
     def assert_is_not_deleted(self):
@@ -71,10 +72,11 @@ class SoftDeleteMixin(object):
 
     @classmethod
     def filter_deleted(cls, query=None):
+        # noinspection PyUnresolvedReferences
         return (query or cls.query).filter(cls.removed_at.is_(None))
 
 
-class ActivationMixin(object):
+class ActivationMixin:
     activated_at = Field(DateTime, nullable=True, json='activatedAt', readonly=True, protected=True)
 
     def _get_is_active(self):
@@ -83,6 +85,7 @@ class ActivationMixin(object):
     def _set_is_active(self, v):
         self.activated_at = datetime.now() if v else None
 
+    # noinspection PyMethodParameters
     @declared_attr
     def is_active(cls):
         return synonym(
@@ -93,4 +96,26 @@ class ActivationMixin(object):
 
     @classmethod
     def filter_activated(cls, query=None):
+        # noinspection PyUnresolvedReferences
         return (query or cls.query).filter(cls.activated_at.isnot(None))
+
+
+class PaginationMixin:
+    __take_header_key__ = 'X_TAKE'
+    __skip_header_key__ = 'X_SKIP'
+    __max_take__ = 100
+
+    @classmethod
+    def paginate_by_request(cls, query=None):
+        # noinspection PyUnresolvedReferences
+        query = query or cls.query
+
+        take = int(context.query_string.get('take') or context.environ.get(cls.__take_header_key__) or cls.__max_take__)
+        skip = int(context.query_string.get('skip') or context.environ.get(cls.__skip_header_key__) or 0)
+
+        if take > cls.__max_take__:
+            raise HttpBadRequest()
+
+        context.response_headers.add_header(cls.__take_header_key__, str(take))
+        context.response_headers.add_header(cls.__skip_header_key__, str(skip))
+        return query[skip:skip + take]

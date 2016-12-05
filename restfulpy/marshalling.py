@@ -2,26 +2,28 @@ import functools
 
 from sqlalchemy.orm import Query
 
+from restfulpy.orm import PaginationMixin
 
-def _serialize(obj, pagination=False, filtering=False, sorting=False, type_=None):
 
-    if isinstance(obj, Query):
+def _serialize(query, filtering=False, sorting=False, type_=None):
+
+    if isinstance(query, Query):
 
         if not type_:
             raise ValueError('The `model_class` keyword argument is not provided')
 
         if filtering:
-            obj = type_.filter_by_request(obj)
+            query = type_.filter_by_request(query)
 
         if sorting:
-            obj = type_.sort_by_request(obj)
+            query = type_.sort_by_request(query)
 
-        if pagination:
-            obj = type_.paginate_by_request(obj)
+        if issubclass(type_, PaginationMixin):
+            query = type_.paginate_by_request(query=query)
 
-        obj = [o.to_dict() for o in obj]
+        query = [o.to_dict() for o in query]
 
-    return obj
+    return query
 
 
 def jsonify(*a, **options):
