@@ -73,6 +73,11 @@ class SoftDeleteMixin:
     @classmethod
     def filter_deleted(cls, query=None):
         # noinspection PyUnresolvedReferences
+        return (query or cls.query).filter(cls.removed_at.isnot(None))
+
+    @classmethod
+    def exclude_deleted(cls, query=None):
+        # noinspection PyUnresolvedReferences
         return (query or cls.query).filter(cls.removed_at.is_(None))
 
 
