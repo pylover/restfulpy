@@ -37,7 +37,7 @@ class MetadataField(object):
     def from_column(cls, c, info=None):
         if not info:
             info = c.info
-        json_name = info['json']
+        json_name = info.get('json', c.key)
         result = []
 
         if 'attachment' in info:
@@ -68,7 +68,10 @@ class MetadataField(object):
             elif hasattr(c, 'type'):
                 type_ = c.type.python_type
             elif hasattr(c, 'target'):
-                type_ = c.target.name
+                try:
+                    type_ = c.target.name
+                except AttributeError:
+                    type_ = c.target.right.name
             else:
                 raise AttributeError('Unable to recognize type of the column: %s' % c.name)
 

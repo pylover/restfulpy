@@ -2,7 +2,7 @@
 from restfulpy.principal import JwtPrincipal
 from restfulpy.orm import DBSession
 
-from nanohttp import Controller, context, settings
+from nanohttp import Controller, context, settings, json, RestController
 
 
 class JwtController(Controller):
@@ -29,3 +29,11 @@ class JwtController(Controller):
             return ''
 
         return super(JwtController, self).__call__(*remaining_paths)
+
+
+class ModelRestController(RestController):
+    __model__ = None
+
+    @json
+    def metadata(self):
+        return self.__model__.json_metadata()
