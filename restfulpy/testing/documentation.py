@@ -9,17 +9,23 @@ from restfulpy.testing.constants import DOC_HEADER, DOC_LEGEND
 
 
 class RequestSignature(object):
-    def __init__(self, role, method, url, query_string=None):
+    def __init__(self, role, method, url, query_string=None, request_headers=None, response_headers=None):
         self.role = role
         self.method = method
         self.url = url
         self.query_string = query_string
+        self.request_headers = request_headers
+        self.response_headers = response_headers
 
     def __eq__(self, other):
         return self.__hash__() == other.__hash__()
 
     def __hash__(self):
-        return hash((self.role, self.method, self.url, self.query_string))
+        return hash((
+            self.role, self.method, self.url, self.query_string,
+            tuple(self.request_headers.items()) if self.request_headers else None,
+            tuple(self.response_headers.items()) if self.response_headers else None
+        ))
 
 
 class FormParameter(object):
@@ -106,7 +112,12 @@ class DocumentaryTestApp(TestApp):
             return f
 
     def document(self, role, method, url, resp, request_headers, model=None, params=None, query_string=None):
-        signature = RequestSignature(role, method, url, tuple(query_string.keys()) if query_string else None)
+        signature = RequestSignature(
+            role, method, url,
+            query_string=tuple(query_string.keys()) if query_string else None,
+            request_headers=request_headers,
+            response_headers=resp.headers
+        )
         if signature in self._signatures:
             return
         path_parts = url.split('?')[0].split('/')[1:]

@@ -1,8 +1,6 @@
 
-# noinspection PyPackageRequirements
-import jwt
-
-from nanohttp import settings
+from itsdangerous import TimedJSONWebSignatureSerializer
+from nanohttp import settings, LazyAttribute
 
 
 class JwtPrincipal:
@@ -10,12 +8,20 @@ class JwtPrincipal:
     def __init__(self, payload):
         self.payload = payload
 
+    @classmethod
+    def create_serializer(cls):
+        return TimedJSONWebSignatureSerializer(
+            settings.jwt.secret,
+            expires_in=settings.jwt.max_age,
+            algorithm_name=settings.jwt.algorithm
+        )
+
     def encode(self):
-        return jwt.encode(self.payload, settings.jwt.secret, algorithm=settings.jwt.algorithm)
+        return self.create_serializer().dumps(self.payload)
 
     @classmethod
     def decode(cls, encoded):
-        payload = jwt.decode(encoded, settings.jwt.secret, algorithms=[settings.jwt.algorithm])
+        payload = cls.create_serializer().loads(encoded)
         return cls(payload)
 
     def is_in_roles(self, *roles):

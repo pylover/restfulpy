@@ -21,6 +21,7 @@ migration:
 jwt:
   secret: JWT-SECRET
   algorithm: HS256
+  max_age: 3600
 
 messaging:
   default_messenger: restfulpy.messaging.postman.Postman
