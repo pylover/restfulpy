@@ -1,16 +1,19 @@
 
 import cgi
+import functools
 from datetime import datetime, date, time
 from decimal import Decimal
 
 from nanohttp import HttpBadRequest, context
 from sqlalchemy import Column, event
-from sqlalchemy.orm import SynonymProperty, validates
+from sqlalchemy.orm import SynonymProperty, validates, Query
 from sqlalchemy.inspection import inspect
 from sqlalchemy.orm.relationships import RelationshipProperty
 
 from restfulpy.utils import format_iso_datetime, format_iso_time
-from restfulpy.orm import MetadataField, Field
+from restfulpy.orm.mixines import PaginationMixin, FilteringMixin, OrderingMixin
+from restfulpy.orm.field import Field
+from restfulpy.orm.metadata import MetadataField
 
 
 class BaseModel(object):
@@ -141,6 +144,33 @@ class BaseModel(object):
             if json_name in sort_columns:
                 criteria.append((c, sort_columns[json_name] == 'desc'))
         return criteria
+
+    @classmethod
+    def dump_query(cls, query=None):
+        query = query or cls.query
+
+        if issubclass(cls, FilteringMixin):
+            query = cls.filter_by_request(query)
+
+        if issubclass(cls, OrderingMixin):
+            query = cls.sort_by_request(query)
+
+        if issubclass(cls, PaginationMixin):
+            query = cls.paginate_by_request(query=query)
+
+        return [o.to_dict() for o in query]
+
+    @classmethod
+    def expose(cls, func):
+
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            result = func(*args, **kwargs)
+            if isinstance(result, Query):
+                return cls.dump_query(result)
+            return result
+
+        return wrapper
 
 
 @event.listens_for(BaseModel, 'class_instrument')
