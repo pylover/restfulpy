@@ -1,7 +1,7 @@
 
 import functools
 
-from nanohttp import context, HttpUnauthorized
+from nanohttp import context, HttpUnauthorized, HttpForbidden
 
 
 def authorize(*roles):
@@ -12,8 +12,12 @@ def authorize(*roles):
         def wrapper(*args, **kwargs):
 
             identity = context.identity
-            if not identity or (len(roles) and not identity.is_in_roles(*roles)):
+
+            if not identity:
                 raise HttpUnauthorized()
+
+            if roles and not identity.is_in_roles(*roles):
+                raise HttpForbidden()
 
             return func(*args, **kwargs)
 
