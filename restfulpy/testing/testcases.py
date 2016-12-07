@@ -14,6 +14,15 @@ from restfulpy.testing.documentation import DocumentaryTestApp
 class WebAppTestCase(unittest.TestCase):
     application = None
 
+    def setUp(self):
+        super().setUp()
+        self.session = session_factory(bind=DBSession.bind)
+
+    def tearDown(self):
+        super().tearDown()
+        if self.session.is_active:
+            self.session.expunge_all()
+
     @classmethod
     def prepare_database(cls):
         with DatabaseManager() as m:
