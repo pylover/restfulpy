@@ -25,7 +25,7 @@ class MainLauncher(Launcher):
         ServeLauncher.register(subparsers)
         MigrateLauncher.register(subparsers)
         WorkerLauncher.register(subparsers)
-
+        application.register_cli_launchers(subparsers)
         argcomplete.autocomplete(parser)
 
     def launch(self, args=None):

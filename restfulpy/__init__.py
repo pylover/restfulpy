@@ -37,6 +37,13 @@ class Application:
 
         configure(config=self.builtin_configuration, files=files, context=context, **kwargs)
 
+    # noinspection PyMethodMayBeStatic
+    def register_cli_launchers(self, subparsers):
+        """
+        This is a template method
+        """
+        pass
+
     @classmethod
     def initialize_models(cls):
         init_model(create_engine())

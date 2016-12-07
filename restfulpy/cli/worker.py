@@ -11,10 +11,11 @@ from restfulpy.taskqueue import worker, Task
 
 
 class StartLauncher(Launcher):
+    __command__ = 'start'
 
     @classmethod
     def create_parser(cls, subparsers):
-        parser = subparsers.add_parser('start', help='Starts the background worker.')
+        parser = subparsers.add_parser(cls.__command__, help='Starts the background worker.')
         parser.add_argument('-t', '--type', default=[], action='append',
                             help='Type of task to run. If no type specified here, all types would be selected.')
 
