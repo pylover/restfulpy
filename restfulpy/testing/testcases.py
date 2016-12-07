@@ -56,8 +56,10 @@ class WebAppTestCase(unittest.TestCase):
     def tearDownClass(cls):
         cls.drop_database()
 
-    def request(self, *args, expected_status=200, expected_headers=None, **kwargs):
-        resp = self.wsgi_app.send_request(*args, **kwargs)
+    def request(self, role, method, url, query_string=None, url_params=None, params=None, model=None, doc=True,
+                expected_status=200, expected_headers=None, **kwargs):
+        resp = self.wsgi_app.send_request(role, method, url, query_string=query_string, url_params=url_params,
+                                          params=params, model=model, doc=doc, **kwargs)
 
         if resp.status_code != expected_status:
             print('#' * 80)
