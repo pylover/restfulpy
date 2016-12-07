@@ -10,7 +10,7 @@ from alembic import config, command
 
 from restfulpy.orm.field import Field, relationship
 from restfulpy.orm.mixines import ModifiedMixin, SoftDeleteMixin, TimestampMixin, ActivationMixin, PaginationMixin, \
-    FilteringMixin, OrderingMixin, OrderableMixin
+    FilteringMixin, OrderingMixin, OrderableMixin, ApproveRequiredMixin
 from restfulpy.orm.metadata import MetadataField
 from restfulpy.orm.models import BaseModel
 

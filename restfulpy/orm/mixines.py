@@ -220,3 +220,27 @@ class OrderingMixin:
             query = cls._sort_by_key_value(query, *criterion)
 
         return query
+
+
+class ApproveRequiredMixin:
+    approved_at = Field(DateTime, nullable=True, json='approvedAt', readonly=True)
+
+    def _get_is_approved(self):
+        return self.approved_at is not None
+
+    def _set_is_approved(self, v):
+        self.approved_at = datetime.now() if v else None
+
+    # noinspection PyMethodParameters
+    @declared_attr
+    def is_approved(cls):
+        return synonym(
+            '_is_approved',
+            descriptor=property(cls._get_is_approved, cls._set_is_approved),
+            info=dict(json='isApproved')
+        )
+
+    @classmethod
+    def approved_objects(cls, query=None):
+        # noinspection PyUnresolvedReferences
+        return (query or cls.query).filter(cls.activated_at.isnot(None))
