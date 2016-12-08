@@ -122,8 +122,9 @@ class PaginationMixin:
         if take > cls.__max_take__:
             raise HttpBadRequest()
 
-        context.response_headers.add_header(cls.__take_header_key__, str(take))
-        context.response_headers.add_header(cls.__skip_header_key__, str(skip))
+        context.response_headers.add_header('X-Pagination-Take', str(take))
+        context.response_headers.add_header('X-Pagination-Skip', str(skip))
+        context.response_headers.add_header('X-Pagination-Count', str(query.count()))
         return query[skip:skip + take]
 
 
