@@ -1,4 +1,5 @@
 
+import itsdangerous
 from restfulpy.principal import JwtPrincipal
 from restfulpy.orm import DBSession
 
@@ -10,7 +11,10 @@ class JwtController(Controller):
 
     def begin_request(self):
         if self.token_key in context.environ:
-            context.identity = JwtPrincipal.decode(context.environ[self.token_key])
+            try:
+                context.identity = JwtPrincipal.decode(context.environ[self.token_key])
+            except itsdangerous.SignatureExpired:
+                context.identity = None
         else:
             context.identity = None
 
@@ -18,7 +22,7 @@ class JwtController(Controller):
     def begin_response(self):
         if settings.debug:
             context.response_headers.add_header('Access-Control-Allow-Origin', '*')
-            context.response_headers.add_header('Access-Control-Allow-Headers', 'Content-Type, X-JWT-Token')
+            context.response_headers.add_header('Access-Control-Allow-Headers', 'Content-Type, x-jwt-token')
 
     # noinspection PyMethodMayBeStatic
     def end_response(self):
@@ -26,7 +30,8 @@ class JwtController(Controller):
 
     def __call__(self, *remaining_paths):
         if context.method == 'options':
-            return ''
+            context.response_headers.add_header("Cache-Control", "no-cache,no-store")
+            return b''
 
         return super(JwtController, self).__call__(*remaining_paths)
 

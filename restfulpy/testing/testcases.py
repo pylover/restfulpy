@@ -7,21 +7,14 @@ from os.path import join, abspath
 from nanohttp import settings
 
 from restfulpy.db import DatabaseManager
-from restfulpy.orm import setup_schema, create_engine, session_factory, DBSession
+from restfulpy.orm import setup_schema, session_factory, DBSession, create_engine
 from restfulpy.testing.documentation import DocumentaryTestApp
 
 
 class WebAppTestCase(unittest.TestCase):
     application = None
-
-    def setUp(self):
-        super().setUp()
-        self.session = session_factory(bind=DBSession.bind)
-
-    def tearDown(self):
-        super().tearDown()
-        if self.session.is_active:
-            self.session.expunge_all()
+    session = None
+    engine = None
 
     @classmethod
     def prepare_database(cls):
@@ -29,18 +22,22 @@ class WebAppTestCase(unittest.TestCase):
             m.drop_database()
             m.create_database()
 
-        engine = create_engine()
-        session = session_factory(bind=engine)
+        cls.engine = create_engine()
+        cls.session = session = session_factory(bind=cls.engine, expire_on_commit=False)
         setup_schema(session)
         session.commit()
-        session.close_all()
-        engine.dispose()
+
+    @classmethod
+    def mockup(cls):
+        pass
 
     @classmethod
     def drop_database(cls):
-        DBSession.close_all()
-        if DBSession.bind and hasattr(DBSession.bind, 'dispose'):
+        cls.session.close_all()
+        if cls.session.bind and hasattr(cls.session.bind, 'dispose'):
             DBSession.bind.dispose()
+        cls.engine.dispose()
+
         with DatabaseManager() as m:
             m.drop_database()
 
@@ -55,7 +52,8 @@ class WebAppTestCase(unittest.TestCase):
         cls.prepare_database()
         cls.application.initialize_models()
         cls.application.insert_basedata()
-        cls.application.insert_mockup()
+        cls.mockup()
+        # cls.application.insert_mockup()
         cls.wsgi_app = DocumentaryTestApp(
             abspath(join(settings.api_documents.directory, 'api')),
             cls.application
