@@ -13,7 +13,7 @@ class JwtController(Controller):
         if self.token_key in context.environ:
             try:
                 context.identity = JwtPrincipal.decode(context.environ[self.token_key])
-            except itsdangerous.SignatureExpired:
+            except itsdangerous.BadData:
                 context.identity = None
         else:
             context.identity = None
@@ -22,6 +22,7 @@ class JwtController(Controller):
     def begin_response(self):
         if settings.debug:
             context.response_headers.add_header('Access-Control-Allow-Origin', '*')
+            context.response_headers.add_header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, UNDELETE, METADATA')
             context.response_headers.add_header('Access-Control-Allow-Headers', 'Content-Type, x-jwt-token')
 
     # noinspection PyMethodMayBeStatic

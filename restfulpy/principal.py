@@ -1,6 +1,6 @@
 
 from itsdangerous import TimedJSONWebSignatureSerializer
-from nanohttp import settings, LazyAttribute
+from nanohttp import settings
 
 
 class JwtPrincipal:

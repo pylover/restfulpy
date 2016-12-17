@@ -69,13 +69,13 @@ class Task(TimestampMixin, DeclarativeBase):
         task_id = task_id[0]
         return Task.query.filter(Task.id == task_id).one()
 
-    def execute(self, context):
+    def execute(self, context, session=DBSession):
         try:
-            isolated_task = DBSession.query(Task).filter(Task.id == self.id).one()
+            isolated_task = session.query(Task).filter(Task.id == self.id).one()
             isolated_task.do_(context)
-            DBSession.commit()
+            session.commit()
         except:
-            DBSession.rollback()
+            session.rollback()
             raise
 
 
