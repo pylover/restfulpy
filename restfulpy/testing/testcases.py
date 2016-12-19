@@ -59,10 +59,12 @@ class WebAppTestCase(unittest.TestCase):
             abspath(join(settings.api_documents.directory, 'api')),
             cls.application
         )
+        super().setUpClass()
 
     @classmethod
     def tearDownClass(cls):
         cls.drop_database()
+        super().tearDownClass()
 
     def request(self, role, method, url, query_string=None, url_params=None, params=None, model=None, doc=True,
                 expected_status=200, expected_headers=None, **kwargs):
