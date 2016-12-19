@@ -43,12 +43,15 @@ class Task(TimestampMixin, DeclarativeBase):
     def pop(cls, statuses={'new'}, include_types=None, exclude_types=None, filters=None, session=DBSession):
 
         find_query = session.query(cls.id.label('id'), cls.created_at, cls.status, cls.type, cls.priority)
-        if filters:
-            find_query = find_query.filter(text(filters))
-        if include_types:
+        if filters is not None:
+            find_query = find_query.filter(text(filters) if isinstance(filters, str) else filters)
+
+        if include_types is not None:
             find_query = find_query.filter(or_(*[cls.type == task_type for task_type in include_types]))
-        if exclude_types:
+
+        if exclude_types is not None:
             find_query = find_query.filter(and_(*[cls.type != task_type for task_type in exclude_types]))
+
         find_query = find_query \
             .filter(or_(*[cls.status == status for status in statuses])) \
             .order_by(cls.priority.desc()) \
@@ -67,7 +70,8 @@ class Task(TimestampMixin, DeclarativeBase):
         if not task_id:
             raise TaskPopError('There is no task to pop')
         task_id = task_id[0]
-        return Task.query.filter(Task.id == task_id).one()
+        task = cls.query.filter(cls.id == task_id).one()
+        return task
 
     def execute(self, context, session=DBSession):
         try:
