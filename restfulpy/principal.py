@@ -37,3 +37,7 @@ class JwtPrincipal:
     @property
     def session_id(self):
         return self.payload.get('sessionId')
+
+    @property
+    def id(self):
+        return self.payload.get('id')
