@@ -94,6 +94,10 @@ class DocumentaryTestApp(TestApp):
                 del self.extra_environ[self.__jwt_header_key__]
 
     def _ensure_file(self, filename, entity):
+        d = dirname(filename)
+        if not exists(d):
+            makedirs(d)
+
         if not exists(self.legend_filename):
             with open(self.legend_filename, 'w') as f:
                 f.write(DOC_LEGEND)
@@ -101,9 +105,6 @@ class DocumentaryTestApp(TestApp):
         if filename in self._files:
             return open(filename, 'a')
         else:
-            d = dirname(filename)
-            if not exists(d):
-                makedirs(d)
             f = open(filename, 'w')
             f.write(DOC_HEADER % dict(version=self.application.version))
             f.write('\n%s' % entity)
