@@ -1,12 +1,12 @@
 from nanohttp import quickstart
 
-from restfulpy.cli.base import Launcher, RequireSubCommand
+from restfulpy.cli.base import Launcher
 
 
 DEFAULT_ADDRESS = '8080'
 
 
-class ServeLauncher(Launcher, RequireSubCommand):
+class ServeLauncher(Launcher):
     @classmethod
     def create_parser(cls, subparsers):
         parser = subparsers.add_parser('serve', help="Serves the application on http.")
