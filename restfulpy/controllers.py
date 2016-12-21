@@ -22,7 +22,7 @@ class JwtController(Controller):
     def begin_response(self):
         if settings.debug:
             context.response_headers.add_header('Access-Control-Allow-Origin', '*')
-            context.response_headers.add_header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, UNDELETE, METADATA')
+            context.response_headers.add_header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, UNDELETE, METADATA, PATCH')
             context.response_headers.add_header('Access-Control-Allow-Headers', 'Content-Type, x-jwt-token')
 
     # noinspection PyMethodMayBeStatic
