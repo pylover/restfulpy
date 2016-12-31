@@ -8,7 +8,7 @@ from sqlalchemy.sql.schema import MetaData
 from sqlalchemy.ext.declarative import declarative_base
 from alembic import config, command
 
-from restfulpy.orm.field import Field, relationship
+from restfulpy.orm.field import Field, relationship, composite
 from restfulpy.orm.mixines import ModifiedMixin, SoftDeleteMixin, TimestampMixin, ActivationMixin, PaginationMixin, \
     FilteringMixin, OrderingMixin, OrderableMixin, ApproveRequiredMixin
 from restfulpy.orm.metadata import MetadataField

@@ -6,7 +6,7 @@ from decimal import Decimal
 
 from nanohttp import HttpBadRequest, context
 from sqlalchemy import Column, event
-from sqlalchemy.orm import SynonymProperty, validates, Query
+from sqlalchemy.orm import SynonymProperty, validates, Query, CompositeProperty
 from sqlalchemy.inspection import inspect
 from sqlalchemy.orm.relationships import RelationshipProperty
 
@@ -42,6 +42,9 @@ class BaseModel(object):
 
         if isinstance(column, RelationshipProperty) and column.uselist:
             result = [c.to_dict() for c in v]
+
+        elif isinstance(column, CompositeProperty):
+            result = v.__composite_values__()
 
         elif isinstance(v, datetime):
             result = format_iso_datetime(v)
@@ -92,7 +95,7 @@ class BaseModel(object):
                     self.import_value(column, value))
 
     @classmethod
-    def iter_columns(cls, relationships=True, synonyms=True, use_inspection=True):
+    def iter_columns(cls, relationships=True, synonyms=True, composites=True, use_inspection=True):
         if use_inspection:
             mapper = inspect(cls)
             for c in mapper.columns:
@@ -105,6 +108,11 @@ class BaseModel(object):
             if relationships:
                 for c in mapper.relationships:
                     yield c
+
+            if composites:
+                for c in mapper.composites:
+                    yield c
+
         else:
             # noinspection PyUnresolvedReferences
             for c in cls.__table__.c:

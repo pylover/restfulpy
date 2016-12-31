@@ -3,7 +3,7 @@
 import re
 
 from sqlalchemy import Column, Unicode, String
-from sqlalchemy.orm import relationship as sa_relationship
+from sqlalchemy.orm import relationship as sa_relationship, composite as sa_composite
 
 from restfulpy.exceptions import ValidationError
 
@@ -102,3 +102,15 @@ def relationship(*args, json=None, protected=None, **kwargs):
         info['protected'] = protected
 
     return sa_relationship(*args, info=info, **kwargs)
+
+
+def composite(*args, json=None, protected=None, **kwargs):
+    info = dict()
+
+    if json:
+        info['json'] = json
+
+    if protected:
+        info['protected'] = protected
+
+    return sa_composite(*args, info=info, **kwargs)

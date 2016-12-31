@@ -95,7 +95,7 @@ class ActivationMixin:
     @declared_attr
     def is_active(cls):
         return synonym(
-            '_is_active',
+            'activated_at',
             descriptor=property(cls._get_is_active, cls._set_is_active),
             info=dict(json='isActive')
         )
