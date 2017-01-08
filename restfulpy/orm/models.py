@@ -78,7 +78,7 @@ class BaseModel(object):
         for c in cls.iter_json_columns(relationships=True, include_readonly_columns=True):
             metadata_fields = MetadataField.from_column(cls.get_column(c), info=c.info)
             for f in metadata_fields:
-                fields[f.key] = f
+                fields[f.json_name] = f.to_json()
         return fields
 
     def update_from_request(self):

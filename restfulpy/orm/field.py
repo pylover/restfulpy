@@ -27,6 +27,8 @@ class Field(Column):
                  protected=None,
                  watermark=None,
                  nullable=False,
+                 label=None,
+                 icon=None,
                  **kwargs):
         info = dict()
 
@@ -50,6 +52,12 @@ class Field(Column):
 
         if pattern is not None:
             info['pattern'] = pattern
+
+        if icon is not None:
+            info['icon'] = icon
+
+        if label is not None:
+            info['label'] = label
 
         if args and isinstance(args[0], (Unicode, String)):
             info['max_length'] = args[0].length
@@ -104,7 +112,7 @@ def relationship(*args, json=None, protected=None, **kwargs):
     return sa_relationship(*args, info=info, **kwargs)
 
 
-def composite(*args, json=None, protected=None, **kwargs):
+def composite(*args, json=None, protected=None, readonly=None, **kwargs):
     info = dict()
 
     if json:
@@ -112,5 +120,8 @@ def composite(*args, json=None, protected=None, **kwargs):
 
     if protected:
         info['protected'] = protected
+
+    if readonly is not None:
+        info['readonly'] = readonly
 
     return sa_composite(*args, info=info, **kwargs)

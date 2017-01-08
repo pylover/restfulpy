@@ -3,7 +3,7 @@
 class MetadataField(object):
     def __init__(self, json_name, key, type_=str, default_=None, optional=None,
                  pattern=None, max_length=None, min_length=None, message='Invalid value',
-                 watermark=None):
+                 watermark=None, label=None, icon=None):
         self.json_name = json_name
         self.key = key[1:] if key.startswith('_') else key
         self.type_ = type_
@@ -14,6 +14,8 @@ class MetadataField(object):
         self.min_length = min_length
         self.message = message
         self.watermark = watermark
+        self.label = label or watermark
+        self.icon = icon
 
     @property
     def type_name(self):
@@ -31,6 +33,8 @@ class MetadataField(object):
             minLength=self.min_length,
             message=self.message,
             watermark=self.watermark,
+            label=self.label,
+            icon=self.icon
         )
 
     @classmethod
@@ -73,7 +77,8 @@ class MetadataField(object):
                 except AttributeError:
                     type_ = c.target.right.name
             else:
-                raise AttributeError('Unable to recognize type of the column: %s' % c.name)
+                type_ = 'str'
+                # raise AttributeError('Unable to recognize type of the column: %s' % c.key)
 
             result.append(cls(
                 json_name,
@@ -86,7 +91,9 @@ class MetadataField(object):
                 (c.type.length if hasattr(c, 'type') and hasattr(c.type, 'length') else None),
                 min_length=info.get('min_length'),
                 message=info.get('message') if 'message' in info else 'Invalid Value',
-                watermark=info.get('watermark') if 'watermark' in info else None,
+                watermark=info.get('watermark', None),
+                label=info.get('label', None),
+                icon=info.get('icon', None)
             ))
 
         return result
