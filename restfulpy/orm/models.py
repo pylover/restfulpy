@@ -133,7 +133,10 @@ class BaseModel(object):
             param_name = c.info.get('json', c.key)
 
             if c.info.get('readonly') and param_name in context.form:
-                raise HttpBadRequest('Invalid parameter: %s' % c.info['json'])
+                if c.info.get('strict', None):
+                    raise HttpBadRequest('Invalid parameter: %s' % c.info['json'])
+                else:
+                    continue
 
             if param_name in context.form:
                 yield c, context.form[param_name]
