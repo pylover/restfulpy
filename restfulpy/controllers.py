@@ -7,7 +7,7 @@ from nanohttp import Controller, context, settings, json, RestController
 
 
 class JwtController(Controller):
-    token_key = 'HTTP_X_JWT_TOKEN'
+    token_key = 'HTTP_AUTHORIZATION'
 
     def begin_request(self):
         if self.token_key in context.environ:
@@ -24,7 +24,7 @@ class JwtController(Controller):
             context.response_headers.add_header('Access-Control-Allow-Origin', '*')
             context.response_headers.add_header('Access-Control-Allow-Methods',
                                                 'GET, POST, PUT, DELETE, UNDELETE, METADATA, PATCH')
-            context.response_headers.add_header('Access-Control-Allow-Headers', 'Content-Type, x-jwt-token')
+            context.response_headers.add_header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
             context.response_headers.add_header('Access-Control-Expose-Headers',
                                                 'Content-Type, X-Pagination-Count, X-Pagination-Skip, '
                                                 'X-Pagination-Take')

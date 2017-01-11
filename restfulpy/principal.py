@@ -21,6 +21,8 @@ class JwtPrincipal:
 
     @classmethod
     def decode(cls, encoded):
+        if encoded.startswith('Barer '):
+            encoded = encoded[6:]
         payload = cls.create_serializer().loads(encoded)
         return cls(payload)
 

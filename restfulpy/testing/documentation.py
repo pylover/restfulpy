@@ -66,7 +66,7 @@ class DocumentaryTestApp(TestApp):
     _files = []
     _signatures = set()
     _jwt_token = None
-    __jwt_header_key__ = 'HTTP_X_JWT_TOKEN'
+    __jwt_header_key__ = 'HTTP_AUTHORIZATION'
 
     def __init__(self, destination_dir, application, *args, **kwargs):
         self.application = application
