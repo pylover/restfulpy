@@ -175,6 +175,10 @@ class FilteringMixin:
             start, end = [import_value(column, v) for v in values]
             expression = between(column, start, end)
 
+        elif value == 'null':
+            expression = column.is_(None)
+        elif value == '!null':
+            expression = column.isnot(None)
         elif value.startswith('!'):
             expression = column != import_value(column, value[1:])
         elif value.startswith('>='):
