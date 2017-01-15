@@ -94,11 +94,7 @@ class CleanupLauncher(Launcher):
         return subparsers.add_parser('cleanup', help='Clean database before starting worker processes')
 
     def launch(self):
-        DBSession.query(Task) \
-            .filter(Task.status == 'in-progress') \
-            .with_lockmode('update') \
-            .update({'status': 'new', 'started_at': None, 'terminated_at': None})
-
+        Task.cleanup(DBSession)
         DBSession.commit()
 
 

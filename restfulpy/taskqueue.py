@@ -1,4 +1,3 @@
-
 import time
 import traceback
 from datetime import datetime
@@ -10,7 +9,6 @@ from nanohttp import settings
 from restfulpy.orm import TimestampMixin, DeclarativeBase, Field, DBSession, create_thread_unsafe_session
 from restfulpy.exceptions import RestfulException
 from restfulpy.logging_ import get_logger
-
 
 logger = get_logger('TASK-QUEUE')
 
@@ -55,12 +53,12 @@ class Task(TimestampMixin, DeclarativeBase):
         find_query = find_query \
             .filter(or_(*[cls.status == status for status in statuses])) \
             .order_by(cls.priority.desc()) \
-            .order_by(cls.created_at)\
-            .limit(1)\
+            .order_by(cls.created_at) \
+            .limit(1) \
             .with_lockmode('update') \
             .cte('find_query')
 
-        update_query = Task.__table__.update()\
+        update_query = Task.__table__.update() \
             .where(Task.id == find_query.c.id) \
             .values(status='in-progress') \
             .returning(Task.__table__.c.id)
@@ -81,6 +79,21 @@ class Task(TimestampMixin, DeclarativeBase):
         except:
             session.rollback()
             raise
+
+    @classmethod
+    def cleanup(cls, session=DBSession):
+        session.query(Task) \
+            .filter(Task.status == 'in-progress') \
+            .with_lockmode('update') \
+            .update({'status': 'new', 'started_at': None, 'terminated_at': None})
+
+    @classmethod
+    def reset_status(cls, task_id, session=DBSession):
+        session.query(Task) \
+            .filter(Task.status == 'in-progress') \
+            .filter(Task.id == task_id) \
+            .with_lockmode('update') \
+            .update({'status': 'new', 'started_at': None, 'terminated_at': None})
 
 
 def worker(statuses={'new'}, include_types=None, exclude_types=None, filters=None):

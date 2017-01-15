@@ -1,3 +1,4 @@
+import base64
 
 from itsdangerous import TimedJSONWebSignatureSerializer
 from nanohttp import settings
@@ -23,6 +24,8 @@ class JwtPrincipal:
     def decode(cls, encoded):
         if encoded.startswith('Bearer '):
             encoded = encoded[7:]
+        if encoded.startswith('Basic '):
+            encoded = base64.decodebytes(encoded[6:].encode())
         payload = cls.create_serializer().loads(encoded)
         return cls(payload)
 
