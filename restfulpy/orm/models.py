@@ -119,9 +119,9 @@ class BaseModel(object):
                 yield c
 
     @classmethod
-    def iter_json_columns(cls, include_readonly_columns=True, **kw):
+    def iter_json_columns(cls, include_readonly_columns=True, include_protected_columns=False, **kw):
         for c in cls.iter_columns(**kw):
-            if c.info.get('protected') or \
+            if (not include_protected_columns and c.info.get('protected')) or \
                     (not include_readonly_columns and c.info.get('readonly')):
                 continue
 
@@ -129,7 +129,7 @@ class BaseModel(object):
 
     @classmethod
     def extract_data_from_request(cls):
-        for c in cls.iter_json_columns():
+        for c in cls.iter_json_columns(include_protected_columns=True):
             param_name = c.info.get('json', c.key)
 
             if c.info.get('readonly') and param_name in context.form:
