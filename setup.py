@@ -9,7 +9,7 @@ with open(join(dirname(__file__), 'restfulpy', '__init__.py')) as v_file:
 
 
 dependencies = [
-    'nanohttp>0.1.0',
+    'nanohttp>=0.1.0',
     'argcomplete',
     'ujson',
     'appdirs',
@@ -18,6 +18,7 @@ dependencies = [
     'psycopg2',
     'itsdangerous',
     'mako',
+    'psycopg2',
 
     # Testing
     'requests',
