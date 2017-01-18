@@ -23,11 +23,12 @@ class JwtController(Controller):
                     if session_id:
                         context.identity = new_token = self.refresh_jwt_token(refresh_token_encoded, session_id)
                         if new_token:
-                            context.response_headers.add_header('Authorization', 'Bearer %s' % new_token.encode())
-            except itsdangerous.BadData:
-                context.identity = None
+                            context.response_headers.add_header('X-New-JWT-Token', new_token.encode().decode())
 
-        else:
+            except itsdangerous.BadData:
+                pass
+
+        if not hasattr(context, 'identity'):
             context.identity = None
 
     def refresh_jwt_token(self, refresh_token_encoded, session_id):
@@ -42,7 +43,7 @@ class JwtController(Controller):
             context.response_headers.add_header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
             context.response_headers.add_header('Access-Control-Expose-Headers',
                                                 'Content-Type, X-Pagination-Count, X-Pagination-Skip, '
-                                                'X-Pagination-Take')
+                                                'X-Pagination-Take, X-New-JWT-Token')
             context.response_headers.add_header('Access-Control-Allow-Credentials', 'true')
 
     # noinspection PyMethodMayBeStatic
