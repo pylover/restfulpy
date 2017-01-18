@@ -8,26 +8,42 @@ from nanohttp import Controller, context, settings, json, RestController
 
 class JwtController(Controller):
     token_key = 'HTTP_AUTHORIZATION'
+    refresh_token_cookie_key = 'refresh-token'
 
     def begin_request(self):
         if self.token_key in context.environ:
+            encoded_token = context.environ[self.token_key]
             try:
-                context.identity = JwtPrincipal.decode(context.environ[self.token_key])
+                context.identity = JwtPrincipal.decode(encoded_token)
+            except itsdangerous.SignatureExpired as ex:
+                refresh_token_encoded = context.cookies.get(self.refresh_token_cookie_key)
+                if refresh_token_encoded:
+                    # Extracting session_id
+                    session_id = ex.payload.get('sessionId')
+                    if session_id:
+                        context.identity = new_token = self.refresh_jwt_token(refresh_token_encoded, session_id)
+                        if new_token:
+                            context.response_headers.add_header('Authorization', 'Bearer %s' % new_token.encode())
             except itsdangerous.BadData:
                 context.identity = None
+
         else:
             context.identity = None
+
+    def refresh_jwt_token(self, refresh_token_encoded, session_id):
+        raise NotImplementedError
 
     # noinspection PyMethodMayBeStatic
     def begin_response(self):
         if settings.debug:
-            context.response_headers.add_header('Access-Control-Allow-Origin', '*')
+            context.response_headers.add_header('Access-Control-Allow-Origin', 'http://localhost:8080')
             context.response_headers.add_header('Access-Control-Allow-Methods',
                                                 'GET, POST, PUT, DELETE, UNDELETE, METADATA, PATCH')
             context.response_headers.add_header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
             context.response_headers.add_header('Access-Control-Expose-Headers',
                                                 'Content-Type, X-Pagination-Count, X-Pagination-Skip, '
                                                 'X-Pagination-Take')
+            context.response_headers.add_header('Access-Control-Allow-Credentials', 'true')
 
     # noinspection PyMethodMayBeStatic
     def end_response(self):
