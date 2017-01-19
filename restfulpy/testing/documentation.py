@@ -235,7 +235,8 @@ class DocumentaryTestApp(TestApp):
         resp = getattr(self, method.lower())(real_url, **kwargs)
 
         if doc:
-            self.document(role, method, url, resp, kwargs.get('headers'), model=model, params=params, query_string=query_string)
+            self.document(role, method, url, resp, kwargs.get('headers'), model=model, params=params,
+                          query_string=query_string)
         return resp
 
     def metadata(self, url, params='', headers=None, extra_environ=None,
@@ -256,6 +257,18 @@ class DocumentaryTestApp(TestApp):
         if xhr:
             headers = self._add_xhr_header(headers)
         return self._gen_request('UNDELETE', url, params=params, headers=headers,
+                                 extra_environ=extra_environ, status=status,
+                                 upload_files=upload_files,
+                                 expect_errors=expect_errors,
+                                 content_type=content_type,
+                                 )
+
+    def verify(self, url, params='', headers=None, extra_environ=None,
+               status=None, upload_files=None, expect_errors=False,
+               content_type=None, xhr=False):
+        if xhr:
+            headers = self._add_xhr_header(headers)
+        return self._gen_request('VERIFY', url, params=params, headers=headers,
                                  extra_environ=extra_environ, status=status,
                                  upload_files=upload_files,
                                  expect_errors=expect_errors,
