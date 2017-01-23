@@ -1,6 +1,6 @@
 from os import makedirs
 from os.path import join, exists, dirname, basename
-from urllib.parse import quote
+from urllib.parse import quote, urlencode
 import warnings
 
 from webtest import TestApp
@@ -221,9 +221,6 @@ class DocumentaryTestApp(TestApp):
                     else:
                         parameters[param.name] = param.value
 
-        if query_string:
-            parameters.update(query_string)
-
         if files:
             kwargs['upload_files'] = files
         if parameters:
@@ -231,6 +228,10 @@ class DocumentaryTestApp(TestApp):
 
         real_url = (url % url_params) if url_params else url
         real_url = quote(real_url)
+
+        if query_string:
+            real_url = '%s?%s' % (real_url, urlencode(query_string))
+
         kwargs['expect_errors'] = True
         resp = getattr(self, method.lower())(real_url, **kwargs)
 
