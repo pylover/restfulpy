@@ -21,11 +21,11 @@ migration:
 jwt:
   secret: JWT-SECRET
   algorithm: HS256
-  max_age: 86400
+  max_age: 86400  # 24 Hours
   refresh_token:
     secret: JWT-REFRESH-SECRET
     algorithm: HS256
-    max_age: 2678400  # 30 days
+    max_age: 2678400  # 30 Days
 
 messaging:
   # default_messenger: restfulpy.messaging.postman.Postman
