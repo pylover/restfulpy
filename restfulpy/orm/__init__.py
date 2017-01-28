@@ -85,7 +85,8 @@ def commit(func):
             DBSession.commit()
             return result
         except:
-            DBSession.rollback()
+            if DBSession.is_active:
+                DBSession.rollback()
             raise
 
     return wrapper

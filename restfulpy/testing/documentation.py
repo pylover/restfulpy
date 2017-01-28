@@ -1,6 +1,6 @@
 from os import makedirs
 from os.path import join, exists, dirname, basename
-from urllib.parse import quote
+from urllib.parse import quote, urlencode
 import warnings
 
 from webtest import TestApp
@@ -221,9 +221,6 @@ class DocumentaryTestApp(TestApp):
                     else:
                         parameters[param.name] = param.value
 
-        if query_string:
-            parameters.update(query_string)
-
         if files:
             kwargs['upload_files'] = files
         if parameters:
@@ -231,11 +228,16 @@ class DocumentaryTestApp(TestApp):
 
         real_url = (url % url_params) if url_params else url
         real_url = quote(real_url)
+
+        if query_string:
+            real_url = '%s?%s' % (real_url, urlencode(query_string))
+
         kwargs['expect_errors'] = True
         resp = getattr(self, method.lower())(real_url, **kwargs)
 
         if doc:
-            self.document(role, method, url, resp, kwargs.get('headers'), model=model, params=params, query_string=query_string)
+            self.document(role, method, url, resp, kwargs.get('headers'), model=model, params=params,
+                          query_string=query_string)
         return resp
 
     def metadata(self, url, params='', headers=None, extra_environ=None,
@@ -256,6 +258,30 @@ class DocumentaryTestApp(TestApp):
         if xhr:
             headers = self._add_xhr_header(headers)
         return self._gen_request('UNDELETE', url, params=params, headers=headers,
+                                 extra_environ=extra_environ, status=status,
+                                 upload_files=upload_files,
+                                 expect_errors=expect_errors,
+                                 content_type=content_type,
+                                 )
+
+    def verify(self, url, params='', headers=None, extra_environ=None,
+               status=None, upload_files=None, expect_errors=False,
+               content_type=None, xhr=False):
+        if xhr:
+            headers = self._add_xhr_header(headers)
+        return self._gen_request('VERIFY', url, params=params, headers=headers,
+                                 extra_environ=extra_environ, status=status,
+                                 upload_files=upload_files,
+                                 expect_errors=expect_errors,
+                                 content_type=content_type,
+                                 )
+
+    def view(self, url, params='', headers=None, extra_environ=None,
+             status=None, upload_files=None, expect_errors=False,
+             content_type=None, xhr=False):
+        if xhr:
+            headers = self._add_xhr_header(headers)
+        return self._gen_request('VIEW', url, params=params, headers=headers,
                                  extra_environ=extra_environ, status=status,
                                  upload_files=upload_files,
                                  expect_errors=expect_errors,
