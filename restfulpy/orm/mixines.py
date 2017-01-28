@@ -37,6 +37,10 @@ class OrderableMixin:
     order = Field("order", Integer, default=0, nullable=False)
     __mapper_args__ = dict(order_by=order)
 
+    @classmethod
+    def apply_default_sort(cls, query):
+        return query.order_by(cls.order)
+
 
 class SoftDeleteMixin:
     removed_at = Field(DateTime, nullable=True, json='removedAt', readonly=True)
@@ -221,6 +225,8 @@ class OrderingMixin:
 
         sort_exp = context.query_string.get('sort', '').strip()
         if not sort_exp:
+            if issubclass(cls, OrderableMixin):
+                return cls.apply_default_sort(query)
             return query
 
         sort_columns = {c[1:] if c.startswith('-') else c: 'desc' if c.startswith('-') else 'asc'
