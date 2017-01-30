@@ -54,41 +54,38 @@ logging:
     default:
       handlers:
         - console
+        - main
+        - error
       level: debug
       formatter: default
 
-    main:
-      handlers:
-        - console
-        - main
-
-    auth:
-      handlers:
-        - console
-        - auth
-
-    error:
-      handlers:
-        - console
-        - error
-
-    critical:
-      handlers:
-        - console
-        - critical
-
   handlers:
+
+    default:
+      level: notset
+      max_bytes: 52428800
+
     console:
-     type: console
-    debug:
-     type: file
-     filename: %(data_dir)s/logs/debug.log
-    auth:
-     type: file
-     filename: %(data_dir)s/logs/auth.log
+      type: console
+
+    main:
+      type: file
+      level: notset
+      max_bytes: 52428800
+      filename: %(data_dir)s/logs/main.log
+
     error:
-     type: file
-     filename: %(data_dir)s/logs/error.log
+      type: file
+      level: error
+      max_bytes: 52428800
+      filename: %(data_dir)s/logs/error.log
+
+    # CRITICAL	50
+    # ERROR	    40
+    # WARNING	30
+    # INFO	    20
+    # DEBUG	    10
+    # NOTSET	0
 
     # console: !!python/object/new:logging.StreamHandler []
     # main: !!python/object/new:logging.StreamHandler [ %(data_dir)s/logs/debug.log ]

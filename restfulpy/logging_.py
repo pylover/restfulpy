@@ -1,6 +1,7 @@
 
 from os import path, makedirs
-from logging import getLogger, FileHandler, Formatter, NOTSET, DEBUG, INFO, WARNING, ERROR, CRITICAL, StreamHandler
+from logging import getLogger, Formatter, NOTSET, DEBUG, INFO, WARNING, ERROR, CRITICAL, StreamHandler
+from logging.handlers import RotatingFileHandler
 
 from nanohttp import settings
 
@@ -8,18 +9,18 @@ from nanohttp import settings
 _loggers = {}
 
 _levels = {
-    'notset': NOTSET,
-    'debug': DEBUG,
-    'info': INFO,
-    'warning': WARNING,
-    'error': ERROR,
-    'critical': CRITICAL
+    'notset': NOTSET,       # 0
+    'debug': DEBUG,         # 10
+    'info': INFO,           # 20
+    'warning': WARNING,     # 30
+    'error': ERROR,         # 40
+    'critical': CRITICAL    # 50
 }
 
 
 def create_logger(logger_name):
     config = settings.logging
-    logger_config = config.loggers.get(logger_name, config.loggers.default)
+    logger_config = config.loggers.get(logger_name, {})
 
     # Rebasing with default config
     cfg = config.loggers.default.copy()
@@ -43,8 +44,15 @@ def create_logger(logger_name):
             directory = path.dirname(handler_config.filename)
             if not path.exists(directory):
                 makedirs(directory)
-            handler = FileHandler(handler_config.filename, encoding='utf-8')
-        handler.setLevel(level)
+            handler = RotatingFileHandler(
+                handler_config.filename,
+                encoding='utf-8',
+                maxBytes=handler_config.get('max_bytes', 52428800)
+            )
+            if handler_config.level != 'notset':
+                handler.setLevel(_levels[handler_config.level])
+            else:
+                handler.setLevel(level)
         # Attaching newly created formatter to the handler
         handler.setFormatter(formatter)
         logger_.addHandler(handler)
