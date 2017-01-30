@@ -35,7 +35,7 @@ messaging:
     - %(restfulpy_dir)s/messaging/templates
 
 worker:
-  gap: 1
+  gap: 2
   number_of_threads: 4
 
 api_documents:
