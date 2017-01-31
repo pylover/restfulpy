@@ -28,7 +28,7 @@ class Email(Task):
     def template_filename(self):
         raise NotImplementedError
 
-    def do_(self):
+    def do_(self, context):
         messenger = create_messenger()
         messenger.send(
             self.to,
