@@ -20,11 +20,10 @@ _levels = {
 
 def create_logger(logger_name):
     config = settings.logging
-    logger_config = config.loggers.get(logger_name, {})
 
     # Rebasing with default config
     cfg = config.loggers.default.copy()
-    cfg.update(logger_config)
+    cfg.update(config.loggers.get(logger_name, {}))
     level = _levels[cfg.level]
 
     # Creating logger
@@ -37,7 +36,8 @@ def create_logger(logger_name):
 
     # Creating Handlers
     for handler_name in cfg.handlers:
-        handler_config = config.handlers[handler_name]
+        handler_config = config.handlers.default.copy()
+        handler_config.update(config.handlers.get(handler_name, {}))
         if handler_config.type == 'console':
             handler = StreamHandler()
         elif handler_config.type == 'file':

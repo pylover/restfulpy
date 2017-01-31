@@ -70,14 +70,11 @@ logging:
 
     main:
       type: file
-      level: notset
-      max_bytes: 52428800
       filename: %(data_dir)s/logs/main.log
 
     error:
       type: file
       level: error
-      max_bytes: 52428800
       filename: %(data_dir)s/logs/error.log
 
     # CRITICAL	50
