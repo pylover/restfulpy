@@ -30,6 +30,7 @@ dependencies = [
 setup(
     name="restfulpy",
     version=package_version,
+    description='A toolchain for developing REST APIs',
     author="Vahid Mardani",
     author_email="vahid.mardani@gmail.com",
     install_requires=dependencies,
