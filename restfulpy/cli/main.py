@@ -8,6 +8,7 @@ from restfulpy.cli.base import Launcher
 from restfulpy.cli.migrate import MigrateLauncher
 from restfulpy.cli.serve import ServeLauncher
 from restfulpy.cli.worker import WorkerLauncher
+from restfulpy.cli.dev import DevLauncher
 
 
 class MainLauncher(Launcher):
@@ -25,6 +26,7 @@ class MainLauncher(Launcher):
         ServeLauncher.register(subparsers)
         MigrateLauncher.register(subparsers)
         WorkerLauncher.register(subparsers)
+        DevLauncher.register(subparsers)
         application.register_cli_launchers(subparsers)
         argcomplete.autocomplete(parser)
 

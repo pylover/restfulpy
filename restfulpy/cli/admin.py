@@ -1,9 +1,7 @@
-from logging import NOTSET, DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 from restfulpy.cli.base import RequireSubCommand, Launcher
 from restfulpy.db import DatabaseManager
 from restfulpy.orm import setup_schema
-from restfulpy.logging_ import get_logger
 
 
 class BasedataLauncher(Launcher):
@@ -73,30 +71,6 @@ class SetupDatabaseLauncher(Launcher):
     def launch(self):
         setup_schema()
 
-log_levels = {
-    'notset': NOTSET,       # 0
-    'debug': DEBUG,         # 10
-    'info': INFO,           # 20
-    'warning': WARNING,     # 30
-    'error': ERROR,         # 40
-    'critical': CRITICAL    # 50
-}
-
-
-class LogLauncher(Launcher):
-
-    @classmethod
-    def create_parser(cls, subparsers):
-        parser = subparsers.add_parser('log', help="Setup the server's database.")
-        parser.add_argument('message', nargs='+', help='The log message')
-        parser.add_argument('-g', '--logger', default='main', help='The logger name, default: main')
-        parser.add_argument('-l', '--level', default='debug', help='Log level, default info')
-        return parser
-
-    def launch(self):
-        getattr(get_logger(self.args.logger), self.args.level)(' '.join(self.args.message))
-
-
 class AdminLauncher(Launcher, RequireSubCommand):
     @classmethod
     def create_parser(cls, subparsers):
@@ -107,5 +81,4 @@ class AdminLauncher(Launcher, RequireSubCommand):
         MockupDataLauncher.register(admin_subparsers)
         DropDatabaseLauncher.register(admin_subparsers)
         CreateDatabaseLauncher.register(admin_subparsers)
-        LogLauncher.register(admin_subparsers)
         return parser
