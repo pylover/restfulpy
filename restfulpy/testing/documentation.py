@@ -212,7 +212,9 @@ class DocumentaryTestApp(TestApp):
             if isinstance(params, dict):
                 parameters = params
                 if doc:
-                    warnings.warn('Skipping documentation generation, because the passed parameters are plain dict.')
+                    warnings.warn(
+                        'Skipping documentation generation, because the passed parameters are plain dict.',
+                        stacklevel=4)
                     doc = False
             else:
                 for param in params:
