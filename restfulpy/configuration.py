@@ -29,7 +29,7 @@ jwt:
 
 messaging:
   # default_messenger: restfulpy.messaging.postman.Postman
-  default_messenger: restfulpy.messaging.console.ConsoleMessenger
+  default_messenger: restfulpy.messaging.ConsoleMessenger
   default_sender: restfulpy
   template_dirs:
     - %(restfulpy_dir)s/messaging/templates

@@ -28,12 +28,16 @@ class Email(Task):
     def template_filename(self):
         raise NotImplementedError
 
+    @property
+    def email_body(self):
+        return self.body
+
     def do_(self, context):
         messenger = create_messenger()
         messenger.send(
             self.to,
             self.subject,
-            self.body,
+            self.email_body,
             cc=self.cc,
             bcc=self.bcc,
             template_filename=self.template_filename,

@@ -13,10 +13,8 @@ class Messenger(object):
     The abstract base class for everyone messaging operations
     """
 
-    def render_body(self, body, template_string=None, template_filename=None):
-        if template_string:
-            mako_template = Template(template_string)
-        elif template_filename:
+    def render_body(self, body, template_filename=None):
+        if template_filename:
             mako_template = self.lookup.get_template(template_filename)
         else:
             mako_template = None
@@ -30,17 +28,17 @@ class Messenger(object):
     def lookup(self):
         return TemplateLookup(directories=settings.messaging.template_dirs, input_encoding='utf8')
 
-    def send(self, to, subject, body, cc=None, bcc=None, template_string=None, template_filename=None, from_=None):
+    def send(self, to, subject, body, cc=None, bcc=None, template_filename=None, from_=None):
         raise NotImplementedError
 
 
 class SmtpProvider(Messenger):
 
-    def send(self, to, subject, body, cc=None, bcc=None, template_string=None, template_filename=None, from_=None):
+    def send(self, to, subject, body, cc=None, bcc=None, template_filename=None, from_=None):
         """
         Sending messages with SMTP server
         """
-        body = self.render_body(body, template_string, template_filename)
+        body = self.render_body(body, template_filename)
 
         smtp_config = settings.smtp
         smtp_server = smtplib.SMTP(
@@ -65,12 +63,12 @@ class SmtpProvider(Messenger):
 
 
 class ConsoleMessenger(Messenger):
-    def send(self, to, subject, body, cc=None, bcc=None, template_string=None, template_filename=None, from_=None):
+    def send(self, to, subject, body, cc=None, bcc=None, template_filename=None, from_=None):
         """
         Sending messages by email
         """
 
-        body = self.render_body(body, template_string, template_filename)
+        body = self.render_body(body, template_filename)
         print(body)
 
 
