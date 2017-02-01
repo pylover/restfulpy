@@ -9,7 +9,7 @@ from restfulpy.cli.main import MainLauncher
 from restfulpy.configuration import configure
 
 
-__version__ = '0.1.9'
+__version__ = '0.1.10'
 
 
 class Application:
