@@ -1,4 +1,3 @@
-
 import ujson
 import asyncio
 import unittest
@@ -45,11 +44,7 @@ class WebAppTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.application.configure(force=True)
-        settings.merge("""
-        messaging:
-            default_messenger: restfulpy.testing.MockupMessenger
-        """)
+        cls.configure_app()
         settings.db.uri = settings.db.test_uri
         cls.prepare_database()
         cls.application.initialize_models()
@@ -60,6 +55,14 @@ class WebAppTestCase(unittest.TestCase):
             cls.application
         )
         super().setUpClass()
+
+    @classmethod
+    def configure_app(cls):
+        cls.application.configure(force=True)
+        settings.merge("""
+                messaging:
+                    default_messenger: restfulpy.testing.MockupMessenger
+                """)
 
     @classmethod
     def tearDownClass(cls):
@@ -129,7 +132,6 @@ class ModelRestCrudTestCase(WebAppTestCase):
 
 
 class AioTestCase(unittest.TestCase):
-
     # noinspection PyPep8Naming
     def __init__(self, *args, loop=None):
         self.loop = loop or asyncio.get_event_loop()

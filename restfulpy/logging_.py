@@ -38,6 +38,7 @@ def create_logger(logger_name):
     for handler_name in cfg.handlers:
         handler_config = config.handlers.default.copy()
         handler_config.update(config.handlers.get(handler_name, {}))
+
         if handler_config.type == 'console':
             handler = StreamHandler()
         elif handler_config.type == 'file':
@@ -49,10 +50,11 @@ def create_logger(logger_name):
                 encoding='utf-8',
                 maxBytes=handler_config.get('max_bytes', 52428800)
             )
-            if handler_config.level != 'notset':
-                handler.setLevel(_levels[handler_config.level])
-            else:
-                handler.setLevel(level)
+
+        if handler_config.level != 'notset':
+            handler.setLevel(_levels[handler_config.level])
+        else:
+            handler.setLevel(level)
         # Attaching newly created formatter to the handler
         handler.setFormatter(formatter)
         logger_.addHandler(handler)
