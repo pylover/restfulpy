@@ -1,9 +1,14 @@
 
+import warnings
 import itsdangerous
+
+from nanohttp import Controller, context, settings, json, RestController
+
 from restfulpy.principal import JwtPrincipal
 from restfulpy.orm import DBSession
 
-from nanohttp import Controller, context, settings, json, RestController
+
+warnings.filterwarnings('ignore', message='Unknown REQUEST_METHOD')
 
 
 class JwtController(Controller):
