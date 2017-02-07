@@ -10,7 +10,7 @@ from restfulpy.configuration import configure
 from restfulpy.logging_ import configure as configure_logging
 
 
-__version__ = '0.1.11'
+__version__ = '0.2.0'
 
 
 class Application:
