@@ -196,8 +196,11 @@ class DocumentaryTestApp(TestApp):
                 f.write('%s%s: %s\n' % (12 * ' ', k, v))
 
             f.write('\n    - Response Body:\n\n')
-            for l in resp.body.decode().splitlines():
-                f.write('%s%s\n' % (12 * ' ', l))
+            if resp.charset in ('utf8', 'utf-8'):
+                for l in resp.body.decode().splitlines():
+                    f.write('%s%s\n' % (12 * ' ', l))
+            else:
+                f.write('%s%r\n' % (12 * ' ', resp.body))
             f.write('\n\n')
             self._signatures.add(signature)
         finally:
