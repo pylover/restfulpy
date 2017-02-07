@@ -11,7 +11,7 @@ db:
   uri: sqlite:///%(data_dir)s/devdata.db
   # uri: postgresql://postgres:postgres@localhost/restfulpy_demo_dev
   # administrative_uri: postgresql://postgres:postgres@localhost/postgres
-  # test_uri: postgresql://postgres:postgres@localhost/lemur_test
+  # test_uri: postgresql://postgres:postgres@localhost/restfulpy_test
   echo: false
 
 migration:
