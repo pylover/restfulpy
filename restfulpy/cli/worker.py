@@ -5,9 +5,7 @@ import threading
 
 from nanohttp import settings
 
-from restfulpy.orm import DBSession
 from restfulpy.cli.base import Launcher, RequireSubCommand
-from restfulpy.taskqueue import worker, Task
 
 
 class StartLauncher(Launcher):
@@ -36,6 +34,8 @@ class StartLauncher(Launcher):
         return parser
 
     def launch(self):
+
+        from restfulpy.taskqueue import worker
 
         signal.signal(signal.SIGINT, self.kill_signal_handler)
         signal.signal(signal.SIGTERM, self.kill_signal_handler)
@@ -94,6 +94,9 @@ class CleanupLauncher(Launcher):
         return subparsers.add_parser('cleanup', help='Clean database before starting worker processes')
 
     def launch(self):
+        from restfulpy.orm import DBSession
+        from restfulpy.taskqueue import Task
+
         Task.cleanup(DBSession)
         DBSession.commit()
 

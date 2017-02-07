@@ -1,7 +1,5 @@
 
 from restfulpy.cli.base import RequireSubCommand, Launcher
-from restfulpy.logging_ import get_logger
-from restfulpy.messaging import SmtpProvider
 
 
 class EmailLauncher(Launcher):
@@ -15,6 +13,8 @@ class EmailLauncher(Launcher):
         return parser
 
     def launch(self):
+        from restfulpy.messaging import SmtpProvider
+
         p = SmtpProvider()
         p.send(self.args.target, self.args.subject, self.args.message, from_=self.args.from_)
 
@@ -30,6 +30,8 @@ class LogLauncher(Launcher):
         return parser
 
     def launch(self):
+        from restfulpy.logging_ import get_logger
+
         getattr(get_logger(self.args.logger), self.args.level)(' '.join(self.args.message))
 
 

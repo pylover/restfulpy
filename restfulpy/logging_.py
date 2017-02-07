@@ -17,4 +17,4 @@ def set_logger_prefix(prefix):
 
 
 def get_logger(name):
-    return logging.getLogger('%s.%s' % (logger_prefix, name))
+    return logging.getLogger('%s%s' % ('%s.' % logger_prefix if logger_prefix else '', name))

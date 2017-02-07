@@ -50,6 +50,7 @@ smtp:
 
 logging:
   version: 1
+  disable_existing_loggers: false
   formatters:
     default:
       format: "%%(asctime)s - %%(name)s - %%(levelname)s - %%(message)s"
