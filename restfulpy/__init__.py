@@ -2,11 +2,12 @@
 from os.path import abspath, exists, join, dirname
 
 from appdirs import user_config_dir
-from nanohttp import Controller
+from nanohttp import Controller, settings
 
 from restfulpy.orm import init_model, create_engine
 from restfulpy.cli.main import MainLauncher
 from restfulpy.configuration import configure
+from restfulpy.logging_ import configure as configure_logging
 
 
 __version__ = '0.1.11'
@@ -36,6 +37,10 @@ class Application:
             files.insert(0, local_config_file)
 
         configure(config=self.builtin_configuration, files=files, context=context, **kwargs)
+
+    # noinspection PyMethodMayBeStatic
+    def initialize_logging(self):
+        configure_logging(settings.logging)
 
     # noinspection PyMethodMayBeStatic
     def register_cli_launchers(self, subparsers):

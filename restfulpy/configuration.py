@@ -49,50 +49,41 @@ smtp:
   local_hostname: localhost
 
 logging:
-  loggers:
-
-    default:
-      handlers:
-        - console
-        - main
-        - error
-      level: debug
-      formatter: default
-
-  handlers:
-
-    default:
-      level: notset
-      max_bytes: 52428800
-
-    console:
-      type: console
-
-    main:
-      type: file
-      filename: %(data_dir)s/logs/main.log
-
-    error:
-      type: file
-      level: error
-      filename: %(data_dir)s/logs/error.log
-
-    # CRITICAL	50
-    # ERROR	    40
-    # WARNING	30
-    # INFO	    20
-    # DEBUG	    10
-    # NOTSET	0
-
-    # console: !!python/object/new:logging.StreamHandler []
-    # main: !!python/object/new:logging.StreamHandler [ %(data_dir)s/logs/debug.log ]
-    # auth: !!python/object/new:logging.StreamHandler [ %(data_dir)s/logs/auth.log ]
-    # error: !!python/object/new:logging.StreamHandler [ %(data_dir)s/logs/error.log ]
-
+  version: 1
   formatters:
     default:
       format: "%%(asctime)s - %%(name)s - %%(levelname)s - %%(message)s"
       date_format: "%%Y-%%m-%%d %%H:%%M:%%S"
+
+  handlers:
+
+    console:
+      class: logging.StreamHandler
+      stream: ext://sys.stdout
+      formatter: default
+      level: DEBUG
+
+    main:
+      class: logging.handlers.RotatingFileHandler
+      filename: %(data_dir)s/logs/main.log
+      maxBytes: 52428800
+      formatter: default
+      level: DEBUG
+
+    error:
+      class: logging.handlers.RotatingFileHandler
+      filename: %(data_dir)s/logs/error.log
+      maxBytes: 52428800
+      formatter: default
+      level: ERROR
+
+  root:
+    handlers:
+      - console
+      - main
+      - error
+    level: DEBUG
+    formatter: default
 
 """
 
