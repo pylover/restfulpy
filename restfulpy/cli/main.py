@@ -3,7 +3,6 @@ import sys
 
 import argcomplete
 
-from restfulpy.logging_ import set_logger_prefix
 from restfulpy.cli.admin import AdminLauncher
 from restfulpy.cli.base import Launcher
 from restfulpy.cli.migrate import MigrateLauncher
@@ -17,7 +16,7 @@ class MainLauncher(Launcher):
     def __init__(self, application):
         self.application = application
         self.parser = parser = argparse.ArgumentParser(description='%s command line interface.' % application.name)
-        parser.add_argument('-l', '--logger-prefix', metavar="PREFIX", default=application.name, nargs=1,
+        parser.add_argument('-p', '--process-name', metavar="PREFIX", default=application.name, nargs=1,
                             help='A string indicates the logger prefix for this process, it helps to configure '
                                  'separate log files per process.')
         parser.add_argument('-c', '--config-file', metavar="FILE",
@@ -41,11 +40,8 @@ class MainLauncher(Launcher):
         else:
             cli_args = self.parser.parse_args()
 
-        set_logger_prefix(cli_args.logger_prefix)
-
         cli_args.application = self.application
         self.application.configure(files=cli_args.config_file)
-        self.application.initialize_logging()
         self.application.initialize_models()
         cli_args.func(cli_args)
         sys.exit(0)

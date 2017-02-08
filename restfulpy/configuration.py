@@ -49,42 +49,45 @@ smtp:
   local_hostname: localhost
 
 logging:
-  version: 1
-  disable_existing_loggers: false
+  loggers:
+
+    default:
+      handlers:
+        - console
+        - main
+        - error
+      level: debug
+      formatter: default
+
+  handlers:
+
+    default:
+      level: notset
+      max_bytes: 52428800
+
+    console:
+      type: console
+
+    main:
+      type: file
+      filename: %(data_dir)s/logs/%(process_name)s.log
+
+    error:
+      type: file
+      level: error
+      filename: %(data_dir)s/logs/%(process_name)s-error.log
+
   formatters:
     default:
       format: "%%(asctime)s - %%(name)s - %%(levelname)s - %%(message)s"
       date_format: "%%Y-%%m-%%d %%H:%%M:%%S"
 
-  handlers:
-
-    console:
-      class: logging.StreamHandler
-      stream: ext://sys.stdout
-      formatter: default
-      level: DEBUG
-
-    main:
-      class: logging.handlers.RotatingFileHandler
-      filename: %(data_dir)s/logs/main.log
-      maxBytes: 52428800
-      formatter: default
-      level: DEBUG
-
-    error:
-      class: logging.handlers.RotatingFileHandler
-      filename: %(data_dir)s/logs/error.log
-      maxBytes: 52428800
-      formatter: default
-      level: ERROR
-
-  root:
-    handlers:
-      - console
-      - main
-      - error
-    level: DEBUG
-    formatter: default
+    # CRITICAL	50
+    # DEBUG	    10
+    # ERROR	    40
+    # INFO	    20
+    # WARNING	30
+    # NOTSET	0
 
 """
 
