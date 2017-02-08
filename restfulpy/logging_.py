@@ -93,6 +93,7 @@ class LoggerProxy(object):
 
 
 def get_logger(logger_name='main'):
+    logger_name = logger_name.upper()
     logger = _loggers.get(logger_name)
     if not logger:
         logger = _loggers[logger_name] = LoggerProxy(logger_name)
