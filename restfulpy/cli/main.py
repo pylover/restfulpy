@@ -16,7 +16,7 @@ class MainLauncher(Launcher):
     def __init__(self, application):
         self.application = application
         self.parser = parser = argparse.ArgumentParser(description='%s command line interface.' % application.name)
-        parser.add_argument('-p', '--process-name', metavar="PREFIX", default=application.name, nargs=1,
+        parser.add_argument('-p', '--process-name', metavar="PREFIX", default=application.name,
                             help='A string indicates the logger prefix for this process, it helps to configure '
                                  'separate log files per process.')
         parser.add_argument('-c', '--config-file', metavar="FILE",
