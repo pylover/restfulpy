@@ -4,7 +4,7 @@ import functools
 from datetime import datetime, date, time
 from decimal import Decimal
 
-from nanohttp import HttpBadRequest, context
+from nanohttp import HttpBadRequest, context, HttpNotFound
 from sqlalchemy import Column, event
 from sqlalchemy.orm import SynonymProperty, validates, Query, CompositeProperty
 from sqlalchemy.inspection import inspect
@@ -177,6 +177,8 @@ class BaseModel(object):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             result = func(*args, **kwargs)
+            if result is None:
+                raise HttpNotFound()
             if isinstance(result, Query):
                 return cls.dump_query(result)
             return result

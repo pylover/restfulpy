@@ -48,7 +48,6 @@ class WebAppTestCase(unittest.TestCase):
         settings.db.uri = settings.db.test_uri
         cls.prepare_database()
         cls.application.initialize_models()
-        cls.application.insert_basedata()
         cls.mockup()
         cls.wsgi_app = DocumentaryTestApp(
             abspath(join(settings.api_documents.directory, 'api')),
