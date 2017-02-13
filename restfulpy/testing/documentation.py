@@ -292,3 +292,15 @@ class DocumentaryTestApp(TestApp):
                                  expect_errors=expect_errors,
                                  content_type=content_type,
                                  )
+
+    def assign(self, url, params='', headers=None, extra_environ=None,
+               status=None, upload_files=None, expect_errors=False,
+               content_type=None, xhr=False):
+        if xhr:
+            headers = self._add_xhr_header(headers)
+        return self._gen_request('ASSIGN', url, params=params, headers=headers,
+                                 extra_environ=extra_environ, status=status,
+                                 upload_files=upload_files,
+                                 expect_errors=expect_errors,
+                                 content_type=content_type,
+                                 )
