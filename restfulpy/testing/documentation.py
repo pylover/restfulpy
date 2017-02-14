@@ -237,70 +237,69 @@ class DocumentaryTestApp(TestApp):
         if query_string:
             real_url = '%s?%s' % (real_url, urlencode(query_string))
 
-        kwargs['expect_errors'] = True
-        resp = getattr(self, method.lower())(real_url, **kwargs)
+        resp = self._gen_request(method.upper(), real_url, expect_errors=True, **kwargs)
 
         if doc:
             self.document(role, method, url, resp, kwargs.get('headers'), model=model, params=params,
                           query_string=query_string)
         return resp
 
-    def metadata(self, url, params='', headers=None, extra_environ=None,
-                 status=None, upload_files=None, expect_errors=False,
-                 content_type=None, xhr=False):
-        if xhr:
-            headers = self._add_xhr_header(headers)
-        return self._gen_request('METADATA', url, params=params, headers=headers,
-                                 extra_environ=extra_environ, status=status,
-                                 upload_files=upload_files,
-                                 expect_errors=expect_errors,
-                                 content_type=content_type,
-                                 )
-
-    def undelete(self, url, params='', headers=None, extra_environ=None,
-                 status=None, upload_files=None, expect_errors=False,
-                 content_type=None, xhr=False):
-        if xhr:
-            headers = self._add_xhr_header(headers)
-        return self._gen_request('UNDELETE', url, params=params, headers=headers,
-                                 extra_environ=extra_environ, status=status,
-                                 upload_files=upload_files,
-                                 expect_errors=expect_errors,
-                                 content_type=content_type,
-                                 )
-
-    def verify(self, url, params='', headers=None, extra_environ=None,
-               status=None, upload_files=None, expect_errors=False,
-               content_type=None, xhr=False):
-        if xhr:
-            headers = self._add_xhr_header(headers)
-        return self._gen_request('VERIFY', url, params=params, headers=headers,
-                                 extra_environ=extra_environ, status=status,
-                                 upload_files=upload_files,
-                                 expect_errors=expect_errors,
-                                 content_type=content_type,
-                                 )
-
-    def view(self, url, params='', headers=None, extra_environ=None,
-             status=None, upload_files=None, expect_errors=False,
-             content_type=None, xhr=False):
-        if xhr:
-            headers = self._add_xhr_header(headers)
-        return self._gen_request('VIEW', url, params=params, headers=headers,
-                                 extra_environ=extra_environ, status=status,
-                                 upload_files=upload_files,
-                                 expect_errors=expect_errors,
-                                 content_type=content_type,
-                                 )
-
-    def assign(self, url, params='', headers=None, extra_environ=None,
-               status=None, upload_files=None, expect_errors=False,
-               content_type=None, xhr=False):
-        if xhr:
-            headers = self._add_xhr_header(headers)
-        return self._gen_request('ASSIGN', url, params=params, headers=headers,
-                                 extra_environ=extra_environ, status=status,
-                                 upload_files=upload_files,
-                                 expect_errors=expect_errors,
-                                 content_type=content_type,
-                                 )
+    # def metadata(self, url, params='', headers=None, extra_environ=None,
+    #              status=None, upload_files=None, expect_errors=False,
+    #              content_type=None, xhr=False):
+    #     if xhr:
+    #         headers = self._add_xhr_header(headers)
+    #     return self._gen_request('METADATA', url, params=params, headers=headers,
+    #                              extra_environ=extra_environ, status=status,
+    #                              upload_files=upload_files,
+    #                              expect_errors=expect_errors,
+    #                              content_type=content_type,
+    #                              )
+    #
+    # def undelete(self, url, params='', headers=None, extra_environ=None,
+    #              status=None, upload_files=None, expect_errors=False,
+    #              content_type=None, xhr=False):
+    #     if xhr:
+    #         headers = self._add_xhr_header(headers)
+    #     return self._gen_request('UNDELETE', url, params=params, headers=headers,
+    #                              extra_environ=extra_environ, status=status,
+    #                              upload_files=upload_files,
+    #                              expect_errors=expect_errors,
+    #                              content_type=content_type,
+    #                              )
+    #
+    # def verify(self, url, params='', headers=None, extra_environ=None,
+    #            status=None, upload_files=None, expect_errors=False,
+    #            content_type=None, xhr=False):
+    #     if xhr:
+    #         headers = self._add_xhr_header(headers)
+    #     return self._gen_request('VERIFY', url, params=params, headers=headers,
+    #                              extra_environ=extra_environ, status=status,
+    #                              upload_files=upload_files,
+    #                              expect_errors=expect_errors,
+    #                              content_type=content_type,
+    #                              )
+    #
+    # def view(self, url, params='', headers=None, extra_environ=None,
+    #          status=None, upload_files=None, expect_errors=False,
+    #          content_type=None, xhr=False):
+    #     if xhr:
+    #         headers = self._add_xhr_header(headers)
+    #     return self._gen_request('VIEW', url, params=params, headers=headers,
+    #                              extra_environ=extra_environ, status=status,
+    #                              upload_files=upload_files,
+    #                              expect_errors=expect_errors,
+    #                              content_type=content_type,
+    #                              )
+    #
+    # def assign(self, url, params='', headers=None, extra_environ=None,
+    #            status=None, upload_files=None, expect_errors=False,
+    #            content_type=None, xhr=False):
+    #     if xhr:
+    #         headers = self._add_xhr_header(headers)
+    #     return self._gen_request('ASSIGN', url, params=params, headers=headers,
+    #                              extra_environ=extra_environ, status=status,
+    #                              upload_files=upload_files,
+    #                              expect_errors=expect_errors,
+    #                              content_type=content_type,
+    #                              )
