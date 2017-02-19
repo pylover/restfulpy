@@ -3,7 +3,7 @@
 class MetadataField(object):
     def __init__(self, json_name, key, type_=str, default_=None, optional=None,
                  pattern=None, max_length=None, min_length=None, message='Invalid value',
-                 watermark=None, label=None, icon=None):
+                 watermark=None, label=None, icon=None, example=None):
         self.json_name = json_name
         self.key = key[1:] if key.startswith('_') else key
         self.type_ = type_
@@ -16,6 +16,7 @@ class MetadataField(object):
         self.watermark = watermark
         self.label = label or watermark
         self.icon = icon
+        self.example = example
 
     @property
     def type_name(self):
@@ -34,7 +35,8 @@ class MetadataField(object):
             message=self.message,
             watermark=self.watermark,
             label=self.label,
-            icon=self.icon
+            icon=self.icon,
+            example=self.example
         )
 
     @classmethod
@@ -93,7 +95,8 @@ class MetadataField(object):
                 message=info.get('message') if 'message' in info else 'Invalid Value',
                 watermark=info.get('watermark', None),
                 label=info.get('label', None),
-                icon=info.get('icon', None)
+                icon=info.get('icon', None),
+                example=info.get('example', None),
             ))
 
         return result

@@ -29,6 +29,7 @@ class Field(Column):
                  nullable=False,
                  label=None,
                  icon=None,
+                 example=None,
                  **kwargs):
         info = dict()
 
@@ -53,11 +54,14 @@ class Field(Column):
         if pattern is not None:
             info['pattern'] = pattern
 
+        if label is not None:
+            info['label'] = label
+
         if icon is not None:
             info['icon'] = icon
 
-        if label is not None:
-            info['label'] = label
+        if example is not None:
+            info['example'] = example
 
         if args and isinstance(args[0], (Unicode, String)):
             info['max_length'] = args[0].length
