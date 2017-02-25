@@ -1,6 +1,6 @@
 
 
-class Launcher(object):
+class Launcher:
     no_launch = False
     parser = None
 
@@ -29,5 +29,5 @@ class Launcher(object):
             self.parser.print_help()
 
 
-class RequireSubCommand(object):
+class RequireSubCommand:
     no_launch = True
