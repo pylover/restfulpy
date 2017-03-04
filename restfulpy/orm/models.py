@@ -1,5 +1,4 @@
 
-import cgi
 import functools
 from datetime import datetime, date, time
 from decimal import Decimal
@@ -150,6 +149,7 @@ class BaseModel(object):
                 criteria.append((c, sort_columns[json_name] == 'desc'))
         return criteria
 
+    # noinspection PyUnresolvedReferences
     @classmethod
     def dump_query(cls, query=None):
         query = query or cls.query

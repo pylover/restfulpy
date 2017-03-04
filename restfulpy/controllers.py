@@ -69,3 +69,22 @@ class ModelRestController(RestController):
     @json
     def metadata(self):
         return self.__model__.json_metadata()
+
+
+class JsonPatchControllerMixin:
+
+    @json
+    def patch(self: Controller):
+        """
+        Set context.method
+        Set context.form
+        :return:
+        """
+        # Preserve patches
+        patches = context.form
+        results = []
+        for patch in patches:
+            context.form = patch['value']
+            context.method = patch['op']
+            results.append(self(*patch['path'].split('/')))
+        return results
