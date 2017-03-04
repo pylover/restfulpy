@@ -32,7 +32,7 @@ class JsonPatchTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        configure(init_value=cls.__configuration__)
+        configure(init_value=cls.__configuration__, force=True)
 
     def test_jsonpatch_rfc6902(self):
         environ = {
