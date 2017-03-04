@@ -65,11 +65,12 @@ def setup_schema(session=None):
     engine = session.bind
     metadata.create_all(bind=engine)
 
-    alembic_cfg = config.Config()
-    alembic_cfg.set_main_option("script_location", settings.migration.directory)
-    alembic_cfg.set_main_option("sqlalchemy.url", str(engine.url))
-    alembic_cfg.config_file_name = settings.migration.ini
-    command.stamp(alembic_cfg, "head")
+    if hasattr(settings, 'migration'):
+        alembic_cfg = config.Config()
+        alembic_cfg.set_main_option("script_location", settings.migration.directory)
+        alembic_cfg.set_main_option("sqlalchemy.url", str(engine.url))
+        alembic_cfg.config_file_name = settings.migration.ini
+        command.stamp(alembic_cfg, "head")
 
 
 def create_thread_unsafe_session():

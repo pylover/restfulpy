@@ -47,6 +47,8 @@ class Field(Column):
 
         if max_length is not None:
             info['max_length'] = max_length
+        elif args and isinstance(args[0], (Unicode, String)):
+            info['max_length'] = args[0].length
 
         if min_length is not None:
             info['min_length'] = min_length
@@ -63,9 +65,6 @@ class Field(Column):
         if example is not None:
             info['example'] = example
 
-        if args and isinstance(args[0], (Unicode, String)):
-            info['max_length'] = args[0].length
-
         super(Field, self).__init__(*args, info=info, nullable=nullable, **kwargs)
 
     def _validate_pattern(self, value):
@@ -81,6 +80,7 @@ class Field(Column):
 
         if not isinstance(value, str):
             raise ValidationError(self.name, 'Invalid type: %s' % type(value))
+
         value_length = len(value)
         if min_length is not None:
             if value_length < min_length:
@@ -98,10 +98,6 @@ class Field(Column):
         if 'min_length' in self.info or 'max_length' in self.info:
             self._validate_length(value, self.info.get('min_length'), self.info.get('max_length'))
         return value
-
-    @property
-    def is_attachment(self):
-        return 'attachment' in self.info
 
 
 def relationship(*args, json=None, protected=None, **kwargs):

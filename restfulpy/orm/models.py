@@ -83,16 +83,12 @@ class BaseModel(object):
 
     def update_from_request(self):
         for column, value in self.extract_data_from_request():
-            if isinstance(column, Field) and column.is_attachment:
-                if value is not None and (isinstance(value, cgi.FieldStorage) or hasattr(value, 'read')):
-                    getattr(self, column.key[1:]).from_request(column, value)
-            else:
-                if 'unreadable' in column.info and (not value or (isinstance(value, str) and not value.strip())):
-                    continue
-                setattr(
-                    self,
-                    column.key[1:] if column.key.startswith('_') else column.key,
-                    self.import_value(column, value))
+            if 'unreadable' in column.info and (not value or (isinstance(value, str) and not value.strip())):
+                continue
+            setattr(
+                self,
+                column.key[1:] if column.key.startswith('_') else column.key,
+                self.import_value(column, value))
 
     @classmethod
     def iter_columns(cls, relationships=True, synonyms=True, composites=True, use_inspection=True):
