@@ -14,6 +14,13 @@ class BiscuitsController(RestController):
         result['id'] = id_
         return result
 
+    @action
+    def get(self, id_: int = None):
+        result = {}
+        result.update(context.form)
+        result['id'] = id_
+        return result
+
 
 class SimpleJsonPatchController(JsonPatchControllerMixin, RestController):
     biscuits = BiscuitsController()
@@ -35,9 +42,10 @@ class JsonPatchTestCase(unittest.TestCase):
             controller = SimpleJsonPatchController()
             context.form = [
                 {"op": "put", "path": "biscuits/1", "value": {"name": "Ginger Nut"}},
+                {"op": "get", "path": "biscuits/2", "value": {"name": "Ginger Nut"}},
             ]
             result = ujson.loads(controller())
-            self.assertEqual(len(result), 1)
+            self.assertEqual(len(result), 2)
 
 
 if __name__ == '__main__':  # pragma: no cover
