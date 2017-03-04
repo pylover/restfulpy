@@ -1,6 +1,7 @@
 import unittest
 
-from sqlalchemy import Integer, Unicode, ForeignKey
+from sqlalchemy import Integer, Unicode, ForeignKey, Boolean
+from sqlalchemy.orm import synonym
 from nanohttp import configure
 
 from restfulpy.orm import DeclarativeBase, init_model, create_engine, Field, DBSession, setup_schema, relationship, \
@@ -43,7 +44,16 @@ class Author(DeclarativeBase):
         pattern=r'\d{3}[-\.\s]??\d{3}[-\.\s]??\d{4}|\(\d{3}\)\s*\d{3}[-\.\s]??\d{4}|\d{3}[-\.\s]??\d{4}',
         watermark='Phone'
     )
-    name = composite(FullName, first_name, last_name, readonly=True, protected=True, json='fullName')
+    name = composite(FullName, first_name, last_name, readonly=True, json='fullName', protected=True)
+    _password = Field('password', Unicode(128), index=True, json='password', protected=True, min_length=6)
+
+    def _set_password(self, password):
+        self._password = 'hashed:%s' % password
+
+    def _get_password(self):
+        return self._password
+
+    password = synonym('_password', descriptor=property(_get_password, _set_password), info=dict(protected=True))
 
 
 class Memo(DeclarativeBase):
@@ -51,6 +61,15 @@ class Memo(DeclarativeBase):
     id = Field(Integer, primary_key=True)
     content = Field(Unicode(100), max_length=90)
     post_id = Field(ForeignKey('post.id'), json='postId')
+
+
+class Comment(DeclarativeBase):
+    __tablename__ = 'comment'
+    id = Field(Integer, primary_key=True)
+    content = Field(Unicode(100), max_length=90)
+    special = Field(Boolean, default=True)
+    post_id = Field(ForeignKey('post.id'), json='postId')
+    post = relationship('Post')
 
 
 class Post(DeclarativeBase):
@@ -61,6 +80,7 @@ class Post(DeclarativeBase):
     author_id = Field(ForeignKey('author.id'), json='authorId')
     author = relationship(Author)
     memos = relationship(Memo, protected=True, json='privateMemos')
+    comments = relationship(Comment)
 
 
 class ModelTestCase(unittest.TestCase):
@@ -85,6 +105,7 @@ class ModelTestCase(unittest.TestCase):
             first_name='author 1 first name',
             last_name='author 1 last name',
             phone=None,
+            password='123456'
         )
 
         post1 = Post(
@@ -111,6 +132,19 @@ class ModelTestCase(unittest.TestCase):
         # Validation, Max length
         with self.assertRaises(ValidationError):
             Author(phone='12321321321312321312312')
+
+        # Metadata
+        author_metadata = Author.json_metadata()
+        self.assertIn('id', author_metadata)
+        self.assertIn('email', author_metadata)
+        self.assertNotIn('fullName', author_metadata)
+        self.assertNotIn('password', author_metadata)
+
+        post_metadata = Post.json_metadata()
+        self.assertIn('author', post_metadata)
+
+        comment_metadata = Comment.json_metadata()
+        self.assertIn('post', comment_metadata)
 
 
 if __name__ == '__main__':  # pragma: no cover

@@ -46,57 +46,39 @@ class MetadataField(object):
         json_name = info.get('json', c.key)
         result = []
 
-        if 'attachment' in info:
-            result.append(cls(
-                '%sUrl' % json_name,
-                '%s_url' % c.key,
-                type_='url',
-                message=info.get('message') if 'message' in info else 'Invalid File'
-            ))
+        key = c.key
 
-            result.append(cls(
-                '%sThumbnails' % json_name,
-                '%s_thumbnails' % c.key,
-                type_='dict',
-                message=info.get('message') if 'message' in info else 'Invalid File'
-            ))
-
+        if hasattr(c, 'default') and c.default:
+            default_ = c.default.arg if c.default.is_scalar else 'function(...)'
         else:
-            key = c.key
+            default_ = ''
 
-            if hasattr(c, 'default') and c.default:
-                default_ = c.default.arg if c.default.is_scalar else 'function(...)'
-            else:
-                default_ = ''
+        if hasattr(c, 'type'):
+            type_ = c.type.python_type
+        elif hasattr(c, 'target'):
+            try:
+                type_ = c.target.name
+            except AttributeError:  # pragma: no cover
+                type_ = c.target.right.name
+        else:  # pragma: no cover
+            type_ = 'str'
+            # raise AttributeError('Unable to recognize type of the column: %s' % c.key)
 
-            if 'unreadable' in info and info['unreadable']:
-                type_ = 'str'
-            elif hasattr(c, 'type'):
-                type_ = c.type.python_type
-            elif hasattr(c, 'target'):
-                try:
-                    type_ = c.target.name
-                except AttributeError:
-                    type_ = c.target.right.name
-            else:
-                type_ = 'str'
-                # raise AttributeError('Unable to recognize type of the column: %s' % c.key)
-
-            result.append(cls(
-                json_name,
-                key,
-                type_=type_,
-                default_=default_,
-                optional=c.nullable if hasattr(c, 'nullable') else None,
-                pattern=info.get('pattern'),
-                max_length=info.get('max_length') if 'max_length' in info else
-                (c.type.length if hasattr(c, 'type') and hasattr(c.type, 'length') else None),
-                min_length=info.get('min_length'),
-                message=info.get('message') if 'message' in info else 'Invalid Value',
-                watermark=info.get('watermark', None),
-                label=info.get('label', None),
-                icon=info.get('icon', None),
-                example=info.get('example', None),
-            ))
+        result.append(cls(
+            json_name,
+            key,
+            type_=type_,
+            default_=default_,
+            optional=c.nullable if hasattr(c, 'nullable') else None,
+            pattern=info.get('pattern'),
+            max_length=info.get('max_length') if 'max_length' in info else
+            (c.type.length if hasattr(c, 'type') and hasattr(c.type, 'length') else None),
+            min_length=info.get('min_length'),
+            message=info.get('message') if 'message' in info else 'Invalid Value',
+            watermark=info.get('watermark', None),
+            label=info.get('label', None),
+            icon=info.get('icon', None),
+            example=info.get('example', None),
+        ))
 
         return result

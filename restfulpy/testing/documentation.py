@@ -143,11 +143,7 @@ class DocumentaryTestApp(TestApp):
                 else:
                     default_ = ''
 
-                if 'attachment' in column.info:
-                    type_ = 'attachment'
-                else:
-                    type_ = str if 'unreadable' in column.info and column.info['unreadable'] else \
-                        column.type.python_type
+                type_ = column.type.python_type
 
                 if json_name in params:
                     param = params[params.index(json_name)]

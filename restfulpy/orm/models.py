@@ -83,8 +83,6 @@ class BaseModel(object):
 
     def update_from_request(self):
         for column, value in self.extract_data_from_request():
-            if 'unreadable' in column.info and (not value or (isinstance(value, str) and not value.strip())):
-                continue
             setattr(
                 self,
                 column.key[1:] if column.key.startswith('_') else column.key,
