@@ -83,8 +83,19 @@ class JsonPatchControllerMixin:
         # Preserve patches
         patches = context.form
         results = []
-        for patch in patches:
-            context.form = patch['value']
-            context.method = patch['op']
-            results.append(self(*patch['path'].split('/')))
-        return results
+        context.jsonpatch = True
+
+        try:
+            for patch in patches:
+                context.form = patch['value']
+                context.method = patch['op']
+                results.append(self(*patch['path'].split('/')))
+                DBSession.flush()
+            DBSession.commit()
+            return results
+        except:
+            if DBSession.is_active:
+                DBSession.rollback()
+            raise
+        finally:
+            del context.jsonpatch

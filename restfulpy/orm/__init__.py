@@ -1,7 +1,7 @@
 
 import functools
 
-from nanohttp import settings
+from nanohttp import settings, context
 from sqlalchemy import create_engine as sa_create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.sql.schema import MetaData
@@ -81,6 +81,10 @@ def commit(func):
 
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
+
+        if hasattr(context, 'jsonpatch'):
+            return func(*args, **kwargs)
+
         try:
             result = func(*args, **kwargs)
             DBSession.commit()
