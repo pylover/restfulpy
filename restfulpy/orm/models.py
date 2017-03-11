@@ -151,7 +151,7 @@ class BaseModel(object):
 
     # noinspection PyUnresolvedReferences
     @classmethod
-    def dump_query(cls, query=None):
+    def filter_paginate_sort_query_by_request(cls, query=None):
         query = query or cls.query
 
         if issubclass(cls, FilteringMixin):
@@ -163,7 +163,11 @@ class BaseModel(object):
         if issubclass(cls, PaginationMixin):
             query = cls.paginate_by_request(query=query)
 
-        return [o.to_dict() for o in query]
+        return query
+
+    @classmethod
+    def dump_query(cls, query=None):
+        return [o.to_dict() for o in cls.filter_paginate_sort_query_by_request(query)]
 
     @classmethod
     def expose(cls, func):
