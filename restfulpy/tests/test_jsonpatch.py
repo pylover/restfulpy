@@ -1,20 +1,20 @@
 import unittest
 
 import ujson
-from nanohttp import context, action, RestController, Context, configure
+from nanohttp import context, json, RestController, Context, configure
 
 from restfulpy.controllers import JsonPatchControllerMixin
 
 
 class BiscuitsController(RestController):
-    @action
+    @json
     def put(self, id_: int = None):
         result = {}
         result.update(context.form)
         result['id'] = id_
         return result
 
-    @action
+    @json
     def get(self, id_: int = None):
         result = {}
         result.update(context.form)

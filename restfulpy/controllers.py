@@ -2,7 +2,7 @@
 import warnings
 import itsdangerous
 
-from nanohttp import Controller, context, settings, json, RestController
+from nanohttp import Controller, context, settings, json, RestController, action
 
 from restfulpy.principal import JwtPrincipal
 from restfulpy.orm import DBSession
@@ -73,7 +73,7 @@ class ModelRestController(RestController):
 
 class JsonPatchControllerMixin:
 
-    @json
+    @action(content_type='application/json')
     def patch(self: Controller):
         """
         Set context.method
@@ -87,12 +87,15 @@ class JsonPatchControllerMixin:
 
         try:
             for patch in patches:
-                context.form = patch['value']
+                context.form = patch.get('value', {})
                 context.method = patch['op']
-                results.append(self(*patch['path'].split('/')))
+
+                return_data = self(*patch['path'].split('/'))
+                results.append(return_data)
+
                 DBSession.flush()
             DBSession.commit()
-            return results
+            return '[%s]' % ',\n'.join(results)
         except:
             if DBSession.is_active:
                 DBSession.rollback()
