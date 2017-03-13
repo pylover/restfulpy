@@ -4,8 +4,7 @@ import re
 
 from sqlalchemy import Column, Unicode, String
 from sqlalchemy.orm import relationship as sa_relationship, composite as sa_composite
-
-from restfulpy.exceptions import ValidationError
+from nanohttp import HttpBadRequest
 
 
 # noinspection PyAbstractClass
@@ -71,7 +70,7 @@ class Field(Column):
         if value is None:
             return
         if not re.match(self.info['pattern'], value):
-            raise ValidationError(self.name, 'Cannot match "%s" with field acceptable pattern' % value)
+            raise HttpBadRequest('Cannot match field: %s with value "%s" by acceptable pattern' % (self.name, value))
         return value
 
     def _validate_length(self, value, min_length, max_length):
@@ -79,17 +78,16 @@ class Field(Column):
             return
 
         if not isinstance(value, str):
-            raise ValidationError(self.name, 'Invalid type: %s' % type(value))
+            raise HttpBadRequest('Invalid type: %s for field: %s' % (type(value), self.name))
 
         value_length = len(value)
         if min_length is not None:
             if value_length < min_length:
-                raise ValidationError(self.name, 'Please enter at least %d characters for field: %s.' %
-                                      (min_length, self.key))
+                raise HttpBadRequest('Please enter at least %d characters for field: %s.' % (min_length, self.name))
 
         if max_length is not None:
             if value_length > max_length:
-                raise ValidationError(self.name, 'Cannot enter more that : %d in field: %s.' % (max_length, self.key))
+                raise HttpBadRequest('Cannot enter more that : %d in field: %s.' % (max_length, self.name))
 
     def validate(self, value):
         if 'pattern' in self.info:

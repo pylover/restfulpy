@@ -8,23 +8,6 @@ class RestfulException(Exception):
         }
 
 
-class FileNotFoundException(RestfulException):
-    pass
-
-
-class OrmException(RestfulException):
-    pass
-
-
-class KeyDecodeError(OrmException):
-    pass
-
-
-class FormParserError(RestfulException):
-    def __init__(self):
-        super(FormParserError, self).__init__('Cannot parse the form.')
-
-
 class ValidationError(RestfulException):
     field = None
 

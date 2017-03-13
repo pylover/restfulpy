@@ -6,10 +6,9 @@ from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import synonym, SynonymProperty
 from sqlalchemy.sql.expression import nullslast
 from sqlalchemy.events import event
-from nanohttp import context, HttpBadRequest
+from nanohttp import context, HttpBadRequest, HttpConflict
 
 from restfulpy.orm.field import Field
-from restfulpy.exceptions import OrmException
 
 
 class TimestampMixin:
@@ -69,7 +68,7 @@ class SoftDeleteMixin:
 
     @staticmethod
     def on_delete(mapper, connection, target):
-        raise OrmException('Cannot remove this object: %s' % target)
+        raise HttpConflict('Cannot remove this object: %s' % target)
 
     @classmethod
     def __declare_last__(cls):

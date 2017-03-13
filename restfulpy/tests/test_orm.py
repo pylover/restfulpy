@@ -2,11 +2,10 @@ import unittest
 
 from sqlalchemy import Integer, Unicode, ForeignKey, Boolean
 from sqlalchemy.orm import synonym
-from nanohttp import configure
+from nanohttp import configure, HttpBadRequest
 
 from restfulpy.orm import DeclarativeBase, init_model, create_engine, Field, DBSession, setup_schema, relationship, \
     composite
-from restfulpy.exceptions import ValidationError
 
 
 class FullName(object):  # pragma: no cover
@@ -118,19 +117,19 @@ class ModelTestCase(unittest.TestCase):
         self.assertEqual(post1.id, 1)
 
         # Validation, Type
-        with self.assertRaises(ValidationError):
+        with self.assertRaises(HttpBadRequest):
             Author(title=234)
 
         # Validation, Pattern
-        with self.assertRaises(ValidationError):
+        with self.assertRaises(HttpBadRequest):
             Author(email='invalidEmailAddress')
 
         # Validation, Min length
-        with self.assertRaises(ValidationError):
+        with self.assertRaises(HttpBadRequest):
             Author(title='1')
 
         # Validation, Max length
-        with self.assertRaises(ValidationError):
+        with self.assertRaises(HttpBadRequest):
             Author(phone='12321321321312321312312')
 
         # Metadata
