@@ -135,7 +135,7 @@ class PaginationMixin:
         context.response_headers.add_header('X-Pagination-Take', str(take))
         context.response_headers.add_header('X-Pagination-Skip', str(skip))
         context.response_headers.add_header('X-Pagination-Count', str(query.count()))
-        return query[skip:skip + take]
+        return query.offset(skip).limit(take)  # [skip:skip + take] Commented by vahid
 
 
 class FilteringMixin:
