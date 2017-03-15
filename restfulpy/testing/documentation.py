@@ -204,10 +204,14 @@ class DocumentaryTestApp(TestApp):
             f.close()
 
     def send_request(self, role, method, url, query_string=None, url_params=None,
-                     params=None, model=None, doc=True, **kwargs):
+                     params=None, model=None, doc=True, json=None, content_type=None, **kwargs):
         files = []
-        parameters = {}
+
+        if json:
+            content_type = 'application/json'
+
         if params:
+            parameters = {}
             if isinstance(params, dict):
                 parameters = params
                 if doc:
@@ -222,10 +226,11 @@ class DocumentaryTestApp(TestApp):
                     else:
                         parameters[param.name] = param.value
 
+            if parameters:
+                kwargs['params'] = parameters
+
         if files:
             kwargs['upload_files'] = files
-        if parameters:
-            kwargs['params'] = parameters
 
         real_url = (url % url_params) if url_params else url
         real_url = quote(real_url)
@@ -233,9 +238,12 @@ class DocumentaryTestApp(TestApp):
         if query_string:
             real_url = '%s?%s' % (real_url, urlencode(query_string))
 
-        resp = self._gen_request(method.upper(), real_url, expect_errors=True, **kwargs)
+        resp = self._gen_request(method.upper(), real_url, content_type=content_type, expect_errors=True, **kwargs)
+
+        kwargs.setdefault('headers', {})
+        kwargs['headers']['Content-Type'] = content_type
 
         if doc:
-            self.document(role, method, url, resp, kwargs.get('headers'), model=model, params=params,
+            self.document(role, method, url, resp, kwargs['headers'], model=model, params=json or params,
                           query_string=query_string)
         return resp
