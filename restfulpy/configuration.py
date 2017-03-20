@@ -92,7 +92,7 @@ logging:
 """
 
 
-def configure(config=None, directories=None, files=None, context=None, force=False):
+def configure(config=None, directories=None, files=None, context=None, force=False):  # pragma: no cover
 
     nanohttp_configure(init_value=__builtin_config, context=context, force=force)
 
