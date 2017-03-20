@@ -88,4 +88,4 @@ ENV/
 # Rope project settings
 .ropeproject
 .idea
-tests/data
+restfulpy/tests/data
