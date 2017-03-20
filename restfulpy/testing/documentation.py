@@ -173,8 +173,7 @@ class DocumentaryTestApp(TestApp):
                 f.write('```\n')
 
             elif isinstance(params, list):
-                f.write('#### Request: FORM\n\n')
-                f.write('```\n')
+                f.write('#### Request: Form\n\n')
                 f.write('| Parameter | Optional | Type | Default | Example |\n')
                 f.write('| --------- | -------- | ---- | ------- | ------- |\n')
                 for param in params:
@@ -184,18 +183,16 @@ class DocumentaryTestApp(TestApp):
                         param.type_string,
                         param.default if param.default is not None else '',
                         param.value_string))
-                f.write('```\n')
 
             if query_string:
                 f.write('#### Query String:\n\n')
-                f.write('```\n')
+
                 f.write('| Parameter | Example |\n')
                 f.write('| --------- | ------- |\n')
                 for name, value in query_string.items():
                     f.write('| %s | %s |\n' % (
                         name,
                         str(value)))
-                f.write('```\n')
 
             if request_headers:
                 f.write('#### Request Headers:\n\n')
@@ -269,7 +266,9 @@ class DocumentaryTestApp(TestApp):
         )
 
         kwargs.setdefault('headers', {})
-        kwargs['headers']['Content-Type'] = kwargs.get('content_type', content_type)
+        content_type = kwargs.get('content_type', content_type)
+        if content_type:
+            kwargs['headers']['Content-Type'] = content_type
 
         if doc:
             self.document(role, method, url, resp, kwargs['headers'], model=model, params=json or params,
