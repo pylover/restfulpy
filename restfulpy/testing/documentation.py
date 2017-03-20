@@ -2,7 +2,9 @@ from os import makedirs
 from os.path import join, exists, dirname, basename
 from urllib.parse import quote, urlencode
 import warnings
+from pprint import pprint
 
+import ujson
 from webtest import TestApp
 
 from restfulpy.testing.constants import DOC_HEADER, DOC_LEGEND
@@ -162,7 +164,12 @@ class DocumentaryTestApp(TestApp):
 
         try:
             f.write('\n- (%s) **%s** `%s`\n' % (role, method.upper(), url))
-            if params:
+            if isinstance(params, dict):
+                f.write('\n```json\n')
+                pprint(params, stream=f, indent=8)
+                f.write('```\n')
+
+            elif isinstance(params, list):
                 f.write('\n    - Form Parameters:\n\n')
                 f.write('        | Parameter | Optional | Type | Default | Example |\n')
                 f.write('        | --------- | -------- | ---- | ------- | ------- |\n')
@@ -207,30 +214,36 @@ class DocumentaryTestApp(TestApp):
                      params=None, model=None, doc=True, json=None, content_type=None, **kwargs):
         files = []
 
+        parameters = {}
         if json:
-            content_type = 'application/json'
+            kwargs.setdefault('content_type', 'application/json')
+            kwargs.update(
+                params=ujson.dumps(json),
+                upload_files=None,
+            )
 
-        if params:
-            parameters = {}
-            if isinstance(params, dict):
-                parameters = params
-                if doc:
-                    warnings.warn(
-                        'Skipping documentation generation, because the passed parameters are plain dict.',
-                        stacklevel=4)
-                    doc = False
-            else:
-                for param in params:
-                    if param.type_ == 'file':
-                        files.append((param.name, param.value))
-                    else:
-                        parameters[param.name] = param.value
+        else:
+            kwargs.setdefault('content_type', content_type)
+            if params:
+                if isinstance(params, dict):
+                    parameters = params
+                    if doc:
+                        warnings.warn(
+                            'Skipping documentation generation, because the passed parameters are plain dict.',
+                            stacklevel=4)
+                        doc = False
+                else:
+                    for param in params:
+                        if param.type_ == 'file':
+                            files.append((param.name, param.value))
+                        else:
+                            parameters[param.name] = param.value
 
-            if parameters:
-                kwargs['params'] = parameters
+                if parameters:
+                    kwargs['params'] = parameters
 
-        if files:
-            kwargs['upload_files'] = files
+            if files:
+                kwargs['upload_files'] = files
 
         real_url = (url % url_params) if url_params else url
         real_url = quote(real_url)
@@ -238,7 +251,9 @@ class DocumentaryTestApp(TestApp):
         if query_string:
             real_url = '%s?%s' % (real_url, urlencode(query_string))
 
-        resp = self._gen_request(method.upper(), real_url, content_type=content_type, expect_errors=True, **kwargs)
+        resp = self._gen_request(
+            method.upper(), real_url, expect_errors=True, **kwargs
+        )
 
         kwargs.setdefault('headers', {})
         kwargs['headers']['Content-Type'] = content_type

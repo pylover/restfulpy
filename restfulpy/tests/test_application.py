@@ -4,23 +4,7 @@ import unittest
 from nanohttp import action, Controller
 
 from restfulpy.testing import WebAppTestCase
-from restfulpy.application import Application
-
-
-class MockupApplication(Application):
-    builtin_configuration = '''
-    db:
-      test_uri: postgresql://postgres:postgres@localhost/lemur_test
-      administrative_uri: postgresql://postgres:postgres@localhost/postgres
-    '''
-
-    def configure(self, files=None, context=None, **kwargs):
-        _context = dict(
-            process_name='restfulpy_unittests'
-        )
-        if context:
-            _context.update(context)
-        super().configure(files=files, context=_context, **kwargs)
+from restfulpy.tests.helpers import MockupApplication
 
 
 class Root(Controller):
