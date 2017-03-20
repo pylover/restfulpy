@@ -1,5 +1,6 @@
 
 import functools
+from os.path import exists
 
 from nanohttp import settings, context
 from sqlalchemy import create_engine as sa_create_engine
@@ -65,7 +66,7 @@ def setup_schema(session=None):
     engine = session.bind
     metadata.create_all(bind=engine)
 
-    if hasattr(settings, 'migration'):
+    if hasattr(settings, 'migration') and exists(settings.migration.directory):
         alembic_cfg = config.Config()
         alembic_cfg.set_main_option("script_location", settings.migration.directory)
         alembic_cfg.set_main_option("sqlalchemy.url", str(engine.url))
