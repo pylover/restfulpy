@@ -71,6 +71,7 @@ class SetupDatabaseLauncher(Launcher):
     def launch(self):
         setup_schema()
 
+
 class AdminLauncher(Launcher, RequireSubCommand):
     @classmethod
     def create_parser(cls, subparsers):

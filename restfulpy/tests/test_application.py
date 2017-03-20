@@ -14,6 +14,14 @@ class MockupApplication(Application):
       administrative_uri: postgresql://postgres:postgres@localhost/postgres
     '''
 
+    def configure(self, files=None, context=None, **kwargs):
+        _context = dict(
+            process_name='restfulpy_unittests'
+        )
+        if context:
+            _context.update(context)
+        super().configure(files=files, context=_context, **kwargs)
+
 
 class Root(Controller):
 

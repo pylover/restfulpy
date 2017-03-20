@@ -31,7 +31,7 @@ class Application:
 
         files = files or []
         local_config_file = join(user_config_dir(), '%s.yml' % self.name)
-        if exists(local_config_file):
+        if exists(local_config_file):  # pragma: no cover
             print('Gathering config file: %s' % local_config_file)
             files.insert(0, local_config_file)
 
@@ -51,8 +51,8 @@ class Application:
     def wsgi(self):
         return self.root.load_app()
 
-    def insert_basedata(self):
+    def insert_basedata(self):  # pragma: no cover
         raise NotImplementedError
 
-    def insert_mockup(self):
+    def insert_mockup(self):  # pragma: no cover
         raise NotImplementedError

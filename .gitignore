@@ -89,3 +89,4 @@ ENV/
 .ropeproject
 .idea
 restfulpy/tests/data
+data
