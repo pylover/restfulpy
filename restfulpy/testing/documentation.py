@@ -163,48 +163,61 @@ class DocumentaryTestApp(TestApp):
                     params.append(param)
 
         try:
-            f.write('\n- (%s) **%s** `%s`\n' % (role, method.upper(), url))
+            f.write('### %s `%s`\n\n' % (method.upper(), url))
+            f.write('Role: %s\n\n' % role)
+
             if isinstance(params, dict):
-                f.write('\n```json\n')
+                f.write('#### Request: JSON\n\n')
+                f.write('```json\n')
                 pprint(params, stream=f, indent=8)
                 f.write('```\n')
 
             elif isinstance(params, list):
-                f.write('\n    - Form Parameters:\n\n')
-                f.write('        | Parameter | Optional | Type | Default | Example |\n')
-                f.write('        | --------- | -------- | ---- | ------- | ------- |\n')
+                f.write('#### Request: FORM\n\n')
+                f.write('```\n')
+                f.write('| Parameter | Optional | Type | Default | Example |\n')
+                f.write('| --------- | -------- | ---- | ------- | ------- |\n')
                 for param in params:
-                    f.write('        | %s | %s | %s | %s | %s |\n' % (
+                    f.write('| %s | %s | %s | %s | %s |\n' % (
                         param.name,
                         True if method.lower() == 'put' else param.optional,
                         param.type_string,
                         param.default if param.default is not None else '',
                         param.value_string))
+                f.write('```\n')
+
             if query_string:
-                f.write('\n    - Query String:\n\n')
-                f.write('        | Parameter | Example |\n')
-                f.write('        | --------- | ------- |\n')
+                f.write('#### Query String:\n\n')
+                f.write('```\n')
+                f.write('| Parameter | Example |\n')
+                f.write('| --------- | ------- |\n')
                 for name, value in query_string.items():
-                    f.write('        | %s | %s |\n' % (
+                    f.write('| %s | %s |\n' % (
                         name,
                         str(value)))
+                f.write('```\n')
 
             if request_headers:
-                f.write('\n    - Request Headers:\n\n')
+                f.write('#### Request Headers:\n\n')
+                f.write('```\n')
                 for k, v in request_headers.items():
-                    f.write('%s%s: %s\n' % (12 * ' ', k, v))
+                    f.write('%s: %s\n' % (k, v))
+                f.write('```\n')
 
-            f.write('\n    - Response Headers:\n\n')
+            f.write('#### Response Headers:\n\n')
+            f.write('```\n')
             for k, v in resp.headers.items():
-                f.write('%s%s: %s\n' % (12 * ' ', k, v))
+                f.write('%s: %s\n' % (k, v))
+            f.write('```\n')
 
-            f.write('\n    - Response Body:\n\n')
+            f.write('#### Response Body:\n\n')
+            f.write('```json\n')
             if resp.charset in ('utf8', 'utf-8'):
                 for l in resp.body.decode().splitlines():
-                    f.write('%s%s\n' % (12 * ' ', l))
+                    f.write('%s\n' % l)
             else:
-                f.write('%s%r\n' % (12 * ' ', resp.body))
-            f.write('\n\n')
+                f.write('%r\n' % resp.body)
+            f.write('```\n\n')
             self._signatures.add(signature)
         finally:
             f.write('\n')
@@ -256,7 +269,7 @@ class DocumentaryTestApp(TestApp):
         )
 
         kwargs.setdefault('headers', {})
-        kwargs['headers']['Content-Type'] = content_type
+        kwargs['headers']['Content-Type'] = kwargs.get('content_type', content_type)
 
         if doc:
             self.document(role, method, url, resp, kwargs['headers'], model=model, params=json or params,
