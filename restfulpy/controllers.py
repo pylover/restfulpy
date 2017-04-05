@@ -57,6 +57,7 @@ class JwtController(Controller):
 
     def __call__(self, *remaining_paths):
         if context.method == 'options':
+            context.response_encoding = 'utf-8'
             context.response_headers.add_header("Cache-Control", "no-cache,no-store")
             return b''
 
