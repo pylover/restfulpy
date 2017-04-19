@@ -6,12 +6,17 @@ from nanohttp import Controller, context, settings, json, RestController, action
 
 from restfulpy.principal import JwtPrincipal
 from restfulpy.orm import DBSession
+from restfulpy.logging_ import get_logger
 
 
 warnings.filterwarnings('ignore', message='Unknown REQUEST_METHOD')
 
 
-class JwtController(Controller):
+class RootController(Controller):
+    __logger__ = get_logger()
+
+
+class JwtController(RootController):
     token_key = 'HTTP_AUTHORIZATION'
     refresh_token_cookie_key = 'refresh-token'
 
