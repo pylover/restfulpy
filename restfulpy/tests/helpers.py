@@ -6,7 +6,7 @@ class MockupApplication(Application):
     builtin_configuration = '''
     db:
       test_uri: postgresql://postgres:postgres@localhost/restfulpy_test
-      administrative_uri: postgresql://postgres:postgres@localhost/postgres
+      administrative_uri: postgresql://postgres:postgres@localhost/postgres      
     '''
 
     def configure(self, files=None, context=None, **kwargs):

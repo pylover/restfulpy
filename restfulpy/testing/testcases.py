@@ -60,9 +60,12 @@ class WebAppTestCase(unittest.TestCase):
         cls.application.configure(force=True)
         settings.merge("""
             messaging:
-                default_messenger: restfulpy.testing.MockupMessenger
-            """
-        )
+              default_messenger: restfulpy.testing.MockupMessenger
+            logging:
+              loggers:
+                default:
+                  level: critical
+            """)
 
     @classmethod
     def tearDownClass(cls):
