@@ -30,6 +30,8 @@ class Application:
             _context.update(context)
 
         files = files or []
+        if isinstance(files, str):
+            files = [files]
         local_config_file = join(user_config_dir(), '%s.yml' % self.name)
         if exists(local_config_file):  # pragma: no cover
             print('Gathering config file: %s' % local_config_file)
