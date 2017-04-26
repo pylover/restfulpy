@@ -36,8 +36,8 @@ DeclarativeBase = declarative_base(cls=BaseModel, metadata=metadata)
 DeclarativeBase.query = DBSession.query_property()
 
 
-def create_engine():
-    return sa_create_engine(settings.db.uri, echo=settings.db.echo)
+def create_engine(uri=None, echo=None):
+    return sa_create_engine(uri or settings.db.uri, echo=echo or settings.db.echo)
 
 
 def init_model(engine):
