@@ -32,6 +32,15 @@ class ProgressBar:
         return '%.2d:%.2d' % (td.seconds // 60, td.seconds % 60)
 
     @property
+    def estimated_time(self):
+        if self.value is 0:
+            et = 0
+        else:
+            td = datetime.now() - self.start_time
+            et = td.total_seconds() * (self.total / self.value - 1)
+        return '%.2d:%.2d' % (int(et) // 60, int(et) % 60)
+
+    @property
     def marks(self):
         scale = 2
         v = self.percent // scale
@@ -41,7 +50,7 @@ class ProgressBar:
         detailed = ('%%%dd/%%d' % len(str(self.total))) % (self._value, self.total)
         percent = '%3d%%' % self.percent
         progress = '|%s|' % self.marks
-        print(' '.join((detailed, percent, progress, self.time)), end='\r', flush=True)
+        print(' '.join((detailed, percent, progress, self.time, self.estimated_time)), end='\r', flush=True)
 
     def __enter__(self):
         self.start_time = datetime.now()
