@@ -1,4 +1,5 @@
 
+import subprocess
 from datetime import datetime
 
 
@@ -60,3 +61,37 @@ class ProgressBar:
     def __exit__(self, exc_type, exc_val, exc_tb):
         self._invalidate()
         print()
+
+
+class LineReaderProgressBar(ProgressBar):
+    """
+    A proxy for IO file, with progressbar for reading file line by line.
+    
+    """
+    def __init__(self, filename, mode='r'):
+        self.filename = filename
+        self.file = open(filename, mode)
+        super().__init__(self.file_len(filename))
+
+    @staticmethod
+    def file_len(filename):
+        p = subprocess.Popen(['wc', '-l', filename], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        result, err = p.communicate()
+        if p.returncode != 0:
+            raise IOError(err)
+        return int(result.strip().split()[0])
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.file.__exit__(exc_type, exc_val, exc_tb)
+        return super().__exit__(exc_type, exc_val, exc_tb)
+
+    def readline(self):
+        self.increment()
+        return self.file.readline()
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        self.increment()
+        return self.file.__next__()
