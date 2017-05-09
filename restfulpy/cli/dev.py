@@ -1,4 +1,6 @@
 
+import yaml
+from nanohttp import settings
 from restfulpy.cli.base import RequireSubCommand, Launcher
 
 
@@ -35,6 +37,18 @@ class LogLauncher(Launcher):
         getattr(get_logger(self.args.logger), self.args.level)(' '.join(self.args.message))
 
 
+class ConfigurationDumpLauncher(Launcher):
+    @classmethod
+    def create_parser(cls, subparsers):
+        parser = subparsers.add_parser('config-dump', help="Dump the configuration")
+        parser.add_argument('path', help='The config path, for example: db')
+        return parser
+
+    def launch(self):
+        dump = yaml.dump(getattr(settings, self.args.path), default_flow_style=False)
+        print(dump)
+
+
 class DevLauncher(Launcher, RequireSubCommand):
     @classmethod
     def create_parser(cls, subparsers):
@@ -42,4 +56,5 @@ class DevLauncher(Launcher, RequireSubCommand):
         dev_subparsers = parser.add_subparsers(title="admin command", dest="admin_command")
         LogLauncher.register(dev_subparsers)
         EmailLauncher.register(dev_subparsers)
+        ConfigurationDumpLauncher.register(dev_subparsers)
         return parser
