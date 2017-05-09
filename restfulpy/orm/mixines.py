@@ -9,6 +9,7 @@ from sqlalchemy.events import event
 from nanohttp import context, HttpBadRequest, HttpConflict
 
 from restfulpy.orm.field import Field
+from restfulpy.orm.fulltext_search import fts_escape
 
 
 class TimestampMixin:
@@ -261,3 +262,22 @@ class ApproveRequiredMixin:
     def approved_objects(cls, query=None):
         # noinspection PyUnresolvedReferences
         return (query or cls.query).filter(cls.activated_at.isnot(None))
+
+
+class FullTextSearchMixin:
+
+    @property
+    def __ts_vector__(self):
+        raise NotImplementedError()
+
+    # @classmethod
+    # def get_fts_expressions(cls, e):
+    #     words = fts_escape(e).split(' ')
+    #     return '%s:*' % ':*&'.join(words) if words else ''
+    #
+    @classmethod
+    def search(cls, expressions, query=None):
+        query = (query or cls.query).filter(
+            cls.__ts_vector__.match(expressions)
+        )
+        return query

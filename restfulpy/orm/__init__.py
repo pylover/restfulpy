@@ -11,10 +11,10 @@ from alembic import config, command
 
 from restfulpy.orm.field import Field, relationship, composite
 from restfulpy.orm.mixines import ModifiedMixin, SoftDeleteMixin, TimestampMixin, ActivationMixin, PaginationMixin, \
-    FilteringMixin, OrderingMixin, OrderableMixin, ApproveRequiredMixin
+    FilteringMixin, OrderingMixin, OrderableMixin, ApproveRequiredMixin, FullTextSearchMixin
 from restfulpy.orm.metadata import MetadataField
 from restfulpy.orm.models import BaseModel
-
+from restfulpy.orm.fulltext_search import to_tsvector
 
 # Global session manager: DBSession() returns the Thread-local
 # session object appropriate for the current web request.

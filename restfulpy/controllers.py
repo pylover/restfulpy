@@ -49,7 +49,7 @@ class JwtController(RootController):
         if settings.debug:
             context.response_headers.add_header('Access-Control-Allow-Origin', 'http://localhost:8080')
             context.response_headers.add_header('Access-Control-Allow-Methods',
-                                                'GET, POST, PUT, DELETE, UNDELETE, METADATA, PATCH')
+                                                'GET, POST, PUT, DELETE, UNDELETE, METADATA, PATCH, SEARCH')
             context.response_headers.add_header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
             context.response_headers.add_header('Access-Control-Expose-Headers',
                                                 'Content-Type, X-Pagination-Count, X-Pagination-Skip, '
