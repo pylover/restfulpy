@@ -74,8 +74,17 @@ class WebAppTestCase(unittest.TestCase):
 
     def request(self, role, method, url, query_string=None, url_params=None, params=None, model=None, doc=True,
                 expected_status=200, expected_headers=None, json=None, **kwargs):
-        resp = self.wsgi_app.send_request(role, method, url, query_string=query_string, url_params=url_params,
-                                          params=params, model=model, doc=doc, json=json, **kwargs)
+
+        resp = self.wsgi_app.send_request(
+            role, method, url,
+            query_string=query_string,
+            url_params=url_params,
+            params=params,
+            model=model,
+            doc=doc,
+            json=json,
+            **kwargs
+        )
 
         if resp.status_code != expected_status:
             print('#' * 80)
@@ -94,7 +103,7 @@ class WebAppTestCase(unittest.TestCase):
         else:
             result = resp.body
 
-        return result, None
+        return result, resp.headers
 
     def assertDictContainsSubset(self, dictionary, subset, msg=None):
         """Checks whether dictionary is a superset of subset."""
