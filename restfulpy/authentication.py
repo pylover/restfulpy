@@ -16,88 +16,79 @@ class Authenticator:
     refresh_token_cookie_key = 'refresh-token'
     token_response_header = 'X-New-JWT-Token'
 
-    @classmethod
-    def create_principal(cls, member_id=None, session_id=None):
+    def create_principal(self, member_id=None, session_id=None):
         raise NotImplementedError()
 
-    @classmethod
-    def create_refresh_principal(cls, member_id=None):
+    def create_refresh_principal(self, member_id=None):
         raise NotImplementedError()
 
-    @classmethod
-    def validate_credentials(cls, credentials):
+    def validate_credentials(self, credentials):
         raise NotImplementedError()
 
-    @classmethod
-    def setup_response_headers(cls, new_principal):
-        context.response_headers.add_header(cls.token_response_header, new_principal.dump().decode())
+    def setup_response_headers(self, new_principal):
+        context.response_headers.add_header(self.token_response_header, new_principal.dump().decode())
 
-    @classmethod
-    def try_refresh_token(cls, session_id):
-        refresh_token_encoded = context.cookies.get(cls.refresh_token_cookie_key)
+    def try_refresh_token(self, session_id):
+        refresh_token_encoded = context.cookies.get(self.refresh_token_cookie_key)
 
         if refresh_token_encoded is None or not refresh_token_encoded.strip():
-            cls.bad()
+            self.bad()
             return
 
         # Decode refresh token
         try:
             refresh_principal = JwtRefreshToken.load(refresh_token_encoded)
-            cls.ok(
-                cls.create_principal(member_id=refresh_principal.id, session_id=session_id),
+            self.ok(
+                self.create_principal(member_id=refresh_principal.id, session_id=session_id),
                 setup_header=True
             )
         except itsdangerous.SignatureExpired:
-            cls.bad()
+            self.bad()
         except itsdangerous.BadData:
-            cls.bad()
+            self.bad()
             raise HttpBadRequest()
 
-    @classmethod
-    def bad(cls):
+    def bad(self):
         context.identity = None
 
-    @classmethod
-    def ok(cls, principal, setup_header=False):
+    def ok(self, principal, setup_header=False):
         context.identity = principal
         if setup_header:
-            cls.setup_response_headers(principal)
+            self.setup_response_headers(principal)
 
-    @classmethod
-    def authenticate_request(cls):
-        if cls.token_key not in context.environ:
-            cls.bad()
+    def authenticate_request(self):
+        if self.token_key not in context.environ:
+            self.bad()
             return
 
-        encoded_token = context.environ[cls.token_key]
+        encoded_token = context.environ[self.token_key]
         if encoded_token is None or not encoded_token.strip():
-            cls.bad()
+            self.bad()
             return
 
         try:
-            cls.ok(JwtPrincipal.load(encoded_token))
+            self.ok(JwtPrincipal.load(encoded_token))
 
         except itsdangerous.SignatureExpired as ex:
             # The token has expired. So we're trying to restore it using refresh-token.
             session_id = ex.payload.get('sessionId')
             if session_id:
-                cls.try_refresh_token(session_id)
+                self.try_refresh_token(session_id)
         except itsdangerous.BadData:
             # The token is Malformed
-            cls.bad()
+            self.bad()
             raise HttpBadRequest()
 
-    @classmethod
-    def login(cls, credentials):
-        member = cls.validate_credentials(credentials)
+    def login(self, credentials):
+        member = self.validate_credentials(credentials)
         if member is None:
             return None
 
-        principal = cls.create_principal(member.id)
+        principal = self.create_principal(member.id)
         
         context.response_cookies.append(HttpCookie(
             'refresh-token',
-            value=cls.create_refresh_principal(member.id).dump().decode(),
+            value=self.create_refresh_principal(member.id).dump().decode(),
             max_age=settings.jwt.refresh_token.max_age,
             http_only=False,
             secure=True
