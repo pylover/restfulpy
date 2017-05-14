@@ -174,12 +174,16 @@ class StatefulAuthenticator(Authenticator):
         self.redis.hdel(self.sessions_key, session_id)
 
     def invalidate_member(self, member_id=None):
+        # store current session id if available
+        current_session_id = None if context.identity is None else context.identity.session_id
         while True:
             session_id = self.redis.spop(self.get_member_sessions_key(member_id))
             if not session_id:
                 break
             self.redis.hdel(self.sessions_key, session_id)
-        self.redis.del_(self.get_member_sessions_key(member_id))
+        self.redis.delete(self.get_member_sessions_key(member_id))
+        if current_session_id:
+            self.try_refresh_token(current_session_id)
 
     def validate_session(self, session_id):
         return self.redis.hexists(self.sessions_key, session_id)
