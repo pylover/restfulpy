@@ -9,7 +9,11 @@ with open(join(dirname(__file__), 'restfulpy', '__init__.py')) as v_file:
 
 
 dependencies = [
+<<<<<<< Updated upstream
     'nanohttp>=0.6.3,<0.7.0',
+=======
+    'nanohttp>=0.7.0',
+>>>>>>> Stashed changes
     'argcomplete',
     'ujson',
     'appdirs',
