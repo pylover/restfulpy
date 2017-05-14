@@ -73,7 +73,7 @@ class DocumentaryTestApp(TestApp):
     def __init__(self, destination_dir, application, *args, **kwargs):
         self.application = application
         self.destination_dir = destination_dir
-        super(DocumentaryTestApp, self).__init__(application.wsgi(), *args, **kwargs)
+        super(DocumentaryTestApp, self).__init__(application, *args, **kwargs)
 
     @property
     def legend_filename(self):
