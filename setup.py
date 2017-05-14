@@ -19,6 +19,7 @@ dependencies = [
     'itsdangerous',
     'mako',
     'psycopg2',
+    'redis',
 
     # Testing
     'requests',

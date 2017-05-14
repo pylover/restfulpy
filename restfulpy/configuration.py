@@ -34,6 +34,13 @@ messaging:
   template_dirs:
     - %(restfulpy_dir)s/messaging/templates
 
+authentication:
+  redis:
+    host: localhost
+    port: 6379
+    password: ~
+    db: 0
+
 worker:
   gap: 2
   number_of_threads: 4

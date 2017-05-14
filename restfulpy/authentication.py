@@ -1,7 +1,6 @@
 
-
 import itsdangerous
-
+import redis
 from nanohttp import context, HttpBadRequest, HttpCookie, settings
 
 from restfulpy.principal import JwtPrincipal, JwtRefreshToken
@@ -9,7 +8,7 @@ from restfulpy.principal import JwtPrincipal, JwtRefreshToken
 
 class Authenticator:
     """
-    An extendable abstract static class for encapsulating all stuff about authentication
+    An extendable stateless abstract class for encapsulating all stuff about authentication
     """
 
     token_key = 'HTTP_AUTHORIZATION'
@@ -56,6 +55,9 @@ class Authenticator:
         if setup_header:
             self.setup_response_headers(principal)
 
+    def verify_token(self, encoded_token):
+        return JwtPrincipal.load(encoded_token)
+
     def authenticate_request(self):
         if self.token_key not in context.environ:
             self.bad()
@@ -67,7 +69,7 @@ class Authenticator:
             return
 
         try:
-            self.ok(JwtPrincipal.load(encoded_token))
+            self.ok(self.verify_token(encoded_token))
 
         except itsdangerous.SignatureExpired as ex:
             # The token has expired. So we're trying to restore it using refresh-token.
@@ -85,7 +87,9 @@ class Authenticator:
             return None
 
         principal = self.create_principal(member.id)
-        
+
+        self.ok(principal)
+
         context.response_cookies.append(HttpCookie(
             'refresh-token',
             value=self.create_refresh_principal(member.id).dump().decode(),
@@ -95,3 +99,87 @@ class Authenticator:
         ))
 
         return principal
+
+    def logout(self):
+        self.bad()
+
+
+# noinspection PyAbstractClass
+class StatefulAuthenticator(Authenticator):
+    """
+    
+    Redis data-model:
+    
+    sessions: HashMap { session_id: member_id }
+    member_id: Set { session_id } 
+    
+    
+    """
+
+    _redis = None
+    sessions_key = 'auth:sessions'
+    members_key = 'auth:member:%s'
+
+    def __init__(self):
+        super().__init__()
+
+    @staticmethod
+    def create_blocking_redis_client():
+        # FIXME: use unix socket
+        return redis.StrictRedis(
+            host=settings.authentication.redis.host,
+            port=settings.authentication.redis.port,
+            db=settings.authentication.redis.db,
+            password=settings.authentication.redis.password
+        )
+
+    @property
+    def redis(self):
+        if self.__class__._redis is None:
+            self.__class__._redis = self.create_blocking_redis_client()
+        return self.__class__._redis
+
+    @classmethod
+    def get_session_key(cls, session_id):
+        return 'auth:session:%s' % session_id
+
+    @classmethod
+    def get_member_sessions_key(cls, member_id):
+        return 'auth:member:%s' % member_id
+
+    def verify_token(self, encoded_token):
+        principal = super().verify_token(encoded_token)
+        if not self.validate_session(principal.session_id):
+            raise itsdangerous.SignatureExpired('The token has already invalidated', principal.payload)
+        return principal
+
+    def login(self, credentials):
+        principal = super().login(credentials)
+        if principal is not None:
+            self.register_session(principal.id, principal.session_id)
+        return principal
+
+    def logout(self):
+        self.unregister_session(context.identity.session_id)
+        super().logout()
+
+    def register_session(self, member_id, session_id):
+        self.redis.hset(self.sessions_key, session_id, member_id)
+        self.redis.sadd(self.get_member_sessions_key(member_id), session_id)
+
+    def unregister_session(self, session_id=None):
+        session_id = session_id or context.identity.session_id
+        member_id = self.redis.hget(self.sessions_key, session_id)
+        self.redis.srem(self.get_member_sessions_key(member_id), session_id)
+        self.redis.hdel(self.sessions_key, session_id)
+
+    def invalidate_member(self, member_id=None):
+        while True:
+            session_id = self.redis.spop(self.get_member_sessions_key(member_id))
+            if not session_id:
+                break
+            self.redis.hdel(self.sessions_key, session_id)
+        self.redis.del_(self.get_member_sessions_key(member_id))
+
+    def validate_session(self, session_id):
+        return self.redis.hexists(self.sessions_key, session_id)
