@@ -9,7 +9,6 @@ from sqlalchemy.events import event
 from nanohttp import context, HttpBadRequest, HttpConflict
 
 from restfulpy.orm.field import Field
-from restfulpy.orm.fulltext_search import fts_escape
 
 
 class TimestampMixin:
