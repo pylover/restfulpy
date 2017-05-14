@@ -2,7 +2,7 @@
 
 import itsdangerous
 
-from nanohttp import context, HttpBadRequest
+from nanohttp import context, HttpBadRequest, HttpCookie, settings
 
 from restfulpy.principal import JwtPrincipal, JwtRefreshToken
 
@@ -17,7 +17,15 @@ class Authenticator:
     token_response_header = 'X-New-JWT-Token'
 
     @classmethod
-    def create_principal(cls, refresh_principal=None, session_id=None):
+    def create_principal(cls, member_id=None, session_id=None):
+        raise NotImplementedError()
+
+    @classmethod
+    def create_refresh_principal(cls, member_id=None):
+        raise NotImplementedError()
+
+    @classmethod
+    def validate_credentials(cls, credentials):
         raise NotImplementedError()
 
     @classmethod
@@ -36,7 +44,7 @@ class Authenticator:
         try:
             refresh_principal = JwtRefreshToken.load(refresh_token_encoded)
             cls.ok(
-                cls.create_principal(refresh_principal=refresh_principal, session_id=session_id),
+                cls.create_principal(member_id=refresh_principal.id, session_id=session_id),
                 setup_header=True
             )
         except itsdangerous.SignatureExpired:
@@ -78,3 +86,21 @@ class Authenticator:
             # The token is Malformed
             cls.bad()
             raise HttpBadRequest()
+
+    @classmethod
+    def login(cls, credentials):
+        member = cls.validate_credentials(credentials)
+        if member is None:
+            return None
+
+        principal = cls.create_principal(member.id)
+        
+        context.response_cookies.append(HttpCookie(
+            'refresh-token',
+            value=cls.create_refresh_principal(member.id).dump().decode(),
+            max_age=settings.jwt.refresh_token.max_age,
+            http_only=False,
+            secure=True
+        ))
+
+        return principal
