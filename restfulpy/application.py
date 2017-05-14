@@ -1,20 +1,24 @@
 from os.path import abspath, exists, join, dirname
 
 from appdirs import user_config_dir
-from nanohttp import Controller
+from nanohttp import Application as NanohttpApplication, Controller, settings, context
 
-from restfulpy.orm import init_model, create_engine
+from restfulpy.orm import init_model, create_engine, DBSession
 from restfulpy.configuration import configure
 from restfulpy.cli.main import MainLauncher
+from restfulpy.logging_ import get_logger
+from restfulpy.authentication import Authenticator
 
 
-class Application:
+class Application(NanohttpApplication):
     builtin_configuration = None
+    __logger__ = get_logger()
+    __authenticator__ = Authenticator
 
     def __init__(self, name: str, root: Controller, root_path='.', version='0.1.0-dev.0', process_name=None):
+        super(Application, self).__init__(root=root)
         self.process_name = process_name or name
         self.version = version
-        self.root = root
         self.root_path = abspath(root_path)
         self.name = name
         self.cli_main = MainLauncher(self)
@@ -49,10 +53,29 @@ class Application:
     @classmethod
     def initialize_models(cls):
         init_model(create_engine())
+        
+    # Hooks
 
-    def wsgi(self):
-        return self.root.load_app()
+    def begin_request(self):
+        self.__authenticator__.authenticate_request()
 
+    # noinspection PyMethodMayBeStatic
+    def begin_response(self):
+        if settings.debug:
+            context.response_headers.add_header('Access-Control-Allow-Origin', 'http://localhost:8080')
+            context.response_headers.add_header('Access-Control-Allow-Methods',
+                                                'GET, POST, PUT, DELETE, UNDELETE, METADATA, PATCH, SEARCH')
+            context.response_headers.add_header('Access-Control-Allow-Headers', 'Content-Type, Authorization, '
+                                                                                'X-HTTP-Verb')
+            context.response_headers.add_header('Access-Control-Expose-Headers',
+                                                'Content-Type, X-Pagination-Count, X-Pagination-Skip, '
+                                                'X-Pagination-Take, X-New-JWT-Token')
+            context.response_headers.add_header('Access-Control-Allow-Credentials', 'true')
+
+    # noinspection PyMethodMayBeStatic
+    def end_response(self):
+        DBSession.remove()
+        
     def insert_basedata(self):  # pragma: no cover
         raise NotImplementedError
 
