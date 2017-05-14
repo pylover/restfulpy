@@ -1,12 +1,11 @@
 
 import warnings
-import itsdangerous
 
 from nanohttp import Controller, context, settings, json, RestController, action
 
-from restfulpy.principal import JwtPrincipal
 from restfulpy.orm import DBSession
 from restfulpy.logging_ import get_logger
+from restfulpy.authentication import Authenticator
 
 
 warnings.filterwarnings('ignore', message='Unknown REQUEST_METHOD')
@@ -17,32 +16,10 @@ class RootController(Controller):
 
 
 class JwtController(RootController):
-    token_key = 'HTTP_AUTHORIZATION'
-    refresh_token_cookie_key = 'refresh-token'
+    __authenticator__ = Authenticator
 
     def begin_request(self):
-        if self.token_key in context.environ:
-            encoded_token = context.environ[self.token_key]
-            try:
-                context.identity = JwtPrincipal.decode(encoded_token)
-            except itsdangerous.SignatureExpired as ex:
-                refresh_token_encoded = context.cookies.get(self.refresh_token_cookie_key)
-                if refresh_token_encoded:
-                    # Extracting session_id
-                    session_id = ex.payload.get('sessionId')
-                    if session_id:
-                        context.identity = new_token = self.refresh_jwt_token(refresh_token_encoded, session_id)
-                        if new_token:
-                            context.response_headers.add_header('X-New-JWT-Token', new_token.encode().decode())
-
-            except itsdangerous.BadData:
-                pass
-
-        if not hasattr(context, 'identity'):
-            context.identity = None
-
-    def refresh_jwt_token(self, refresh_token_encoded, session_id):
-        raise NotImplementedError
+        self.__authenticator__.authenticate_request()
 
     # noinspection PyMethodMayBeStatic
     def begin_response(self):

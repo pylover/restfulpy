@@ -3,6 +3,8 @@ import base64
 from itsdangerous import TimedJSONWebSignatureSerializer, JSONWebSignatureSerializer
 from nanohttp import settings
 
+from restfulpy.utils import deprecated
+
 
 class JwtPrincipal:
 
@@ -23,11 +25,24 @@ class JwtPrincipal:
                 algorithm_name=settings.jwt.algorithm
             )
 
+    @deprecated
     def encode(self):
+        """Use ``dump`` instead.
+        """
+        return self.dump()
+
+    def dump(self):
         return self.create_serializer().dumps(self.payload)
 
     @classmethod
+    @deprecated
     def decode(cls, encoded, force=False):
+        """Use ``load`` instead.
+        """
+        return cls.load(encoded, force=force)
+
+    @classmethod
+    def load(cls, encoded, force=False):
         if encoded.startswith('Bearer '):
             encoded = encoded[7:]
         if encoded.startswith('Basic '):
@@ -66,11 +81,11 @@ class JwtRefreshToken:
             algorithm_name=settings.jwt.refresh_token.algorithm
         )
 
-    def encode(self):
+    def dump(self):
         return self.create_serializer().dumps(self.payload)
 
     @classmethod
-    def decode(cls, encoded):
+    def load(cls, encoded):
         payload = cls.create_serializer().loads(encoded)
         return cls(payload)
 
