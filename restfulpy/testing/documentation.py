@@ -208,6 +208,10 @@ class DocumentaryTestApp(TestApp):
                 for k, v in request_headers.items():
                     f.write('%s: %s\n' % (k, v))
                 f.write('```\n')
+            f.write('\n\n')
+
+            f.write('### Status:\n\n')
+            f.write('`%s`\n\n' % resp.status)
 
             f.write('### Response Headers:\n\n')
             f.write('```\n')
