@@ -62,7 +62,6 @@ You can sort like this:
 
 
 class As:
-    Anonymouse = 'Visitor'
+    anonymouse = 'Anonymouse'
     member = 'Member'
     admin = 'Admin'
-    everyone = '%s|%s|%s' % (Anonymouse, member, admin)

@@ -264,16 +264,8 @@ class ApproveRequiredMixin:
 
 
 class FullTextSearchMixin:
+    __ts_vector__ = None
 
-    @property
-    def __ts_vector__(self):
-        raise NotImplementedError()
-
-    # @classmethod
-    # def get_fts_expressions(cls, e):
-    #     words = fts_escape(e).split(' ')
-    #     return '%s:*' % ':*&'.join(words) if words else ''
-    #
     @classmethod
     def search(cls, expressions, query=None):
         query = (query or cls.query).filter(
