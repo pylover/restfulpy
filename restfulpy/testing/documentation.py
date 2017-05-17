@@ -110,11 +110,12 @@ class DocumentaryTestApp(TestApp):
             f = open(filename, 'w')
             f.write(DOC_HEADER % dict(version=self.application.version))
             f.write('\n%s' % entity)
-            f.write('\n%s\n' % ('-' * len(entity)))
+            f.write('\n%s\n' % ('=' * len(entity)))
             self._files.append(filename)
             return f
 
-    def document(self, role, method, url, resp, request_headers, model=None, params=None, query_string=None):
+    def document(self, role, method, url, resp, request_headers, model=None, params=None, query_string=None,
+                 url_params=None):
         signature = RequestSignature(
             role, method, url,
             query_string=tuple(query_string.keys()) if query_string else None,
@@ -129,7 +130,7 @@ class DocumentaryTestApp(TestApp):
             entity = filename = p if p else 'index'
         else:
             version, entity = path_parts[0:2]
-            filename = '_'.join(path_parts[:2] + [method.lower()])
+            filename = '-'.join(path_parts[:2] + [method.lower()])
 
         filename = join(self.destination_dir, '%s.md' % filename)
         f = self._ensure_file(filename, entity)
@@ -163,17 +164,24 @@ class DocumentaryTestApp(TestApp):
                     params.append(param)
 
         try:
-            f.write('### %s `%s`\n\n' % (method.upper(), url))
+            f.write('## %s `%s`\n\n' % (method.upper(), url.replace('%(', '{').replace(')s', '}')))
             f.write('Role: %s\n\n' % role)
 
+            if url_params:
+                f.write('### Url Parameters:\n\n')
+                f.write('| Parameter | Value |\n')
+                f.write('| --------- | ----- |\n')
+                for name, value in url_params.items():
+                    f.write('| %s | %s |\n' % (name, value))
+
             if isinstance(params, dict):
-                f.write('#### Request: JSON\n\n')
+                f.write('### Request: JSON\n\n')
                 f.write('```json\n')
                 pprint(params, stream=f, indent=8)
                 f.write('```\n')
 
             elif isinstance(params, list):
-                f.write('#### Request: Form\n\n')
+                f.write('### Request: Form\n\n')
                 f.write('| Parameter | Optional | Type | Default | Example |\n')
                 f.write('| --------- | -------- | ---- | ------- | ------- |\n')
                 for param in params:
@@ -185,7 +193,7 @@ class DocumentaryTestApp(TestApp):
                         param.value_string))
 
             if query_string:
-                f.write('#### Query String:\n\n')
+                f.write('### Query String:\n\n')
 
                 f.write('| Parameter | Example |\n')
                 f.write('| --------- | ------- |\n')
@@ -195,19 +203,19 @@ class DocumentaryTestApp(TestApp):
                         str(value)))
 
             if request_headers:
-                f.write('#### Request Headers:\n\n')
+                f.write('### Request Headers:\n\n')
                 f.write('```\n')
                 for k, v in request_headers.items():
                     f.write('%s: %s\n' % (k, v))
                 f.write('```\n')
 
-            f.write('#### Response Headers:\n\n')
+            f.write('### Response Headers:\n\n')
             f.write('```\n')
             for k, v in resp.headers.items():
                 f.write('%s: %s\n' % (k, v))
             f.write('```\n')
 
-            f.write('#### Response Body:\n\n')
+            f.write('### Response Body:\n\n')
             f.write('```json\n')
             if resp.charset in ('utf8', 'utf-8'):
                 for l in resp.body.decode().splitlines():
@@ -272,5 +280,5 @@ class DocumentaryTestApp(TestApp):
 
         if doc:
             self.document(role, method, url, resp, kwargs['headers'], model=model, params=json or params,
-                          query_string=query_string)
+                          query_string=query_string, url_params=url_params)
         return resp

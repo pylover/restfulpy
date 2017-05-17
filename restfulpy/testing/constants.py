@@ -2,9 +2,11 @@
 
 DOC_HEADER = """
 
-[Author]: <TestEngine>
-[Version]: <%(version)s>
-[Status]: <Implemented>
+| Parameter | Value       |
+| --------- | ----------- |
+| Author    | TestEngine  |
+| Version   | %(version)s |
+| Status    | Implemented |
 
 """
 
