@@ -167,7 +167,10 @@ class BaseModel(object):
 
     @classmethod
     def dump_query(cls, query=None):
-        return [o.to_dict() for o in cls.filter_paginate_sort_query_by_request(query)]
+        result = []
+        for o in cls.filter_paginate_sort_query_by_request(query):
+            result.append(o.to_dict())
+        return result
 
     @classmethod
     def expose(cls, func):

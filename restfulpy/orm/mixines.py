@@ -268,6 +268,7 @@ class FullTextSearchMixin:
 
     @classmethod
     def search(cls, expressions, query=None):
+        expressions = expressions.replace(' ', '|')
         query = (query or cls.query).filter(
             cls.__ts_vector__.match(expressions)
         )
