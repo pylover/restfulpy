@@ -1,3 +1,4 @@
+
 from os.path import abspath, exists, join, dirname
 
 from appdirs import user_config_dir
@@ -55,7 +56,6 @@ class Application(NanohttpApplication):
         init_model(create_engine())
         
     # Hooks
-
     def begin_request(self):
         self.__authenticator__.authenticate_request()
 
@@ -75,7 +75,7 @@ class Application(NanohttpApplication):
     # noinspection PyMethodMayBeStatic
     def end_response(self):
         DBSession.remove()
-        
+
     def insert_basedata(self):  # pragma: no cover
         raise NotImplementedError
 
