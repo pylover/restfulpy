@@ -11,3 +11,4 @@ naming(camelCase).
 - Generating the REST API documentation while the tests are passing. It helps to 
 always deliver fresh API documentation.
 
+
