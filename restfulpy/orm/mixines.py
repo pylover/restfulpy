@@ -4,7 +4,7 @@ from datetime import datetime
 from sqlalchemy import DateTime, Integer, between, desc
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import synonym, SynonymProperty
-from sqlalchemy.sql.expression import nullslast
+from sqlalchemy.sql.expression import nullslast, nullsfirst
 from sqlalchemy.events import event
 from nanohttp import context, HttpBadRequest, HttpConflict
 
@@ -214,8 +214,11 @@ class OrderingMixin:
 
         if descending:
             expression = desc(expression)
+            pre = nullsfirst
+        else:
+            pre = nullslast
 
-        return query.order_by(nullslast(expression))
+        return query.order_by(pre(expression))
 
     @classmethod
     def sort_by_request(cls, query=None):
