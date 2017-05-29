@@ -72,6 +72,7 @@ logging:
     default:
       level: notset
       max_bytes: 52428800
+      formatter: default
 
     console:
       type: console
@@ -89,13 +90,6 @@ logging:
     default:
       format: "%%(asctime)s - %%(name)s - %%(levelname)s - %%(message)s"
       date_format: "%%Y-%%m-%%d %%H:%%M:%%S"
-
-    # CRITICAL	50
-    # DEBUG	    10
-    # ERROR	    40
-    # INFO	    20
-    # WARNING	30
-    # NOTSET	0
 
 """
 

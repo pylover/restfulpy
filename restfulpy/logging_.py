@@ -7,47 +7,35 @@ from nanohttp import settings, LazyAttribute
 
 
 _loggers = {}
-
-_levels = {
-    'notset': NOTSET,       # 0
-    'debug': DEBUG,         # 10
-    'info': INFO,           # 20
-    'warning': WARNING,     # 30
-    'error': ERROR,         # 40
-    'critical': CRITICAL    # 50
-}
-
-
+_handlers = {}
+_formatters = {}
 root_logger_is_configured = False
 
 
-def create_logger(logger_name):
-    global root_logger_is_configured
-    config = settings.logging
+def get_level(name):
+    return {
+        'notset': NOTSET,       # 0
+        'debug': DEBUG,         # 10
+        'info': INFO,           # 20
+        'warning': WARNING,     # 30
+        'error': ERROR,         # 40
+        'critical': CRITICAL    # 50
+    }[name]
 
-    # Rebasing with default config
-    cfg = config.loggers.default.copy()
-    cfg.update(config.loggers.get(logger_name.lower(), {}))
-    level = _levels[cfg.level.lower()]
 
-    # configuring the root logger, if not configured yet.
-    if not root_logger_is_configured:
-        basicConfig(handlers=config.loggers.default.handlers, level=config.loggers.default.level)
-        root_logger_is_configured = True
+def ensure_formatter(name):
+    if name not in _formatters:
+        formatter_config = settings.logging.formatters.default.copy()
+        formatter_config.update(settings.logging.formatters.get(name, {}))
+        _formatters[name] = Formatter(formatter_config.format, formatter_config.date_format)
+    return _formatters[name]
 
-    # Creating logger
-    logger_ = getLogger(logger_name.upper())
-    logger_.setLevel(level)
-    logger_.propagate = cfg.propagate
 
-    # Creating Formatter
-    formatter_config = config.formatters[cfg.formatter]
-    formatter = Formatter(formatter_config.format, formatter_config.date_format)
+def ensure_handler(name):
+    if name not in _handlers:
 
-    # Creating Handlers
-    for handler_name in cfg.handlers:
-        handler_config = config.handlers.default.copy()
-        handler_config.update(config.handlers.get(handler_name, {}))
+        handler_config = settings.logging.handlers.default.copy()
+        handler_config.update(settings.logging.handlers.get(name, {}))
 
         if handler_config.type == 'console':
             handler = StreamHandler()
@@ -60,28 +48,62 @@ def create_logger(logger_name):
                 encoding='utf-8',
                 maxBytes=handler_config.get('max_bytes', 52428800)
             )
+        else:
+            raise ValueError('Invalid handler type: %s' % handler_config.type)
 
         if handler_config.level != 'notset':
-            handler.setLevel(_levels[handler_config.level.lower()])
-        else:
-            handler.setLevel(level)
-        # Attaching newly created formatter to the handler
-        handler.setFormatter(formatter)
-        logger_.addHandler(handler)
+            handler.setLevel(get_level(handler_config.level))
 
-    # Adding the first log entry
-    logger_.info('Logger %s just initialized' % logger_name)
-    return logger_
+        # Attaching newly created formatter to the handler
+        handler.setFormatter(ensure_formatter(handler_config.formatter))
+        _handlers[name] = handler
+
+    return _handlers[name]
+
+
+def ensure_root_logger():
+    global root_logger_is_configured
+
+    if root_logger_is_configured:
+        return
+
+    basicConfig(handlers=settings.logging.loggers.default.handlers, level=settings.logging.loggers.default.level)
+    root_logger_is_configured = True
+
+
+def ensure_logger(name):
+    global root_logger_is_configured
+    ensure_root_logger()
+
+    if name in _loggers:
+        # Rebasing with default config
+        logger_config = settings.logging.loggers.default.copy()
+        logger_config.update(settings.logging.loggers.get(name, {}))
+        level = get_level(logger_config.level)
+
+        # Creating logger
+        logger = getLogger(name)
+        logger.setLevel(level)
+        logger.propagate = logger_config.propagate
+
+        # Creating Handlers
+        for handler_name in logger_config.handlers:
+            logger.addHandler(ensure_handler(handler_name))
+
+        # Adding the first log entry
+        logger.info('Logger %s just initialized' % name)
+        _loggers[name] = logger
+
+    return _loggers[name]
 
 
 class LoggerProxy(object):
-    def __init__(self, *args, **kw):
-        self.factory_args = args
-        self.factory_kwargs = kw
+    def __init__(self, name):
+        self.name = name
 
     @LazyAttribute
     def logger(self):
-        return create_logger(*self.factory_args, **self.factory_kwargs)
+        return ensure_logger(self.name)
 
     def info(self, *args, **kw):
         self.logger.info(*args, **kw)
@@ -103,7 +125,6 @@ class LoggerProxy(object):
 
 
 def get_logger(logger_name='main'):
-    logger_name = logger_name.upper()
     logger = _loggers.get(logger_name)
     if not logger:
         logger = _loggers[logger_name] = LoggerProxy(logger_name)
