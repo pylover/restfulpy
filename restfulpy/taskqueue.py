@@ -10,7 +10,7 @@ from restfulpy.orm import TimestampMixin, DeclarativeBase, Field, DBSession, cre
 from restfulpy.exceptions import RestfulException
 from restfulpy.logging_ import get_logger
 
-logger = get_logger('TASK-QUEUE')
+logger = get_logger('taskqueue')
 
 
 class TaskPopError(RestfulException):

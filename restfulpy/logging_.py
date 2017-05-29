@@ -1,6 +1,6 @@
 
 from os import path, makedirs
-from logging import getLogger, Formatter, NOTSET, DEBUG, INFO, WARNING, ERROR, CRITICAL, StreamHandler
+from logging import getLogger, Formatter, NOTSET, DEBUG, INFO, WARNING, ERROR, CRITICAL, StreamHandler, basicConfig
 from logging.handlers import RotatingFileHandler
 
 from nanohttp import settings, LazyAttribute
@@ -18,17 +18,27 @@ _levels = {
 }
 
 
+root_logger_is_configured = False
+
+
 def create_logger(logger_name):
+    global root_logger_is_configured
     config = settings.logging
 
     # Rebasing with default config
     cfg = config.loggers.default.copy()
-    cfg.update(config.loggers.get(logger_name, {}))
+    cfg.update(config.loggers.get(logger_name.lower(), {}))
     level = _levels[cfg.level.lower()]
+
+    # configuring the root logger, if not configured yet.
+    if not root_logger_is_configured:
+        basicConfig(handlers=config.loggers.default.handlers, level=config.loggers.default.level)
+        root_logger_is_configured = True
 
     # Creating logger
     logger_ = getLogger(logger_name.upper())
     logger_.setLevel(level)
+    logger_.propagate = cfg.propagate
 
     # Creating Formatter
     formatter_config = config.formatters[cfg.formatter]

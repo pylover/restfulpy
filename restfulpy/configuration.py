@@ -65,6 +65,7 @@ logging:
         - error
       level: debug
       formatter: default
+      propagate: true
 
   handlers:
 
