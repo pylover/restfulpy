@@ -85,7 +85,8 @@ class BaseModel(object):
             setattr(
                 self,
                 column.key[1:] if column.key.startswith('_') else column.key,
-                self.import_value(column, value))
+                self.import_value(column, value)
+            )
 
     @classmethod
     def iter_columns(cls, relationships=True, synonyms=True, composites=True, use_inspection=True):
