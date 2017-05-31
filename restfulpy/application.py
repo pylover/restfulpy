@@ -1,8 +1,9 @@
 
+import sys
 from os.path import abspath, exists, join, dirname
 
 from appdirs import user_config_dir
-from nanohttp import Application as NanohttpApplication, Controller, settings, context
+from nanohttp import Application as NanohttpApplication, Controller, settings, context, HttpStatus, HttpInternalServerError
 
 from restfulpy.orm import init_model, create_engine, DBSession
 from restfulpy.configuration import configure
@@ -23,6 +24,12 @@ class Application(NanohttpApplication):
         self.root_path = abspath(root_path)
         self.name = name
         self.cli_main = MainLauncher(self)
+
+    def _handle_exception(self, ex):
+        if not isinstance(ex, HttpStatus):
+            ex = HttpInternalServerError('Internal server error')
+            self.__logger__.exception('Internal server error')
+        return super()._handle_exception(ex)
 
     def configure(self, files=None, context=None, **kwargs):
         _context = {
