@@ -108,6 +108,12 @@ class ActivationMixin:
         # noinspection PyUnresolvedReferences
         return (query or cls.query).filter(cls.activated_at.isnot(None))
 
+    @classmethod
+    def import_value(cls, column, v):
+        if column.key == cls.is_active.key and not isinstance(v, bool):
+            return str(v).lower() == 'true'
+        return super().import_value(column, v)
+
 
 class PaginationMixin:
     __take_header_key__ = 'X_TAKE'
