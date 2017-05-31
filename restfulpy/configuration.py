@@ -66,6 +66,10 @@ logging:
       level: debug
       formatter: default
       propagate: true
+      
+    root:
+      level: debug
+      formatter: default    
 
   handlers:
 

@@ -1,5 +1,4 @@
 
-import sys
 from os.path import abspath, exists, join, dirname
 
 from appdirs import user_config_dir
