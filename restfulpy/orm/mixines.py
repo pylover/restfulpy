@@ -165,8 +165,10 @@ class FilteringMixin:
             not_ = value[0].startswith('!^')
             first_item = value[0][2 if not_ else 1:]
             items = [first_item] + value[1:]
-            l = [import_value(column, j) for j in items]
-            expression = column.in_(l)
+            items = [i for i in items if i.strip()]
+            if not len(items):
+                raise HttpBadRequest('Invalid query string: %s' % value)
+            expression = column.in_([import_value(column, j) for j in items])
             if not_:
                 expression = ~expression
 

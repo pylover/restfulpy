@@ -88,7 +88,12 @@ class WebAppTestCase(unittest.TestCase):
 
         if resp.status_code != expected_status:
             print('#' * 80)
-            print(resp.text)
+            if 'content-type' in resp.headers and resp.headers['content-type'].startswith('application/json'):
+                result = ujson.loads(resp.body.decode())
+                print(result['message'])
+                print(result['description'])
+            else:
+                print(resp.body)
             print('#' * 80)
 
         self.assertEqual(resp.status_code, expected_status)
