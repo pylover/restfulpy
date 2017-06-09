@@ -9,6 +9,7 @@ from sqlalchemy.events import event
 from nanohttp import context, HttpBadRequest, HttpConflict
 
 from restfulpy.orm.field import Field
+from restfulpy.utils import to_camel_case
 
 
 class TimestampMixin:
@@ -153,7 +154,7 @@ class FilteringMixin:
 
         # noinspection PyUnresolvedReferences
         for c in cls.iter_json_columns():
-            json_name = c.info.get('json', c.key)
+            json_name = c.info.get('json', to_camel_case(c.key))
             if json_name in context.query_string:
                 value = context.query_string[json_name]
                 query = cls._filter_by_column_value(query, c, value)

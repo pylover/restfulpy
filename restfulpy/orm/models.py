@@ -9,7 +9,7 @@ from sqlalchemy.orm import SynonymProperty, validates, Query, CompositeProperty
 from sqlalchemy.inspection import inspect
 from sqlalchemy.orm.relationships import RelationshipProperty
 
-from restfulpy.utils import format_iso_datetime, format_iso_time
+from restfulpy.utils import format_iso_datetime, format_iso_time, to_camel_case
 from restfulpy.orm.mixines import PaginationMixin, FilteringMixin, OrderingMixin
 from restfulpy.orm.field import Field
 from restfulpy.orm.metadata import MetadataField
@@ -37,7 +37,7 @@ class BaseModel(object):
 
     @classmethod
     def prepare_for_export(cls, column, v):
-        param_name = column.info.get('json') or column.key
+        param_name = column.info.get('json') or to_camel_case(column.key)
 
         if isinstance(column, RelationshipProperty) and column.uselist:
             result = [c.to_dict() for c in v]
@@ -124,7 +124,7 @@ class BaseModel(object):
     @classmethod
     def extract_data_from_request(cls):
         for c in cls.iter_json_columns(include_protected_columns=True):
-            param_name = c.info.get('json', c.key)
+            param_name = c.info.get('json', to_camel_case(c.key))
 
             if c.info.get('readonly') and param_name in context.form:
                 if c.info.get('strict', None):
@@ -145,7 +145,7 @@ class BaseModel(object):
     def create_sort_criteria(cls, sort_columns):
         criteria = []
         for c in cls.iter_json_columns():
-            json_name = c.info.get('json', c.key)
+            json_name = c.info.get('json', to_camel_case(c.key))
             if json_name in sort_columns:
                 criteria.append((c, sort_columns[json_name] == 'desc'))
         return criteria

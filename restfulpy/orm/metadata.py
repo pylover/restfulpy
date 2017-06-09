@@ -1,3 +1,4 @@
+from restfulpy.utils import to_camel_case
 
 
 class MetadataField(object):
@@ -43,7 +44,7 @@ class MetadataField(object):
     def from_column(cls, c, info=None):
         if not info:
             info = c.info
-        json_name = info.get('json', c.key)
+        json_name = info.get('json', to_camel_case(c.key))
         result = []
 
         key = c.key

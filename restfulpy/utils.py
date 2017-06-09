@@ -5,6 +5,7 @@ import importlib.util
 from datetime import datetime, timedelta
 from os.path import dirname, abspath
 import uuid
+import re
 
 ZERO = timedelta(0)
 
@@ -141,3 +142,7 @@ def get_class_by_tablename(base, table_name):
     for c in base._decl_class_registry.values():
         if hasattr(c, '__tablename__') and c.__tablename__ == table_name:
             return c
+
+
+def to_camel_case(text):
+    return re.sub("(_\w)", lambda x: x.group(1)[1:].upper(), text)
