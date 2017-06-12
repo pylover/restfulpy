@@ -19,7 +19,8 @@ def http_server(app=None, handler_class=WSGIRequestHandler, server_class=WSGISer
         server.set_app(app)
     thread = threading.Thread(target=server.serve_forever, name='sa-media test server.', daemon=True)
     thread.start()
-    yield server
+    url = 'http://localhost:%s' % server.server_address[1]
+    yield server, url
     server.shutdown()
     thread.join()
 
