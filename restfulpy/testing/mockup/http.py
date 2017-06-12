@@ -4,18 +4,18 @@ import io
 import base64
 from os import urandom
 from os.path import split
-from http.server import HTTPServer, BaseHTTPRequestHandler, HTTPStatus
-from wsgiref.simple_server import WSGIServer
+from http.server import BaseHTTPRequestHandler, HTTPStatus, HTTPServer
+from wsgiref.simple_server import WSGIServer, WSGIRequestHandler
 
 from restfulpy.mimetypes_ import guess_type
 from restfulpy.utils import copy_stream
 
 
 @contextlib.contextmanager
-def simple_http_server(handler_class, server_class=HTTPServer, app=None, bind=('', 0)):
+def http_server(app=None, handler_class=WSGIRequestHandler, server_class=WSGIServer, bind=('', 0)):
     server = server_class(bind, handler_class)
     if app:
-        assert issubclass(server_class, WSGIServer)
+        assert isinstance(server, WSGIServer)
         server.set_app(app)
     thread = threading.Thread(target=server.serve_forever, name='sa-media test server.', daemon=True)
     thread.start()
@@ -64,7 +64,7 @@ def encode_multipart_data(fields: dict = None, files: dict = None):  # pragma: n
     return content_type, body, length
 
 
-def mockup_http_static_server(content: bytes = b'Simple file content.', content_type: str = None, **kwargs):
+def http_static_server(content: bytes = b'Simple file content.', content_type: str = None, **kwargs):
     class StaticMockupHandler(BaseHTTPRequestHandler):  # pragma: no cover
         def serve_text(self):
             self.send_header('Content-Type', "text/plain")
@@ -100,4 +100,4 @@ def mockup_http_static_server(content: bytes = b'Simple file content.', content_
                 # noinspection PyTypeChecker
                 self.serve_stream(content)
 
-    return simple_http_server(StaticMockupHandler, **kwargs)
+    return simple_http_server(None, handler_class=StaticMockupHandler, server_class=HTTPServer, **kwargs)
