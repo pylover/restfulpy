@@ -2,10 +2,12 @@ import sys
 import warnings
 import importlib
 import importlib.util
-from datetime import datetime, timedelta
-from os.path import dirname, abspath
 import uuid
 import re
+from os.path import dirname, abspath
+from datetime import datetime, timedelta
+from hashlib import md5
+
 
 ZERO = timedelta(0)
 
@@ -146,3 +148,33 @@ def get_class_by_tablename(base, table_name):
 
 def to_camel_case(text):
     return re.sub("(_\w)", lambda x: x.group(1)[1:].upper(), text)
+
+
+def copy_stream(source, target, *, chunk_size: int= 16 * 1024) -> int:
+    length = 0
+    while 1:
+        buf = source.read(chunk_size)
+        if not buf:
+            break
+        length += len(buf)
+        target.write(buf)
+    return length
+
+
+def md5sum(f):
+    if isinstance(f, str):
+        file_obj = open(f, 'rb')
+    else:
+        file_obj = f
+
+    try:
+        checksum = md5()
+        while True:
+            d = file_obj.read(1024)
+            if not d:
+                break
+            checksum.update(d)
+        return checksum.digest()
+    finally:
+        if file_obj is not f:
+            file_obj.close()
