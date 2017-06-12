@@ -38,6 +38,9 @@ class SmtpProvider(Messenger):
         """
         Sending messages with SMTP server
         """
+
+        # FIXME: Exception handling
+
         body = self.render_body(body, template_filename)
 
         smtp_config = settings.smtp
@@ -48,6 +51,8 @@ class SmtpProvider(Messenger):
         )
         smtp_server.starttls()
         smtp_server.login(smtp_config.username, smtp_config.password)
+
+        from_ = from_ or smtp_config.username
 
         msg = MIMEText(body, 'html')
         msg['Subject'] = subject
