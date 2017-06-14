@@ -138,7 +138,7 @@ class DocumentaryTestApp(TestApp):
         # Extracting more params & info from model if available
         if params and model:
             for c in model.iter_json_columns(relationships=False, include_readonly_columns=False):
-                json_name = c.info['json']
+                json_name = c.info.get('json', c.key)
                 column = model.get_column(c)
 
                 if hasattr(column, 'default') and column.default:
