@@ -1,13 +1,12 @@
 import base64
 
 from itsdangerous import TimedJSONWebSignatureSerializer, JSONWebSignatureSerializer
-from nanohttp import settings
+from nanohttp import settings, context
 
 from restfulpy.utils import deprecated
 
 
 class JwtPrincipal:
-
     def __init__(self, payload):
         self.payload = payload
 
@@ -92,3 +91,28 @@ class JwtRefreshToken:
     @property
     def id(self):
         return self.payload.get('id')
+
+
+class DummyIdentity:
+    def __init__(self, *roles):
+        self.roles = list(roles)
+
+    def is_in_roles(self, *roles):
+        if set(self.roles).intersection(roles):
+            return True
+        return False
+
+
+class ImpersonationAs:
+    backup_identity = None
+
+    def __init__(self, principal):
+        self.principal = principal
+
+    def __enter__(self):
+        if hasattr(context, 'identity'):
+            self.backup_identity = context.identity
+        context.identity = self.principal
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        context.identity = self.backup_identity
