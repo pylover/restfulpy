@@ -93,14 +93,12 @@ class JwtRefreshToken:
         return self.payload.get('id')
 
 
-class DummyIdentity:
+class DummyIdentity(JwtPrincipal):
     def __init__(self, *roles):
         self.roles = list(roles)
-
-    def is_in_roles(self, *roles):
-        if set(self.roles).intersection(roles):
-            return True
-        return False
+        super().__init__({
+            'roles': self.roles
+        })
 
 
 class ImpersonationAs:
