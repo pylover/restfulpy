@@ -1,7 +1,7 @@
 
 import itsdangerous
 import redis
-from nanohttp import context, HttpBadRequest, HttpCookie, settings
+from nanohttp import context, HttpBadRequest, settings
 
 from restfulpy.principal import JwtPrincipal, JwtRefreshToken
 
@@ -12,7 +12,7 @@ class Authenticator:
     """
 
     token_key = 'HTTP_AUTHORIZATION'
-    refresh_token_cookie_key = 'refresh-token'
+    refresh_token_key = 'refresh-token'
     token_response_header = 'X-New-JWT-Token'
     identity_response_header = 'X-Identity'
 
@@ -29,8 +29,12 @@ class Authenticator:
         context.response_headers.add_header(self.token_response_header, new_principal.dump().decode())
 
     def try_refresh_token(self, session_id):
-        refresh_token_encoded = context.cookies.get(self.refresh_token_cookie_key)
+        morsel = context.cookies.get(self.refresh_token_key)
+        if not morsel:
+            self.bad()
+            return
 
+        refresh_token_encoded = morsel.value
         if refresh_token_encoded is None or not refresh_token_encoded.strip():
             self.bad()
             return
@@ -96,14 +100,10 @@ class Authenticator:
 
         self.ok(principal)
 
-        context.response_cookies.append(HttpCookie(
-            'refresh-token',
-            value=self.create_refresh_principal(member.id).dump().decode(),
-            max_age=settings.jwt.refresh_token.max_age,
-            http_only=False,
-            secure=True
-        ))
-
+        context.cookies[self.refresh_token_key] = self.create_refresh_principal(member.id).dump().decode()
+        context.cookies[self.refresh_token_key]['max-age'] = settings.jwt.refresh_token.max_age
+        context.cookies[self.refresh_token_key]['httponly'] = False
+        context.cookies[self.refresh_token_key]['secure'] = True
         return principal
 
     def logout(self):
