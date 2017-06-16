@@ -14,6 +14,7 @@ class Authenticator:
     token_key = 'HTTP_AUTHORIZATION'
     refresh_token_cookie_key = 'refresh-token'
     token_response_header = 'X-New-JWT-Token'
+    identity_response_header = 'X-Identity'
 
     def create_principal(self, member_id=None, session_id=None):
         raise NotImplementedError()
@@ -47,11 +48,16 @@ class Authenticator:
             self.bad()
             raise HttpBadRequest()
 
+    def setup_identity_response_header(self, principal):
+        context.response_headers.add_header(self.identity_response_header, str(principal.id) if principal else '')
+
     def bad(self):
         context.identity = None
+        self.setup_identity_response_header(None)
 
     def ok(self, principal, setup_header=False):
         context.identity = principal
+        self.setup_identity_response_header(principal)
         if setup_header:
             self.setup_response_headers(principal)
 

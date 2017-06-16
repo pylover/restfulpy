@@ -14,15 +14,20 @@ from restfulpy.authentication import Authenticator
 class Application(NanohttpApplication):
     builtin_configuration = None
     __logger__ = get_logger()
-    __authenticator__ = Authenticator()
+    __authenticator__ = None
 
-    def __init__(self, name: str, root: Controller, root_path='.', version='0.1.0-dev.0', process_name=None):
+    def __init__(self, name: str, root: Controller, root_path='.', version='0.1.0-dev.0', process_name=None,
+                 authenticator=None):
         super(Application, self).__init__(root=root)
         self.process_name = process_name or name
         self.version = version
         self.root_path = abspath(root_path)
         self.name = name
         self.cli_main = MainLauncher(self)
+        if authenticator:
+            self.__authenticator__ = authenticator
+        elif self.__authenticator__ is None:
+            self.__authenticator__ = Authenticator()
 
     def _handle_exception(self, ex):
         if not isinstance(ex, HttpStatus):
