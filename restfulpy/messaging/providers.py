@@ -1,5 +1,7 @@
 
 import smtplib
+from email.mime.application import MIMEApplication
+from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 from mako.lookup import TemplateLookup, Template
@@ -54,7 +56,7 @@ class SmtpProvider(Messenger):
 
         from_ = from_ or smtp_config.username
 
-        msg = MIMEText(body, 'html')
+        msg = MIMEMultipart()
         msg['Subject'] = subject
         msg['From'] = from_
         msg['To'] = to
@@ -63,12 +65,20 @@ class SmtpProvider(Messenger):
         if bcc:
             msg['Bcc'] = bcc
 
+        html_part = MIMEText(body, 'html')
+        msg.attach(html_part)
+
+        for attachment in attachments or []:
+            attachment_part = MIMEApplication(attachment.read(), Name=attachment.name)
+            attachment_part['Content-Disposition'] = 'attachment; filename="%s"' % attachment.name
+            msg.attach(attachment_part)
+
         smtp_server.send_message(msg)
         smtp_server.quit()
 
 
 class ConsoleMessenger(Messenger):
-    def send(self, to, subject, body, cc=None, bcc=None, template_filename=None, from_=None):
+    def send(self, to, subject, body, cc=None, bcc=None, template_filename=None, from_=None, attachments=None):
         """
         Sending messages by email
         """
