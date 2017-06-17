@@ -28,7 +28,7 @@ jwt:
     max_age: 2678400  # 30 Days
 
 messaging:
-  # default_messenger: restfulpy.messaging.postman.Postman
+  # default_messenger: restfulpy.messaging.providers.SmtpProvider
   default_messenger: restfulpy.messaging.ConsoleMessenger
   default_sender: restfulpy
   template_dirs:

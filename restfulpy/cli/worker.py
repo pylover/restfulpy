@@ -14,23 +14,24 @@ class StartLauncher(Launcher):
     @classmethod
     def create_parser(cls, subparsers):
         parser = subparsers.add_parser(cls.__command__, help='Starts the background worker.')
-        parser.add_argument('-t', '--type', default=[], action='append',
-                            help='Type of task to run. If no type specified here, all types would be selected.')
+        parser.add_argument(
+            '-t', '--type',
+            default=[],
+            action='append',
+            help='Type of task to run. If no type specified here, all types would be selected.'
+        )
 
-        parser.add_argument('-e', '--exclude-type', default=[], action='append',
-                            help='Type of task NOT to run.')
+        parser.add_argument('-e', '--exclude-type', default=[], action='append', help='Type of task NOT to run.')
 
-        parser.add_argument('-g', '--gap', type=int, default=None,
-                            help='Gap between run next task.')
+        parser.add_argument('-g', '--gap', type=int, default=None, help='Gap between run next task.')
 
-        parser.add_argument('-r', '--status', default=[], action='append',
-                            help='Task status to process')
+        parser.add_argument('-s', '--status', default=[], action='append', help='Task status to process')
 
-        parser.add_argument('-n', '--number-of-threads', type=int, default=None,
-                            help='Number of working threads')
+        parser.add_argument('-n', '--number-of-threads', type=int, default=None, help='Number of working threads')
 
-        parser.add_argument('-f', '--filter', default=None, type=str, action='store',
-                            help='Custom SQL filter for tasks')
+        parser.add_argument(
+            '-f', '--filter', default=None, type=str, action='store', help='Custom SQL filter for tasks'
+        )
         return parser
 
     def launch(self):
