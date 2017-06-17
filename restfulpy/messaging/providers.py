@@ -34,7 +34,7 @@ class Messenger(object):
 
 class SmtpProvider(Messenger):
 
-    def send(self, to, subject, body, cc=None, bcc=None, template_filename=None, from_=None):
+    def send(self, to, subject, body, cc=None, bcc=None, template_filename=None, from_=None, attachments=None):
         """
         Sending messages with SMTP server
         """

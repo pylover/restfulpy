@@ -32,7 +32,7 @@ class Email(Task):
     def email_body(self):
         return self.body
 
-    def do_(self, context):
+    def do_(self, context, attachments=None):
         messenger = create_messenger()
         messenger.send(
             self.to,
@@ -42,6 +42,7 @@ class Email(Task):
             bcc=self.bcc,
             template_filename=self.template_filename,
             from_=self.from_,
+            attachments=attachments
         )
 
         logger.info('%s is sent to %s', self.subject, self.to)
