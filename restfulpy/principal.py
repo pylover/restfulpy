@@ -67,6 +67,10 @@ class JwtPrincipal:
     def id(self):
         return self.payload.get('id')
 
+    @property
+    def roles(self):
+        return self.payload.get('roles', [])
+
 
 class JwtRefreshToken:
     def __init__(self, payload):
@@ -95,9 +99,8 @@ class JwtRefreshToken:
 
 class DummyIdentity(JwtPrincipal):
     def __init__(self, *roles):
-        self.roles = list(roles)
         super().__init__({
-            'roles': self.roles
+            'roles': list(roles)
         })
 
 

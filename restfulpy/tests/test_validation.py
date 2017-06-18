@@ -1,7 +1,7 @@
 import copy
 import unittest
 
-from nanohttp import context, json
+from nanohttp import context, json, settings
 
 from restfulpy.principal import DummyIdentity
 from restfulpy.testing import WebAppTestCase
@@ -30,9 +30,11 @@ class ValidationController(RestController):
         return result
 
     @json
-    @validate_form(filter=['filteredParamForAll'],
-                   client={'filter': ['filteredParamForClient']},
-                   admin={'filter': ['filteredParamForAdmin']})
+    @validate_form(
+        filter_=['filteredParamForAll'],
+        client=dict(filter_=['filteredParamForClient']),
+        admin=dict(filter_=['filteredParamForAdmin'])
+    )
     def test_filter(self):
         result = copy.deepcopy(context.form)
         result.update(context.query_string)
@@ -55,36 +57,36 @@ class Root(RootController):
 class ValidationTestCase(WebAppTestCase):
     application = MockupApplication('MockupApplication', Root())
 
+    @classmethod
+    def configure_app(cls):
+        super().configure_app()
+        settings.merge("""
+            logging:
+              loggers:
+                default:
+                  level: info
+            """)
+
     def test_validation1(self):
         # Test `deny`
         # role -> All
         self.wsgi_app.jwt_token = DummyIdentity().dump().decode()
         self.request('All', 'TEST_DENY', '/validation')
-        self.request('All', 'TEST_DENY', '/validation', params={
-            'customParam': 'param'
-        })
-        self.request('All', 'TEST_DENY', '/validation', params={
-            'deniedParamForAll': 'param'
-        }, expected_status=400)
-        self.request('All', 'TEST_DENY', '/validation', params={
-            'deniedParamForClient': 'param'
-        })
-        self.request('All', 'TEST_DENY', '/validation', params={
-            'deniedParamForAdmin': 'param'
-        })
+        self.request('All', 'TEST_DENY', '/validation', params={'customParam': 'param'})
+        self.request('All', 'TEST_DENY', '/validation', params={'deniedParamForAll': 'param'}, expected_status=400)
+        self.request('All', 'TEST_DENY', '/validation', params={'deniedParamForClient': 'param'})
+        self.request('All', 'TEST_DENY', '/validation', params={'deniedParamForAdmin': 'param'})
         # -----------------------------
         # role -> Client
         self.wsgi_app.jwt_token = DummyIdentity('client').dump().decode()
         self.request('Client', 'TEST_DENY', '/validation')
-        self.request('Client', 'TEST_DENY', '/validation', params={
-            'customParam': 'param'
-        })
-        self.request('Client', 'TEST_DENY', '/validation', params={
-            'deniedParamForAll': 'param'
-        }, expected_status=400)
-        self.request('Client', 'TEST_DENY', '/validation', params={
-            'deniedParamForClient': 'param'
-        }, expected_status=400)
+        self.request('Client', 'TEST_DENY', '/validation', params={'customParam': 'param'})
+        self.request('Client', 'TEST_DENY', '/validation', params={'deniedParamForAll': 'param'}, expected_status=400)
+        self.request(
+            'Client', 'TEST_DENY', '/validation',
+            params={'deniedParamForClient': 'param'},
+            expected_status=400
+        )
         self.request('Client', 'TEST_DENY', '/validation', params={
             'deniedParamForAdmin': 'param'
         })
@@ -165,12 +167,15 @@ class ValidationTestCase(WebAppTestCase):
         # -----------------------------
         # role -> Client
         self.wsgi_app.jwt_token = DummyIdentity('client').dump().decode()
-        result, ___ = self.request('Client', 'TEST_FILTER', '/validation', params={
-            'customParam': 'param',
-            'filteredParamForAll': 'param',
-            'filteredParamForClient': 'param',
-            'filteredParamForAdmin': 'param',
-        })
+        result, ___ = self.request(
+            'Client', 'TEST_FILTER', '/validation',
+            params={
+                'customParam': 'param',
+                'filteredParamForAll': 'param',
+                'filteredParamForClient': 'param',
+                'filteredParamForAdmin': 'param',
+            }
+        )
         self.assertNotIn('customParam', result)
         self.assertIn('filteredParamForClient', result)
         self.assertNotIn('filteredParamForAdmin', result)

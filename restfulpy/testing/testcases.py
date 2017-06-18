@@ -90,8 +90,7 @@ class WebAppTestCase(unittest.TestCase):
             print('#' * 80)
             if 'content-type' in resp.headers and resp.headers['content-type'].startswith('application/json'):
                 result = ujson.loads(resp.body.decode())
-                print(result['message'])
-                print(result['description'])
+                print(result)
             else:
                 print(resp.body)
             print('#' * 80)
