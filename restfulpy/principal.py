@@ -99,12 +99,10 @@ class JwtRefreshToken:
 
 class DummyIdentity(JwtPrincipal):
     def __init__(self, *roles):
-        super().__init__({
-            'roles': list(roles)
-        })
+        super().__init__({'roles': list(roles)})
 
 
-class ImpersonationAs:
+class ImpersonateAs:
     backup_identity = None
 
     def __init__(self, principal):
