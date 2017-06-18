@@ -31,8 +31,6 @@ class FormValidator:
         return result
 
     def __call__(self, *args, **kwargs):
-        """This is the actual wrapper around the function.
-        """
         input_collections = [context.form, context.query_string]
         all_input_fields = set(chain(*input_collections))
         user_rules = [v for k, v in self._rules_per_role.items() if k in context.identity.roles] \
