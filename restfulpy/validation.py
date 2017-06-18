@@ -24,11 +24,9 @@ class FormValidator:
         self._rules_per_role = rules_per_role
 
     def extract_rule_fields(self, rule_name, user_rules):
-        result = set()
-        for ruleset in [self.default_rules] + user_rules:
-            if rule_name in ruleset:
-                result.update(ruleset[rule_name])
-        return result
+        return set(chain(
+            *[ruleset[rule_name] for ruleset in ([self.default_rules] + user_rules) if rule_name in ruleset]
+        ))
 
     def __call__(self, *args, **kwargs):
         input_collections = [context.form, context.query_string]
