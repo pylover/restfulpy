@@ -31,6 +31,7 @@ messaging:
   # default_messenger: restfulpy.messaging.providers.SmtpProvider
   default_messenger: restfulpy.messaging.ConsoleMessenger
   default_sender: restfulpy
+  mako_modules_directory: %(data_dir)s/mako_modules
   template_dirs:
     - %(restfulpy_dir)s/messaging/templates
 

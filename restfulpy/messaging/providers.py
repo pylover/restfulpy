@@ -28,7 +28,11 @@ class Messenger(object):
 
     @LazyAttribute
     def lookup(self):
-        return TemplateLookup(directories=settings.messaging.template_dirs, input_encoding='utf8')
+        return TemplateLookup(
+            module_directory=settings.messaging.mako_modules_directory,
+            directories=settings.messaging.template_dirs,
+            input_encoding='utf8'
+        )
 
     def send(self, to, subject, body, cc=None, bcc=None, template_filename=None, from_=None):
         raise NotImplementedError
