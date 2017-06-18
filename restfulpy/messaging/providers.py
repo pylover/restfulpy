@@ -66,11 +66,12 @@ class SmtpProvider(Messenger):
 
         html_part = MIMEText(body, 'html')
         msg.attach(html_part)
-
-        for attachment in attachments or []:
-            attachment_part = MIMEApplication(attachment.read(), Name=attachment.name)
-            attachment_part['Content-Disposition'] = 'attachment; filename="%s"' % attachment.name
-            msg.attach(attachment_part)
+        if attachments:
+            for attachment in attachments:
+                assert hasattr(attachment, 'name')
+                attachment_part = MIMEApplication(attachment.read(), Name=attachment.name)
+                attachment_part['Content-Disposition'] = 'attachment; filename="%s"' % attachment.name
+                msg.attach(attachment_part)
 
         smtp_server.send_message(msg)
         smtp_server.quit()
