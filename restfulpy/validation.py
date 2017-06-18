@@ -78,11 +78,7 @@ def validate_form(deny=None, exclude=None, filter_=None, only=None, **rules_per_
 
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
-            nonlocal validator
-
-            # Applying default validation rules
             args, kwargs = validator(*args, **kwargs)
-
             return func(*args, **kwargs)
 
         return wrapper
