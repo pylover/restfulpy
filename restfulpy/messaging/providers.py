@@ -4,7 +4,7 @@ from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-from mako.lookup import TemplateLookup, Template
+from mako.lookup import TemplateLookup
 from nanohttp import settings, LazyAttribute
 
 from restfulpy.utils import construct_class_by_name
@@ -40,7 +40,6 @@ class SmtpProvider(Messenger):
         """
         Sending messages with SMTP server
         """
-
         # FIXME: Exception handling
 
         body = self.render_body(body, template_filename)
