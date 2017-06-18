@@ -1,4 +1,4 @@
-
+from os.path import basename
 import smtplib
 from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
@@ -73,8 +73,8 @@ class SmtpProvider(Messenger):
         if attachments:
             for attachment in attachments:
                 assert hasattr(attachment, 'name')
-                attachment_part = MIMEApplication(attachment.read(), Name=attachment.name)
-                attachment_part['Content-Disposition'] = 'attachment; filename="%s"' % attachment.name
+                attachment_part = MIMEApplication(attachment.read(), Name=basename(attachment.name))
+                attachment_part['Content-Disposition'] = 'attachment; filename="%s"' % basename(attachment.name)
                 msg.attach(attachment_part)
 
         smtp_server.send_message(msg)
