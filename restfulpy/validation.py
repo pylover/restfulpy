@@ -6,11 +6,11 @@ from nanohttp.exceptions import HttpBadRequest
 
 
 class FormValidator:
-
-    def __init__(self, deny=None, exclude=None, filter_=None, only=None, **rules_per_role):
+    def __init__(self, black_list=None, exclude=None, filter_=None, white_list=None, requires=None, exact=None,
+                 **rules_per_role):
         self.default_rules = {}
-        if deny:
-            self.default_rules['deny'] = set(deny)
+        if black_list:
+            self.default_rules['black_list'] = set(black_list)
 
         if exclude:
             self.default_rules['exclude'] = set(exclude)
@@ -18,8 +18,14 @@ class FormValidator:
         if filter_:
             self.default_rules['filter_'] = set(filter_)
 
-        if only:
-            self.default_rules['only'] = set(only)
+        if white_list:
+            self.default_rules['white_list'] = set(white_list)
+
+        if requires:
+            self.default_rules['requires'] = set(requires)
+
+        if exact:
+            self.default_rules['exact'] = set(exact)
 
         self._rules_per_role = rules_per_role
 
@@ -34,7 +40,7 @@ class FormValidator:
         user_rules = [v for k, v in self._rules_per_role.items() if k in context.identity.roles] \
             if context.identity else []
 
-        denied_fields = self.extract_rule_fields('deny', user_rules)
+        denied_fields = self.extract_rule_fields('black_list', user_rules)
         if denied_fields:
             if all_input_fields & denied_fields:
                 raise HttpBadRequest('These fields are denied: [%s]' % ', '.join(denied_fields))
@@ -51,28 +57,47 @@ class FormValidator:
                 for field in set(collection) - filtered_fields:
                     del collection[field]
 
-        only_fields = self.extract_rule_fields('only', user_rules)
-        if only_fields:
-            if only_fields != all_input_fields:
-                raise HttpBadRequest('Only these fields are allowed: [%s]' % ', '.join(only_fields))
+        white_list_fields = self.extract_rule_fields('white_list', user_rules)
+        if white_list_fields:
+            if all_input_fields - white_list_fields:
+                raise HttpBadRequest(
+                    'These fields are not allowed: [%s]' % ', '.join(all_input_fields - white_list_fields)
+                )
+
+        required_fields = self.extract_rule_fields('requires', user_rules)
+        if required_fields:
+            if required_fields - all_input_fields:
+                raise HttpBadRequest('These fields are required: [%s]' % ', '.join(required_fields - all_input_fields))
+
+        exact_fields = self.extract_rule_fields('exact', user_rules)
+        if exact_fields:
+            if exact_fields != all_input_fields:
+                raise HttpBadRequest('Exactly these fields are allowed: [%s]' % ', '.join(white_list_fields))
 
         return args, kwargs
 
 
-def validate_form(deny=None, exclude=None, filter_=None, only=None, **rules_per_role):
+def validate_form(black_list=None, exclude=None, filter_=None, white_list=None, requires=None, exact=None,
+                  **rules_per_role):
     """Creates a validation decorator based on given rules:
 
-    :param deny: A list fields to raise :class:`nanohttp.exceptions.HttpBadRequest` if exists in request.
+    :param black_list: A list fields to raise :class:`nanohttp.exceptions.HttpBadRequest` if exists in request.
     :param exclude: A list of fields to remove from the request payload if exists.
     :param filter_: A list of fields to filter the request payload.
-    :param only: A list of fields to raise :class:`nanohttp.exceptions.HttpBadRequest` if the given fields are not
+    :param white_list: A list of fields to raise :class:`nanohttp.exceptions.HttpBadRequest` if anythings else found in
+                the request payload.
+    :param requires: A list of fields to raise :class:`nanohttp.exceptions.HttpBadRequest` if the given fields are not
+                 in the request payload.
+    :param exact: A list of fields to raise :class:`nanohttp.exceptions.HttpBadRequest` if the given fields are not
                  exact match.
     :param rules_per_role: A dictionary ``{ role: { ... } }``, which you can apply above rules to single role.
 
     :return: A validation decorator.
     """
+
     def decorator(func):
-        validator = FormValidator(deny=deny, exclude=exclude, filter_=filter_, only=only, **rules_per_role)
+        validator = FormValidator(black_list=black_list, exclude=exclude, filter_=filter_, white_list=white_list,
+                                  requires=requires, exact=exact, **rules_per_role)
 
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
