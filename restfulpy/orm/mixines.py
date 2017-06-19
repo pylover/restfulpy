@@ -1,8 +1,8 @@
-
 from datetime import datetime
 
 from sqlalchemy import DateTime, Integer, between, desc
 from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import synonym, SynonymProperty
 from sqlalchemy.sql.expression import nullslast, nullsfirst
 from sqlalchemy.events import event
@@ -89,20 +89,18 @@ class SoftDeleteMixin:
 class ActivationMixin:
     activated_at = Field(DateTime, nullable=True, json='activatedAt', readonly=True, protected=True)
 
-    def _get_is_active(self):
+    @hybrid_property
+    def is_active(self):
         return self.activated_at is not None
 
-    def _set_is_active(self, v):
-        self.activated_at = datetime.now() if v else None
+    @is_active.setter
+    def is_active(self, value):
+        self.activated_at = datetime.now() if value else None
 
-    # noinspection PyMethodParameters
-    @declared_attr
-    def is_active(cls):
-        return synonym(
-            'activated_at',
-            descriptor=property(cls._get_is_active, cls._set_is_active),
-            info=dict(json='isActive')
-        )
+    @is_active.expression
+    def is_active(self):
+        # noinspection PyUnresolvedReferences
+        return self.activated_at.isnot(None)
 
     @classmethod
     def filter_activated(cls, query=None):
@@ -127,7 +125,8 @@ class PaginationMixin:
         query = query or cls.query
 
         try:
-            take = int(context.query_string.get('take') or context.environ.get(cls.__take_header_key__) or cls.__max_take__)
+            take = int(
+                context.query_string.get('take') or context.environ.get(cls.__take_header_key__) or cls.__max_take__)
         except ValueError:
             take = cls.__max_take__
 
@@ -146,7 +145,6 @@ class PaginationMixin:
 
 
 class FilteringMixin:
-
     @classmethod
     def filter_by_request(cls, query=None):
         # noinspection PyUnresolvedReferences
@@ -212,7 +210,6 @@ class FilteringMixin:
 
 
 class OrderingMixin:
-
     @classmethod
     def _sort_by_key_value(cls, query, column, descending=False):
 
