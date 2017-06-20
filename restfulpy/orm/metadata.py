@@ -56,11 +56,12 @@ class MetadataField(object):
 
         if hasattr(c, 'type'):
             type_ = c.type.python_type
-        elif hasattr(c, 'target'):
-            try:
-                type_ = c.target.name
-            except AttributeError:  # pragma: no cover
-                type_ = c.target.right.name
+        # Commented out because cannot reach here by tests
+        # elif hasattr(c, 'target'):
+        #     try:
+        #         type_ = c.target.name
+        #     except AttributeError:  # pragma: no cover
+        #         type_ = c.target.right.name
         else:  # pragma: no cover
             type_ = 'str'
             # raise AttributeError('Unable to recognize type of the column: %s' % c.key)

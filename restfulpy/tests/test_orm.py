@@ -1,6 +1,6 @@
 import unittest
 
-from sqlalchemy import Integer, Unicode, ForeignKey, Boolean
+from sqlalchemy import Integer, Unicode, ForeignKey, Boolean, Table
 from sqlalchemy.orm import synonym
 from nanohttp import configure, HttpBadRequest
 
@@ -71,6 +71,20 @@ class Comment(DeclarativeBase):
     post = relationship('Post')
 
 
+post_tag_table = Table(
+    'post_tag', DeclarativeBase.metadata,
+    Field('post_id', Integer, ForeignKey('post.id')),
+    Field('tag_id', Integer, ForeignKey('tag.id'))
+)
+
+
+class Tag(DeclarativeBase):
+    __tablename__ = 'tag'
+    id = Field(Integer, primary_key=True)
+    title = Field(Unicode(50), watermark='title', label='title')
+    posts = relationship('Post', secondary=post_tag_table, back_populates='tags')
+
+
 class Post(DeclarativeBase):
     __tablename__ = 'post'
 
@@ -80,6 +94,7 @@ class Post(DeclarativeBase):
     author = relationship(Author)
     memos = relationship(Memo, protected=True, json='privateMemos')
     comments = relationship(Comment)
+    tags = relationship(Tag, secondary=post_tag_table, back_populates='posts')
 
 
 class ModelTestCase(unittest.TestCase):
@@ -144,6 +159,9 @@ class ModelTestCase(unittest.TestCase):
 
         comment_metadata = Comment.json_metadata()
         self.assertIn('post', comment_metadata)
+
+        tag_metadata = Tag.json_metadata()
+        self.assertIn('posts', tag_metadata)
 
 
 if __name__ == '__main__':  # pragma: no cover
