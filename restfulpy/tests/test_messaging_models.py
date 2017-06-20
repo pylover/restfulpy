@@ -1,8 +1,8 @@
 import unittest
 
-from nanohttp import configure, settings
+from nanohttp import settings
 
-from restfulpy.orm import init_model, create_engine, setup_schema, DBSession, Field
+from restfulpy.orm import DBSession, Field
 from restfulpy.messaging import BaseEmail, Email, create_messenger
 from restfulpy.testing.helpers import FakeJson
 from restfulpy.testing import WebAppTestCase
@@ -20,10 +20,6 @@ class Welcome(BaseEmail):
     }
 
     body = Field(FakeJson, json='body')
-    #
-    # @declared_attr
-    # def id(cls):
-    #     return BaseEmail.__table__.c.get('id', Field(Integer, ForeignKey('task.id'), json='id'))
 
     @property
     def email_body(self):
