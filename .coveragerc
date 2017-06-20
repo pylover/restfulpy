@@ -1,4 +1,4 @@
 [run]
 omit =
     restfulpy/tests/helpers.py
-    restfulpy/cli/
+    restfulpy/cli/*

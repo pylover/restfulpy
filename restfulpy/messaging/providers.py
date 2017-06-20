@@ -34,7 +34,7 @@ class Messenger(object):
             input_encoding='utf8'
         )
 
-    def send(self, to, subject, body, cc=None, bcc=None, template_filename=None, from_=None):
+    def send(self, to, subject, body, cc=None, bcc=None, template_filename=None, from_=None, attachments=None):
         raise NotImplementedError
 
 
