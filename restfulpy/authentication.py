@@ -26,6 +26,8 @@ class Authenticator:
         raise NotImplementedError()
 
     def setup_response_headers(self, new_principal):
+        if self.token_response_header in context.response_headers:
+            del context.response_headers[self.token_response_header]
         context.response_headers.add_header(self.token_response_header, new_principal.dump().decode())
 
     def try_refresh_token(self, session_id):
