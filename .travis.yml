@@ -2,6 +2,8 @@ env:
   global:
   - COMMIT_AUTHOR_EMAIL: vahid.mardani@gmail.com
   - COVERALLS_REPO_TOKEN: hNuWdkZhIkl47DIpP7VSglh3zkAogq1oq
+services:
+- redis-server
 language: python
 python:
 - 3.5
