@@ -97,7 +97,7 @@ class ModelTestCase(unittest.TestCase):
         setup_schema()
 
     def test_model(self):
-
+        # noinspection PyArgumentList
         author1 = Author(
             title='author1',
             email='author1@example.org',

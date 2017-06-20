@@ -6,8 +6,9 @@ from decimal import Decimal
 from nanohttp import HttpBadRequest, context, HttpNotFound
 from sqlalchemy import Column, event
 from sqlalchemy.orm import SynonymProperty, validates, Query, CompositeProperty
-from sqlalchemy.inspection import inspect
 from sqlalchemy.orm.relationships import RelationshipProperty
+from sqlalchemy.ext.hybrid import HYBRID_PROPERTY
+from sqlalchemy.inspection import inspect
 
 from restfulpy.utils import format_iso_datetime, format_iso_time, to_camel_case
 from restfulpy.orm.mixines import PaginationMixin, FilteringMixin, OrderingMixin
@@ -39,11 +40,14 @@ class BaseModel(object):
     def prepare_for_export(cls, column, v):
         param_name = column.info.get('json') or to_camel_case(column.key)
 
-        if isinstance(column, RelationshipProperty) and column.uselist:
+        if hasattr(column, 'property') and isinstance(column.property, RelationshipProperty) and column.property.uselist:
             result = [c.to_dict() for c in v]
 
-        elif isinstance(column, CompositeProperty):
+        elif hasattr(column, 'property') and isinstance(column.property, CompositeProperty):
             result = v.__composite_values__()
+
+        elif v is None:
+            result = v
 
         elif isinstance(v, datetime):
             result = format_iso_datetime(v)
@@ -53,9 +57,6 @@ class BaseModel(object):
 
         elif isinstance(v, time):
             result = format_iso_time(v)
-
-        elif v is None:
-            result = v
 
         elif hasattr(v, 'to_dict'):
             result = v.to_dict()
@@ -89,23 +90,23 @@ class BaseModel(object):
             )
 
     @classmethod
-    def iter_columns(cls, relationships=True, synonyms=True, composites=True, use_inspection=True):
+    def iter_columns(cls, relationships=True, synonyms=True, composites=True, use_inspection=True, hybrids=True):
         if use_inspection:
             mapper = inspect(cls)
-            for c in mapper.columns:
+            for k, c in mapper.all_orm_descriptors.items():
+
+                if k == '__mapper__':
+                    continue
+
+                if (not hybrids and c.extension_type == HYBRID_PROPERTY) \
+                        or (not relationships and k in mapper.relationships) \
+                        or (not synonyms and k in mapper.synonyms) \
+                        or (not composites and k in mapper.composites):
+                    continue
+
+                if not hasattr(c, 'key'):
+                    c.key = k
                 yield c
-
-            if synonyms:
-                for c in mapper.synonyms:
-                    yield c
-
-            if relationships:
-                for c in mapper.relationships:
-                    yield c
-
-            if composites:
-                for c in mapper.composites:
-                    yield c
 
         else:
             # noinspection PyUnresolvedReferences
