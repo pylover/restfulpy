@@ -27,7 +27,7 @@ class ModificationCheckingModelTestCase(WebAppTestCase):
         cls.application.configure(force=True)
         settings.merge(cls.__configuration__)
 
-    def test_messaging_model(self):
+    def test_modified_mixin(self):
 
         # noinspection PyArgumentList
         instance = ModificationCheckingModel(
