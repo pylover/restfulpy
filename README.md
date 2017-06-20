@@ -1,6 +1,8 @@
 # restfulpy
 A tool-chain for creating restful web applications.
 
+[![Build Status](http://img.shields.io/pypi/v/restfulpy.svg)](https://pypi.python.org/pypi/restfulpy)
+
 ## Branches
 
 ### master
