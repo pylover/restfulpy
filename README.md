@@ -1,3 +1,5 @@
+# restfulpy
+A tool-chain for creating restful web applications.
 
 ## Branches
 
@@ -11,8 +13,6 @@
 [![Build Status](https://travis-ci.org/pylover/restfulpy.svg?branch=develop)](https://travis-ci.org/pylover/restfulpy)
 [![Coverage Status](https://coveralls.io/repos/github/pylover/restfulpy/badge.svg?branch=develop)](https://coveralls.io/github/pylover/restfulpy?branch=develop)
 
-# restfulpy
-A tool-chain for creating restful web applications.
 
 
 ## Goals:
