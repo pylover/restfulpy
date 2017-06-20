@@ -245,25 +245,29 @@ class OrderingMixin:
 class ApproveRequiredMixin:
     approved_at = Field(DateTime, nullable=True, json='approvedAt', readonly=True)
 
-    def _get_is_approved(self):
+    @hybrid_property
+    def is_approved(self):
         return self.approved_at is not None
 
-    def _set_is_approved(self, v):
-        self.approved_at = datetime.now() if v else None
+    @is_approved.setter
+    def is_approved(self, value):
+        self.approved_at = datetime.now() if value else None
 
-    # noinspection PyMethodParameters
-    @declared_attr
-    def is_approved(cls):
-        return synonym(
-            '_is_approved',
-            descriptor=property(cls._get_is_approved, cls._set_is_approved),
-            info=dict(json='isApproved')
-        )
+    @is_approved.expression
+    def is_approved(self):
+        # noinspection PyUnresolvedReferences
+        return self.approved_at.isnot(None)
 
     @classmethod
-    def approved_objects(cls, query=None):
+    def import_value(cls, column, v):
+        if column.key == cls.is_approved.key and not isinstance(v, bool):
+            return str(v).lower() == 'true'
+        return super().import_value(column, v)
+
+    @classmethod
+    def filter_approved(cls, query=None):
         # noinspection PyUnresolvedReferences
-        return (query or cls.query).filter(cls.activated_at.isnot(None))
+        return (query or cls.query).filter(cls.is_approved)
 
 
 class FullTextSearchMixin:
