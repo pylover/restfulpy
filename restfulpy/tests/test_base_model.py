@@ -53,7 +53,7 @@ class Member(DeclarativeBase):
     def _set_password(self, password):
         self._password = 'hashed:%s' % password
 
-    def _get_password(self):
+    def _get_password(self):  # pragma: no cover
         return self._password
 
     password = synonym('_password', descriptor=property(_get_password, _set_password), info=dict(protected=True))
@@ -70,8 +70,18 @@ class Root(JsonPatchControllerMixin, RestController):
 
     @json
     @Member.expose
-    def get(self):
-        return Member.query
+    def get(self, title: str=None):
+        query = Member.query
+        if title:
+            return query.filter(Member.title == title).one_or_none()
+        return query
+
+    @json
+    @Member.expose
+    def me(self):
+        return dict(
+            title='me'
+        )
 
 
 class BaseModelTestCase(WebAppTestCase):
@@ -105,6 +115,13 @@ class BaseModelTestCase(WebAppTestCase):
         resp, ___ = self.request('ALL', 'GET', '/', doc=False)
         self.assertEqual(len(resp), 1)
         self.assertEquals(resp[0]['title'], 'test')
+
+        # 404
+        self.request('ALL', 'GET', '/non-existance-user', doc=False, expected_status=404)
+
+        # Plain dictionary
+        resp, ___ = self.request('ALL', 'GET', '/me', doc=False)
+        self.assertEqual(resp['title'], 'me')
 
 
 if __name__ == '__main__':  # pragma: no cover

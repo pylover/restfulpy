@@ -21,7 +21,6 @@ class MockupStatelessAuthenticator(Authenticator):
         email, password = credentials
         if password == 'test':
             return MockupMember(id=1, email=email, roles=['admin', 'test'])
-        return None
 
     def create_refresh_principal(self, member_id=None):
         return JwtRefreshToken(dict(
