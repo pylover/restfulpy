@@ -1,9 +1,11 @@
 import unittest
 
 from sqlalchemy import Integer, Unicode
-from nanohttp import configure
+from nanohttp import settings
 
-from restfulpy.orm import DeclarativeBase, init_model, create_engine, Field, DBSession, setup_schema, ActivationMixin
+from restfulpy.testing import WebAppTestCase
+from restfulpy.tests.helpers import MockupApplication
+from restfulpy.orm import DeclarativeBase, Field, DBSession, ActivationMixin
 
 
 class ActiveObject(ActivationMixin, DeclarativeBase):
@@ -13,7 +15,8 @@ class ActiveObject(ActivationMixin, DeclarativeBase):
     title = Field(Unicode(50), index=True, min_length=2, watermark='First Name')
 
 
-class ActivationMixinTestCase(unittest.TestCase):
+class ActivationMixinTestCase(WebAppTestCase):
+    application = MockupApplication('MockupApplication', None)
     __configuration__ = '''
     db:
       uri: sqlite://    # In memory DB
@@ -21,13 +24,11 @@ class ActivationMixinTestCase(unittest.TestCase):
     '''
 
     @classmethod
-    def setUpClass(cls):
-        configure(init_value=cls.__configuration__, force=True)
-        cls.engine = create_engine()
-        init_model(cls.engine)
-        setup_schema()
+    def configure_app(cls):
+        cls.application.configure(force=True)
+        settings.merge(cls.__configuration__)
 
-    def test_model(self):
+    def test_activation_mixin(self):
         # noinspection PyArgumentList
         object1 = ActiveObject(
             title='object 1',
