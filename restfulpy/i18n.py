@@ -1,3 +1,3 @@
 
-def _(a):
+def _(a):   # pragma: no cover
     return a

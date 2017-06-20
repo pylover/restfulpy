@@ -34,7 +34,7 @@ class Task(TimestampMixin, DeclarativeBase):
         'polymorphic_on': type
     }
 
-    def do_(self, context):
+    def do_(self, context):  # pragma: no cover
         raise NotImplementedError
 
     @classmethod

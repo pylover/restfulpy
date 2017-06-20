@@ -100,7 +100,7 @@ def ensure_logger(name):
     return _loggers[name]
 
 
-class LoggerProxy(object):
+class LoggerProxy(object):  # pragma: no cover
     def __init__(self, name):
         self.name = name
 

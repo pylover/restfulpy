@@ -45,9 +45,7 @@ class Application(NanohttpApplication):
         if context:
             _context.update(context)
 
-        files = files or []
-        if isinstance(files, str):
-            files = [files]
+        files = ([files] if isinstance(files, str) else files) or []
         local_config_file = join(user_config_dir(), '%s.yml' % self.name)
         if exists(local_config_file):  # pragma: no cover
             print('Gathering config file: %s' % local_config_file)
