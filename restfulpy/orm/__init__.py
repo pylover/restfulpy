@@ -53,14 +53,14 @@ def init_model(engine):
     DBSession.configure(bind=engine)
 
 
-def drop_all(session=None):
+def drop_all(session=None):  # pragma: no cover
     session = session or DBSession
     # noinspection PyUnresolvedReferences
     engine = session.bind
     metadata.drop_all(bind=engine)
 
 
-def setup_schema(session=None):
+def setup_schema(session=None):  # pragma: no cover
     session = session or DBSession
     # noinspection PyUnresolvedReferences
     engine = session.bind
@@ -74,7 +74,7 @@ def setup_schema(session=None):
         command.stamp(alembic_cfg, "head")
 
 
-def create_thread_unsafe_session():
+def create_thread_unsafe_session():  # pragma: no cover
     return session_factory()
 
 

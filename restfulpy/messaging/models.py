@@ -51,7 +51,7 @@ class BaseEmail(Task):
 
 
 # noinspection PyAbstractClass
-class Email(BaseEmail):
+class Email(BaseEmail):  # pragma: no cover
     __tablename__ = 'email'
     __mapper_args__ = {
         'polymorphic_identity': __tablename__

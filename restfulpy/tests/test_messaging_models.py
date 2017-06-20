@@ -34,7 +34,7 @@ class Welcome(BaseEmail):
         return None
 
 
-class ModelTestCase(WebAppTestCase):
+class MessagingModelTestCase(WebAppTestCase):
     application = MockupApplication('MockupApplication', None)
     __configuration__ = '''
     db:
@@ -51,7 +51,7 @@ class ModelTestCase(WebAppTestCase):
         cls.application.configure(force=True)
         settings.merge(cls.__configuration__)
 
-    def test_model(self):
+    def test_messaging_model(self):
         mockup_messenger = create_messenger()
 
         # noinspection PyArgumentList
