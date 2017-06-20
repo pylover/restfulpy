@@ -1,6 +1,7 @@
 import unittest
+from datetime import date, time
 
-from sqlalchemy import Integer, Unicode, ForeignKey, Boolean, Table
+from sqlalchemy import Integer, Unicode, ForeignKey, Boolean, Table, Date, Time, Float
 from sqlalchemy.orm import synonym
 from nanohttp import configure, HttpBadRequest
 
@@ -43,8 +44,10 @@ class Author(DeclarativeBase):
         pattern=r'\d{3}[-\.\s]??\d{3}[-\.\s]??\d{4}|\(\d{3}\)\s*\d{3}[-\.\s]??\d{4}|\d{3}[-\.\s]??\d{4}',
         watermark='Phone'
     )
-    name = composite(FullName, first_name, last_name, readonly=True, json='fullName', protected=True)
+    name = composite(FullName, first_name, last_name, readonly=True, json='fullName')
     _password = Field('password', Unicode(128), index=True, json='password', protected=True, min_length=6)
+    birth = Field(Date)
+    weight = Field(Float(asdecimal=True))
 
     def _set_password(self, password):
         self._password = 'hashed:%s' % password
@@ -95,6 +98,7 @@ class Post(ModifiedMixin, DeclarativeBase):
     memos = relationship(Memo, protected=True, json='privateMemos')
     comments = relationship(Comment)
     tags = relationship(Tag, secondary=post_tag_table, back_populates='posts')
+    tag_time = Field(Time)
 
 
 class ModelTestCase(unittest.TestCase):
@@ -119,12 +123,16 @@ class ModelTestCase(unittest.TestCase):
             first_name='author 1 first name',
             last_name='author 1 last name',
             phone=None,
-            password='123456'
+            password='123456',
+            birth=date(1, 1, 1),
+            weight=1.1
         )
 
+        # noinspection PyArgumentList
         post1 = Post(
             title='First post',
             author=author1,
+            tag_time=time(1, 1, 1)
         )
         DBSession.add(post1)
         DBSession.commit()
@@ -152,7 +160,7 @@ class ModelTestCase(unittest.TestCase):
         author_metadata = Author.json_metadata()
         self.assertIn('id', author_metadata)
         self.assertIn('email', author_metadata)
-        self.assertNotIn('fullName', author_metadata)
+        self.assertIn('fullName', author_metadata)
         self.assertNotIn('password', author_metadata)
 
         post_metadata = Post.json_metadata()
@@ -175,18 +183,25 @@ class ModelTestCase(unittest.TestCase):
                     'id': 1,
                     'lastName': 'author 1 last name',
                     'phone': None,
-                    'title': 'author1'
+                    'title': 'author1',
+                    'fullName': 'author 1 first name author 1 last name',
+                    'birth': '0001-01-01',
+                    'weight': '1.1000000000'
                 },
                 'authorId': 1,
                 'comments': [],
                 'id': 1,
                 'tags': [],
-                'title': 'First post'
+                'title': 'First post',
+                'tagTime': '01:01:01'
             },
             post1_dict,
         )
         self.assertIn('createdAt', post1_dict)
         self.assertIn('modifiedAt', post1_dict)
+
+        author1_dict = author1.to_dict()
+        self.assertIn('fullName', author1_dict)
 
 
 if __name__ == '__main__':  # pragma: no cover

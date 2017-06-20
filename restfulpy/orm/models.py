@@ -5,7 +5,7 @@ from decimal import Decimal
 
 from nanohttp import HttpBadRequest, context, HttpNotFound
 from sqlalchemy import Column, event
-from sqlalchemy.orm import SynonymProperty, validates, Query, CompositeProperty
+from sqlalchemy.orm import validates, Query, CompositeProperty
 from sqlalchemy.orm.relationships import RelationshipProperty
 from sqlalchemy.ext.hybrid import HYBRID_PROPERTY
 from sqlalchemy.inspection import inspect
