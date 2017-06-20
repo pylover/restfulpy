@@ -52,7 +52,7 @@ class Author(DeclarativeBase):
     def _set_password(self, password):
         self._password = 'hashed:%s' % password
 
-    def _get_password(self):
+    def _get_password(self):  # pragma: no cover
         return self._password
 
     password = synonym('_password', descriptor=property(_get_password, _set_password), info=dict(protected=True))

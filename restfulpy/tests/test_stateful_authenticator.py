@@ -24,7 +24,6 @@ class MockupStatefulAuthenticator(StatefulAuthenticator):
         email, password = credentials
         if password == 'test':
             return MockupMember(id=1, email=email, roles=['admin', 'test'])
-        return None
 
     def create_refresh_principal(self, member_id=None):
         return JwtRefreshToken(dict(
@@ -36,10 +35,6 @@ class MockupStatefulAuthenticator(StatefulAuthenticator):
 
 
 class Root(Controller):
-
-    @json
-    def index(self):
-        return context.form
 
     @json
     def login(self):

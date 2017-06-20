@@ -21,7 +21,7 @@ class OrderableOrderingObject(OrderableMixin, OrderingMixin, DeclarativeBase):
     def _set_age(self, age):
         self._age = age
 
-    def _get_age(self):
+    def _get_age(self):  # pragma: no cover
         return self._age
 
     age = synonym('_age', descriptor=property(_get_age, _set_age))
