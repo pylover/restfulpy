@@ -5,7 +5,7 @@ from sqlalchemy.orm import synonym
 from nanohttp import configure, HttpBadRequest
 
 from restfulpy.orm import DeclarativeBase, init_model, create_engine, Field, DBSession, setup_schema, relationship, \
-    composite
+    composite, ModifiedMixin
 
 
 class FullName(object):  # pragma: no cover
@@ -85,7 +85,7 @@ class Tag(DeclarativeBase):
     posts = relationship('Post', secondary=post_tag_table, back_populates='tags')
 
 
-class Post(DeclarativeBase):
+class Post(ModifiedMixin, DeclarativeBase):
     __tablename__ = 'post'
 
     id = Field(Integer, primary_key=True)
@@ -163,6 +163,30 @@ class ModelTestCase(unittest.TestCase):
 
         tag_metadata = Tag.json_metadata()
         self.assertIn('posts', tag_metadata)
+
+        self.assertEqual(Comment.import_value(Comment.__table__.c.special, 'TRUE'), True)
+
+        post1_dict = post1.to_dict()
+        self.assertDictContainsSubset(
+            {
+                'author': {
+                    'email': 'author1@example.org',
+                    'firstName': 'author 1 first name',
+                    'id': 1,
+                    'lastName': 'author 1 last name',
+                    'phone': None,
+                    'title': 'author1'
+                },
+                'authorId': 1,
+                'comments': [],
+                'id': 1,
+                'tags': [],
+                'title': 'First post'
+            },
+            post1_dict,
+        )
+        self.assertIn('createdAt', post1_dict)
+        self.assertIn('modifiedAt', post1_dict)
 
 
 if __name__ == '__main__':  # pragma: no cover

@@ -24,8 +24,9 @@ class BaseModel(object):
         if isinstance(column, str):
             mapper = inspect(cls)
             return mapper.columns[column]
-        if isinstance(column, SynonymProperty):
-            return column.parent.columns[column.name]
+        # Commented-out by vahid, because I cannot reach here by tests, I think it's not necessary at all.
+        # if isinstance(column, SynonymProperty):
+        #     return column.parent.columns[column.name]
         return column
 
     @classmethod
