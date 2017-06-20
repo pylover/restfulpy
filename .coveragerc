@@ -2,3 +2,4 @@
 omit =
     restfulpy/tests/helpers.py
     restfulpy/cli/*
+    restfulpy/testing/*/*
