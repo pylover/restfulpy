@@ -105,7 +105,7 @@ class ActivationMixin:
     @classmethod
     def filter_activated(cls, query=None):
         # noinspection PyUnresolvedReferences
-        return (query or cls.query).filter(cls.activated_at.isnot(None))
+        return (query or cls.query).filter(cls.is_active)
 
     @classmethod
     def import_value(cls, column, v):

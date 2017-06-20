@@ -36,23 +36,28 @@ class ActivationMixinTestCase(WebAppTestCase):
 
         DBSession.add(object1)
         DBSession.commit()
+        self.assertFalse(object1.is_active)
+        self.assertEquals(DBSession.query(ActiveObject).filter(ActiveObject.is_active).count(), 0)
+
+        object1.is_active = True
+        self.assertTrue(object1.is_active)
+        DBSession.commit()
+        object1 = DBSession.query(ActiveObject).one()
+        self.assertTrue(object1.is_active)
 
         json = object1.to_dict()
         self.assertIn('isActive', json)
 
-        # # Metadata
-        # author_metadata = Author.json_metadata()
-        # self.assertIn('id', author_metadata)
-        # self.assertIn('email', author_metadata)
-        # self.assertNotIn('fullName', author_metadata)
-        # self.assertNotIn('password', author_metadata)
-        #
-        # post_metadata = Post.json_metadata()
-        # self.assertIn('author', post_metadata)
-        #
-        # comment_metadata = Comment.json_metadata()
-        # self.assertIn('post', comment_metadata)
-        #
+        self.assertEquals(DBSession.query(ActiveObject).filter(ActiveObject.is_active).count(), 1)
+        self.assertEquals(ActiveObject.filter_activated().count(), 1)
+
+        self.assertFalse(ActiveObject.import_value(ActiveObject.is_active, 'false'))
+        self.assertFalse(ActiveObject.import_value(ActiveObject.is_active, 'FALSE'))
+        self.assertFalse(ActiveObject.import_value(ActiveObject.is_active, 'False'))
+        self.assertTrue(ActiveObject.import_value(ActiveObject.is_active, 'true'))
+        self.assertTrue(ActiveObject.import_value(ActiveObject.is_active, 'TRUE'))
+        self.assertTrue(ActiveObject.import_value(ActiveObject.is_active, 'True'))
+
 
 if __name__ == '__main__':  # pragma: no cover
     unittest.main()
