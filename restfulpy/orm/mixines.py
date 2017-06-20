@@ -210,11 +210,7 @@ class FilteringMixin:
 class OrderingMixin:
     @classmethod
     def _sort_by_key_value(cls, query, column, descending=False):
-
-        if isinstance(column, SynonymProperty):
-            expression = column.parent.columns[column.name]
-        else:
-            expression = column
+        expression = column
 
         if descending:
             expression = desc(expression)
