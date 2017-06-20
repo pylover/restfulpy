@@ -58,6 +58,8 @@ class ActivationMixinTestCase(WebAppTestCase):
         self.assertTrue(ActiveObject.import_value(ActiveObject.is_active, 'TRUE'))
         self.assertTrue(ActiveObject.import_value(ActiveObject.is_active, 'True'))
 
+        self.assertEquals(ActiveObject.import_value(ActiveObject.title, 'title'), 'title')
+
 
 if __name__ == '__main__':  # pragma: no cover
     unittest.main()
