@@ -1,2 +1,3 @@
 
-from restfulpy.messaging.providers import Messenger, create_messenger, SmtpProvider, ConsoleMessenger
+from .models import Email, BaseEmail
+from .providers import Messenger, create_messenger, SmtpProvider, ConsoleMessenger
