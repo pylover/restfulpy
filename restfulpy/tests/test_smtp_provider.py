@@ -1,10 +1,14 @@
 
 import unittest
+from os.path import dirname, abspath, join
 
 from nanohttp import settings, configure
 
 from restfulpy.messaging.providers import SmtpProvider
 from restfulpy.testing.mockup import smtp_server
+
+
+HERE = abspath(dirname(__file__))
 
 
 class SmtpProviderTestCase(unittest.TestCase):
@@ -17,7 +21,14 @@ class SmtpProviderTestCase(unittest.TestCase):
           local_hostname: localhost
           tls: false
           auth: false
-        '''
+        messaging:
+            mako_modules_directory: %s
+            template_dirs: 
+              - %s
+        ''' % (
+        join(HERE, 'data', 'mako_modules'),
+        join(HERE, 'templates'),
+    )
 
     @classmethod
     def setUpClass(cls):
@@ -28,10 +39,21 @@ class SmtpProviderTestCase(unittest.TestCase):
             settings.smtp.host = bind[0]
             settings.smtp.port = bind[1]
 
+            # Without templates
             SmtpProvider().send(
                 'test@example.com',
                 'test@example.com',
-                'Simple test body'
+                'Simple test body',
+                cc='test@example.com',
+                bcc='test@example.com'
+            )
+
+            # with template
+            SmtpProvider().send(
+                'test@example.com',
+                'test@example.com',
+                {},
+                template_filename='test-email-template.mako'
             )
 
 
