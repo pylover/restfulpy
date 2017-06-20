@@ -1,3 +1,16 @@
+
+## Branches
+
+### master
+
+[![Build Status](https://travis-ci.org/pylover/restfulpy.svg?branch=master)](https://travis-ci.org/pylover/restfulpy)
+[![Coverage Status](https://coveralls.io/repos/github/pylover/restfulpy/badge.svg?branch=master)](https://coveralls.io/github/pylover/restfulpy?branch=master)
+
+### develop
+
+[![Build Status](https://travis-ci.org/pylover/restfulpy.svg?branch=develop)](https://travis-ci.org/pylover/restfulpy)
+[![Coverage Status](https://coveralls.io/repos/github/pylover/restfulpy/badge.svg?branch=develop)](https://coveralls.io/github/pylover/restfulpy?branch=develop)
+
 # restfulpy
 A tool-chain for creating restful web applications.
 
