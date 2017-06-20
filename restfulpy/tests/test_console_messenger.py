@@ -3,7 +3,7 @@ import io
 import unittest
 from os.path import dirname, abspath, join
 
-from nanohttp import settings, configure
+from nanohttp import configure
 
 from restfulpy.messaging.providers import ConsoleMessenger
 
