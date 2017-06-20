@@ -14,7 +14,7 @@ class PagingObject(PaginationMixin, DeclarativeBase):
     __max_take__ = 4
 
     id = Field(Integer, primary_key=True)
-    title = Field(Unicode(50), index=True, min_length=2, watermark='First Name')
+    title = Field(Unicode(50))
 
 
 class PaginationMixinTestCase(WebAppTestCase):

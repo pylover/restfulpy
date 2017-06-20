@@ -163,10 +163,11 @@ class FilteringMixin:
     def _filter_by_column_value(cls, query, column, value):
 
         import_value = getattr(cls, 'import_value')
+        if not isinstance(value, str):
+            raise HttpBadRequest()
 
         if value.startswith('^') or value.startswith('!^'):
-            if isinstance(value, str):
-                value = value.split(',')
+            value = value.split(',')
             not_ = value[0].startswith('!^')
             first_item = value[0][2 if not_ else 1:]
             items = [first_item] + value[1:]
@@ -177,11 +178,8 @@ class FilteringMixin:
             if not_:
                 expression = ~expression
 
-        elif not isinstance(value, str) or value.startswith('~'):
-            if isinstance(value, str):
-                values = value[1:].split(',')
-            else:
-                values = value
+        elif value.startswith('~'):
+            values = value[1:].split(',')
             start, end = [import_value(column, v) for v in values]
             expression = between(column, start, end)
 
