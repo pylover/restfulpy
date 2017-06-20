@@ -1,4 +1,5 @@
 
+import io
 import unittest
 from os.path import dirname, abspath, join
 
@@ -48,12 +49,22 @@ class SmtpProviderTestCase(unittest.TestCase):
                 bcc='test@example.com'
             )
 
-            # with template
+            # With template
             SmtpProvider().send(
                 'test@example.com',
                 'test@example.com',
                 {},
                 template_filename='test-email-template.mako'
+            )
+
+            # With attachments
+            attachment = io.BytesIO(b'This is test attachment file')
+            attachment.name = 'path/to/file.txt'
+            SmtpProvider().send(
+                'test@example.com',
+                'test@example.com',
+                'email body with Attachment',
+                attachments=[attachment]
             )
 
 

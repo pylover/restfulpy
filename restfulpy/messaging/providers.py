@@ -34,7 +34,8 @@ class Messenger(object):
             input_encoding='utf8'
         )
 
-    def send(self, to, subject, body, cc=None, bcc=None, template_filename=None, from_=None, attachments=None):
+    def send(self, to, subject, body, cc=None, bcc=None, template_filename=None, from_=None,
+             attachments=None):  # pragma: no cover
         raise NotImplementedError
 
 
@@ -54,10 +55,10 @@ class SmtpProvider(Messenger):
             port=smtp_config.port,
             local_hostname=smtp_config.local_hostname
         )
-        if smtp_config.tls:
+        if smtp_config.tls:  # pragma: no cover
             smtp_server.starttls()
 
-        if smtp_config.auth:
+        if smtp_config.auth:  # pragma: no cover
             smtp_server.login(smtp_config.username, smtp_config.password)
 
         from_ = from_ or smtp_config.username
