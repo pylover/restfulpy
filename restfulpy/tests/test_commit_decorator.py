@@ -4,6 +4,7 @@ import unittest
 from nanohttp import json, RestController, context, settings
 from sqlalchemy import Unicode
 
+from restfulpy.controllers import JsonPatchControllerMixin
 from restfulpy.orm import commit, DeclarativeBase, Field, DBSession
 from restfulpy.testing import WebAppTestCase
 from restfulpy.tests.helpers import MockupApplication
@@ -14,7 +15,7 @@ class CommitCheckingModel(DeclarativeBase):
     title = Field(Unicode(50), primary_key=True)
 
 
-class Root(RestController):
+class Root(JsonPatchControllerMixin, RestController):
 
     @json
     @commit
@@ -28,6 +29,14 @@ class Root(RestController):
     def get(self, title: str=None):
         m = DBSession.query(CommitCheckingModel).filter(CommitCheckingModel.title == title).one()
         return m
+
+    @json
+    @commit
+    def error(self):
+        m = CommitCheckingModel()
+        m.title = 'Error'
+        DBSession.add(m)
+        raise Exception()
 
 
 class CommitDecoratorTestCase(WebAppTestCase):
@@ -47,6 +56,18 @@ class CommitDecoratorTestCase(WebAppTestCase):
         self.request('ALL', 'POST', '/', params=dict(title='first'), doc=False)
         resp, ___ = self.request('ALL', 'GET', '/first', doc=False)
         self.assertEquals(resp['title'], 'first')
+
+    def test_commit_decorator_and_json_patch(self):
+        # The commit decorator should not to do anything if the request is a jsonpatch.
+        self.request('ALL', 'PATCH', '/', doc=False, json=[
+            dict(op='post', path='', value=dict(title='second')),
+            dict(op='post', path='', value=dict(title='third'))
+        ])
+        resp, ___ = self.request('ALL', 'GET', '/third', doc=False)
+        self.assertEquals(resp['title'], 'third')
+
+    def test_rollback(self):
+        self.request('ALL', 'ERROR', '/', doc=False, expected_status=500)
 
 
 if __name__ == '__main__':

@@ -80,6 +80,7 @@ def create_thread_unsafe_session():  # pragma: no cover
 
 def commit(func):
 
+    # noinspection PyUnresolvedReferences
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
 

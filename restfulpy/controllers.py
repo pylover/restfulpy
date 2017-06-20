@@ -48,7 +48,12 @@ class JsonPatchControllerMixin:
                 context.form = patch.get('value', {})
                 context.method = patch['op']
 
-                return_data = self(*patch['path'].split('/'))
+                remaining_paths = patch['path'].split('/')
+                if remaining_paths and not remaining_paths[0]:
+                    return_data = self()
+                else:
+                    return_data = self(*remaining_paths)
+
                 results.append(return_data)
 
                 DBSession.flush()
