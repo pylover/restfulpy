@@ -29,13 +29,13 @@ class AbstractDatabaseManager(object):
         if not self.database_exists():
             self.create_database()
 
-    def database_exists(self):
+    def database_exists(self):  # pragma: no cover
         raise NotImplementedError()
 
-    def create_database(self):
+    def create_database(self):  # pragma: no cover
         raise NotImplementedError()
 
-    def drop_database(self):
+    def drop_database(self):  # pragma: no cover
         raise NotImplementedError()
 
 
