@@ -70,5 +70,5 @@ class CommitDecoratorTestCase(WebAppTestCase):
         self.request('ALL', 'ERROR', '/', doc=False, expected_status=500)
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: no cover
     unittest.main()

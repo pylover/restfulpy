@@ -42,5 +42,5 @@ class ImpersonationTest(unittest.TestCase):
             self.assertFalse(context.identity.is_in_roles(role2))
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: no cover
     unittest.main()

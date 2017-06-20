@@ -103,5 +103,5 @@ class StatefulAuthenticatorTestCase(WebAppTestCase):
         self.assertIsNotNone(response_headers['X-New-JWT-Token'])
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: no cover
     unittest.main()

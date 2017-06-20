@@ -65,8 +65,9 @@ class BaseModel(object):
         elif isinstance(v, Decimal):
             result = str(v)
 
-        elif isinstance(v, set):
-            result = list(v)
+        # Commented-out by vahid, I think it's not necessary at all.
+        # elif isinstance(v, set):
+        #     result = list(v)
 
         else:
             result = v

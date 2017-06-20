@@ -30,6 +30,6 @@ class MessengerFactoryTestCase(unittest.TestCase):
         self.assertIsInstance(smtp_messenger, SmtpProvider)
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: no cover
     unittest.main()
 

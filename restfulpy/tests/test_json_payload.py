@@ -26,5 +26,5 @@ class JSONPayloadTestCase(WebAppTestCase):
         self.assertDictEqual(response, payload)
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: no cover
     unittest.main()
