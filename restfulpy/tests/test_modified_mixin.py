@@ -20,10 +20,6 @@ class ModificationCheckingModelTestCase(WebAppTestCase):
     db:
       uri: sqlite://    # In memory DB
       echo: false
-
-    messaging:
-      default_sender: test@example.com
-      default_messenger: restfulpy.testing.helpers.MockupMessenger
     '''
 
     @classmethod

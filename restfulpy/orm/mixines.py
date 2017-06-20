@@ -38,8 +38,8 @@ class OrderableMixin:
     __mapper_args__ = dict(order_by=order)
 
     @classmethod
-    def apply_default_sort(cls, query):
-        return query.order_by(cls.order)
+    def apply_default_sort(cls, query=None):
+        return (query or cls.query).order_by(cls.order)
 
 
 class SoftDeleteMixin:
