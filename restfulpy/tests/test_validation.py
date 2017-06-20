@@ -12,10 +12,10 @@ from restfulpy.controllers import RestController, RootController
 
 class ValidationController(RestController):
     @json
-    @validate_form(black_list=['blackListParamForAll'],
-                   client={'black_list': ['blackListParamForClient']},
-                   admin={'black_list': ['blackListParamForAdmin']})
-    def test_black_list(self):
+    @validate_form(blacklist=['blacklistParamForAll'],
+                   client={'blacklist': ['blacklistParamForClient']},
+                   admin={'blacklist': ['blacklistParamForAdmin']})
+    def test_blacklist(self):
         result = copy.deepcopy(context.form)
         result.update(context.query_string)
         return result
@@ -41,10 +41,10 @@ class ValidationController(RestController):
         return result
 
     @json
-    @validate_form(white_list=['whiteListParamForAll'],
-                   client={'white_list': ['whiteListParamForClient']},
-                   admin={'white_list': ['whiteListParamForAdmin']})
-    def test_white_list(self):
+    @validate_form(whitelist=['whitelistParamForAll'],
+                   client={'whitelist': ['whitelistParamForClient']},
+                   admin={'whitelist': ['whitelistParamForAdmin']})
+    def test_whitelist(self):
         result = copy.deepcopy(context.form)
         result.update(context.query_string)
         return result
@@ -85,44 +85,43 @@ class ValidationTestCase(WebAppTestCase):
                   level: info
             """)
 
-    def test_validation(self):
-        # Test `black_list`
+    def test_validation_blacklist(self):
+        # Test `blacklist`
         # role -> All
         self.wsgi_app.jwt_token = DummyIdentity().dump().decode()
-        self.request('All', 'TEST_BLACK_LIST', '/validation', doc=False)
-        self.request('All', 'TEST_BLACK_LIST', '/validation', doc=False, params={'customParam': 'param'})
-        self.request('All', 'TEST_BLACK_LIST', '/validation', doc=False, params={'blackListParamForAll': 'param'},
+        self.request('All', 'TEST_BLACKLIST', '/validation', doc=False)
+        self.request('All', 'TEST_BLACKLIST', '/validation', doc=False, params={'customParam': 'param'})
+        self.request('All', 'TEST_BLACKLIST', '/validation', doc=False, params={'blacklistParamForAll': 'param'},
                      expected_status=400)
-        self.request('All', 'TEST_BLACK_LIST', '/validation', doc=False, params={'blackListParamForClient': 'param'})
-        self.request('All', 'TEST_BLACK_LIST', '/validation', doc=False, params={'blackListParamForAdmin': 'param'})
+        self.request('All', 'TEST_BLACKLIST', '/validation', doc=False, params={'blacklistParamForClient': 'param'})
+        self.request('All', 'TEST_BLACKLIST', '/validation', doc=False, params={'blacklistParamForAdmin': 'param'})
         # -----------------------------
         # role -> Client
         self.wsgi_app.jwt_token = DummyIdentity('client').dump().decode()
-        self.request('Client', 'TEST_BLACK_LIST', '/validation', doc=False)
-        self.request('Client', 'TEST_BLACK_LIST', '/validation', doc=False, params={'customParam': 'param'})
-        self.request('Client', 'TEST_BLACK_LIST', '/validation', doc=False, params={'blackListParamForAll': 'param'},
+        self.request('Client', 'TEST_BLACKLIST', '/validation', doc=False)
+        self.request('Client', 'TEST_BLACKLIST', '/validation', doc=False, params={'customParam': 'param'})
+        self.request('Client', 'TEST_BLACKLIST', '/validation', doc=False, params={'blacklistParamForAll': 'param'},
                      expected_status=400)
         self.request(
-            'Client', 'TEST_BLACK_LIST', '/validation', doc=False,
-            params={'blackListParamForClient': 'param'},
+            'Client', 'TEST_BLACKLIST', '/validation', doc=False,
+            params={'blacklistParamForClient': 'param'},
             expected_status=400
         )
-        self.request('Client', 'TEST_BLACK_LIST', '/validation', doc=False, params={
-            'blackListParamForAdmin': 'param'
+        self.request('Client', 'TEST_BLACKLIST', '/validation', doc=False, params={
+            'blacklistParamForAdmin': 'param'
         })
         # -----------------------------
         # role -> Admin
         self.wsgi_app.jwt_token = DummyIdentity('admin').dump().decode()
-        self.request('Admin', 'TEST_BLACK_LIST', '/validation', doc=False)
-        self.request('Admin', 'TEST_BLACK_LIST', '/validation', doc=False, params={'customParam': 'param'})
-        self.request('Admin', 'TEST_BLACK_LIST', '/validation', doc=False, params={'blackListParamForAll': 'param'},
+        self.request('Admin', 'TEST_BLACKLIST', '/validation', doc=False)
+        self.request('Admin', 'TEST_BLACKLIST', '/validation', doc=False, params={'customParam': 'param'})
+        self.request('Admin', 'TEST_BLACKLIST', '/validation', doc=False, params={'blacklistParamForAll': 'param'},
                      expected_status=400)
-        self.request('Admin', 'TEST_BLACK_LIST', '/validation', doc=False, params={'blackListParamForClient': 'param'})
-        self.request('Admin', 'TEST_BLACK_LIST', '/validation', doc=False, params={'blackListParamForAdmin': 'param'},
+        self.request('Admin', 'TEST_BLACKLIST', '/validation', doc=False, params={'blacklistParamForClient': 'param'})
+        self.request('Admin', 'TEST_BLACKLIST', '/validation', doc=False, params={'blacklistParamForAdmin': 'param'},
                      expected_status=400)
 
-        # ------------------------------------------------------------
-
+    def test_validation_exclude(self):
         # Test `exclude`
         # role -> All
         self.wsgi_app.jwt_token = DummyIdentity().dump().decode()
@@ -172,8 +171,7 @@ class ValidationTestCase(WebAppTestCase):
         self.assertNotIn('excludedParamForAdmin', result)
         self.assertNotIn('excludedParamForAll', result)
 
-        # ------------------------------------------------------------
-
+    def test_validation_filter(self):
         # Test `filter`
         # role -> All
         self.wsgi_app.jwt_token = DummyIdentity().dump().decode()
@@ -223,62 +221,61 @@ class ValidationTestCase(WebAppTestCase):
         self.assertIn('filteredParamForAdmin', result)
         self.assertIn('filteredParamForAll', result)
 
-        # ------------------------------------------------------------
-
-        # Test `white_list`
+    def test_validation_whitelist(self):
+        # Test `whitelist`
         # role -> All
         self.wsgi_app.jwt_token = DummyIdentity().dump().decode()
-        result, ___ = self.request('All', 'TEST_WHITE_LIST', '/validation', doc=False,
-                                   params={'whiteListParamForAll': 'param'})
-        self.assertIn('whiteListParamForAll', result)
-        self.request('All', 'TEST_WHITE_LIST', '/validation', doc=False)
+        result, ___ = self.request('All', 'TEST_WHITELIST', '/validation', doc=False,
+                                   params={'whitelistParamForAll': 'param'})
+        self.assertIn('whitelistParamForAll', result)
+        self.request('All', 'TEST_WHITELIST', '/validation', doc=False)
         self.request(
-            'All', 'TEST_WHITE_LIST', '/validation', doc=False,
+            'All', 'TEST_WHITELIST', '/validation', doc=False,
             params={
-                'whiteListParamForAll': 'param',
+                'whitelistParamForAll': 'param',
                 'customParam': 'param'
             },
             expected_status=400
         )
-        self.request('All', 'TEST_WHITE_LIST', '/validation', doc=False, params={'customParam': 'param'},
+        self.request('All', 'TEST_WHITELIST', '/validation', doc=False, params={'customParam': 'param'},
                      expected_status=400)
-        self.request('All', 'TEST_WHITE_LIST', '/validation', doc=False, params={'whiteListParamForClient': 'param', },
+        self.request('All', 'TEST_WHITELIST', '/validation', doc=False, params={'whitelistParamForClient': 'param', },
                      expected_status=400)
         # -----------------------------
         # role -> Client
         self.wsgi_app.jwt_token = DummyIdentity('client').dump().decode()
 
-        result, ___ = self.request('Client', 'TEST_WHITE_LIST', '/validation', doc=False,
-                                   params={'whiteListParamForAll': 'param'})
-        self.assertIn('whiteListParamForAll', result)
+        result, ___ = self.request('Client', 'TEST_WHITELIST', '/validation', doc=False,
+                                   params={'whitelistParamForAll': 'param'})
+        self.assertIn('whitelistParamForAll', result)
 
-        result, ___ = self.request('Client', 'TEST_WHITE_LIST', '/validation', doc=False,
-                                   params={'whiteListParamForClient': 'param'})
-        self.assertIn('whiteListParamForClient', result)
+        result, ___ = self.request('Client', 'TEST_WHITELIST', '/validation', doc=False,
+                                   params={'whitelistParamForClient': 'param'})
+        self.assertIn('whitelistParamForClient', result)
 
         result, ___ = self.request(
-            'Client', 'TEST_WHITE_LIST', '/validation', doc=False,
+            'Client', 'TEST_WHITELIST', '/validation', doc=False,
             params={
-                'whiteListParamForAll': 'param',
-                'whiteListParamForClient': 'param',
+                'whitelistParamForAll': 'param',
+                'whitelistParamForClient': 'param',
             }
         )
-        self.assertIn('whiteListParamForAll', result)
-        self.assertIn('whiteListParamForClient', result)
+        self.assertIn('whitelistParamForAll', result)
+        self.assertIn('whitelistParamForClient', result)
 
-        self.request('Client', 'TEST_WHITE_LIST', '/validation', doc=False)
+        self.request('Client', 'TEST_WHITELIST', '/validation', doc=False)
 
         self.request(
-            'Client', 'TEST_WHITE_LIST', '/validation', doc=False,
+            'Client', 'TEST_WHITELIST', '/validation', doc=False,
             params={
-                'whiteListParamForAll': 'param',
+                'whitelistParamForAll': 'param',
                 'customParam': 'param',
             },
             expected_status=400
         )
 
         self.request(
-            'Client', 'TEST_WHITE_LIST', '/validation', doc=False,
+            'Client', 'TEST_WHITELIST', '/validation', doc=False,
             params={
                 'customParam': 'param',
             },
@@ -286,9 +283,9 @@ class ValidationTestCase(WebAppTestCase):
         )
 
         self.request(
-            'Client', 'TEST_WHITE_LIST', '/validation', doc=False,
+            'Client', 'TEST_WHITELIST', '/validation', doc=False,
             params={
-                'whiteListParamForAdmin': 'param',
+                'whitelistParamForAdmin': 'param',
             },
             expected_status=400
         )
@@ -297,51 +294,50 @@ class ValidationTestCase(WebAppTestCase):
         # role -> Admin
         self.wsgi_app.jwt_token = DummyIdentity('admin').dump().decode()
 
-        result, ___ = self.request('Admin', 'TEST_WHITE_LIST', '/validation', doc=False,
-                                   params={'whiteListParamForAll': 'param'})
-        self.assertIn('whiteListParamForAll', result)
+        result, ___ = self.request('Admin', 'TEST_WHITELIST', '/validation', doc=False,
+                                   params={'whitelistParamForAll': 'param'})
+        self.assertIn('whitelistParamForAll', result)
 
-        result, ___ = self.request('Admin', 'TEST_WHITE_LIST', '/validation', doc=False,
-                                   params={'whiteListParamForAdmin': 'param'})
-        self.assertIn('whiteListParamForAdmin', result)
+        result, ___ = self.request('Admin', 'TEST_WHITELIST', '/validation', doc=False,
+                                   params={'whitelistParamForAdmin': 'param'})
+        self.assertIn('whitelistParamForAdmin', result)
 
         result, ___ = self.request(
-            'Admin', 'TEST_WHITE_LIST', '/validation', doc=False,
+            'Admin', 'TEST_WHITELIST', '/validation', doc=False,
             params={
-                'whiteListParamForAll': 'param',
-                'whiteListParamForAdmin': 'param',
+                'whitelistParamForAll': 'param',
+                'whitelistParamForAdmin': 'param',
             }
         )
-        self.assertIn('whiteListParamForAll', result)
-        self.assertIn('whiteListParamForAdmin', result)
+        self.assertIn('whitelistParamForAll', result)
+        self.assertIn('whitelistParamForAdmin', result)
 
-        self.request('Admin', 'TEST_WHITE_LIST', '/validation', doc=False)
+        self.request('Admin', 'TEST_WHITELIST', '/validation', doc=False)
 
         self.request(
-            'Admin', 'TEST_WHITE_LIST', '/validation', doc=False,
+            'Admin', 'TEST_WHITELIST', '/validation', doc=False,
             params={
-                'whiteListParamForAll': 'param',
+                'whitelistParamForAll': 'param',
                 'customParam': 'param',
             },
             expected_status=400
         )
 
-        self.request('Admin', 'TEST_WHITE_LIST', '/validation', doc=False, params={
+        self.request('Admin', 'TEST_WHITELIST', '/validation', doc=False, params={
             'customParam': 'param',
         }, expected_status=400)
 
         self.request(
-            'Admin', 'TEST_WHITE_LIST', '/validation', doc=False,
+            'Admin', 'TEST_WHITELIST', '/validation', doc=False,
             params={
-                'whiteListParamForAll': 'param',
-                'whiteListParamForAdmin': 'param',
-                'whiteListParamForClient': 'param',
+                'whitelistParamForAll': 'param',
+                'whitelistParamForAdmin': 'param',
+                'whitelistParamForClient': 'param',
             },
             expected_status=400
         )
 
-        # ------------------------------------------------------------
-
+    def test_validation_requires(self):
         # Test `requires`
         # role -> All
         self.wsgi_app.jwt_token = DummyIdentity().dump().decode()
@@ -443,8 +439,7 @@ class ValidationTestCase(WebAppTestCase):
         self.request('Admin', 'TEST_REQUIRES', '/validation', doc=False, params={'requiresParamForAdmin': 'param'},
                      expected_status=400)
 
-        # ------------------------------------------------------------
-
+    def test_validation_exact(self):
         # Test `exact`
         # role -> All
         self.wsgi_app.jwt_token = DummyIdentity().dump().decode()

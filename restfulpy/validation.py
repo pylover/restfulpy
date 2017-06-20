@@ -6,11 +6,11 @@ from nanohttp.exceptions import HttpBadRequest
 
 
 class FormValidator:
-    def __init__(self, black_list=None, exclude=None, filter_=None, white_list=None, requires=None, exact=None,
+    def __init__(self, blacklist=None, exclude=None, filter_=None, whitelist=None, requires=None, exact=None,
                  **rules_per_role):
         self.default_rules = {}
-        if black_list:
-            self.default_rules['black_list'] = set(black_list)
+        if blacklist:
+            self.default_rules['blacklist'] = set(blacklist)
 
         if exclude:
             self.default_rules['exclude'] = set(exclude)
@@ -18,8 +18,8 @@ class FormValidator:
         if filter_:
             self.default_rules['filter_'] = set(filter_)
 
-        if white_list:
-            self.default_rules['white_list'] = set(white_list)
+        if whitelist:
+            self.default_rules['whitelist'] = set(whitelist)
 
         if requires:
             self.default_rules['requires'] = set(requires)
@@ -40,7 +40,7 @@ class FormValidator:
         user_rules = [v for k, v in self._rules_per_role.items() if k in context.identity.roles] \
             if context.identity else []
 
-        denied_fields = self.extract_rule_fields('black_list', user_rules)
+        denied_fields = self.extract_rule_fields('blacklist', user_rules)
         if denied_fields:
             if all_input_fields & denied_fields:
                 raise HttpBadRequest('These fields are denied: [%s]' % ', '.join(denied_fields))
@@ -57,11 +57,11 @@ class FormValidator:
                 for field in set(collection) - filtered_fields:
                     del collection[field]
 
-        white_list_fields = self.extract_rule_fields('white_list', user_rules)
-        if white_list_fields:
-            if all_input_fields - white_list_fields:
+        whitelist_fields = self.extract_rule_fields('whitelist', user_rules)
+        if whitelist_fields:
+            if all_input_fields - whitelist_fields:
                 raise HttpBadRequest(
-                    'These fields are not allowed: [%s]' % ', '.join(all_input_fields - white_list_fields)
+                    'These fields are not allowed: [%s]' % ', '.join(all_input_fields - whitelist_fields)
                 )
 
         required_fields = self.extract_rule_fields('requires', user_rules)
@@ -72,19 +72,19 @@ class FormValidator:
         exact_fields = self.extract_rule_fields('exact', user_rules)
         if exact_fields:
             if exact_fields != all_input_fields:
-                raise HttpBadRequest('Exactly these fields are allowed: [%s]' % ', '.join(white_list_fields))
+                raise HttpBadRequest('Exactly these fields are allowed: [%s]' % ', '.join(whitelist_fields))
 
         return args, kwargs
 
 
-def validate_form(black_list=None, exclude=None, filter_=None, white_list=None, requires=None, exact=None,
+def validate_form(blacklist=None, exclude=None, filter_=None, whitelist=None, requires=None, exact=None,
                   **rules_per_role):
     """Creates a validation decorator based on given rules:
 
-    :param black_list: A list fields to raise :class:`nanohttp.exceptions.HttpBadRequest` if exists in request.
+    :param blacklist: A list fields to raise :class:`nanohttp.exceptions.HttpBadRequest` if exists in request.
     :param exclude: A list of fields to remove from the request payload if exists.
     :param filter_: A list of fields to filter the request payload.
-    :param white_list: A list of fields to raise :class:`nanohttp.exceptions.HttpBadRequest` if anythings else found in
+    :param whitelist: A list of fields to raise :class:`nanohttp.exceptions.HttpBadRequest` if anythings else found in
                 the request payload.
     :param requires: A list of fields to raise :class:`nanohttp.exceptions.HttpBadRequest` if the given fields are not
                  in the request payload.
@@ -96,7 +96,7 @@ def validate_form(black_list=None, exclude=None, filter_=None, white_list=None, 
     """
 
     def decorator(func):
-        validator = FormValidator(black_list=black_list, exclude=exclude, filter_=filter_, white_list=white_list,
+        validator = FormValidator(blacklist=blacklist, exclude=exclude, filter_=filter_, whitelist=whitelist,
                                   requires=requires, exact=exact, **rules_per_role)
 
         @functools.wraps(func)
