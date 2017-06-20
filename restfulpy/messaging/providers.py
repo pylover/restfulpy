@@ -54,8 +54,11 @@ class SmtpProvider(Messenger):
             port=smtp_config.port,
             local_hostname=smtp_config.local_hostname
         )
-        smtp_server.starttls()
-        smtp_server.login(smtp_config.username, smtp_config.password)
+        if smtp_config.tls:
+            smtp_server.starttls()
+
+        if smtp_config.auth:
+            smtp_server.login(smtp_config.username, smtp_config.password)
 
         from_ = from_ or smtp_config.username
 

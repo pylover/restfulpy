@@ -55,6 +55,8 @@ smtp:
   username: user@example.com
   password: password
   local_hostname: localhost
+  tls: true
+  auth: true
 
 logging:
   loggers:
