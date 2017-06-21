@@ -1,11 +1,12 @@
 import unittest
 
-from nanohttp import json, RestController, context, settings
+from nanohttp import json, RestController, settings
 from sqlalchemy import Unicode, Integer, Date, Float
 from sqlalchemy.orm import synonym
 
 from restfulpy.controllers import JsonPatchControllerMixin
-from restfulpy.orm import commit, DeclarativeBase, Field, DBSession, composite
+from restfulpy.orm import commit, DeclarativeBase, Field, DBSession, composite, FilteringMixin, PaginationMixin, \
+    OrderingMixin
 from restfulpy.testing import WebAppTestCase
 from restfulpy.tests.helpers import MockupApplication
 
@@ -30,7 +31,7 @@ class FullName(object):  # pragma: no cover
         return not self.__eq__(other)
 
 
-class Member(DeclarativeBase):
+class Member(FilteringMixin, PaginationMixin, OrderingMixin, DeclarativeBase):
     __tablename__ = 'member'
 
     id = Field(Integer, primary_key=True)
@@ -122,22 +123,6 @@ class BaseModelTestCase(WebAppTestCase):
         # Plain dictionary
         resp, ___ = self.request('ALL', 'GET', '/me', doc=False)
         self.assertEqual(resp['title'], 'me')
-
-        # # Sending readonly field
-        # self.request(
-        #     'ALL', 'POST', '/', params=dict(
-        #         fullName='test',
-        #         title='test',
-        #         firstName='test',
-        #         lastName='test',
-        #         email='test@example.com',
-        #         password='123456',
-        #         birth='01-01-01',
-        #         weight=1.1
-        #     ),
-        #     doc=False,
-        #     expected_status=400
-        # )
 
     def test_iter_columns(self):
         columns = {c.key: c for c in Member.iter_columns(relationships=False, synonyms=False, composites=False)}

@@ -44,7 +44,7 @@ class Author(DeclarativeBase):
         pattern=r'\d{3}[-\.\s]??\d{3}[-\.\s]??\d{4}|\(\d{3}\)\s*\d{3}[-\.\s]??\d{4}|\d{3}[-\.\s]??\d{4}',
         watermark='Phone'
     )
-    name = composite(FullName, first_name, last_name, readonly=True, json='fullName')
+    name = composite(FullName, first_name, last_name, readonly=True, json='fullName', protected=True)
     _password = Field('password', Unicode(128), index=True, json='password', protected=True, min_length=6)
     birth = Field(Date)
     weight = Field(Float(asdecimal=True))
@@ -160,7 +160,7 @@ class ModelTestCase(unittest.TestCase):
         author_metadata = Author.json_metadata()
         self.assertIn('id', author_metadata)
         self.assertIn('email', author_metadata)
-        self.assertIn('fullName', author_metadata)
+        self.assertNotIn('fullName', author_metadata)
         self.assertNotIn('password', author_metadata)
 
         post_metadata = Post.json_metadata()
@@ -184,7 +184,6 @@ class ModelTestCase(unittest.TestCase):
                     'lastName': 'author 1 last name',
                     'phone': None,
                     'title': 'author1',
-                    'fullName': 'author 1 first name author 1 last name',
                     'birth': '0001-01-01',
                     'weight': '1.1000000000'
                 },
@@ -201,7 +200,7 @@ class ModelTestCase(unittest.TestCase):
         self.assertIn('modifiedAt', post1_dict)
 
         author1_dict = author1.to_dict()
-        self.assertIn('fullName', author1_dict)
+        self.assertNotIn('fullName', author1_dict)
 
 
 if __name__ == '__main__':  # pragma: no cover
