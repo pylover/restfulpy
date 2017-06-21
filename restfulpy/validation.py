@@ -6,8 +6,17 @@ from nanohttp.exceptions import HttpBadRequest
 
 
 class FormValidator:
-    def __init__(self, blacklist=None, exclude=None, filter_=None, whitelist=None, requires=None, exact=None,
-                 **rules_per_role):
+    def __init__(
+            self,
+            blacklist=None,
+            exclude=None,
+            filter_=None,
+            whitelist=None,
+            requires=None,
+            exact=None,
+            type_=None,
+            **rules_per_role
+    ):
         self.default_rules = {}
         if blacklist:
             self.default_rules['blacklist'] = set(blacklist)
@@ -27,12 +36,21 @@ class FormValidator:
         if exact:
             self.default_rules['exact'] = set(exact)
 
+        if type_:
+            self.default_rules['type_'] = type_
+
         self._rules_per_role = rules_per_role
 
     def extract_rule_fields(self, rule_name, user_rules):
         return set(chain(
             *[ruleset[rule_name] for ruleset in ([self.default_rules] + user_rules) if rule_name in ruleset]
         ))
+
+    def extract_rule_fields_with_values(self, rule_name, user_rules):
+        for user_rule in user_rules:
+            if rule_name in user_rule:
+                return {**self.default_rules.get(rule_name, {}), **user_rule[rule_name]}
+        return self.default_rules.get(rule_name, {})
 
     def __call__(self, *args, **kwargs):
         input_collections = [context.form, context.query_string]
@@ -74,10 +92,22 @@ class FormValidator:
             if exact_fields != all_input_fields:
                 raise HttpBadRequest('Exactly these fields are allowed: [%s]' % ', '.join(whitelist_fields))
 
+        typed_fields = self.extract_rule_fields_with_values('type_', user_rules)
+        if typed_fields:
+            for collection in input_collections:
+                for field, callable_type in typed_fields.items():
+                    if field in collection:
+                        try:
+                            collection[field] = callable_type(collection[field])
+                        except ValueError:
+                            raise HttpBadRequest(
+                                'Cant cast %s type to %s type' % (type(collection[field]), callable_type.__name__)
+                            )
+
         return args, kwargs
 
 
-def validate_form(blacklist=None, exclude=None, filter_=None, whitelist=None, requires=None, exact=None,
+def validate_form(blacklist=None, exclude=None, filter_=None, whitelist=None, requires=None, exact=None, type_=None,
                   **rules_per_role):
     """Creates a validation decorator based on given rules:
 
@@ -90,6 +120,9 @@ def validate_form(blacklist=None, exclude=None, filter_=None, whitelist=None, re
                  in the request payload.
     :param exact: A list of fields to raise :class:`nanohttp.exceptions.HttpBadRequest` if the given fields are not
                  exact match.
+    :param type_: A dictionary of fields and their expected types. Fields will be casted to expected types if possible.
+                Otherwise :class:`nanohttp.exceptions.HttpBadRequest` will be raised.
+
     :param rules_per_role: A dictionary ``{ role: { ... } }``, which you can apply above rules to single role.
 
     :return: A validation decorator.
@@ -97,7 +130,7 @@ def validate_form(blacklist=None, exclude=None, filter_=None, whitelist=None, re
 
     def decorator(func):
         validator = FormValidator(blacklist=blacklist, exclude=exclude, filter_=filter_, whitelist=whitelist,
-                                  requires=requires, exact=exact, **rules_per_role)
+                                  requires=requires, exact=exact, type_=type_, **rules_per_role)
 
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
