@@ -67,6 +67,31 @@ class ValidationController(RestController):
         result.update(context.query_string)
         return result
 
+    @json
+    @validate_form(
+        type_={
+            'typedParam1': float,
+            'typedParam2': float,
+            'typedParam3': float,
+        },
+        client={
+           'type_': {
+               'typedParam1': int,
+               'typedParam2': int
+           }
+        },
+        admin={
+           'type_': {
+               'typedParam1': complex,
+               'typedParam4': complex
+           }
+        }
+    )
+    def test_type(self):
+        result = copy.deepcopy(context.form)
+        result.update(context.query_string)
+        return result
+
 
 class Root(RootController):
     validation = ValidationController()
@@ -528,6 +553,83 @@ class ValidationTestCase(WebAppTestCase):
                 'exactParamForClient': 'param',
             },
             params={'exactParamForAdmin': 'param'}, expected_status=400
+        )
+
+    def test_validation_type_(self):
+        # Test `type`
+        # role -> All
+        self.wsgi_app.jwt_token = DummyIdentity().dump().decode()
+        result, ___ = self.request(
+            'All', 'TEST_TYPE', '/validation',
+            doc=False,
+            params={
+                'typedParam1': '1',
+                'typedParam2': '2',
+                'typedParam3': '3',
+                'typedParam4': '4'
+            }
+        )
+        self.assertEqual(type(result['typedParam1']), float)
+        self.assertEqual(type(result['typedParam2']), float)
+        self.assertEqual(type(result['typedParam3']), float)
+        self.assertEqual(type(result['typedParam4']), str)
+
+        self.request(
+            'All', 'TEST_TYPE', '/validation',
+            doc=False,
+            params={'typedParam1': 'not_convertible'},
+            expected_status=400
+        )
+
+        # -----------------------------
+        # role -> Client
+        self.wsgi_app.jwt_token = DummyIdentity('client').dump().decode()
+        result, ___ = self.request(
+            'Client', 'TEST_TYPE', '/validation',
+            doc=False,
+            params={
+                'typedParam1': '1',
+                'typedParam2': '2',
+                'typedParam3': '3',
+                'typedParam4': '4'
+            }
+        )
+        self.assertEqual(type(result['typedParam1']), int)
+        self.assertEqual(type(result['typedParam2']), int)
+        self.assertEqual(type(result['typedParam3']), float)
+        self.assertEqual(type(result['typedParam4']), str)
+
+        self.request(
+            'Client', 'TEST_TYPE', '/validation',
+            doc=False,
+            params={'typedParam1': 'not_convertible'},
+            expected_status=400
+        )
+
+        # -----------------------------
+        # role -> Admin
+        self.wsgi_app.jwt_token = DummyIdentity('admin').dump().decode()
+        result, ___ = self.request(
+            'Admin', 'TEST_TYPE', '/validation',
+            doc=False,
+            params={
+                'typedParam1': '1',
+                'typedParam2': '2',
+                'typedParam3': '3',
+                'typedParam4': '4'
+            }
+        )
+        # type complex is dict
+        self.assertEqual(type(result['typedParam1']), dict)
+        self.assertEqual(type(result['typedParam2']), float)
+        self.assertEqual(type(result['typedParam3']), float)
+        self.assertEqual(type(result['typedParam4']), dict)
+
+        self.request(
+            'Admin', 'TEST_TYPE', '/validation',
+            doc=False,
+            params={'typedParam1': 'not_convertible'},
+            expected_status=400
         )
 
 
