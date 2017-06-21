@@ -4,7 +4,7 @@ from nanohttp import json, settings
 from sqlalchemy import Unicode, Integer, Date, Float
 from sqlalchemy.orm import synonym
 
-from restfulpy.controllers import JsonPatchControllerMixin, RestController
+from restfulpy.controllers import JsonPatchControllerMixin, ModelRestController
 from restfulpy.orm import commit, DeclarativeBase, Field, DBSession, composite, FilteringMixin, PaginationMixin, \
     OrderingMixin
 from restfulpy.testing import WebAppTestCase
@@ -60,7 +60,9 @@ class Member(FilteringMixin, PaginationMixin, OrderingMixin, DeclarativeBase):
     password = synonym('_password', descriptor=property(_get_password, _set_password), info=dict(protected=True))
 
 
-class Root(JsonPatchControllerMixin, RestController):
+class Root(JsonPatchControllerMixin, ModelRestController):
+    __model__ = Member
+
     @json
     @commit
     def post(self):
@@ -111,7 +113,7 @@ class BaseModelTestCase(WebAppTestCase):
             ),
             doc=False
         )
-        self.assertEquals(resp['title'], 'test')
+        self.assertEqual(resp['title'], 'test')
 
         resp, ___ = self.request('ALL', 'GET', '/', doc=False)
         self.assertEqual(len(resp), 1)
@@ -140,7 +142,9 @@ class BaseModelTestCase(WebAppTestCase):
         self.assertNotIn('_password', columns)
 
     def test_metadata(self):
-        resp, ___ = self.request('ALL', 'METADATA', '/me', doc=False)
+        resp, ___ = self.request('ALL', 'METADATA', '/', doc=False)
+        self.assertIn('firstName', resp)
+
 
 if __name__ == '__main__':  # pragma: no cover
     unittest.main()

@@ -22,6 +22,10 @@ class BiscuitsController(RestController):
         result['id'] = id_
         return result
 
+    @json
+    def error(self):
+        raise Exception()
+
 
 class SimpleJsonPatchController(JsonPatchControllerMixin, RestController):
     biscuits = BiscuitsController()
@@ -47,6 +51,18 @@ class JsonPatchTestCase(unittest.TestCase):
             ]
             result = ujson.loads(controller())
             self.assertEqual(len(result), 2)
+
+    def test_jsonpatch_error(self):
+        environ = {
+            'REQUEST_METHOD': 'PATCH'
+        }
+        with Context(environ):
+            controller = SimpleJsonPatchController()
+            context.form = [
+                {"op": "put", "path": "biscuits/1", "value": {"name": "Ginger Nut"}},
+                {"op": "error", "path": "biscuits", "value": None},
+            ]
+            self.assertRaises(Exception, controller)
 
 
 if __name__ == '__main__':  # pragma: no cover
