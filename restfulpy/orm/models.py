@@ -129,11 +129,12 @@ class BaseModel(object):
         for c in cls.iter_json_columns(include_protected_columns=True):
             param_name = c.info.get('json', to_camel_case(c.key))
 
-            if c.info.get('readonly') and param_name in context.form:
-                if c.info.get('strict', None):
-                    raise HttpBadRequest('Invalid parameter: %s' % c.info['json'])
-                else:
-                    continue
+            # Commented-out by vahid, I think it's not necessary at all.
+            # if c.info.get('readonly') and param_name in context.form:
+            #     if c.info.get('strict', None):
+            #         raise HttpBadRequest('Invalid parameter: %s' % c.info['json'])
+            #     else:
+            #         continue
 
             if param_name in context.form:
                 yield c, context.form[param_name]

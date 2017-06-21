@@ -123,6 +123,37 @@ class BaseModelTestCase(WebAppTestCase):
         resp, ___ = self.request('ALL', 'GET', '/me', doc=False)
         self.assertEqual(resp['title'], 'me')
 
+        # # Sending readonly field
+        # self.request(
+        #     'ALL', 'POST', '/', params=dict(
+        #         fullName='test',
+        #         title='test',
+        #         firstName='test',
+        #         lastName='test',
+        #         email='test@example.com',
+        #         password='123456',
+        #         birth='01-01-01',
+        #         weight=1.1
+        #     ),
+        #     doc=False,
+        #     expected_status=400
+        # )
+
+    def test_iter_columns(self):
+        columns = {c.key: c for c in Member.iter_columns(relationships=False, synonyms=False, composites=False)}
+        self.assertEqual(len(columns), 9)
+        self.assertNotIn('name', columns)
+        self.assertNotIn('password', columns)
+        self.assertIn('_password', columns)
+
+    def test_iter_json_columns(self):
+        columns = {c.key: c for c in Member.iter_json_columns(
+            include_readonly_columns=False, include_protected_columns=False)}
+        self.assertEqual(len(columns), 8)
+        self.assertNotIn('name', columns)
+        self.assertNotIn('password', columns)
+        self.assertNotIn('_password', columns)
+
 
 if __name__ == '__main__':  # pragma: no cover
     unittest.main()
