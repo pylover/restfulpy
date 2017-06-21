@@ -106,9 +106,7 @@ class BaseModel(object):
                         or (not composites and k in mapper.composites):
                     continue
 
-                if not hasattr(c, 'key'):
-                    c.key = k
-                yield c
+                yield getattr(cls, k)
 
         else:
             # noinspection PyUnresolvedReferences
