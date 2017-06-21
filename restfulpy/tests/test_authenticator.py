@@ -53,6 +53,12 @@ class Root(Controller):
         context.application.__authenticator__.logout()
         return {}
 
+    @json
+    @authorize('god')
+    def kill(self):  # pragma: no cover
+        context.application.__authenticator__.logout()
+        return {}
+
 
 class AuthenticatorTestCase(WebAppTestCase):
     application = MockupApplication('MockupApplication', Root(), authenticator=MockupStatelessAuthenticator())
@@ -162,6 +168,14 @@ class AuthenticatorTestCase(WebAppTestCase):
             },
             expected_status=401
         )
+
+    def test_authorization(self):
+        response, headers = self.request('ALL', 'POST', '/login', json=dict(email='test@example.com', password='test'))
+        self.assertIn('token', response)
+        self.assertEqual(headers['X-Identity'], '1')
+        self.wsgi_app.jwt_token = response['token']
+        response, headers = self.request('ALL', 'GET', '/kill', expected_status=403)
+        self.assertEqual(headers['X-Identity'], '1')
 
 
 if __name__ == '__main__':  # pragma: no cover
