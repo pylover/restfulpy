@@ -4,7 +4,7 @@ omit =
     practice/*
     restfulpy/tests/helpers.py
     restfulpy/cli/*
-    restfulpy/testing/*/*
+    restfulpy/testing/*
     restfulpy/logging_.py
     restfulpy/mimetypes_.py
     restfulpy/utils_.py
