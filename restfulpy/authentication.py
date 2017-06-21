@@ -144,10 +144,6 @@ class StatefulAuthenticator(Authenticator):
         return self.__class__._redis
 
     @classmethod
-    def get_session_key(cls, session_id):
-        return 'auth:session:%s' % session_id
-
-    @classmethod
     def get_member_sessions_key(cls, member_id):
         return 'auth:member:%s' % member_id
 

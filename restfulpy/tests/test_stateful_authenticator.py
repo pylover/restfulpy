@@ -52,6 +52,12 @@ class Root(Controller):
         context.application.__authenticator__.invalidate_member(1)
         return context.identity.payload
 
+    @json(verbs='delete')
+    @authorize
+    def logout(self):
+        context.application.__authenticator__.logout()
+        return {}
+
 
 class StatefulAuthenticatorTestCase(WebAppTestCase):
     application = MockupApplication('MockupApplication', Root(), authenticator=MockupStatefulAuthenticator())
@@ -88,14 +94,24 @@ class StatefulAuthenticatorTestCase(WebAppTestCase):
 
         # Invalidating the token by server after the token has been expired expired, with appropriate cookies.
         time.sleep(1)
-        response, response_headers = self.request(
+        response, headers = self.request(
             As.member, 'GET', '/invalidate_token',
             headers={
                 'Cookie': refresh_token
             }
         )
-        self.assertIn('X-New-JWT-Token', response_headers)
-        self.assertIsNotNone(response_headers['X-New-JWT-Token'])
+        self.assertIn('X-New-JWT-Token', headers)
+        self.assertIsNotNone(headers['X-New-JWT-Token'])
+        self.wsgi_app.jwt_token = headers['X-New-JWT-Token']
+        self.request(As.member, 'GET', '/me', headers={'Cookie': refresh_token})
+
+    def test_logout(self):
+        response, headers = self.request('ALL', 'POST', '/login', json=dict(email='test@example.com', password='test'))
+        self.assertIn('token', response)
+        self.assertEqual(headers['X-Identity'], '1')
+        self.wsgi_app.jwt_token = response['token']
+        response, headers = self.request('ALL', 'DELETE', '/logout')
+        self.assertEqual(headers['X-Identity'], '')
 
 
 if __name__ == '__main__':  # pragma: no cover
