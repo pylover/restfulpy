@@ -1,10 +1,10 @@
 import unittest
 
-from nanohttp import json, RestController, settings
+from nanohttp import json, settings
 from sqlalchemy import Unicode, Integer, Date, Float
 from sqlalchemy.orm import synonym
 
-from restfulpy.controllers import JsonPatchControllerMixin
+from restfulpy.controllers import JsonPatchControllerMixin, RestController
 from restfulpy.orm import commit, DeclarativeBase, Field, DBSession, composite, FilteringMixin, PaginationMixin, \
     OrderingMixin
 from restfulpy.testing import WebAppTestCase
@@ -139,6 +139,8 @@ class BaseModelTestCase(WebAppTestCase):
         self.assertNotIn('password', columns)
         self.assertNotIn('_password', columns)
 
+    def test_metadata(self):
+        resp, ___ = self.request('ALL', 'METADATA', '/me', doc=False)
 
 if __name__ == '__main__':  # pragma: no cover
     unittest.main()

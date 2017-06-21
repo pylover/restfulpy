@@ -1,13 +1,14 @@
 
 import unittest
 
-from nanohttp import action, Controller
+from nanohttp import action
 
+from restfulpy.controllers import RootController
 from restfulpy.testing import WebAppTestCase
 from restfulpy.tests.helpers import MockupApplication
 
 
-class Root(Controller):
+class Root(RootController):
 
     @action
     def index(self):
@@ -20,6 +21,10 @@ class ApplicationTestCase(WebAppTestCase):
     def test_index(self):
         response, headers = self.request('ALL', 'GET', '/')
         self.assertEqual(response, b'Index')
+
+    def test_options(self):
+        response, headers = self.request('ALL', 'OPTIONS', '/')
+        self.assertEqual(headers['Cache-Control'], 'no-cache,no-store')
 
 
 if __name__ == '__main__':  # pragma: no cover
