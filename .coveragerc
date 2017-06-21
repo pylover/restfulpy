@@ -8,3 +8,5 @@ omit =
     restfulpy/logging_.py
     restfulpy/mimetypes_.py
     restfulpy/utils_.py
+    restfulpy/db.py
+
