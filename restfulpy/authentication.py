@@ -32,16 +32,12 @@ class Authenticator:
 
     def try_refresh_token(self, session_id):
         morsel = context.cookies.get(self.refresh_token_key)
-        if not morsel:
+        if not morsel or morsel.value is None or not morsel.value.strip():
             self.bad()
             return
 
         refresh_token_encoded = morsel.value
-        if refresh_token_encoded is None or not refresh_token_encoded.strip():
-            self.bad()
-            return
-
-        # Decode refresh token
+        # Decoding the refresh token
         try:
             refresh_principal = JwtRefreshToken.load(refresh_token_encoded)
             self.ok(
