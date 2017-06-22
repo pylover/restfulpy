@@ -57,6 +57,7 @@ smtp:
   local_hostname: localhost
   tls: true
   auth: true
+  ssl: false
 
 logging:
   loggers:

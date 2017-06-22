@@ -50,7 +50,7 @@ class SmtpProvider(Messenger):
         body = self.render_body(body, template_filename)
 
         smtp_config = settings.smtp
-        smtp_server = smtplib.SMTP(
+        smtp_server = (smtplib.SMTP_SSL if smtp_config.ssl else smtplib.SMTP)(
             host=smtp_config.host,
             port=smtp_config.port,
             local_hostname=smtp_config.local_hostname
