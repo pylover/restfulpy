@@ -69,19 +69,19 @@ class ValidationController(RestController):
 
     @json
     @validate_form(
-        type_={
+        types={
             'typedParam1': float,
             'typedParam2': float,
             'typedParam3': float,
         },
         client={
-           'type_': {
+           'types': {
                'typedParam1': int,
                'typedParam2': int
            }
         },
         admin={
-           'type_': {
+           'types': {
                'typedParam1': complex,
                'typedParam4': complex
            }
@@ -555,7 +555,7 @@ class ValidationTestCase(WebAppTestCase):
             params={'exactParamForAdmin': 'param'}, expected_status=400
         )
 
-    def test_validation_type_(self):
+    def test_validation_types(self):
         # Test `type`
         # role -> All
         self.wsgi_app.jwt_token = DummyIdentity().dump().decode()

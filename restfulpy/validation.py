@@ -14,7 +14,7 @@ class FormValidator:
             whitelist=None,
             requires=None,
             exact=None,
-            type_=None,
+            types=None,
             **rules_per_role
     ):
         self.default_rules = {}
@@ -36,21 +36,25 @@ class FormValidator:
         if exact:
             self.default_rules['exact'] = set(exact)
 
-        if type_:
-            self.default_rules['type_'] = type_
+        if types:
+            self.default_rules['types'] = types
 
         self._rules_per_role = rules_per_role
 
-    def extract_rule_fields(self, rule_name, user_rules):
+    def extract_rulesets(self, rule_name, user_rules):
+        return [ruleset[rule_name] for ruleset in ([self.default_rules] + user_rules) if rule_name in ruleset]
+
+    def extract_rules_odd(self, rule_name, user_rules) -> set:
         return set(chain(
-            *[ruleset[rule_name] for ruleset in ([self.default_rules] + user_rules) if rule_name in ruleset]
+            *self.extract_rulesets(rule_name, user_rules)
         ))
 
-    def extract_rule_fields_with_values(self, rule_name, user_rules):
-        for user_rule in user_rules:
-            if rule_name in user_rule:
-                return {**self.default_rules.get(rule_name, {}), **user_rule[rule_name]}
-        return self.default_rules.get(rule_name, {})
+    def extract_rules_pair(self, rule_name, user_rules) -> dict:
+        rulesets = self.extract_rulesets(rule_name, user_rules)
+        result = {}
+        for r in rulesets:
+            result.update(r)
+        return result
 
     def __call__(self, *args, **kwargs):
         input_collections = [context.form, context.query_string]
@@ -58,56 +62,55 @@ class FormValidator:
         user_rules = [v for k, v in self._rules_per_role.items() if k in context.identity.roles] \
             if context.identity else []
 
-        denied_fields = self.extract_rule_fields('blacklist', user_rules)
+        denied_fields = self.extract_rules_odd('blacklist', user_rules)
         if denied_fields:
             if all_input_fields & denied_fields:
                 raise HttpBadRequest('These fields are denied: [%s]' % ', '.join(denied_fields))
 
-        excluded_fields = self.extract_rule_fields('exclude', user_rules)
+        excluded_fields = self.extract_rules_odd('exclude', user_rules)
         if excluded_fields:
             for collection in input_collections:
                 for field in set(collection) & excluded_fields:
                     del collection[field]
 
-        filtered_fields = self.extract_rule_fields('filter_', user_rules)
+        filtered_fields = self.extract_rules_odd('filter_', user_rules)
         if filtered_fields:
             for collection in input_collections:
                 for field in set(collection) - filtered_fields:
                     del collection[field]
 
-        whitelist_fields = self.extract_rule_fields('whitelist', user_rules)
+        whitelist_fields = self.extract_rules_odd('whitelist', user_rules)
         if whitelist_fields:
             if all_input_fields - whitelist_fields:
                 raise HttpBadRequest(
                     'These fields are not allowed: [%s]' % ', '.join(all_input_fields - whitelist_fields)
                 )
 
-        required_fields = self.extract_rule_fields('requires', user_rules)
+        required_fields = self.extract_rules_odd('requires', user_rules)
         if required_fields:
             if required_fields - all_input_fields:
                 raise HttpBadRequest('These fields are required: [%s]' % ', '.join(required_fields - all_input_fields))
 
-        exact_fields = self.extract_rule_fields('exact', user_rules)
+        exact_fields = self.extract_rules_odd('exact', user_rules)
         if exact_fields:
             if exact_fields != all_input_fields:
                 raise HttpBadRequest('Exactly these fields are allowed: [%s]' % ', '.join(whitelist_fields))
 
-        typed_fields = self.extract_rule_fields_with_values('type_', user_rules)
-        if typed_fields:
+        type_pairs = self.extract_rules_pair('types', user_rules)
+        if type_pairs:
+            type_keys = set(type_pairs.keys())
             for collection in input_collections:
-                for field, callable_type in typed_fields.items():
-                    if field in collection:
-                        try:
-                            collection[field] = callable_type(collection[field])
-                        except ValueError:
-                            raise HttpBadRequest(
-                                'Cant cast %s type to %s type' % (type(collection[field]), callable_type.__name__)
-                            )
+                for field in set(collection) & type_keys:
+                    desired_type = type_pairs[field]
+                    try:
+                        collection[field] = desired_type(collection[field])
+                    except ValueError:
+                        raise HttpBadRequest('The field: %s must be %s' % (field, desired_type))
 
         return args, kwargs
 
 
-def validate_form(blacklist=None, exclude=None, filter_=None, whitelist=None, requires=None, exact=None, type_=None,
+def validate_form(blacklist=None, exclude=None, filter_=None, whitelist=None, requires=None, exact=None, types=None,
                   **rules_per_role):
     """Creates a validation decorator based on given rules:
 
@@ -115,13 +118,13 @@ def validate_form(blacklist=None, exclude=None, filter_=None, whitelist=None, re
     :param exclude: A list of fields to remove from the request payload if exists.
     :param filter_: A list of fields to filter the request payload.
     :param whitelist: A list of fields to raise :class:`nanohttp.exceptions.HttpBadRequest` if anythings else found in
-                the request payload.
+                      the request payload.
     :param requires: A list of fields to raise :class:`nanohttp.exceptions.HttpBadRequest` if the given fields are not
-                 in the request payload.
+                     in the request payload.
     :param exact: A list of fields to raise :class:`nanohttp.exceptions.HttpBadRequest` if the given fields are not
-                 exact match.
-    :param type_: A dictionary of fields and their expected types. Fields will be casted to expected types if possible.
-                Otherwise :class:`nanohttp.exceptions.HttpBadRequest` will be raised.
+                  exact match.
+    :param types: A dictionary of fields and their expected types. Fields will be casted to expected types if possible.
+                  Otherwise :class:`nanohttp.exceptions.HttpBadRequest` will be raised.
 
     :param rules_per_role: A dictionary ``{ role: { ... } }``, which you can apply above rules to single role.
 
@@ -130,7 +133,7 @@ def validate_form(blacklist=None, exclude=None, filter_=None, whitelist=None, re
 
     def decorator(func):
         validator = FormValidator(blacklist=blacklist, exclude=exclude, filter_=filter_, whitelist=whitelist,
-                                  requires=requires, exact=exact, type_=type_, **rules_per_role)
+                                  requires=requires, exact=exact, types=types, **rules_per_role)
 
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
