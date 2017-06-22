@@ -68,7 +68,7 @@ class AuthenticatorTestCase(WebAppTestCase):
         cls.application.configure(force=True)
         settings.merge("""
             jwt:
-              max_age: .3
+              max_age: .7
               refresh_token:
                 max_age: 2
         """)

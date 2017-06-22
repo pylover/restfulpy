@@ -73,7 +73,7 @@ logging:
     root:
       level: debug
       formatter: default    
-
+    
   handlers:
 
     default:
