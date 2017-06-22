@@ -22,6 +22,7 @@ class SmtpProviderTestCase(unittest.TestCase):
           local_hostname: localhost
           tls: false
           auth: false
+          ssl: false
         messaging:
             mako_modules_directory: %s
             template_dirs: 
