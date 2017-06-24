@@ -1,4 +1,5 @@
 import functools
+import re
 from itertools import chain
 
 from nanohttp import context
@@ -15,6 +16,7 @@ class FormValidator:
             requires=None,
             exact=None,
             types=None,
+            pattern=None,
             **rules_per_role
     ):
         self.default_rules = {}
@@ -38,6 +40,9 @@ class FormValidator:
 
         if types:
             self.default_rules['types'] = types
+
+        if pattern:
+            self.default_rules['pattern'] = pattern
 
         self._rules_per_role = rules_per_role
 
@@ -107,11 +112,23 @@ class FormValidator:
                     except ValueError:
                         raise HttpBadRequest('The field: %s must be %s' % (field, desired_type))
 
+        pattern_pairs = self.extract_rules_pair('pattern', user_rules)
+        if pattern_pairs:
+            pattern_keys = set(pattern_pairs.keys())
+            for collection in input_collections:
+                for field in set(collection) & pattern_keys:
+                    desired_pattern = pattern_pairs[field]
+                    pattern = re.compile(desired_pattern) if isinstance(desired_pattern, str) else desired_pattern
+                    if pattern.match(collection[field]) is None:
+                        raise HttpBadRequest(
+                            'The field %s: %s must be matched with %s pattern' %
+                            (field, collection[field], pattern.pattern)
+                        )
         return args, kwargs
 
 
 def validate_form(blacklist=None, exclude=None, filter_=None, whitelist=None, requires=None, exact=None, types=None,
-                  **rules_per_role):
+                  pattern=None, **rules_per_role):
     """Creates a validation decorator based on given rules:
 
     :param blacklist: A list fields to raise :class:`nanohttp.exceptions.HttpBadRequest` if exists in request.
@@ -125,6 +142,8 @@ def validate_form(blacklist=None, exclude=None, filter_=None, whitelist=None, re
                   exact match.
     :param types: A dictionary of fields and their expected types. Fields will be casted to expected types if possible.
                   Otherwise :class:`nanohttp.exceptions.HttpBadRequest` will be raised.
+    :param pattern: A dictionary of fields and their expected regex patterns. Fields will be matched by expected pattern
+                    if possible. Otherwise :class:`nanohttp.exceptions.HttpBadRequest` will be raised.
 
     :param rules_per_role: A dictionary ``{ role: { ... } }``, which you can apply above rules to single role.
 
@@ -133,7 +152,7 @@ def validate_form(blacklist=None, exclude=None, filter_=None, whitelist=None, re
 
     def decorator(func):
         validator = FormValidator(blacklist=blacklist, exclude=exclude, filter_=filter_, whitelist=whitelist,
-                                  requires=requires, exact=exact, types=types, **rules_per_role)
+                                  requires=requires, exact=exact, types=types, pattern=pattern, **rules_per_role)
 
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
