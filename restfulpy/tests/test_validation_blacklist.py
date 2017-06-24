@@ -15,7 +15,7 @@ class ValidationBlackListController(RestController):
     @validate_form(blacklist=['blacklistParamForAll'],
                    client={'blacklist': ['blacklistParamForClient']},
                    admin={'blacklist': ['blacklistParamForAdmin']})
-    def test_blacklist(self):
+    def post(self):
         result = copy.deepcopy(context.form)
         result.update(context.query_string)
         return result
@@ -42,36 +42,36 @@ class ValidationBlackListTestCase(WebAppTestCase):
         # Test `blacklist`
         # role -> All
         self.wsgi_app.jwt_token = DummyIdentity().dump().decode()
-        self.request('All', 'TEST_BLACKLIST', '/validation', doc=False)
-        self.request('All', 'TEST_BLACKLIST', '/validation', doc=False, params={'customParam': 'param'})
-        self.request('All', 'TEST_BLACKLIST', '/validation', doc=False, params={'blacklistParamForAll': 'param'},
+        self.request('All', 'POST', '/validation', doc=False)
+        self.request('All', 'POST', '/validation', doc=False, params={'customParam': 'param'})
+        self.request('All', 'POST', '/validation', doc=False, params={'blacklistParamForAll': 'param'},
                      expected_status=400)
-        self.request('All', 'TEST_BLACKLIST', '/validation', doc=False, params={'blacklistParamForClient': 'param'})
-        self.request('All', 'TEST_BLACKLIST', '/validation', doc=False, params={'blacklistParamForAdmin': 'param'})
+        self.request('All', 'POST', '/validation', doc=False, params={'blacklistParamForClient': 'param'})
+        self.request('All', 'POST', '/validation', doc=False, params={'blacklistParamForAdmin': 'param'})
         # -----------------------------
         # role -> Client
         self.wsgi_app.jwt_token = DummyIdentity('client').dump().decode()
-        self.request('Client', 'TEST_BLACKLIST', '/validation', doc=False)
-        self.request('Client', 'TEST_BLACKLIST', '/validation', doc=False, params={'customParam': 'param'})
-        self.request('Client', 'TEST_BLACKLIST', '/validation', doc=False, params={'blacklistParamForAll': 'param'},
+        self.request('Client', 'POST', '/validation', doc=False)
+        self.request('Client', 'POST', '/validation', doc=False, params={'customParam': 'param'})
+        self.request('Client', 'POST', '/validation', doc=False, params={'blacklistParamForAll': 'param'},
                      expected_status=400)
         self.request(
-            'Client', 'TEST_BLACKLIST', '/validation', doc=False,
+            'Client', 'POST', '/validation', doc=False,
             params={'blacklistParamForClient': 'param'},
             expected_status=400
         )
-        self.request('Client', 'TEST_BLACKLIST', '/validation', doc=False, params={
+        self.request('Client', 'POST', '/validation', doc=False, params={
             'blacklistParamForAdmin': 'param'
         })
         # -----------------------------
         # role -> Admin
         self.wsgi_app.jwt_token = DummyIdentity('admin').dump().decode()
-        self.request('Admin', 'TEST_BLACKLIST', '/validation', doc=False)
-        self.request('Admin', 'TEST_BLACKLIST', '/validation', doc=False, params={'customParam': 'param'})
-        self.request('Admin', 'TEST_BLACKLIST', '/validation', doc=False, params={'blacklistParamForAll': 'param'},
+        self.request('Admin', 'POST', '/validation', doc=False)
+        self.request('Admin', 'POST', '/validation', doc=False, params={'customParam': 'param'})
+        self.request('Admin', 'POST', '/validation', doc=False, params={'blacklistParamForAll': 'param'},
                      expected_status=400)
-        self.request('Admin', 'TEST_BLACKLIST', '/validation', doc=False, params={'blacklistParamForClient': 'param'})
-        self.request('Admin', 'TEST_BLACKLIST', '/validation', doc=False, params={'blacklistParamForAdmin': 'param'},
+        self.request('Admin', 'POST', '/validation', doc=False, params={'blacklistParamForClient': 'param'})
+        self.request('Admin', 'POST', '/validation', doc=False, params={'blacklistParamForAdmin': 'param'},
                      expected_status=400)
 
 

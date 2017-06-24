@@ -32,7 +32,7 @@ class ValidationTypesController(RestController):
            }
         }
     )
-    def test_type(self):
+    def post(self):
         result = copy.deepcopy(context.form)
         result.update(context.query_string)
         return result
@@ -60,7 +60,7 @@ class ValidationTypesTestCase(WebAppTestCase):
         # role -> All
         self.wsgi_app.jwt_token = DummyIdentity().dump().decode()
         result, ___ = self.request(
-            'All', 'TEST_TYPE', '/validation',
+            'All', 'POST', '/validation',
             doc=False,
             params={
                 'typedParam1': '1',
@@ -75,7 +75,7 @@ class ValidationTypesTestCase(WebAppTestCase):
         self.assertEqual(type(result['typedParam4']), str)
 
         self.request(
-            'All', 'TEST_TYPE', '/validation',
+            'All', 'POST', '/validation',
             doc=False,
             params={'typedParam1': 'not_convertible'},
             expected_status=400
@@ -85,7 +85,7 @@ class ValidationTypesTestCase(WebAppTestCase):
         # role -> Client
         self.wsgi_app.jwt_token = DummyIdentity('client').dump().decode()
         result, ___ = self.request(
-            'Client', 'TEST_TYPE', '/validation',
+            'Client', 'POST', '/validation',
             doc=False,
             params={
                 'typedParam1': '1',
@@ -100,7 +100,7 @@ class ValidationTypesTestCase(WebAppTestCase):
         self.assertEqual(type(result['typedParam4']), str)
 
         self.request(
-            'Client', 'TEST_TYPE', '/validation',
+            'Client', 'POST', '/validation',
             doc=False,
             params={'typedParam1': 'not_convertible'},
             expected_status=400
@@ -110,7 +110,7 @@ class ValidationTypesTestCase(WebAppTestCase):
         # role -> Admin
         self.wsgi_app.jwt_token = DummyIdentity('admin').dump().decode()
         result, ___ = self.request(
-            'Admin', 'TEST_TYPE', '/validation',
+            'Admin', 'POST', '/validation',
             doc=False,
             params={
                 'typedParam1': '1',
@@ -126,7 +126,7 @@ class ValidationTypesTestCase(WebAppTestCase):
         self.assertEqual(type(result['typedParam4']), dict)
 
         self.request(
-            'Admin', 'TEST_TYPE', '/validation',
+            'Admin', 'POST', '/validation',
             doc=False,
             params={'typedParam1': 'not_convertible'},
             expected_status=400

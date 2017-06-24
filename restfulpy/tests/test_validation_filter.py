@@ -18,7 +18,7 @@ class ValidationFilterController(RestController):
         client=dict(filter_=['filteredParamForClient']),
         admin=dict(filter_=['filteredParamForAdmin'])
     )
-    def test_filter(self):
+    def post(self):
         result = copy.deepcopy(context.form)
         result.update(context.query_string)
         return result
@@ -46,7 +46,7 @@ class ValidationFilterTestCase(WebAppTestCase):
         # role -> All
         self.wsgi_app.jwt_token = DummyIdentity().dump().decode()
         result, ___ = self.request(
-            'All', 'TEST_FILTER', '/validation', doc=False,
+            'All', 'POST', '/validation', doc=False,
             params={
                 'customParam': 'param',
                 'filteredParamForAll': 'param',
@@ -62,7 +62,7 @@ class ValidationFilterTestCase(WebAppTestCase):
         # role -> Client
         self.wsgi_app.jwt_token = DummyIdentity('client').dump().decode()
         result, ___ = self.request(
-            'Client', 'TEST_FILTER', '/validation', doc=False,
+            'Client', 'POST', '/validation', doc=False,
             params={
                 'customParam': 'param',
                 'filteredParamForAll': 'param',
@@ -78,7 +78,7 @@ class ValidationFilterTestCase(WebAppTestCase):
         # role -> Admin
         self.wsgi_app.jwt_token = DummyIdentity('admin').dump().decode()
         result, ___ = self.request(
-            'Admin', 'TEST_FILTER', '/validation', doc=False,
+            'Admin', 'POST', '/validation', doc=False,
             params={
                 'customParam': 'param',
                 'filteredParamForAll': 'param',

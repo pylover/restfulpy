@@ -16,7 +16,7 @@ class ValidationController(RestController):
     @validate_form(exact=['exactParamForAll'],
                    client={'exact': ['exactParamForClient']},
                    admin={'exact': ['exactParamForAdmin']})
-    def test_exact(self):
+    def post(self):
         result = copy.deepcopy(context.form)
         result.update(context.query_string)
         return result
@@ -43,21 +43,21 @@ class ValidationExactTestCase(WebAppTestCase):
         # Test `exact`
         # role -> All
         self.wsgi_app.jwt_token = DummyIdentity().dump().decode()
-        result, ___ = self.request('All', 'TEST_EXACT', '/validation', doc=False, params={'exactParamForAll': 'param'})
-        self.request('All', 'TEST_EXACT', '/validation', doc=False, expected_status=400)
+        result, ___ = self.request('All', 'POST', '/validation', doc=False, params={'exactParamForAll': 'param'})
+        self.request('All', 'POST', '/validation', doc=False, expected_status=400)
         self.request(
-            'All', 'TEST_EXACT', '/validation', doc=False,
+            'All', 'POST', '/validation', doc=False,
             params={
                 'exactParamForAll': 'param',
                 'exactParamForCustom': 'param',
             },
             expected_status=400
         )
-        self.request('All', 'TEST_EXACT', '/validation', doc=False, params={'exactParamForCustom': 'param'},
+        self.request('All', 'POST', '/validation', doc=False, params={'exactParamForCustom': 'param'},
                      expected_status=400)
         self.assertIn('exactParamForAll', result)
         self.request(
-            'All', 'TEST_EXACT', '/validation', doc=False,
+            'All', 'POST', '/validation', doc=False,
             params={
                 'exactParamForAll': 'param',
                 'exactParamForClient': 'param',
@@ -69,7 +69,7 @@ class ValidationExactTestCase(WebAppTestCase):
         self.wsgi_app.jwt_token = DummyIdentity('client').dump().decode()
 
         result, ___ = self.request(
-            'Client', 'TEST_EXACT', '/validation', doc=False,
+            'Client', 'POST', '/validation', doc=False,
             params={
                 'exactParamForAll': 'param',
                 'exactParamForClient': 'param',
@@ -79,7 +79,7 @@ class ValidationExactTestCase(WebAppTestCase):
         self.assertIn('exactParamForAll', result)
 
         self.request(
-            'Client', 'TEST_EXACT', '/validation', doc=False,
+            'Client', 'POST', '/validation', doc=False,
             params={
                 'exactParamForAll': 'param',
                 'exactParamForClient': 'param',
@@ -92,14 +92,14 @@ class ValidationExactTestCase(WebAppTestCase):
         # role -> Admin
         self.wsgi_app.jwt_token = DummyIdentity('admin').dump().decode()
 
-        result, ___ = self.request('Admin', 'TEST_EXACT', '/validation', doc=False, params={
+        result, ___ = self.request('Admin', 'POST', '/validation', doc=False, params={
             'exactParamForAll': 'param',
             'exactParamForAdmin': 'param',
         })
         self.assertIn('exactParamForAdmin', result)
         self.assertIn('exactParamForAll', result)
 
-        self.request('Admin', 'TEST_EXACT', '/validation', doc=False, params={
+        self.request('Admin', 'POST', '/validation', doc=False, params={
             'exactParamForAll': 'param',
             'exactParamForClient': 'param',
             'exactParamForAdmin': 'param',
@@ -110,7 +110,7 @@ class ValidationExactTestCase(WebAppTestCase):
         # Test query string
         self.wsgi_app.jwt_token = DummyIdentity('admin').dump().decode()
         result, ___ = self.request(
-            'Admin', 'TEST_EXACT', '/validation', doc=False,
+            'Admin', 'POST', '/validation', doc=False,
             query_string={
                 'exactParamForAll': 'param',
             },
@@ -122,7 +122,7 @@ class ValidationExactTestCase(WebAppTestCase):
         self.assertIn('exactParamForAll', result)
 
         self.request(
-            'Admin', 'TEST_EXACT', '/validation', doc=False,
+            'Admin', 'POST', '/validation', doc=False,
             query_string={
                 'exactParamForAll': 'param',
                 'exactParamForClient': 'param',

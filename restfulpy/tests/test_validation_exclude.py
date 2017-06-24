@@ -16,7 +16,7 @@ class ValidationExcludeController(RestController):
     @validate_form(exclude=['excludedParamForAll'],
                    client={'exclude': ['excludedParamForClient']},
                    admin={'exclude': ['excludedParamForAdmin']})
-    def test_exclude(self):
+    def post(self):
         result = copy.deepcopy(context.form)
         result.update(context.query_string)
         return result
@@ -44,7 +44,7 @@ class ValidationExcludeTestCase(WebAppTestCase):
         # role -> All
         self.wsgi_app.jwt_token = DummyIdentity().dump().decode()
         result, ___ = self.request(
-            'All', 'TEST_EXCLUDE', '/validation', doc=False,
+            'All', 'POST', '/validation', doc=False,
             params={
                 'customParam': 'param',
                 'excludedParamForAll': 'param',
@@ -60,7 +60,7 @@ class ValidationExcludeTestCase(WebAppTestCase):
         # role -> Client
         self.wsgi_app.jwt_token = DummyIdentity('client').dump().decode()
         result, ___ = self.request(
-            'Client', 'TEST_EXCLUDE', '/validation', doc=False,
+            'Client', 'POST', '/validation', doc=False,
             params={
                 'customParam': 'param',
                 'excludedParamForAll': 'param',
@@ -76,7 +76,7 @@ class ValidationExcludeTestCase(WebAppTestCase):
         # role -> Admin
         self.wsgi_app.jwt_token = DummyIdentity('admin').dump().decode()
         result, ___ = self.request(
-            'Admin', 'TEST_EXCLUDE', '/validation', doc=False,
+            'Admin', 'POST', '/validation', doc=False,
             params={
                 'customParam': 'param',
                 'excludedParamForAll': 'param',
