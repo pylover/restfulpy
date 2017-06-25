@@ -106,8 +106,8 @@ def worker(statuses={'new'}, filters=None, tries=-1):
                 session=isolated_session
             )
 
-        except TaskPopError:
-            logger.info('No task to pop')
+        except TaskPopError as ex:
+            logger.info('No task to pop: %s' % ex.to_json())
             isolated_session.rollback()
             if tries > -1:
                 tries -= 1
