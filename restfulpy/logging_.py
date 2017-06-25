@@ -41,14 +41,14 @@ def ensure_handler(name):
             handler = logging.StreamHandler()
         elif handler_config.type == 'file':
             directory = path.dirname(handler_config.filename)
-            if not path.exists(directory):
+            if not path.exists(directory):  # pragma: no cover
                 makedirs(directory)
             handler = RotatingFileHandler(
                 handler_config.filename,
                 encoding='utf-8',
                 maxBytes=handler_config.get('max_bytes', 52428800)
             )
-        else:
+        else:  # pragma: no cover
             raise ValueError('Invalid handler type: %s' % handler_config.type)
 
         if handler_config.level != 'notset':
