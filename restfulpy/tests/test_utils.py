@@ -1,10 +1,11 @@
 
+import io
 import unittest
 from os.path import dirname, abspath, join
 from datetime import datetime, timezone, timedelta, time
 
 from restfulpy.utils import import_python_module_by_filename, construct_class_by_name, format_iso_datetime, \
-    format_iso_time, random_password
+    format_iso_time, random_password, copy_stream
 
 
 HERE = abspath(dirname(__file__))
@@ -48,6 +49,14 @@ class UtilsTestCase(unittest.TestCase):
     def test_random_password(self):
         result = random_password(5)
         self.assertEqual(len(result), 5)
+
+    def test_copy_stream(self):
+        content = b'This is the initial source file'
+        source = io.BytesIO(content)
+        target = io.BytesIO()
+        copy_stream(source, target)
+        target.seek(0)
+        self.assertEqual(target.read(), content)
 
 
 if __name__ == '__main__':  # pragma: no cover
