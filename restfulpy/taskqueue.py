@@ -2,7 +2,7 @@ import time
 import traceback
 from datetime import datetime
 
-from sqlalchemy import Integer, Enum, Unicode, DateTime, or_, and_
+from sqlalchemy import Integer, Enum, Unicode, DateTime
 from sqlalchemy.sql.expression import text
 from nanohttp import settings
 
