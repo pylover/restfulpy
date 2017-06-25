@@ -68,7 +68,7 @@ class AuthenticatorTestCase(WebAppTestCase):
         cls.application.configure(force=True)
         settings.merge("""
             jwt:
-              max_age: 1
+              max_age: .8
               refresh_token:
                 max_age: 2.2
         """)
@@ -116,7 +116,7 @@ class AuthenticatorTestCase(WebAppTestCase):
         # Login on client
         token = response['token']
         self.wsgi_app.jwt_token = token
-        time.sleep(2)
+        time.sleep(1.1)
 
         # Request a protected resource after the token has been expired expired, with broken cookies
         self.request(
@@ -158,7 +158,7 @@ class AuthenticatorTestCase(WebAppTestCase):
             expected_status=400
         )
 
-        # Waiting 2 seconds to expire refresh token
+        # Waiting until expire refresh token
         time.sleep(3)
         # Request a protected resource after the refresh-token has been expired.
         self.request(
