@@ -2,7 +2,6 @@
 omit =
     examples/*
     practice/*
-    restfulpy/tests/helpers.py
     restfulpy/cli/*
     restfulpy/testing/*
     restfulpy/mimetypes_.py

@@ -57,7 +57,7 @@ class WebAppTestCase(unittest.TestCase):
 
     @classmethod
     def configure_app(cls):
-        cls.application.configure(force=True)
+        cls.application.configure(force=True, context=dict(unittest=True))
         settings.merge("""
             messaging:
               default_messenger: restfulpy.testing.MockupMessenger
