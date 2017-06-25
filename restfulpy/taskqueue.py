@@ -38,28 +38,23 @@ class Task(TimestampMixin, DeclarativeBase):
         raise NotImplementedError
 
     @classmethod
-    def pop(cls, statuses={'new'}, include_types=None, exclude_types=None, filters=None, session=DBSession):
+    def pop(cls, statuses={'new'}, filters=None, session=DBSession):
 
         find_query = session.query(cls.id.label('id'), cls.created_at, cls.status, cls.type, cls.priority)
         if filters is not None:
             find_query = find_query.filter(text(filters) if isinstance(filters, str) else filters)
 
-        if include_types is not None:
-            find_query = find_query.filter(or_(*[cls.type == task_type for task_type in include_types]))
-
-        if exclude_types is not None:
-            find_query = find_query.filter(and_(*[cls.type != task_type for task_type in exclude_types]))
-
         find_query = find_query \
-            .filter(or_(*[cls.status == status for status in statuses])) \
+            .filter(cls.status.in_(statuses)) \
             .order_by(cls.priority.desc()) \
             .order_by(cls.created_at) \
             .limit(1) \
-            .with_lockmode('update') \
-            .cte('find_query')
+            .with_lockmode('update')
+
+        cte = find_query.cte('find_query')
 
         update_query = Task.__table__.update() \
-            .where(Task.id == find_query.c.id) \
+            .where(Task.id == cte.c.id) \
             .values(status='in-progress') \
             .returning(Task.__table__.c.id)
 
@@ -96,27 +91,20 @@ class Task(TimestampMixin, DeclarativeBase):
             .update({'status': 'new', 'started_at': None, 'terminated_at': None})
 
 
-def worker(statuses={'new'}, include_types=None, exclude_types=None, filters=None, tries=-1):
+def worker(statuses={'new'}, filters=None, tries=-1):
     isolated_session = create_thread_unsafe_session()
     context = {'counter': 0}
+    tasks = []
     while True:
         context['counter'] += 1
         logger.info("Trying to pop a task, Counter: %s" % context['counter'])
-        # noinspection PyBroadException
+
         try:
             task = Task.pop(
-                include_types=include_types,
-                exclude_types=exclude_types,
                 statuses=statuses,
                 filters=filters,
                 session=isolated_session
             )
-
-            task.execute(context)
-
-            # Task success
-            task.status = 'success'
-            task.terminated_at = datetime.now()
 
         except TaskPopError:
             logger.info('No task to pop')
@@ -124,7 +112,15 @@ def worker(statuses={'new'}, include_types=None, exclude_types=None, filters=Non
             if tries > -1:
                 tries -= 1
                 if tries <= 0:
-                    return
+                    return tasks
+
+        # noinspection PyBroadException
+        try:
+            task.execute(context)
+
+            # Task success
+            task.status = 'success'
+            task.terminated_at = datetime.now()
 
         except:
             logger.exception('Error when executing task: %s' % task.id)
@@ -134,5 +130,6 @@ def worker(statuses={'new'}, include_types=None, exclude_types=None, filters=Non
         finally:
             if isolated_session.is_active:
                 isolated_session.commit()
+            tasks.append((task.id, task.status))
 
         time.sleep(settings.worker.gap)
