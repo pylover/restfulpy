@@ -96,7 +96,7 @@ class Task(TimestampMixin, DeclarativeBase):
             .update({'status': 'new', 'started_at': None, 'terminated_at': None})
 
 
-def worker(statuses={'new'}, include_types=None, exclude_types=None, filters=None):
+def worker(statuses={'new'}, include_types=None, exclude_types=None, filters=None, tries=-1):
     isolated_session = create_thread_unsafe_session()
     context = {'counter': 0}
     while True:
@@ -121,6 +121,10 @@ def worker(statuses={'new'}, include_types=None, exclude_types=None, filters=Non
         except TaskPopError:
             logger.info('No task to pop')
             isolated_session.rollback()
+            if tries > -1:
+                tries -= 1
+                if tries <= 0:
+                    return
 
         except:
             logger.exception('Error when executing task: %s' % task.id)
