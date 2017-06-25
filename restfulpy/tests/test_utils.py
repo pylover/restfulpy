@@ -5,7 +5,7 @@ from os.path import dirname, abspath, join
 from datetime import datetime, timezone, timedelta, time
 
 from restfulpy.utils import import_python_module_by_filename, construct_class_by_name, format_iso_datetime, \
-    format_iso_time, random_password, copy_stream
+    format_iso_time, random_password, copy_stream, md5sum
 
 
 HERE = abspath(dirname(__file__))
@@ -57,6 +57,15 @@ class UtilsTestCase(unittest.TestCase):
         copy_stream(source, target)
         target.seek(0)
         self.assertEqual(target.read(), content)
+
+    def test_md5sum(self):
+        content = b'This is the initial source file'
+        source = io.BytesIO(content)
+        filename = join(DATA_DIR, 'a.txt')
+        with open(filename, mode='wb') as f:
+            f.write(content)
+
+        self.assertEqual(md5sum(source), md5sum(filename))
 
 
 if __name__ == '__main__':  # pragma: no cover
