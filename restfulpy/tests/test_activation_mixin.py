@@ -37,7 +37,7 @@ class ActivationMixinTestCase(WebAppTestCase):
         DBSession.add(object1)
         DBSession.commit()
         self.assertFalse(object1.is_active)
-        self.assertEquals(DBSession.query(ActiveObject).filter(ActiveObject.is_active).count(), 0)
+        self.assertEqual(DBSession.query(ActiveObject).filter(ActiveObject.is_active).count(), 0)
 
         object1.is_active = True
         self.assertTrue(object1.is_active)
@@ -48,8 +48,8 @@ class ActivationMixinTestCase(WebAppTestCase):
         json = object1.to_dict()
         self.assertIn('isActive', json)
 
-        self.assertEquals(DBSession.query(ActiveObject).filter(ActiveObject.is_active).count(), 1)
-        self.assertEquals(ActiveObject.filter_activated().count(), 1)
+        self.assertEqual(DBSession.query(ActiveObject).filter(ActiveObject.is_active).count(), 1)
+        self.assertEqual(ActiveObject.filter_activated().count(), 1)
 
         self.assertFalse(ActiveObject.import_value(ActiveObject.is_active, 'false'))
         self.assertFalse(ActiveObject.import_value(ActiveObject.is_active, 'FALSE'))
@@ -58,7 +58,7 @@ class ActivationMixinTestCase(WebAppTestCase):
         self.assertTrue(ActiveObject.import_value(ActiveObject.is_active, 'TRUE'))
         self.assertTrue(ActiveObject.import_value(ActiveObject.is_active, 'True'))
 
-        self.assertEquals(ActiveObject.import_value(ActiveObject.title, 'title'), 'title')
+        self.assertEqual(ActiveObject.import_value(ActiveObject.title, 'title'), 'title')
 
 
 if __name__ == '__main__':  # pragma: no cover

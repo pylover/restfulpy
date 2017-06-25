@@ -43,16 +43,16 @@ class SoftDeleteCheckingModelTestCase(WebAppTestCase):
         instance.assert_is_deleted()
         self.assertRaises(ValueError, instance.assert_is_not_deleted)
 
-        self.assertEquals(SoftDeleteCheckingModel.filter_deleted().count(), 1)
-        self.assertEquals(SoftDeleteCheckingModel.exclude_deleted().count(), 0)
+        self.assertEqual(SoftDeleteCheckingModel.filter_deleted().count(), 1)
+        self.assertEqual(SoftDeleteCheckingModel.exclude_deleted().count(), 0)
 
         instance.soft_undelete()
         DBSession.commit()
         instance.assert_is_not_deleted()
         self.assertRaises(ValueError, instance.assert_is_deleted)
 
-        self.assertEquals(SoftDeleteCheckingModel.filter_deleted().count(), 0)
-        self.assertEquals(SoftDeleteCheckingModel.exclude_deleted().count(), 1)
+        self.assertEqual(SoftDeleteCheckingModel.filter_deleted().count(), 0)
+        self.assertEqual(SoftDeleteCheckingModel.exclude_deleted().count(), 1)
 
         DBSession.delete(instance)
         self.assertRaises(HttpConflict, DBSession.commit)

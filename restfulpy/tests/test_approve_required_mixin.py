@@ -37,7 +37,7 @@ class ApproveRequiredMixinTestCase(WebAppTestCase):
         DBSession.add(object1)
         DBSession.commit()
         self.assertFalse(object1.is_approved)
-        self.assertEquals(DBSession.query(ApproveRequiredObject).filter(ApproveRequiredObject.is_approved).count(), 0)
+        self.assertEqual(DBSession.query(ApproveRequiredObject).filter(ApproveRequiredObject.is_approved).count(), 0)
 
         object1.is_approved = True
         self.assertTrue(object1.is_approved)
@@ -48,8 +48,8 @@ class ApproveRequiredMixinTestCase(WebAppTestCase):
         json = object1.to_dict()
         self.assertIn('isApproved', json)
 
-        self.assertEquals(DBSession.query(ApproveRequiredObject).filter(ApproveRequiredObject.is_approved).count(), 1)
-        self.assertEquals(ApproveRequiredObject.filter_approved().count(), 1)
+        self.assertEqual(DBSession.query(ApproveRequiredObject).filter(ApproveRequiredObject.is_approved).count(), 1)
+        self.assertEqual(ApproveRequiredObject.filter_approved().count(), 1)
 
         self.assertFalse(ApproveRequiredObject.import_value(ApproveRequiredObject.is_approved, 'false'))
         self.assertFalse(ApproveRequiredObject.import_value(ApproveRequiredObject.is_approved, 'FALSE'))
@@ -58,7 +58,7 @@ class ApproveRequiredMixinTestCase(WebAppTestCase):
         self.assertTrue(ApproveRequiredObject.import_value(ApproveRequiredObject.is_approved, 'TRUE'))
         self.assertTrue(ApproveRequiredObject.import_value(ApproveRequiredObject.is_approved, 'True'))
 
-        self.assertEquals(ApproveRequiredObject.import_value(ApproveRequiredObject.title, 'title'), 'title')
+        self.assertEqual(ApproveRequiredObject.import_value(ApproveRequiredObject.title, 'title'), 'title')
 
 
 if __name__ == '__main__':  # pragma: no cover

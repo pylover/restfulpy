@@ -39,8 +39,8 @@ class OrderableCheckingModelTestCase(WebAppTestCase):
             DBSession.commit()
 
         instances = OrderableCheckingModel.apply_default_sort().all()
-        self.assertEquals(instances[0].order, 0)
-        self.assertEquals(instances[2].order, 2)
+        self.assertEqual(instances[0].order, 0)
+        self.assertEqual(instances[2].order, 2)
 
 
 if __name__ == '__main__':  # pragma: no cover

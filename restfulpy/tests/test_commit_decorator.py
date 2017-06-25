@@ -55,7 +55,7 @@ class CommitDecoratorTestCase(WebAppTestCase):
     def test_commit_decorator(self):
         self.request('ALL', 'POST', '/', params=dict(title='first'), doc=False)
         resp, ___ = self.request('ALL', 'GET', '/first', doc=False)
-        self.assertEquals(resp['title'], 'first')
+        self.assertEqual(resp['title'], 'first')
 
     def test_commit_decorator_and_json_patch(self):
         # The commit decorator should not to do anything if the request is a jsonpatch.
@@ -64,7 +64,7 @@ class CommitDecoratorTestCase(WebAppTestCase):
             dict(op='post', path='', value=dict(title='third'))
         ])
         resp, ___ = self.request('ALL', 'GET', '/third', doc=False)
-        self.assertEquals(resp['title'], 'third')
+        self.assertEqual(resp['title'], 'third')
 
     def test_rollback(self):
         self.request('ALL', 'ERROR', '/', doc=False, expected_status=500)

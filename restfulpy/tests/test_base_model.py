@@ -117,7 +117,7 @@ class BaseModelTestCase(WebAppTestCase):
 
         resp, ___ = self.request('ALL', 'GET', '/', doc=False)
         self.assertEqual(len(resp), 1)
-        self.assertEquals(resp[0]['title'], 'test')
+        self.assertEqual(resp[0]['title'], 'test')
 
         # 404
         self.request('ALL', 'GET', '/non-existance-user', doc=False, expected_status=404)
