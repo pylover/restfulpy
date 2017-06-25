@@ -47,7 +47,7 @@ def construct_class_by_name(name, *args, **kwargs):
     return getattr(module, class_name)(*args, **kwargs)
 
 
-def deprecated(func):
+def deprecated(func):  # pragma: no cover
     """
     This is a decorator which can be used to mark functions
     as deprecated. It will result in a warning being emmitted
