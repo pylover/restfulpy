@@ -13,7 +13,7 @@ from restfulpy.tests.helpers import MockupApplication
 post_received = threading.Event()
 
 
-class Post(Task):
+class AwesomeTask(Task):
 
     __mapper_args__ = {
         'polymorphic_identity': 'post'
@@ -28,7 +28,7 @@ class TaskQueueTestCase(WebAppTestCase):
 
     def test_worker(self):
         # noinspection PyArgumentList
-        post1 = Post()
+        post1 = AwesomeTask()
         DBSession.add(post1)
         DBSession.commit()
         self.assertEqual(post1.id, 1)
