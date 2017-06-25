@@ -43,8 +43,8 @@ authentication:
     db: 0
 
 worker:
-  gap: 2
-  number_of_threads: 4
+  gap: .5
+  number_of_threads: 1
 
 api_documents:
   directory: %(data_dir)s/api-documents

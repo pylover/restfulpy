@@ -63,7 +63,7 @@ class Task(TimestampMixin, DeclarativeBase):
         if not task_id:
             raise TaskPopError('There is no task to pop')
         task_id = task_id[0]
-        task = cls.query.filter(cls.id == task_id).one()
+        task = session.query(cls).filter(cls.id == task_id).one()
         return task
 
     def execute(self, context, session=DBSession):
@@ -76,19 +76,19 @@ class Task(TimestampMixin, DeclarativeBase):
             raise
 
     @classmethod
-    def cleanup(cls, session=DBSession):
+    def cleanup(cls, session=DBSession, statuses=['in-progress']):
         session.query(Task) \
-            .filter(Task.status == 'in-progress') \
+            .filter(Task.status.in_(statuses)) \
             .with_lockmode('update') \
-            .update({'status': 'new', 'started_at': None, 'terminated_at': None})
+            .update({'status': 'new', 'started_at': None, 'terminated_at': None}, synchronize_session='fetch')
 
     @classmethod
-    def reset_status(cls, task_id, session=DBSession):
+    def reset_status(cls, task_id, session=DBSession, statuses=['in-progress']):
         session.query(Task) \
-            .filter(Task.status == 'in-progress') \
+            .filter(Task.status.in_(statuses)) \
             .filter(Task.id == task_id) \
             .with_lockmode('update') \
-            .update({'status': 'new', 'started_at': None, 'terminated_at': None})
+            .update({'status': 'new', 'started_at': None, 'terminated_at': None}, synchronize_session='fetch')
 
 
 def worker(statuses={'new'}, filters=None, tries=-1):

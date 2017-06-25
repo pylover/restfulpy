@@ -2,9 +2,6 @@
 import unittest
 import threading
 
-from nanohttp import configure
-
-from restfulpy.orm import init_model, create_engine, DBSession, setup_schema
 from restfulpy.taskqueue import Task, worker
 from restfulpy.testing import WebAppTestCase
 from restfulpy.tests.helpers import MockupApplication
@@ -49,14 +46,14 @@ class TaskQueueTestCase(WebAppTestCase):
 
     def test_worker(self):
         # noinspection PyArgumentList
-        post1 = AwesomeTask()
-        self.session.add(post1)
+        awesome_task = AwesomeTask()
+        self.session.add(awesome_task)
 
-        another_task1 = AnotherTask()
-        self.session.add(another_task1)
+        another_task = AnotherTask()
+        self.session.add(another_task)
 
-        bad_task1 = BadTask()
-        self.session.add(bad_task1)
+        bad_task = BadTask()
+        self.session.add(bad_task)
 
         self.session.commit()
 
@@ -65,14 +62,24 @@ class TaskQueueTestCase(WebAppTestCase):
         self.assertTrue(awesome_task_done.is_set())
         self.assertFalse(another_task_done.is_set())
 
+        self.session.refresh(awesome_task)
+        self.assertEqual(awesome_task.status, 'success')
+
         tasks = worker(tries=0, filters=Task.type == 'bad_task')
         self.assertEqual(len(tasks), 1)
         bad_task_id = tasks[0][0]
+        self.session.refresh(bad_task)
+        self.assertEqual(bad_task.status, 'failed')
 
         tasks = worker(tries=0, filters=Task.type == 'bad_task')
         self.assertEqual(len(tasks), 0)
 
         # Reset the status of one task
+        self.session.refresh(bad_task)
+        bad_task.status = 'in-progress'
+        self.session.commit()
+        self.session.refresh(bad_task)
+
         Task.reset_status(bad_task_id, self.session)
         self.session.commit()
         tasks = worker(tries=0, filters=Task.type == 'bad_task')
@@ -82,7 +89,7 @@ class TaskQueueTestCase(WebAppTestCase):
         self.assertEqual(len(tasks), 0)
 
         # Cleanup all tasks
-        Task.cleanup(self.session)
+        Task.cleanup(self.session, statuses=('in-progress', 'failed'))
         self.session.commit()
 
         tasks = worker(tries=0, filters=Task.type == 'bad_task')
@@ -90,6 +97,10 @@ class TaskQueueTestCase(WebAppTestCase):
 
         tasks = worker(tries=0, filters=Task.type == 'bad_task')
         self.assertEqual(len(tasks), 0)
+
+        # Doing all remaining tasks
+        tasks = worker(tries=0)
+        self.assertEqual(len(tasks), 1)
 
 
 if __name__ == '__main__':  # pragma: no cover
