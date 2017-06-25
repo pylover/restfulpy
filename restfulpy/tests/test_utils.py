@@ -4,7 +4,7 @@ from os.path import dirname, abspath, join
 from datetime import datetime, timezone, timedelta, time
 
 from restfulpy.utils import import_python_module_by_filename, construct_class_by_name, format_iso_datetime, \
-    format_iso_time
+    format_iso_time, random_password
 
 
 HERE = abspath(dirname(__file__))
@@ -44,6 +44,10 @@ class UtilsTestCase(unittest.TestCase):
 
         result = format_iso_time(time(12, 52, 29, 300, tzinfo=timezone(timedelta(minutes=0))))
         self.assertEqual(result, '12:52:29Z')
+
+    def test_random_password(self):
+        result = random_password(5)
+        self.assertEqual(len(result), 5)
 
 
 if __name__ == '__main__':  # pragma: no cover
