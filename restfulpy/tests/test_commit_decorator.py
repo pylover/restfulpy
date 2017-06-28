@@ -2,7 +2,7 @@
 import unittest
 
 from nanohttp import json, RestController, context, settings
-from sqlalchemy import Unicode
+from sqlalchemy import Unicode, Integer
 
 from restfulpy.controllers import JsonPatchControllerMixin
 from restfulpy.orm import commit, DeclarativeBase, Field, DBSession
@@ -12,7 +12,8 @@ from restfulpy.tests.helpers import MockupApplication
 
 class CommitCheckingModel(DeclarativeBase):
     __tablename__ = 'commit_checking_model'
-    title = Field(Unicode(50), primary_key=True)
+    id = Field(Integer, primary_key=True)
+    title = Field(Unicode(50), unique=True)
 
 
 class Root(JsonPatchControllerMixin, RestController):
@@ -56,6 +57,7 @@ class CommitDecoratorTestCase(WebAppTestCase):
         self.request('ALL', 'POST', '/', params=dict(title='first'), doc=False)
         resp, ___ = self.request('ALL', 'GET', '/first', doc=False)
         self.assertEqual(resp['title'], 'first')
+        self.assertEqual(resp['id'], 1)
 
     def test_commit_decorator_and_json_patch(self):
         # The commit decorator should not to do anything if the request is a jsonpatch.
