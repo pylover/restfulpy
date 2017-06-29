@@ -1,12 +1,13 @@
 import unittest
 
 from nanohttp import json, settings
-from sqlalchemy import Unicode, Integer, Date, Float
+from sqlalchemy import Unicode, Integer, Date, Float, ForeignKey
 from sqlalchemy.orm import synonym
+from sqlalchemy.ext.associationproxy import association_proxy
 
 from restfulpy.controllers import JsonPatchControllerMixin, ModelRestController
 from restfulpy.orm import commit, DeclarativeBase, Field, DBSession, composite, FilteringMixin, PaginationMixin, \
-    OrderingMixin
+    OrderingMixin, relationship
 from restfulpy.testing import WebAppTestCase
 from restfulpy.tests.helpers import MockupApplication
 
@@ -31,6 +32,18 @@ class FullName(object):  # pragma: no cover
         return not self.__eq__(other)
 
 
+class Keyword(DeclarativeBase):
+    __tablename__ = 'keyword'
+    id = Field(Integer, primary_key=True)
+    keyword = Field(Unicode(64))
+
+
+class MemberKeywords(DeclarativeBase):
+    __tablename__ = 'member_keywords'
+    member_id = Field(Integer, ForeignKey("member.id"), primary_key=True)
+    keyword_id = Field(Integer, ForeignKey("keyword.id"), primary_key=True)
+
+
 class Member(FilteringMixin, PaginationMixin, OrderingMixin, DeclarativeBase):
     __tablename__ = 'member'
 
@@ -50,6 +63,8 @@ class Member(FilteringMixin, PaginationMixin, OrderingMixin, DeclarativeBase):
     _password = Field('password', Unicode(128), index=True, json='password', protected=True, min_length=6)
     birth = Field(Date)
     weight = Field(Float(asdecimal=True))
+    kw = relationship('Keyword', secondary='member_keywords')
+    keywords = association_proxy('kw', 'keyword', creator=lambda kw: Keyword(keyword=kw))
 
     def _set_password(self, password):
         self._password = 'hashed:%s' % password
@@ -67,6 +82,7 @@ class Root(JsonPatchControllerMixin, ModelRestController):
     @commit
     def post(self):
         m = Member()
+        m.keywords.append('Hello')
         m.update_from_request()
         DBSession.add(m)
         return m
@@ -136,7 +152,7 @@ class BaseModelTestCase(WebAppTestCase):
     def test_iter_json_columns(self):
         columns = {c.key: c for c in Member.iter_json_columns(
             include_readonly_columns=False, include_protected_columns=False)}
-        self.assertEqual(len(columns), 8)
+        self.assertEqual(len(columns), 9)
         self.assertNotIn('name', columns)
         self.assertNotIn('password', columns)
         self.assertNotIn('_password', columns)

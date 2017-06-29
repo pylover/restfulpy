@@ -8,6 +8,7 @@ from sqlalchemy import Column, event
 from sqlalchemy.orm import validates, Query, CompositeProperty
 from sqlalchemy.orm.relationships import RelationshipProperty
 from sqlalchemy.ext.hybrid import HYBRID_PROPERTY
+from sqlalchemy.ext.associationproxy import ASSOCIATION_PROXY
 from sqlalchemy.inspection import inspect
 
 from restfulpy.utils import format_iso_datetime, format_iso_time, to_camel_case
@@ -99,7 +100,10 @@ class BaseModel(object):
 
                 if k == '__mapper__':
                     continue
-
+                    
+                if c.extension_type == ASSOCIATION_PROXY:
+                    continue
+                    
                 if (not hybrids and c.extension_type == HYBRID_PROPERTY) \
                         or (not relationships and k in mapper.relationships) \
                         or (not synonyms and k in mapper.synonyms) \
