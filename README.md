@@ -28,3 +28,7 @@ naming(camelCase).
 always deliver fresh API documentation.
 
 
+## Contribution
+
+To pass all tests, you have to install postgres > 9.5
+
