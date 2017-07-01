@@ -1,6 +1,9 @@
+
+import sys
 import ujson
 import asyncio
 import unittest
+import functools
 from unittest.util import safe_repr
 from unittest.case import _Outcome
 from os.path import join, abspath
@@ -87,13 +90,18 @@ class WebAppTestCase(unittest.TestCase):
         )
 
         if resp.status_code != expected_status:
-            print('#' * 80)
+            print_ = functools.partial(print, file=sys.stderr if resp.status_code != 200 else sys.stdout)
+            print_('#' * 80)
             if 'content-type' in resp.headers and resp.headers['content-type'].startswith('application/json'):
                 result = ujson.loads(resp.body.decode())
-                print(result)
+                if isinstance(result, dict) and 'description' in result:
+                    print_(result['message'])
+                    print_(result['description'])
+                else:
+                    print_(result)
             else:
-                print(resp.body)
-            print('#' * 80)
+                print_(resp.body)
+            print_('#' * 80)
 
         self.assertEqual(resp.status_code, expected_status)
 
