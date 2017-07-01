@@ -55,7 +55,11 @@ class MetadataField(object):
             default_ = ''
 
         if hasattr(c, 'type'):
-            type_ = c.type.python_type
+            try:
+                type_ = c.type.python_type
+            except NotImplementedError:
+                # As we spoke, hybrid properties have no type
+                type_ = ''
         # Commented out because cannot reach here by tests
         # elif hasattr(c, 'target'):
         #     try:

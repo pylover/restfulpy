@@ -60,6 +60,13 @@ class ActivationMixinTestCase(WebAppTestCase):
 
         self.assertEqual(ActiveObject.import_value(ActiveObject.title, 'title'), 'title')
 
+    def test_metadata(self):
+        # Metadata
+        object_metadata = ActiveObject.json_metadata()
+        self.assertIn('id', object_metadata)
+        self.assertIn('title', object_metadata)
+        self.assertIn('isActive', object_metadata)
+
 
 if __name__ == '__main__':  # pragma: no cover
     unittest.main()
