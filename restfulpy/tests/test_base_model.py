@@ -1,7 +1,7 @@
 import unittest
 
 from nanohttp import json, settings
-from sqlalchemy import Unicode, Integer, Date, Float, ForeignKey
+from sqlalchemy import Unicode, Integer, Date, Float, ForeignKey, Boolean
 from sqlalchemy.orm import synonym
 from sqlalchemy.ext.associationproxy import association_proxy
 
@@ -65,7 +65,7 @@ class Member(FilteringMixin, PaginationMixin, OrderingMixin, DeclarativeBase):
     weight = Field(Float(asdecimal=True))
     kw = relationship('Keyword', secondary='member_keywords')
     keywords = association_proxy('kw', 'keyword', creator=lambda kw: Keyword(keyword=kw))
-
+    visible = Field(Boolean, nullable=True)
     def _set_password(self, password):
         self._password = 'hashed:%s' % password
 
@@ -125,7 +125,8 @@ class BaseModelTestCase(WebAppTestCase):
                 email='test@example.com',
                 password='123456',
                 birth='01-01-01',
-                weight=1.1
+                weight=1.1,
+                visible='false'
             ),
             doc=False
         )
@@ -134,6 +135,7 @@ class BaseModelTestCase(WebAppTestCase):
         resp, ___ = self.request('ALL', 'GET', '/', doc=False)
         self.assertEqual(len(resp), 1)
         self.assertEqual(resp[0]['title'], 'test')
+        self.assertEqual(resp[0]['visible'], False)
 
         # 404
         self.request('ALL', 'GET', '/non-existance-user', doc=False, expected_status=404)
