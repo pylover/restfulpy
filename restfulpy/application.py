@@ -71,14 +71,16 @@ class Application(NanohttpApplication):
     # noinspection PyMethodMayBeStatic
     def begin_response(self):
         if settings.debug:
-            context.response_headers.add_header('Access-Control-Allow-Origin', 'http://localhost:8080')
-            context.response_headers.add_header('Access-Control-Allow-Methods',
-                                                'GET, POST, PUT, DELETE, UNDELETE, METADATA, PATCH, SEARCH')
-            context.response_headers.add_header('Access-Control-Allow-Headers', 'Content-Type, Authorization, '
-                                                                                'X-HTTP-Verb')
-            context.response_headers.add_header('Access-Control-Expose-Headers',
-                                                'Content-Type, X-Pagination-Count, X-Pagination-Skip, '
-                                                'X-Pagination-Take, X-New-JWT-Token')
+            context.response_headers.add_header('Access-Control-Allow-Origin', '*')
+            context.response_headers.add_header(
+                'Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, UNDELETE, METADATA, PATCH, SEARCH')
+            context.response_headers.add_header(
+                'Access-Control-Allow-Headers', 'Content-Type, Authorization, X-HTTP-Verb, Content-Length, Connection')
+            context.response_headers.add_header(
+                'Access-Control-Expose-Headers',
+                'Content-Type, Content-Length, X-Pagination-Count, X-Pagination-Skip, X-Pagination-Take, '
+                'X-New-JWT-Token'
+            )
             context.response_headers.add_header('Access-Control-Allow-Credentials', 'true')
 
     # noinspection PyMethodMayBeStatic
