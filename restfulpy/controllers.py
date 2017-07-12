@@ -1,7 +1,7 @@
 
 import warnings
 
-from nanohttp import Controller, context, json, RestController, action
+from nanohttp import Controller, context, json, RestController, action, must_revalidate
 
 from restfulpy.orm import DBSession
 
@@ -25,6 +25,7 @@ class ModelRestController(RestController):
     __model__ = None
 
     @json
+    @must_revalidate(lambda: context.application.version)
     def metadata(self):
         return self.__model__.json_metadata()
 
