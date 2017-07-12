@@ -61,8 +61,8 @@ class Application(NanohttpApplication):
         pass
 
     @classmethod
-    def initialize_models(cls):
-        init_model(create_engine())
+    def initialize_models(cls, session=None):
+        init_model(create_engine(), session=session)
         
     # Hooks
     def begin_request(self):

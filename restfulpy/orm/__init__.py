@@ -40,17 +40,18 @@ def create_engine(uri=None, echo=None):
     return sa_create_engine(uri or settings.db.uri, echo=echo or settings.db.echo)
 
 
-def init_model(engine):
+def init_model(engine, session=None):
     """
     Call me before using any of the tables or classes in the model.
     :param engine: SqlAlchemy engine to bind the session
     :return:
     """
+    session = session or DBSession
 
-    if DBSession.registry.has():
-        DBSession.remove()
+    if session.registry.has():
+        session.remove()
 
-    DBSession.configure(bind=engine)
+    session.configure(bind=engine)
 
 
 def drop_all(session=None):  # pragma: no cover
