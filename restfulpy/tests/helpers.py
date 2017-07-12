@@ -7,6 +7,10 @@ class MockupApplication(Application):
     db:
       test_uri: postgresql://postgres:postgres@localhost/restfulpy_test
       administrative_uri: postgresql://postgres:postgres@localhost/postgres      
+    logging:
+      loggers:
+        default:
+          level: critical
     '''
 
     def configure(self, files=None, context=None, **kwargs):
