@@ -1,12 +1,10 @@
 from datetime import datetime
 
 from sqlalchemy import DateTime, Integer, between, desc
-from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import synonym, SynonymProperty
 from sqlalchemy.sql.expression import nullslast, nullsfirst
 from sqlalchemy.events import event
-from nanohttp import context, HttpBadRequest, HttpConflict
+from nanohttp import context, HttpBadRequest, HttpConflict, settings
 
 from restfulpy.orm.field import Field
 from restfulpy.utils import to_camel_case
@@ -214,11 +212,11 @@ class OrderingMixin:
 
         if descending:
             expression = desc(expression)
-            pre = nullsfirst
-        else:
-            pre = nullslast
 
-        return query.order_by(pre(expression))
+        if settings.db.uri.startswith('sqlite'):
+            return query.order_by(expression)
+
+        return query.order_by((nullsfirst if descending else nullslast)(expression))
 
     @classmethod
     def sort_by_request(cls, query=None):
@@ -228,12 +226,14 @@ class OrderingMixin:
         sort_exp = context.query_string.get('sort', '').strip()
         if not sort_exp:
             if issubclass(cls, OrderableMixin):
+                # noinspection PyUnresolvedReferences
                 return cls.apply_default_sort(query)
             return query
 
         sort_columns = {c[1:] if c.startswith('-') else c: 'desc' if c.startswith('-') else 'asc'
                         for c in sort_exp.split(',')}
 
+        # noinspection PyUnresolvedReferences
         criteria = cls.create_sort_criteria(sort_columns)
 
         for criterion in criteria:
