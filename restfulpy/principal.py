@@ -1,4 +1,3 @@
-import base64
 
 from itsdangerous import TimedJSONWebSignatureSerializer, JSONWebSignatureSerializer
 from nanohttp import settings, context

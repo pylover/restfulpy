@@ -102,8 +102,8 @@ class Authenticator:
 
         context.cookies[self.refresh_token_key] = self.create_refresh_principal(member.id).dump().decode()
         context.cookies[self.refresh_token_key]['max-age'] = settings.jwt.refresh_token.max_age
-        context.cookies[self.refresh_token_key]['httponly'] = False
-        context.cookies[self.refresh_token_key]['secure'] = True
+        context.cookies[self.refresh_token_key]['httponly'] = settings.jwt.refresh_token.httponly
+        context.cookies[self.refresh_token_key]['secure'] = settings.jwt.refresh_token.secure
         return principal
 
     def logout(self):

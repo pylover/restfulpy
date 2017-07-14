@@ -26,6 +26,8 @@ jwt:
     secret: JWT-REFRESH-SECRET
     algorithm: HS256
     max_age: 2678400  # 30 Days
+    secure: true
+    httponly: false
 
 messaging:
   # default_messenger: restfulpy.messaging.providers.SmtpProvider
