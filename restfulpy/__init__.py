@@ -3,7 +3,7 @@
 from restfulpy.application import Application
 
 
-__version__ = '0.19.11'
+__version__ = '0.19.12'
 
 
 __all__ = [
