@@ -1,8 +1,10 @@
+import base64
 import ujson
 
 from sqlalchemy import Unicode, TypeDecorator
 
 from restfulpy.messaging import Messenger
+from restfulpy.principal import JwtPrincipal
 
 
 class MockupMessenger(Messenger):
@@ -45,3 +47,11 @@ class FakeJson(TypeDecorator):  # pragma: no cover
             return None
 
         return ujson.loads(value)
+
+
+class UnsafePrincipal(JwtPrincipal):  # pragma: no cover
+    @classmethod
+    def load(cls, encoded, force=False):
+        decoded = base64.b64decode('%s=' % encoded.split('.')[1])  # To avoid padding exception
+        payload = ujson.loads(decoded)
+        return cls(payload)
