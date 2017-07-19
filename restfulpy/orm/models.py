@@ -6,6 +6,7 @@ from decimal import Decimal
 from nanohttp import HttpBadRequest, context, HttpNotFound
 from sqlalchemy import Column, event
 from sqlalchemy.orm import validates, Query, CompositeProperty
+from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy.orm.relationships import RelationshipProperty
 from sqlalchemy.ext.hybrid import HYBRID_PROPERTY
 from sqlalchemy.ext.associationproxy import ASSOCIATION_PROXY
@@ -33,7 +34,7 @@ class BaseModel(object):
     @classmethod
     def import_value(cls, column, v):
         c = cls.get_column(column)
-        if isinstance(c, Column):
+        if isinstance(c, Column) or isinstance(c, InstrumentedAttribute):
             if c.type.python_type is bool and not isinstance(v, bool):
                 return str(v).lower() == 'true'
         return v
