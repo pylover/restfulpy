@@ -63,9 +63,10 @@ class Member(FilteringMixin, PaginationMixin, OrderingMixin, DeclarativeBase):
     _password = Field('password', Unicode(128), index=True, json='password', protected=True, min_length=6)
     birth = Field(Date)
     weight = Field(Float(asdecimal=True))
-    kw = relationship('Keyword', secondary='member_keywords')
-    keywords = association_proxy('kw', 'keyword', creator=lambda kw: Keyword(keyword=kw))
+    _keywords = relationship('Keyword', secondary='member_keywords')
+    keywords = association_proxy('_keywords', 'keyword', creator=lambda k: Keyword(keyword=k))
     visible = Field(Boolean, nullable=True)
+
     def _set_password(self, password):
         self._password = 'hashed:%s' % password
 
@@ -146,7 +147,7 @@ class BaseModelTestCase(WebAppTestCase):
 
     def test_iter_columns(self):
         columns = {c.key: c for c in Member.iter_columns(relationships=False, synonyms=False, composites=False)}
-        self.assertEqual(len(columns), 9)
+        self.assertEqual(len(columns), 10)
         self.assertNotIn('name', columns)
         self.assertNotIn('password', columns)
         self.assertIn('_password', columns)
@@ -154,7 +155,7 @@ class BaseModelTestCase(WebAppTestCase):
     def test_iter_json_columns(self):
         columns = {c.key: c for c in Member.iter_json_columns(
             include_readonly_columns=False, include_protected_columns=False)}
-        self.assertEqual(len(columns), 9)
+        self.assertEqual(len(columns), 10)
         self.assertNotIn('name', columns)
         self.assertNotIn('password', columns)
         self.assertNotIn('_password', columns)
