@@ -163,10 +163,11 @@ class BaseModelTestCase(WebAppTestCase):
     def test_metadata(self):
         resp, ___ = self.request('ALL', 'METADATA', '/', doc=False)
 
-        resp['name'] = 'Member'
         self.assertIn('fields', resp)
+        self.assertIn('name', resp)
         self.assertIn('primaryKeys', resp)
         self.assertIn('id', resp['primaryKeys'])
+        self.assertEqual(resp['name'], 'Member')
         fields = resp['fields']
         self.assertIn('id', fields)
         self.assertIn('firstName', fields)
