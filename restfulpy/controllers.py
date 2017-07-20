@@ -1,12 +1,7 @@
 
-import warnings
-
 from nanohttp import Controller, context, json, RestController, action, ifnonematch
 
 from restfulpy.orm import DBSession
-
-
-warnings.filterwarnings('ignore', message='Unknown REQUEST_METHOD')
 
 
 class RootController(Controller):

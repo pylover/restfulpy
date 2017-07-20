@@ -63,9 +63,9 @@ class ActivationMixinTestCase(WebAppTestCase):
     def test_metadata(self):
         # Metadata
         object_metadata = ActiveObject.json_metadata()
-        self.assertIn('id', object_metadata)
-        self.assertIn('title', object_metadata)
-        self.assertIn('isActive', object_metadata)
+        self.assertIn('id', object_metadata['fields'])
+        self.assertIn('title', object_metadata['fields'])
+        self.assertIn('isActive', object_metadata['fields'])
 
 
 if __name__ == '__main__':  # pragma: no cover

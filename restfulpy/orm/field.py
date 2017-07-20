@@ -29,6 +29,7 @@ class Field(Column):
                  label=None,
                  icon=None,
                  example=None,
+                 message=None,
                  **kwargs):
         info = dict()
 
@@ -63,6 +64,9 @@ class Field(Column):
 
         if example is not None:
             info['example'] = example
+
+        if message is not None:
+            info['message'] = message
 
         super(Field, self).__init__(*args, info=info, nullable=nullable, **kwargs)
 

@@ -50,7 +50,7 @@ class Member(FilteringMixin, PaginationMixin, OrderingMixin, DeclarativeBase):
     id = Field(Integer, primary_key=True)
     email = Field(Unicode(100), unique=True, index=True, json='email',
                   pattern=r'(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)', watermark='Email',
-                  example="user@example.com")
+                  example="user@example.com", message='Invalid email address, please be accurate!', icon='email.svg')
     title = Field(Unicode(50), index=True, min_length=2, watermark='First Name')
     first_name = Field(Unicode(50), index=True, json='firstName', min_length=2, watermark='First Name')
     last_name = Field(Unicode(100), json='lastName', min_length=2, watermark='Last Name')
@@ -62,7 +62,7 @@ class Member(FilteringMixin, PaginationMixin, OrderingMixin, DeclarativeBase):
     name = composite(FullName, first_name, last_name, readonly=True, json='fullName')
     _password = Field('password', Unicode(128), index=True, json='password', protected=True, min_length=6)
     birth = Field(Date)
-    weight = Field(Float(asdecimal=True))
+    weight = Field(Float(asdecimal=True), default=50)
     _keywords = relationship('Keyword', secondary='member_keywords')
     keywords = association_proxy('_keywords', 'keyword', creator=lambda k: Keyword(keyword=k))
     visible = Field(Boolean, nullable=True)
@@ -162,7 +162,35 @@ class BaseModelTestCase(WebAppTestCase):
 
     def test_metadata(self):
         resp, ___ = self.request('ALL', 'METADATA', '/', doc=False)
-        self.assertIn('firstName', resp)
+
+        resp['name'] = 'Member'
+        self.assertIn('fields', resp)
+        self.assertIn('primaryKeys', resp)
+        self.assertIn('id', resp['primaryKeys'])
+        fields = resp['fields']
+        self.assertIn('id', fields)
+        self.assertIn('firstName', fields)
+        self.assertEqual(fields['id']['primaryKey'], True)
+        self.assertEqual(fields['email']['primaryKey'], False)
+        self.assertEqual(fields['title']['primaryKey'], False)
+        self.assertEqual(fields['title']['minLength'], 2)
+        self.assertEqual(fields['title']['maxLength'], 50)
+        self.assertEqual(fields['email']['pattern'], '(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)')
+
+        self.assertEqual(fields['firstName']['name'], 'firstName')
+        self.assertEqual(fields['firstName']['key'], 'first_name')
+
+        self.assertEqual(fields['firstName']['type_'], 'str')
+        self.assertEqual(fields['birth']['type_'], 'date')
+
+        self.assertEqual(fields['weight']['default'], 50)
+        self.assertEqual(fields['visible']['optional'], True)
+
+        self.assertEqual(fields['email']['message'], 'Invalid email address, please be accurate!')
+        self.assertEqual(fields['email']['watermark'], 'Email')
+        self.assertEqual(fields['email']['label'], 'Email')
+        self.assertEqual(fields['email']['icon'], 'email.svg')
+        self.assertEqual(fields['email']['example'], 'user@example.com')
 
 
 if __name__ == '__main__':  # pragma: no cover

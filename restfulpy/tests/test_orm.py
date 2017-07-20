@@ -158,19 +158,19 @@ class ModelTestCase(unittest.TestCase):
 
         # Metadata
         author_metadata = Author.json_metadata()
-        self.assertIn('id', author_metadata)
-        self.assertIn('email', author_metadata)
-        self.assertNotIn('fullName', author_metadata)
-        self.assertNotIn('password', author_metadata)
+        self.assertIn('id', author_metadata['fields'])
+        self.assertIn('email', author_metadata['fields'])
+        self.assertNotIn('fullName', author_metadata['fields'])
+        self.assertNotIn('password', author_metadata['fields'])
 
         post_metadata = Post.json_metadata()
-        self.assertIn('author', post_metadata)
+        self.assertIn('author', post_metadata['fields'])
 
         comment_metadata = Comment.json_metadata()
-        self.assertIn('post', comment_metadata)
+        self.assertIn('post', comment_metadata['fields'])
 
         tag_metadata = Tag.json_metadata()
-        self.assertIn('posts', tag_metadata)
+        self.assertIn('posts', tag_metadata['fields'])
 
         self.assertEqual(Comment.import_value(Comment.__table__.c.special, 'TRUE'), True)
 

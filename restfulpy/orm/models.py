@@ -3,7 +3,7 @@ import functools
 from datetime import datetime, date, time
 from decimal import Decimal
 
-from nanohttp import HttpBadRequest, context, HttpNotFound
+from nanohttp import context, HttpNotFound
 from sqlalchemy import Column, event
 from sqlalchemy.orm import validates, Query, CompositeProperty
 from sqlalchemy.orm.attributes import InstrumentedAttribute
@@ -83,7 +83,12 @@ class BaseModel(object):
             metadata_fields = MetadataField.from_column(cls.get_column(c), info=c.info)
             for f in metadata_fields:
                 fields[f.json_name] = f.to_json()
-        return fields
+        mapper = inspect(cls)
+        return {
+            'name': cls.__name__,
+            'primaryKeys': [c.key for c in mapper.primary_key],
+            'fields': fields
+        }
 
     def update_from_request(self):
         for column, value in self.extract_data_from_request():
