@@ -1,5 +1,5 @@
 
-from nanohttp import Controller, context, json, RestController, action, ifnonematch
+from nanohttp import Controller, context, json, RestController, action, etag
 
 from restfulpy.orm import DBSession
 
@@ -20,7 +20,7 @@ class ModelRestController(RestController):
     __model__ = None
 
     @json
-    @ifnonematch(lambda: context.application.version)
+    @etag(tag=lambda: context.application.version)
     def metadata(self):
         return self.__model__.json_metadata()
 

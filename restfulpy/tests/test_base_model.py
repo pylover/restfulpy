@@ -7,7 +7,7 @@ from sqlalchemy.ext.associationproxy import association_proxy
 
 from restfulpy.controllers import JsonPatchControllerMixin, ModelRestController
 from restfulpy.orm import commit, DeclarativeBase, Field, DBSession, composite, FilteringMixin, PaginationMixin, \
-    OrderingMixin, relationship
+    OrderingMixin, relationship, ModifiedMixin
 from restfulpy.testing import WebAppTestCase
 from restfulpy.tests.helpers import MockupApplication
 
@@ -44,7 +44,7 @@ class MemberKeywords(DeclarativeBase):
     keyword_id = Field(Integer, ForeignKey("keyword.id"), primary_key=True)
 
 
-class Member(FilteringMixin, PaginationMixin, OrderingMixin, DeclarativeBase):
+class Member(ModifiedMixin, FilteringMixin, PaginationMixin, OrderingMixin, DeclarativeBase):
     __tablename__ = 'member'
 
     id = Field(Integer, primary_key=True)
@@ -147,7 +147,7 @@ class BaseModelTestCase(WebAppTestCase):
 
     def test_iter_columns(self):
         columns = {c.key: c for c in Member.iter_columns(relationships=False, synonyms=False, composites=False)}
-        self.assertEqual(len(columns), 10)
+        self.assertEqual(len(columns), 12)
         self.assertNotIn('name', columns)
         self.assertNotIn('password', columns)
         self.assertIn('_password', columns)

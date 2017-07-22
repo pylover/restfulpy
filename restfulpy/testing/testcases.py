@@ -100,7 +100,7 @@ class WebAppTestCase(unittest.TestCase):
                 else:
                     print_(result)
             else:
-                print_(resp.body)
+                print_(resp.body.decode())
             print_('#' * 80)
 
         self.assertEqual(resp.status_code, expected_status)
