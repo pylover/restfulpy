@@ -75,11 +75,12 @@ class Application(NanohttpApplication):
             context.response_headers.add_header(
                 'Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, UNDELETE, METADATA, PATCH, SEARCH')
             context.response_headers.add_header(
-                'Access-Control-Allow-Headers', 'Content-Type, Authorization, X-HTTP-Verb, Content-Length, Connection')
+                'Access-Control-Allow-Headers',
+                'Content-Type, Authorization, X-HTTP-Verb, Content-Length, Connection, If-Match, If-None-Match')
             context.response_headers.add_header(
                 'Access-Control-Expose-Headers',
                 'Content-Type, Content-Length, X-Pagination-Count, X-Pagination-Skip, X-Pagination-Take, '
-                'X-New-JWT-Token'
+                'X-New-JWT-Token, ETag'
             )
             context.response_headers.add_header('Access-Control-Allow-Credentials', 'true')
 

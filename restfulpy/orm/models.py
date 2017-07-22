@@ -134,7 +134,7 @@ class BaseModel(object):
 
     @classmethod
     def extract_data_from_request(cls):
-        for c in cls.iter_json_columns(include_protected_columns=True):
+        for c in cls.iter_json_columns(include_protected_columns=True, include_readonly_columns=False):
             param_name = c.info.get('json', to_camel_case(c.key))
 
             # Commented-out by vahid, I think it's not necessary at all.
