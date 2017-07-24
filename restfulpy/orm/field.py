@@ -30,8 +30,9 @@ class Field(Column):
                  icon=None,
                  example=None,
                  message=None,
+                 info=None,
                  **kwargs):
-        info = dict()
+        info = info or dict()
 
         if json is not None:
             info['json'] = json
