@@ -18,7 +18,7 @@ class ServeLauncher(Launcher):
         host, port = self.args.bind.split(':') if ':' in self.args.bind else ('', self.args.bind)
 
         quickstart(
-            controller=self.args.application.root,
+            application=self.args.application,
             host=host,
             port=port
         )
