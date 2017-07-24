@@ -71,12 +71,13 @@ class Application(NanohttpApplication):
     # noinspection PyMethodMayBeStatic
     def begin_response(self):
         if settings.debug:
-            context.response_headers.add_header('Access-Control-Allow-Origin', '*')
             context.response_headers.add_header(
-                'Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, UNDELETE, METADATA, PATCH, SEARCH')
+                'Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, UNDELETE, METADATA, PATCH, SEARCH'
+            )
             context.response_headers.add_header(
                 'Access-Control-Allow-Headers',
-                'Content-Type, Authorization, X-HTTP-Verb, Content-Length, Connection, If-Match, If-None-Match')
+                'Content-Type, Authorization, X-HTTP-Verb, Content-Length, Connection, If-Match, If-None-Match'
+            )
             context.response_headers.add_header(
                 'Access-Control-Expose-Headers',
                 'Content-Type, Content-Length, X-Pagination-Count, X-Pagination-Skip, X-Pagination-Take, '
