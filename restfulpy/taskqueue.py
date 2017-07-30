@@ -95,16 +95,18 @@ def worker(statuses={'new'}, filters=None, tries=-1):
     isolated_session = create_thread_unsafe_session()
     context = {'counter': 0}
     tasks = []
+    task = None
+
     while True:
         context['counter'] += 1
         logger.info("Trying to pop a task, Counter: %s" % context['counter'])
-
         try:
             task = Task.pop(
                 statuses=statuses,
                 filters=filters,
                 session=isolated_session
             )
+            assert task is not None
 
         except TaskPopError as ex:
             logger.info('No task to pop: %s' % ex.to_json())
@@ -113,6 +115,9 @@ def worker(statuses={'new'}, filters=None, tries=-1):
                 tries -= 1
                 if tries <= 0:
                     return tasks
+        except:
+            logger.exception('Error when popping task.')
+            raise
 
         # noinspection PyBroadException
         try:

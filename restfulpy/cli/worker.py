@@ -40,12 +40,7 @@ class StartLauncher(Launcher):
             settings.worker.merge({'gap': self.args.gap})
 
         print('The following task types would be processed with gap of %ds:' % settings.worker.gap)
-        print('|'.join(self.args.type) or 'all types!')
         print('Tracking task status(es): %s' % ','.join(self.args.status))
-
-        if self.args.exclude_type:
-            print('The following task types would not be processed:')
-            print('|'.join(self.args.exclude_type))
 
         number_of_threads = self.args.number_of_threads or settings.worker.number_of_threads
         for i in range(number_of_threads):
