@@ -95,7 +95,6 @@ def worker(statuses={'new'}, filters=None, tries=-1):
     isolated_session = create_thread_unsafe_session()
     context = {'counter': 0}
     tasks = []
-    task = None
 
     while True:
         context['counter'] += 1
@@ -115,6 +114,8 @@ def worker(statuses={'new'}, filters=None, tries=-1):
                 tries -= 1
                 if tries <= 0:
                     return tasks
+            time.sleep(settings.worker.gap)
+            continue
         except:
             logger.exception('Error when popping task.')
             raise
@@ -136,5 +137,3 @@ def worker(statuses={'new'}, filters=None, tries=-1):
             if isolated_session.is_active:
                 isolated_session.commit()
             tasks.append((task.id, task.status))
-
-        time.sleep(settings.worker.gap)
