@@ -7,6 +7,7 @@ from sqlalchemy import create_engine as sa_create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.sql.schema import MetaData
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.exc import SQLAlchemyError
 from alembic import config, command
 
 from .field import Field, relationship, composite
