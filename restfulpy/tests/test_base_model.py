@@ -79,6 +79,7 @@ class Member(ModifiedMixin, FilteringMixin, PaginationMixin, OrderingMixin, Decl
 class Root(JsonPatchControllerMixin, ModelRestController):
     __model__ = Member
 
+    @Member.validate
     @json
     @commit
     def post(self):

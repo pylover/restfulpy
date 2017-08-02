@@ -16,6 +16,7 @@ from restfulpy.utils import format_iso_datetime, format_iso_time, to_camel_case
 from restfulpy.orm.mixines import PaginationMixin, FilteringMixin, OrderingMixin
 from restfulpy.orm.field import Field
 from restfulpy.orm.metadata import MetadataField
+from restfulpy.validation import validate_form
 
 
 class BaseModel(object):
@@ -77,12 +78,13 @@ class BaseModel(object):
         return param_name, result
 
     @classmethod
-    def json_metadata(cls):
-        fields = {}
+    def iter_metadata_fields(cls):
         for c in cls.iter_json_columns(relationships=True, include_readonly_columns=True):
-            metadata_fields = MetadataField.from_column(cls.get_column(c), info=c.info)
-            for f in metadata_fields:
-                fields[f.json_name] = f.to_json()
+            yield from  MetadataField.from_column(cls.get_column(c), info=c.info)
+
+    @classmethod
+    def json_metadata(cls):
+        fields = {f.json_name: f.to_json() for f in cls.iter_metadata_fields()}
         mapper = inspect(cls)
         return {
             'name': cls.__name__,
@@ -198,6 +200,19 @@ class BaseModel(object):
             return result
 
         return wrapper
+
+    @classmethod
+    def create_validation_rules(cls, **rules):
+        result = {}
+
+        result.update(rules)
+        return result
+
+    @classmethod
+    def validate(cls, *args, **kwargs):
+        validation_rules = cls.create_validation_rules(**kwargs)
+        decorator = validate_form(**validation_rules)
+        return decorator(args[0]) if args and callable(args[0]) else decorator
 
 
 @event.listens_for(BaseModel, 'class_instrument')
