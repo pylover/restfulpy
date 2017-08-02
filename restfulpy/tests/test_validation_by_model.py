@@ -12,7 +12,7 @@ from restfulpy.tests.helpers import MockupApplication
 class ModelValidationCheckingModel(DeclarativeBase):
     __tablename__ = 'model_validation_checking_model'
 
-    id = Field(Integer, primary_key=True)
+    id = Field(Integer, primary_key=True, readonly=True)
     title = Field(Unicode(50), unique=True, nullable=False, pattern='[A-Z][a-zA-Z]*')
     modified = Field(DateTime, default=datetime.now, readonly=True)
 
@@ -52,6 +52,8 @@ class ModelValidationDecoratorTestCase(WebAppTestCase):
         settings.merge(cls.__configuration__)
 
     def test_model_validate_decorator(self):
+        # Required
+        self.request('ALL', 'POST', '/', params={}, expected_status=400)
 
         # Correct pattern
         resp, ___ = self.request('ALL', 'POST', '/', params=dict(title='Test'), doc=False)
