@@ -203,8 +203,14 @@ class BaseModel(object):
 
     @classmethod
     def create_validation_rules(cls, **rules):
+        patterns = {}
+        blacklist = []
+        for field in cls.iter_metadata_fields():
+            if field.pattern:
+                patterns[field.json_name] = field.pattern
+            if field.readonly:
+                blacklist.append(field.json_name)
         result = {}
-
         result.update(rules)
         return result
 
