@@ -1,7 +1,7 @@
 import unittest
-
+from datetime import datetime
 from nanohttp import json, settings
-from sqlalchemy import Unicode, Integer
+from sqlalchemy import Unicode, Integer, DateTime
 
 from restfulpy.controllers import JsonPatchControllerMixin, ModelRestController
 from restfulpy.orm import commit, DeclarativeBase, Field, DBSession
@@ -14,6 +14,7 @@ class ModelValidationCheckingModel(DeclarativeBase):
 
     id = Field(Integer, primary_key=True)
     title = Field(Unicode(50), unique=True, nullable=False, pattern='[A-Z][a-zA-Z]*')
+    modified = Field(DateTime, default=datetime.now, readonly=True)
 
 
 class Root(JsonPatchControllerMixin, ModelRestController):
@@ -60,6 +61,17 @@ class ModelValidationDecoratorTestCase(WebAppTestCase):
         self.request(
             'ALL', 'POST', '/',
             params=dict(title='startWithSmallCase'),
+            expected_status=400,
+            doc=False
+        )
+
+        # Readonly
+        self.request(
+            'ALL', 'POST', '/',
+            params=dict(
+                title='Test',
+                modified=datetime.now().isoformat()
+            ),
             expected_status=400,
             doc=False
         )

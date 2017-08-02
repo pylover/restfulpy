@@ -211,6 +211,10 @@ class BaseModel(object):
             if field.readonly:
                 blacklist.append(field.json_name)
         result = {}
+        if patterns:
+            result['pattern'] = patterns
+        if blacklist:
+            result['blacklist'] = blacklist
         result.update(rules)
         return result
 
