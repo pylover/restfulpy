@@ -35,6 +35,7 @@ class SqlError(HttpStatus):
         return error_code, cls.statuses.get(error_code, 500), status_text, ex.orig.pgerror
 
     statuses = {
+        '23502': 400,
         '23505': 409
     }
     postgresql_errors = {

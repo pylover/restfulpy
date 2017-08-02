@@ -14,7 +14,7 @@ class SqlErrorCheckingModel(ModifiedMixin, FilteringMixin, PaginationMixin, Orde
     __tablename__ = 'sql_error_checking_model'
 
     id = Field(Integer, primary_key=True)
-    title = Field(Unicode(50), unique=True)
+    title = Field(Unicode(50), unique=True, nullable=False)
 
 
 class Root(JsonPatchControllerMixin, ModelRestController):
@@ -58,6 +58,11 @@ class SqlExceptionsTestCase(WebAppTestCase):
         resp, headers = self.request('ALL', 'POST', '/', params=dict(title='test'), expected_status=409, doc=False)
         self.assertEqual(resp['message'], 'unique_violation')
         self.assertEqual(headers['X-Reason'], '23505')
+
+        # null constraint
+        resp, headers = self.request('ALL', 'POST', '/', expected_status=400, doc=False)
+        self.assertEqual(resp['message'], 'not_null_violation')
+        self.assertEqual(headers['X-Reason'], '23502')
 
 
 if __name__ == '__main__':  # pragma: no cover
