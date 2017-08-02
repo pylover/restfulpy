@@ -18,13 +18,10 @@ class Messenger(object):
     def render_body(self, body, template_filename=None):
         if template_filename:
             mako_template = self.lookup.get_template(template_filename)
-        else:
-            mako_template = None
-
-        if mako_template:
+            assert mako_template is not None, 'Cannot find template file: %s.' % template_filename
             return mako_template.render(**body)
-        else:
-            return body
+
+        return body
 
     @LazyAttribute
     def lookup(self):
