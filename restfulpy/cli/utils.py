@@ -1,6 +1,12 @@
 
 import subprocess
+import fcntl, termios, struct
 from datetime import datetime
+
+
+def terminal_size():
+    h, w, hp, wp = struct.unpack('HHHH', fcntl.ioctl(0, termios.TIOCGWINSZ, struct.pack('HHHH', 0, 0, 0, 0)))
+    return w, h
 
 
 class ProgressBar:
@@ -9,6 +15,7 @@ class ProgressBar:
         self._value = 0
         self.total = total
         self.start_time = None
+        self.terminal_width = terminal_size()[0]
 
     def increment(self):
         self._value += 1
@@ -30,7 +37,7 @@ class ProgressBar:
     @property
     def time(self):
         td = datetime.now() - self.start_time
-        return '%.2d:%.2d' % (td.seconds // 60, td.seconds % 60)
+        return 'time: %.2d:%.2d' % (td.seconds // 60, td.seconds % 60)
 
     @property
     def estimated_time(self):
@@ -39,7 +46,7 @@ class ProgressBar:
         else:
             td = datetime.now() - self.start_time
             et = td.total_seconds() * (self.total / self.value - 1)
-        return '%.2d:%.2d' % (int(et) // 60, int(et) % 60)
+        return 'eta: %.2d:%.2d' % (int(et) // 60, int(et) % 60)
 
     @property
     def marks(self):
@@ -51,7 +58,9 @@ class ProgressBar:
         detailed = ('%%%dd/%%d' % len(str(self.total))) % (self._value, self.total)
         percent = '%3d%%' % self.percent
         progress = '|%s|' % self.marks
-        print(' '.join((detailed, percent, progress, self.time, self.estimated_time)), end='\r', flush=True)
+        line = ' '.join((detailed, percent, progress, self.time, self.estimated_time))
+        print(line, end='', flush=False)
+        print(' ' * (self.terminal_width - len(line)), end='\r', flush=True)
 
     def __enter__(self):
         self.start_time = datetime.now()
