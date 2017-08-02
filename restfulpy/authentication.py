@@ -1,7 +1,7 @@
 
 import itsdangerous
 import redis
-from nanohttp import context, HttpBadRequest, settings
+from nanohttp import context, HttpBadRequest, settings, HttpUnauthorized
 
 from restfulpy.principal import JwtPrincipal, JwtRefreshToken
 
@@ -88,6 +88,9 @@ class Authenticator:
             session_id = ex.payload.get('sessionId')
             if session_id:
                 self.try_refresh_token(session_id)
+            else:
+                self.bad()
+                raise HttpUnauthorized()
         except itsdangerous.BadData:
             # The token is Malformed
             self.bad()
