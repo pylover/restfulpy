@@ -116,7 +116,7 @@ class AuthenticatorTestCase(WebAppTestCase):
         # Login on client
         token = response['token']
         self.wsgi_app.jwt_token = token
-        time.sleep(1.5)
+        time.sleep(1.8)
 
         # Request a protected resource after the token has been expired expired, with broken cookies
         self.request(
