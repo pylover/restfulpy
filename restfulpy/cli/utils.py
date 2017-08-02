@@ -54,11 +54,36 @@ class ProgressBar:
         v = self.percent // scale
         return '%s%s' % ('#' * int(v), '.' * int(100 // scale - v))
 
+    def get_progressbar_color(self):
+        percent = self.percent
+        if percent < 10:
+            return red
+        elif percent < 20:
+            return lightred
+        elif percent < 30:
+            return yellow
+        elif percent < 40:
+            return lightyellow
+        elif percent < 50:
+            return violet
+        elif percent < 60:
+            return lightviolet
+        elif percent < 70:
+            return beige
+        elif percent < 80:
+            return lightbeige
+        elif percent < 90:
+            return blue
+        elif percent < 100:
+            return lightblue
+        else:
+            return green
+
     def _invalidate(self):
         detailed = ('%%%dd/%%d' % len(str(self.total))) % (self._value, self.total)
         percent = '%3d%%' % self.percent
         progress = '|%s|' % self.marks
-        line = ' '.join((detailed, percent, progress, self.time, self.estimated_time))
+        line = ' '.join((detailed, self.get_progressbar_color(), percent, progress, clear, self.time, yellow, self.estimated_time, clear))
         print(line, end='', flush=False)
         print(' ' * (self.terminal_width - len(line)), end='\r', flush=True)
 
@@ -104,3 +129,49 @@ class LineReaderProgressBar(ProgressBar):
     def __next__(self):
         self.increment()
         return self.file.__next__()
+
+
+# default color
+clear = '\33[22;24;25;27;28;39;49m'
+
+# foreground colors:
+black = '\33[30m'
+red = '\33[31m'
+green = '\33[32m'
+yellow = '\33[33m'
+blue = '\33[34m'
+violet = '\33[35m'
+beige = '\33[36m'
+white = '\33[37m'
+grey = '\33[90m'
+gray = '\33[90m'
+lightred = '\33[91m'
+lightgreen = '\33[92m'
+lightyellow = '\33[93m'
+lightblue = '\33[94m'
+lightviolet = '\33[95m'
+lightbeige = '\33[96m'
+lightwhite = '\33[97m'
+
+# background colors:
+bblack = '\33[40m'
+bred = '\33[41m'
+bgreen = '\33[4m'
+byellow = '\33[43m'
+bblue = '\33[44m'
+bviolet = '\33[45m'
+bbeige = '\33[46m'
+bwhite = '\33[47m'
+bgrey = '\33[100m'
+bgray = '\33[100m'
+blightred = '\33[101m'
+blightgreen = '\33[102m'
+blightyellow = '\33[103m'
+blightblue = '\33[104m'
+blightviolet = '\33[105m'
+blightbeige = '\33[106m'
+blightwhite = '\33[107m'
+
+# styles
+bold = '\33[1m'
+italic = '\33[3m'
