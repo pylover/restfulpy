@@ -92,7 +92,7 @@ class Field(Column):
 
         if max_length is not None:
             if value_length > max_length:
-                raise HttpBadRequest('Cannot enter more that : %d in field: %s.' % (max_length, self.name))
+                raise HttpBadRequest('Cannot enter more than: %d in field: %s.' % (max_length, self.name))
 
     def validate(self, value):
         if 'pattern' in self.info:
