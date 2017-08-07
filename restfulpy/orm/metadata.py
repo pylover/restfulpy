@@ -4,7 +4,8 @@ from restfulpy.utils import to_camel_case
 class MetadataField(object):
     def __init__(self, json_name, key, type_=str, default_=None, optional=None,
                  pattern=None, max_length=None, min_length=None, message='Invalid value',
-                 watermark=None, label=None, icon=None, example=None, primary_key=False, readonly=False):
+                 watermark=None, label=None, icon=None, example=None, primary_key=False, readonly=False,
+                 protected=False):
         self.json_name = json_name
         self.key = key[1:] if key.startswith('_') else key
         self.type_ = type_
@@ -20,6 +21,7 @@ class MetadataField(object):
         self.example = example
         self.primary_key = primary_key
         self.readonly = readonly
+        self.protected = protected
 
     @property
     def type_name(self):
@@ -41,7 +43,8 @@ class MetadataField(object):
             icon=self.icon,
             example=self.example,
             primaryKey=self.primary_key,
-            readonly=self.readonly
+            readonly=self.readonly,
+            protected=self.protected
         )
 
     @classmethod
@@ -90,7 +93,8 @@ class MetadataField(object):
             icon=info.get('icon', None),
             example=info.get('example', None),
             primary_key=hasattr(c.expression, 'primary_key') and c.expression.primary_key,
-            readonly=info.get('readonly', False)
+            readonly=info.get('readonly', False),
+            protected=info.get('protected', False)
         ))
 
         return result

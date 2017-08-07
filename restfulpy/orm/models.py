@@ -79,8 +79,8 @@ class BaseModel(object):
 
     @classmethod
     def iter_metadata_fields(cls):
-        for c in cls.iter_json_columns(relationships=True, include_readonly_columns=True):
-            yield from  MetadataField.from_column(cls.get_column(c), info=c.info)
+        for c in cls.iter_json_columns(relationships=True, include_readonly_columns=True, include_protected_columns=True):
+            yield from MetadataField.from_column(cls.get_column(c), info=c.info)
 
     @classmethod
     def json_metadata(cls):
