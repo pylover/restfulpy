@@ -160,8 +160,8 @@ class ModelTestCase(unittest.TestCase):
         author_metadata = Author.json_metadata()
         self.assertIn('id', author_metadata['fields'])
         self.assertIn('email', author_metadata['fields'])
-        self.assertNotIn('fullName', author_metadata['fields'])
-        self.assertNotIn('password', author_metadata['fields'])
+        self.assertEqual(author_metadata['fields']['fullName']['protected'], True)
+        self.assertEqual(author_metadata['fields']['password']['protected'], True)
 
         post_metadata = Post.json_metadata()
         self.assertIn('author', post_metadata['fields'])
