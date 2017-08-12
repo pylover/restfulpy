@@ -15,7 +15,10 @@ class ProgressBar:
         self._value = 0
         self.total = total
         self.start_time = None
-        self.terminal_width = terminal_size()[0]
+        try:
+            self.terminal_width = terminal_size()[0]
+        except OSError:
+            self.terminal_width = 120
 
     def increment(self):
         self._value += 1
