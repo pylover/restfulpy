@@ -162,3 +162,13 @@ def validate_form(blacklist=None, exclude=None, filter_=None, whitelist=None, re
         return wrapper
 
     return decorator
+
+
+def prevent_form(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        if context.form or context.query_string:
+            raise HttpBadRequest('No input allowed.')
+        return func(*args, **kwargs)
+
+    return wrapper
