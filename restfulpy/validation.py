@@ -99,7 +99,7 @@ class FormValidator:
         exact_fields = self.extract_rules_odd('exact', user_rules)
         if exact_fields:
             if exact_fields != all_input_fields:
-                raise HttpBadRequest('Exactly these fields are allowed: [%s]' % ', '.join(whitelist_fields))
+                raise HttpBadRequest('Exactly these fields are allowed: [%s]' % ', '.join(exact_fields))
 
         type_pairs = self.extract_rules_pair('types', user_rules)
         if type_pairs:
