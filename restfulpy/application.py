@@ -34,6 +34,7 @@ class Application(NanohttpApplication):
     def _handle_exception(self, ex):
         if isinstance(ex, SQLAlchemyError):
             ex = SqlError(ex)
+            self.__logger__.exception(str(ex))
         if not isinstance(ex, HttpStatus):
             ex = HttpInternalServerError('Internal server error')
             self.__logger__.exception('Internal server error')

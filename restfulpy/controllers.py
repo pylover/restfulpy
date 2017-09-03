@@ -1,4 +1,6 @@
 
+import types
+
 from nanohttp import Controller, context, json, RestController, action, etag
 
 from restfulpy.orm import DBSession
@@ -50,7 +52,10 @@ class JsonPatchControllerMixin:
                 else:
                     return_data = self(*remaining_paths)
 
-                results.append(return_data)
+                if isinstance(return_data, types.GeneratorType):
+                    results.append(''.join(list(return_data)))
+                else:
+                    results.append(return_data)
 
                 DBSession.flush()
             DBSession.commit()

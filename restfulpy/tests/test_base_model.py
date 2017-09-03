@@ -1,7 +1,7 @@
 import unittest
 
 from nanohttp import json, settings
-from sqlalchemy import Unicode, Integer, Date, Float, ForeignKey, Boolean
+from sqlalchemy import Unicode, Integer, Date, Float, ForeignKey, Boolean, DateTime
 from sqlalchemy.orm import synonym
 from sqlalchemy.ext.associationproxy import association_proxy
 
@@ -66,6 +66,7 @@ class Member(ModifiedMixin, FilteringMixin, PaginationMixin, OrderingMixin, Decl
     _keywords = relationship('Keyword', secondary='member_keywords')
     keywords = association_proxy('_keywords', 'keyword', creator=lambda k: Keyword(keyword=k))
     visible = Field(Boolean, nullable=True)
+    last_login_time = Field(DateTime, json='lastLoginTime')
 
     def _set_password(self, password):
         self._password = 'hashed:%s' % password
@@ -116,6 +117,12 @@ class BaseModelTestCase(WebAppTestCase):
     def configure_app(cls):
         cls.application.configure(force=True)
         settings.merge(cls.__configuration__)
+        settings.merge('''
+        logging:
+          loggers:
+            default:
+              level: debug
+        ''')
 
     def test_update_from_request(self):
         resp, ___ = self.request(
@@ -125,15 +132,16 @@ class BaseModelTestCase(WebAppTestCase):
                 lastName='test',
                 email='test@example.com',
                 password='123456',
-                birth='01-01-01',
+                birth='2001-01-01',
                 weight=1.1,
-                visible='false'
+                visible='false',
+                lastLoginTime='2017-10-10T15:44:30.000'
             ),
             doc=False
         )
         self.assertEqual(resp['title'], 'test')
 
-        resp, ___ = self.request('ALL', 'GET', '/', doc=False)
+        resp, ___ = self.request('ALL', 'GET', '/', query_string=dict(take=1), doc=False)
         self.assertEqual(len(resp), 1)
         self.assertEqual(resp[0]['title'], 'test')
         self.assertEqual(resp[0]['visible'], False)
@@ -147,7 +155,7 @@ class BaseModelTestCase(WebAppTestCase):
 
     def test_iter_columns(self):
         columns = {c.key: c for c in Member.iter_columns(relationships=False, synonyms=False, composites=False)}
-        self.assertEqual(len(columns), 12)
+        self.assertEqual(len(columns), 13)
         self.assertNotIn('name', columns)
         self.assertNotIn('password', columns)
         self.assertIn('_password', columns)
@@ -155,7 +163,7 @@ class BaseModelTestCase(WebAppTestCase):
     def test_iter_json_columns(self):
         columns = {c.key: c for c in Member.iter_json_columns(
             include_readonly_columns=False, include_protected_columns=False)}
-        self.assertEqual(len(columns), 10)
+        self.assertEqual(len(columns), 11)
         self.assertNotIn('name', columns)
         self.assertNotIn('password', columns)
         self.assertNotIn('_password', columns)
@@ -193,6 +201,180 @@ class BaseModelTestCase(WebAppTestCase):
         self.assertEqual(fields['email']['icon'], 'email.svg')
         self.assertEqual(fields['email']['example'], 'user@example.com')
 
+    def test_datetime_format(self):
+        # datetime allows contain microseconds
+        self.request(
+            'ALL', 'POST', '/',
+            params=dict(
+                title='test',
+                firstName='test',
+                lastName='test',
+                email='test1@example.com',
+                password='123456',
+                birth='2001-01-01',
+                weight=1.1,
+                visible='false',
+                lastLoginTime='2017-10-10T10:10:00.12313'
+            ),
+            doc=False
+        )
+        self.request(
+            'ALL', 'POST', '/',
+            params=dict(
+                title='test',
+                firstName='test',
+                lastName='test',
+                email='test2@example.com',
+                password='123456',
+                birth='2001-01-01',
+                weight=1.1,
+                visible='false',
+                lastLoginTime='2017-10-10T10:10:00.'
+            ),
+            doc=False
+        )
+
+        self.request(
+            'ALL', 'POST', '/',
+            params=dict(
+                title='test',
+                firstName='test',
+                lastName='test',
+                email='test3@example.com',
+                password='123456',
+                birth='2001-01-01',
+                weight=1.1,
+                visible='false',
+                lastLoginTime='2017-10-10T10:10:00'
+            ),
+            doc=False
+        )
+
+        # Invalid month value
+        self.request(
+            'ALL', 'POST', '/',
+            params=dict(
+                title='test',
+                firstName='test',
+                lastName='test',
+                email='test4@example.com',
+                password='123456',
+                birth='2001-01-01',
+                weight=1.1,
+                visible='false',
+                lastLoginTime='2017-13-10T10:10:00'
+            ),
+            doc=False,
+            expected_status=400
+        )
+
+        # Invalid datetime format
+        self.request(
+            'ALL', 'POST', '/',
+            params=dict(
+                title='test',
+                firstName='test',
+                lastName='test',
+                email='test4@example.com',
+                password='123456',
+                birth='2001-01-01',
+                weight=1.1,
+                visible='false',
+                lastLoginTime='InvalidDatetime'
+            ),
+            doc=False,
+            expected_status=400
+        )
+
+        # datetime might not have ending Z
+        resp, ___ = self.request(
+            'ALL', 'POST', '/',
+            params=dict(
+                title='test',
+                firstName='test',
+                lastName='test',
+                email='test5@example.com',
+                password='123456',
+                birth='2001-01-01',
+                weight=1.1,
+                visible='false',
+                lastLoginTime='2017-10-10T10:10:00.4546'
+            ),
+            doc=False
+        )
+        self.assertEqual(resp['lastLoginTime'], '2017-10-10T10:10:00')
+
+        # datetime containing ending Z
+        resp, ___ = self.request(
+            'ALL', 'POST', '/', params=dict(
+                title='test',
+                firstName='test',
+                lastName='test',
+                email='test6@example.com',
+                password='123456',
+                birth='2001-01-01',
+                weight=1.1,
+                visible='false',
+                lastLoginTime='2017-10-10T10:10:00.4546Z'
+            ),
+            doc=False
+        )
+        self.assertEqual(resp['lastLoginTime'], '2017-10-10T10:10:00')
+
+    def test_date_format(self):
+        # iso date format
+        resp, ___ = self.request(
+            'ALL', 'POST', '/',
+            params=dict(
+                title='test',
+                firstName='test',
+                lastName='test',
+                email='test11@example.com',
+                password='123456',
+                birth='2001-01-01',
+                weight=1.1,
+                visible='false',
+                lastLoginTime='2017-10-10T10:10:00.4546Z'
+            ),
+            doc=False
+        )
+        self.assertEqual(resp['birth'], '2001-01-01')
+
+        # none iso date format
+        self.request(
+            'ALL', 'POST', '/',
+            params=dict(
+                title='test',
+                firstName='test',
+                lastName='test',
+                email='test12@example.com',
+                password='123456',
+                birth='01-01-01',
+                weight=1.1,
+                visible='false',
+                lastLoginTime='2017-10-10T10:10:00.4546Z'
+            ),
+            doc=False,
+            expected_status=400
+        )
+
+        # none iso date format
+        self.request(
+            'ALL', 'POST', '/',
+            params=dict(
+                title='test',
+                firstName='test',
+                lastName='test',
+                email='test13@example.com',
+                password='123456',
+                birth='2001/01/01',
+                weight=1.1,
+                visible='false',
+                lastLoginTime='2017-10-10T10:10:00.4546Z'
+            ),
+            doc=False,
+            expected_status=400
+        )
 
 if __name__ == '__main__':  # pragma: no cover
     unittest.main()

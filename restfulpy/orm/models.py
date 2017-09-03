@@ -3,7 +3,7 @@ import functools
 from datetime import datetime, date, time
 from decimal import Decimal
 
-from nanohttp import context, HttpNotFound
+from nanohttp import context, HttpNotFound, HttpBadRequest
 from sqlalchemy import Column, event
 from sqlalchemy.orm import validates, Query, CompositeProperty
 from sqlalchemy.orm.attributes import InstrumentedAttribute
@@ -17,6 +17,7 @@ from restfulpy.orm.mixines import PaginationMixin, FilteringMixin, OrderingMixin
 from restfulpy.orm.field import Field
 from restfulpy.orm.metadata import MetadataField
 from restfulpy.validation import validate_form
+from restfulpy.constants import ISO_DATETIME_FORMAT, ISO_DATE_FORMAT, ISO_DATETIME_PATTERN
 
 
 class BaseModel(object):
@@ -145,9 +146,26 @@ class BaseModel(object):
             #         raise HttpBadRequest('Invalid parameter: %s' % c.info['json'])
             #     else:
             #         continue
-
             if param_name in context.form:
-                yield c, context.form[param_name]
+                value = context.form[param_name]
+
+                if c.type.python_type == datetime:
+                    try:
+                        match = ISO_DATETIME_PATTERN.match(value)
+                        if not match:
+                            raise ValueError()
+                        extracted_value = datetime.strptime(match.groups()[0], ISO_DATETIME_FORMAT)
+                        yield c, extracted_value
+                    except ValueError:
+                        raise HttpBadRequest('Invalid datetime format')
+
+                elif c.type.python_type == date:
+                    try:
+                        yield c, datetime.strptime(value, ISO_DATE_FORMAT)
+                    except ValueError:
+                        raise HttpBadRequest('Invalid date format')
+                else:
+                    yield c, value
 
     def to_dict(self):
         result = {}
