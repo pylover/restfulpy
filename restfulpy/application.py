@@ -86,7 +86,7 @@ class Application(NanohttpApplication):
             context.response_headers.add_header(
                 'Access-Control-Expose-Headers',
                 'Content-Type, Content-Length, X-Pagination-Count, X-Pagination-Skip, X-Pagination-Take, '
-                'X-New-JWT-Token, ETag'
+                'X-New-JWT-Token, ETag, X-Reason'
             )
             context.response_headers.add_header('Access-Control-Allow-Credentials', 'true')
 
