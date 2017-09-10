@@ -7,7 +7,7 @@ from sqlalchemy.ext.associationproxy import association_proxy
 
 from restfulpy.controllers import JsonPatchControllerMixin, ModelRestController
 from restfulpy.orm import commit, DeclarativeBase, Field, DBSession, composite, FilteringMixin, PaginationMixin, \
-    OrderingMixin, relationship, ModifiedMixin
+    OrderingMixin, relationship, ModifiedMixin, ActivationMixin
 from restfulpy.testing import WebAppTestCase
 from restfulpy.tests.helpers import MockupApplication
 
@@ -44,7 +44,7 @@ class MemberKeywords(DeclarativeBase):
     keyword_id = Field(Integer, ForeignKey("keyword.id"), primary_key=True)
 
 
-class Member(ModifiedMixin, FilteringMixin, PaginationMixin, OrderingMixin, DeclarativeBase):
+class Member(ActivationMixin, ModifiedMixin, FilteringMixin, PaginationMixin, OrderingMixin, DeclarativeBase):
     __tablename__ = 'member'
 
     id = Field(Integer, primary_key=True)
@@ -135,7 +135,8 @@ class BaseModelTestCase(WebAppTestCase):
                 birth='2001-01-01',
                 weight=1.1,
                 visible='false',
-                lastLoginTime='2017-10-10T15:44:30.000'
+                lastLoginTime='2017-10-10T15:44:30.000',
+                isActive=True
             ),
             doc=False
         )
@@ -155,7 +156,7 @@ class BaseModelTestCase(WebAppTestCase):
 
     def test_iter_columns(self):
         columns = {c.key: c for c in Member.iter_columns(relationships=False, synonyms=False, composites=False)}
-        self.assertEqual(len(columns), 13)
+        self.assertEqual(len(columns), 15)
         self.assertNotIn('name', columns)
         self.assertNotIn('password', columns)
         self.assertIn('_password', columns)
@@ -163,7 +164,7 @@ class BaseModelTestCase(WebAppTestCase):
     def test_iter_json_columns(self):
         columns = {c.key: c for c in Member.iter_json_columns(
             include_readonly_columns=False, include_protected_columns=False)}
-        self.assertEqual(len(columns), 11)
+        self.assertEqual(len(columns), 12)
         self.assertNotIn('name', columns)
         self.assertNotIn('password', columns)
         self.assertNotIn('_password', columns)
@@ -375,6 +376,7 @@ class BaseModelTestCase(WebAppTestCase):
             doc=False,
             expected_status=400
         )
+
 
 if __name__ == '__main__':  # pragma: no cover
     unittest.main()

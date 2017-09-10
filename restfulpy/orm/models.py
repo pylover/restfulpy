@@ -11,6 +11,7 @@ from sqlalchemy.orm.relationships import RelationshipProperty
 from sqlalchemy.ext.hybrid import HYBRID_PROPERTY
 from sqlalchemy.ext.associationproxy import ASSOCIATION_PROXY
 from sqlalchemy.inspection import inspect
+from sqlalchemy.sql.sqltypes import NullType
 
 from restfulpy.utils import format_iso_datetime, format_iso_time, to_camel_case
 from restfulpy.orm.mixines import PaginationMixin, FilteringMixin, OrderingMixin
@@ -140,7 +141,7 @@ class BaseModel(object):
         for c in cls.iter_json_columns(include_protected_columns=True, include_readonly_columns=False):
             param_name = c.info.get('json', to_camel_case(c.key))
 
-            # Commented-out by vahid, I think it's not necessary at all.
+            # Commented-out by Vahid, I think it's not necessary at all.
             # if c.info.get('readonly') and param_name in context.form:
             #     if c.info.get('strict', None):
             #         raise HttpBadRequest('Invalid parameter: %s' % c.info['json'])
@@ -148,6 +149,12 @@ class BaseModel(object):
             #         continue
             if param_name in context.form:
                 value = context.form[param_name]
+                # Ensuring the python type, and ignoring silently if python type is not specified
+                try:
+                    c.type.python_type
+                except NotImplementedError:
+                    yield c, value
+                    continue
 
                 if c.type.python_type == datetime:
                     try:
