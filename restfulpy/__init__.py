@@ -7,7 +7,7 @@ import warnings
 warnings.filterwarnings('ignore', message='Unknown REQUEST_METHOD')
 
 
-__version__ = '0.28.2'
+__version__ = '0.28.3'
 
 
 __all__ = [
