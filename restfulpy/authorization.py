@@ -16,8 +16,7 @@ def authorize(*roles):
             if not identity:
                 raise HttpUnauthorized()
 
-            if roles and not identity.is_in_roles(*roles):
-                raise HttpForbidden()
+            identity.assert_roles(*roles)
 
             return func(*args, **kwargs)
 
