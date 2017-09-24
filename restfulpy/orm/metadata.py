@@ -57,9 +57,9 @@ class MetadataField(object):
         key = c.key
 
         if hasattr(c, 'default') and c.default:
-            default_ = c.default.arg if c.default.is_scalar else 'function(...)'
+            default_ = c.default.arg if c.default.is_scalar else None
         else:
-            default_ = ''
+            default_ = None
 
         if hasattr(c, 'type'):
             try:
