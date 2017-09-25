@@ -29,12 +29,13 @@ dependencies = [
 
 
 setup(
-    name="restfulpy",
+    name='restfulpy',
     version=package_version,
     description='A toolchain for developing REST APIs',
-    author="Vahid Mardani",
-    author_email="vahid.mardani@gmail.com",
+    author='Vahid Mardani',
+    author_email='vahid.mardani@gmail.com',
     install_requires=dependencies,
     packages=find_packages(),
-    test_suite="restfulpy.tests",
+    test_suite='restfulpy.tests',
+    license='MIT'
 )
