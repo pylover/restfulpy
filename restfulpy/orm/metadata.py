@@ -87,7 +87,7 @@ class MetadataField(object):
             max_length=info.get('max_length') if 'max_length' in info else
             (c.type.length if hasattr(c, 'type') and hasattr(c.type, 'length') else None),
             min_length=info.get('min_length'),
-            message=info.get('message') if 'message' in info else 'Invalid Value',
+            message=info.get('message', 'Invalid Value'),
             watermark=info.get('watermark', None),
             label=info.get('label', None),
             icon=info.get('icon', None),
