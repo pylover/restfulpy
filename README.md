@@ -2,19 +2,19 @@
 A tool-chain for creating restful web applications.
 
 [![Build Status](http://img.shields.io/pypi/v/restfulpy.svg)](https://pypi.python.org/pypi/restfulpy)
-[![Gitter](https://img.shields.io/gitter/room/pylover/restfulpy.svg)](https://gitter.im/pylover/restfulpy)
+[![Gitter](https://img.shields.io/gitter/room/Carrene/restfulpy.svg)](https://gitter.im/Carrene/restfulpy)
      
 ## Branches
 
 ### master
 
-[![Build Status](https://travis-ci.org/pylover/restfulpy.svg?branch=master)](https://travis-ci.org/pylover/restfulpy)
-[![Coverage Status](https://coveralls.io/repos/github/pylover/restfulpy/badge.svg?branch=master)](https://coveralls.io/github/pylover/restfulpy?branch=master)
+[![Build Status](https://travis-ci.org/Carrene/restfulpy.svg?branch=master)](https://travis-ci.org/Carrene/restfulpy)
+[![Coverage Status](https://coveralls.io/repos/github/Carrene/restfulpy/badge.svg?branch=master)](https://coveralls.io/github/Carrene/restfulpy?branch=master)
 
 ### develop
 
-[![Build Status](https://travis-ci.org/pylover/restfulpy.svg?branch=develop)](https://travis-ci.org/pylover/restfulpy)
-[![Coverage Status](https://coveralls.io/repos/github/pylover/restfulpy/badge.svg?branch=develop)](https://coveralls.io/github/pylover/restfulpy?branch=develop)
+[![Build Status](https://travis-ci.org/Carrene/restfulpy.svg?branch=develop)](https://travis-ci.org/Carrene/restfulpy)
+[![Coverage Status](https://coveralls.io/repos/github/Carrene/restfulpy/badge.svg?branch=develop)](https://coveralls.io/github/Carrene/restfulpy?branch=develop)
 
 
 
