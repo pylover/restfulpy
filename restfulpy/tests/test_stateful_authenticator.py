@@ -1,14 +1,56 @@
-
 import unittest
 import time
 
 from nanohttp import json, Controller, context, settings
+from nanohttp.contexts import Context
 
 from restfulpy.authentication import StatefulAuthenticator
 from restfulpy.authorization import authorize
 from restfulpy.principal import JwtPrincipal, JwtRefreshToken
 from restfulpy.testing import WebAppTestCase, As
-from restfulpy.tests.helpers import MockupApplication
+from restfulpy.tests.helpers import MockupApplication, TimeMonkeyPatch
+
+session_info_test_cases = [
+    {
+        'timestamp': 1234567,
+        'raw_remote_address': '',
+        'raw_user_agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 5_1 like Mac OS X) AppleWebKit/534.46 (KHTML, '
+                          'like Gecko) Version/5.1 Mobile/9B179 Safari/7534.48.3 RestfulpyClient-js/1.2.3 (My '
+                          'App; test-name; 1.4.5-beta78; fa-IR; some; extra; info)',
+        'expected_remote_address': 'NA',
+        'expected_machine': 'iPhone',
+        'expected_os': 'iOS 5.1',
+        'expected_agent': 'Mobile Safari 5.1',
+        'expected_client': 'RestfulpyClient-js 1.2.3',
+        'expected_app': 'My App (test-name) 1.4.5-beta78',
+        'expected_last_activity': '1970-01-15T10:26:07',
+    },
+    {
+        'timestamp': 1234567,
+        'raw_remote_address': '185.87.34.23',
+        'raw_user_agent': 'Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0) '
+                          'RestfulpyClient-custom/4.5.6 (A; B; C)',
+        'expected_remote_address': '185.87.34.23',
+        'expected_machine': 'PC',
+        'expected_os': 'Windows 7',
+        'expected_agent': 'IE 9.0',
+        'expected_client': 'RestfulpyClient-custom 4.5.6',
+        'expected_app': 'A (B) C',
+        'expected_last_activity': '1970-01-15T10:26:07',
+    },
+    {
+        'timestamp': 1234567,
+        'raw_remote_address': '172.16.0.111',
+        'raw_user_agent': '',
+        'expected_remote_address': '172.16.0.111',
+        'expected_machine': 'Other',
+        'expected_os': 'Other',
+        'expected_agent': 'Other',
+        'expected_client': 'Unknown',
+        'expected_app': 'Unknown',
+        'expected_last_activity': '1970-01-15T10:26:07',
+    }
+]
 
 
 class MockupMember:
@@ -35,7 +77,6 @@ class MockupStatefulAuthenticator(StatefulAuthenticator):
 
 
 class Root(Controller):
-
     @json
     def login(self):
         principal = context.application.__authenticator__.login((context.form['email'], context.form['password']))
@@ -112,6 +153,30 @@ class StatefulAuthenticatorTestCase(WebAppTestCase):
         self.wsgi_app.jwt_token = response['token']
         response, headers = self.request('ALL', 'DELETE', '/logout')
         self.assertEqual(headers['X-Identity'], '')
+
+    def test_session_member(self):
+        with Context(environ={}, application=self.application):
+            principal = self.application.__authenticator__.login(('test@example.com', 'test'))
+            self.assertEqual(self.application.__authenticator__.get_session_member(principal.session_id), 1)
+
+    def test_session_info(self):
+        for test_case in session_info_test_cases:
+            environment = {
+                'REMOTE_ADDR': test_case['raw_remote_address'],
+                'HTTP_USER_AGENT': test_case['raw_user_agent'],
+            }
+            with Context(environ=environment, application=self.application), TimeMonkeyPatch(test_case['timestamp']):
+                principal = self.application.__authenticator__.login(('test@example.com', 'test'))
+                info = self.application.__authenticator__.get_session_info(principal.session_id)
+                self.assertDictEqual(info, {
+                    'remoteAddress': test_case['expected_remote_address'],
+                    'machine': test_case['expected_machine'],
+                    'os': test_case['expected_os'],
+                    'agent': test_case['expected_agent'],
+                    'client': test_case['expected_client'],
+                    'app': test_case['expected_app'],
+                    'lastActivity': test_case['expected_last_activity'],
+                })
 
 
 if __name__ == '__main__':  # pragma: no cover

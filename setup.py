@@ -20,6 +20,9 @@ dependencies = [
     'mako',
     'psycopg2',
     'redis',
+    'pyyaml',
+    'ua-parser',
+    'user-agents',
 
     # Testing
     'requests',
