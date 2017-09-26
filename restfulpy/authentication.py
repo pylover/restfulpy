@@ -1,6 +1,10 @@
+from datetime import datetime
+import re
+import ujson
 
 import itsdangerous
 import redis
+import user_agents
 from nanohttp import context, HttpBadRequest, settings, HttpUnauthorized
 
 from restfulpy.principal import JwtPrincipal, JwtRefreshToken
@@ -121,15 +125,47 @@ class StatefulAuthenticator(Authenticator):
     
     Redis data-model:
     
-    sessions: HashMap { session_id: member_id }
-    member_id: Set { session_id } 
-    
-    
+        sessions: HashMap { session_id: member_id }
+        member_id: Set { session_id }
+        agents: HashMap {
+          session_id: {
+            remoteAddress: 127.0.0.1,
+            machine: pc,
+            os: android 4.2.2,
+            agent: chrome 55,
+            client: RestfulpyClient-js 3.4.5-alpha14,
+            app: Mobile Token (shark) 1.5.4,
+            lastActivity: 2015-10-26T07:46:36.615661
+          }
+        }
+
+
+    User-Agent structure:
+
+        User-Agent can contains customized token and comment in order to describe client and app.
+
+        User-Agent: TOKEN (COMMENT)
+
+        TOKEN: RestfulpyClient-TYPE/VERSION
+            exp: RestfulpyClient-js/1.2.3
+
+        COMMENT: (APP-TITLE; APP-NAME; APP-VERSION; APP-LOCALIZATION [; OPTIONAL-OTHER-COMMENTS]*)
+            exp: (Mobile Token; shark; 1.2.3-preview2; en-US)
+
+        Tips:
+            1. TOKEN must not contain any of CLRs or separators
+            2. COMMENTS: any TEXT excluding "(" and ")" and ";"
+            3. If you don't use one of standard clients of restfulpy, you can use this format as TOKEN:
+                RestfulpyClient-custom/0.0.0
+
     """
 
     _redis = None
     sessions_key = 'auth:sessions'
     members_key = 'auth:member:%s'
+    session_info_key = 'auth:sessions:%s:info'
+    remote_address_key = 'REMOTE_ADDR'
+    agent_key = 'HTTP_USER_AGENT'
 
     def __init__(self):
         super().__init__()
@@ -152,7 +188,11 @@ class StatefulAuthenticator(Authenticator):
 
     @classmethod
     def get_member_sessions_key(cls, member_id):
-        return 'auth:member:%s' % member_id
+        return cls.members_key % member_id
+
+    @classmethod
+    def get_session_info_key(cls, session_id):
+        return cls.session_info_key % session_id
 
     def verify_token(self, encoded_token):
         principal = super().verify_token(encoded_token)
@@ -170,15 +210,58 @@ class StatefulAuthenticator(Authenticator):
         self.unregister_session(context.identity.session_id)
         super().logout()
 
+    def extract_agent_info(self):
+        remote_address = 'NA'
+        if self.remote_address_key in context.environ and context.environ[self.remote_address_key]:
+            remote_address = context.environ[self.remote_address_key]
+
+        if self.agent_key in context.environ:
+            agent_string = context.environ[self.agent_key]
+            user_agent = user_agents.parse(agent_string)
+
+            device = user_agent.is_pc and 'PC' or user_agent.device.family
+            os = ' '.join([user_agent.os.family, user_agent.os.version_string]).strip()
+            browser = ' '.join([user_agent.browser.family, user_agent.browser.version_string]).strip()
+
+            client = 'Unknown'
+            app = 'Unknown'
+            matched_client = re.match(
+                '.*RestfulpyClient-(?P<type>.+)/(?P<version>.+) \((?P<features>.+)\).*',
+                agent_string
+            )
+            if matched_client:
+                matched_client = matched_client.groupdict()
+                client_type = matched_client['type']
+                client_version = matched_client['version']
+                # exp: "RestfulpyClient-js 1.2.3-rc10"
+                client = f'RestfulpyClient-{client_type} {client_version}'
+
+                features = matched_client['features'].split(';')
+                if len(features) >= 3:
+                    # exp: "MobileToken (shark) 1.2.3"
+                    app = f'{features[0].strip()} ({features[1].strip()}) {features[2].strip()}'
+
+            return {
+                'remoteAddress': remote_address,
+                'machine': device,
+                'os': os,
+                'agent': browser,
+                'client': client,
+                'app': app,
+                'lastActivity': datetime.utcnow().isoformat()
+            }
+
     def register_session(self, member_id, session_id):
         self.redis.hset(self.sessions_key, session_id, member_id)
         self.redis.sadd(self.get_member_sessions_key(member_id), session_id)
+        self.redis.set(self.get_session_info_key(session_id), ujson.dumps(self.extract_agent_info()))
 
     def unregister_session(self, session_id=None):
         session_id = session_id or context.identity.session_id
         member_id = self.redis.hget(self.sessions_key, session_id)
         self.redis.srem(self.get_member_sessions_key(member_id), session_id)
         self.redis.hdel(self.sessions_key, session_id)
+        self.redis.delete(self.get_session_info_key(session_id))
 
     def invalidate_member(self, member_id=None):
         # store current session id if available
@@ -188,9 +271,16 @@ class StatefulAuthenticator(Authenticator):
             if not session_id:
                 break
             self.redis.hdel(self.sessions_key, session_id)
+            self.redis.delete(self.get_session_info_key(session_id))
         self.redis.delete(self.get_member_sessions_key(member_id))
         if current_session_id:
             self.try_refresh_token(current_session_id)
 
     def validate_session(self, session_id):
         return self.redis.hexists(self.sessions_key, session_id)
+
+    def get_session_member(self, session_id):
+        return int(self.redis.hget(self.sessions_key, session_id))
+
+    def get_session_info(self, session_id):
+        return ujson.loads(self.redis.get(self.get_session_info_key(session_id)))
