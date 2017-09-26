@@ -1,5 +1,4 @@
-import time
-import datetime
+from datetime import datetime
 import re
 import ujson
 
@@ -9,7 +8,6 @@ import user_agents
 from nanohttp import context, HttpBadRequest, settings, HttpUnauthorized
 
 from restfulpy.principal import JwtPrincipal, JwtRefreshToken
-from restfulpy.utils import format_iso_datetime
 
 
 class Authenticator:
@@ -250,7 +248,7 @@ class StatefulAuthenticator(Authenticator):
                 'agent': browser,
                 'client': client,
                 'app': app,
-                'lastActivity': format_iso_datetime(datetime.datetime.fromtimestamp(time.time())),
+                'lastActivity': datetime.utcnow().isoformat()
             }
 
     def register_session(self, member_id, session_id):

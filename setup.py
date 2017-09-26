@@ -27,7 +27,8 @@ dependencies = [
     # Testing
     'requests',
     'webtest',
-    'nose'
+    'nose',
+    'freezegun',
 ]
 
 
