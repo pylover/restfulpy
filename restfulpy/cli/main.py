@@ -42,7 +42,7 @@ class MainLauncher(Launcher):
 
         cli_args.application = self.application
         self.application.process_name = cli_args.process_name
-        self.application.configure(files=cli_args.config_file)
+        self.application.configure(files=cli_args.config_file, directories=cli_args.config_dir)
         self.application.initialize_models()
         cli_args.func(cli_args)
         sys.exit(0)

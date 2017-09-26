@@ -39,6 +39,11 @@ setup(
     author_email='vahid.mardani@gmail.com',
     install_requires=dependencies,
     packages=find_packages(),
+    entry_points={
+        'console_scripts': [
+            'restfulpy = restfulpy:cli.main'
+        ]
+    },
     test_suite='restfulpy.tests',
     license='MIT'
 )
