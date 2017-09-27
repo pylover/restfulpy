@@ -122,9 +122,9 @@ class Authenticator:
 # noinspection PyAbstractClass
 class StatefulAuthenticator(Authenticator):
     """
-    
+
     Redis data-model:
-    
+
         sessions: HashMap { session_id: member_id }
         member_id: Set { session_id }
         agents: HashMap {
@@ -211,7 +211,8 @@ class StatefulAuthenticator(Authenticator):
         super().logout()
 
     def extract_agent_info(self):
-        remote_address = 'NA'
+        remote_address = machine = os = agent = client = app = None
+
         if self.remote_address_key in context.environ and context.environ[self.remote_address_key]:
             remote_address = context.environ[self.remote_address_key]
 
@@ -219,12 +220,10 @@ class StatefulAuthenticator(Authenticator):
             agent_string = context.environ[self.agent_key]
             user_agent = user_agents.parse(agent_string)
 
-            device = user_agent.is_pc and 'PC' or user_agent.device.family
+            machine = user_agent.is_pc and 'PC' or user_agent.device.family
             os = ' '.join([user_agent.os.family, user_agent.os.version_string]).strip()
-            browser = ' '.join([user_agent.browser.family, user_agent.browser.version_string]).strip()
+            agent = ' '.join([user_agent.browser.family, user_agent.browser.version_string]).strip()
 
-            client = 'Unknown'
-            app = 'Unknown'
             matched_client = re.match(
                 '.*RestfulpyClient-(?P<type>.+)/(?P<version>.+) \((?P<features>.+)\).*',
                 agent_string
@@ -241,15 +240,15 @@ class StatefulAuthenticator(Authenticator):
                     # exp: "MobileToken (shark) 1.2.3"
                     app = f'{features[0].strip()} ({features[1].strip()}) {features[2].strip()}'
 
-            return {
-                'remoteAddress': remote_address,
-                'machine': device,
-                'os': os,
-                'agent': browser,
-                'client': client,
-                'app': app,
-                'lastActivity': datetime.utcnow().isoformat()
-            }
+        return {
+            'remoteAddress': remote_address or 'NA',
+            'machine': machine or 'Other',
+            'os': os or 'Other',
+            'agent': agent or 'Other',
+            'client': client or 'Unknown',
+            'app': app or 'Unknown',
+            'lastActivity': datetime.utcnow().isoformat()
+        }
 
     def register_session(self, member_id, session_id):
         self.redis.hset(self.sessions_key, session_id, member_id)
@@ -283,4 +282,7 @@ class StatefulAuthenticator(Authenticator):
         return int(self.redis.hget(self.sessions_key, session_id))
 
     def get_session_info(self, session_id):
-        return ujson.loads(self.redis.get(self.get_session_info_key(session_id)))
+        info = self.redis.get(self.get_session_info_key(session_id))
+        if info:
+            return ujson.loads(info)
+        return None

@@ -13,10 +13,12 @@ from restfulpy.tests.helpers import MockupApplication
 
 session_info_test_cases = [
     {
-        'raw_remote_address': '',
-        'raw_user_agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 5_1 like Mac OS X) AppleWebKit/534.46 (KHTML, '
-                          'like Gecko) Version/5.1 Mobile/9B179 Safari/7534.48.3 RestfulpyClient-js/1.2.3 (My '
-                          'App; test-name; 1.4.5-beta78; fa-IR; some; extra; info)',
+        'environment': {
+            'REMOTE_ADDR': '',
+            'HTTP_USER_AGENT': 'Mozilla/5.0 (iPhone; CPU iPhone OS 5_1 like Mac OS X) AppleWebKit/534.46 (KHTML, '
+                               'like Gecko) Version/5.1 Mobile/9B179 Safari/7534.48.3 RestfulpyClient-js/1.2.3 (My '
+                               'App; test-name; 1.4.5-beta78; fa-IR; some; extra; info)'
+        },
         'expected_remote_address': 'NA',
         'expected_machine': 'iPhone',
         'expected_os': 'iOS 5.1',
@@ -26,9 +28,11 @@ session_info_test_cases = [
         'expected_last_activity': '2017-07-13T13:11:44',
     },
     {
-        'raw_remote_address': '185.87.34.23',
-        'raw_user_agent': 'Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0) '
-                          'RestfulpyClient-custom/4.5.6 (A; B; C)',
+        'environment': {
+            'REMOTE_ADDR': '185.87.34.23',
+            'HTTP_USER_AGENT': 'Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0) '
+                               'RestfulpyClient-custom/4.5.6 (A; B; C)'
+        },
         'expected_remote_address': '185.87.34.23',
         'expected_machine': 'PC',
         'expected_os': 'Windows 7',
@@ -38,9 +42,21 @@ session_info_test_cases = [
         'expected_last_activity': '2017-07-13T13:11:44',
     },
     {
-        'raw_remote_address': '172.16.0.111',
-        'raw_user_agent': '',
+        'environment': {
+            'REMOTE_ADDR': '172.16.0.111',
+            'HTTP_USER_AGENT': ''
+        },
         'expected_remote_address': '172.16.0.111',
+        'expected_machine': 'Other',
+        'expected_os': 'Other',
+        'expected_agent': 'Other',
+        'expected_client': 'Unknown',
+        'expected_app': 'Unknown',
+        'expected_last_activity': '2017-07-13T13:11:44',
+    },
+    {
+        'environment': {},
+        'expected_remote_address': 'NA',
         'expected_machine': 'Other',
         'expected_os': 'Other',
         'expected_agent': 'Other',
@@ -160,11 +176,7 @@ class StatefulAuthenticatorTestCase(WebAppTestCase):
     @freeze_time("2017-07-13T13:11:44", tz_offset=-4)
     def test_session_info(self):
         for test_case in session_info_test_cases:
-            environment = {
-                'REMOTE_ADDR': test_case['raw_remote_address'],
-                'HTTP_USER_AGENT': test_case['raw_user_agent'],
-            }
-            with Context(environ=environment, application=self.application):
+            with Context(environ=test_case['environment'], application=self.application):
                 principal = self.application.__authenticator__.login(('test@example.com', 'test'))
                 info = self.application.__authenticator__.get_session_info(principal.session_id)
                 self.assertDictEqual(info, {
