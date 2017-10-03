@@ -1,0 +1,243 @@
+
+import time
+import argparse
+import threading
+from os import makedirs
+from os.path import abspath, dirname
+from subprocess import run
+from wsgiref.simple_server import make_server
+
+from sqlalchemy import Integer, Unicode
+from nanohttp import text, json, context, RestController, HttpBadRequest, etag, HttpNotFound, settings
+from restfulpy.authorization import authorize
+from restfulpy.application import Application
+from restfulpy.authentication import StatefulAuthenticator
+from restfulpy.controllers import RootController, ModelRestController, JsonPatchControllerMixin
+from restfulpy.orm import DeclarativeBase, OrderingMixin, PaginationMixin, FilteringMixin, Field, setup_schema, \
+    DBSession, ModifiedMixin, commit
+from restfulpy.principal import JwtPrincipal, JwtRefreshToken
+from restfulpy.cli import Launcher
+
+
+__version__ = '0.1.0'
+
+
+class MockupMember:
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+
+
+class Resource(ModifiedMixin, OrderingMixin, PaginationMixin, FilteringMixin, DeclarativeBase):
+    __tablename__ = 'resource'
+
+    id = Field(Integer, primary_key=True)
+    title = Field(
+        Unicode(30),
+        watermark='title here',
+        icon='default',
+        label='Title',
+        pattern='[a-zA-Z0-9]{3,}',
+        min_length=3
+    )
+
+    @property
+    def __etag__(self):
+        return self.last_modification_time.isoformat()
+
+
+class MockupAuthenticator(StatefulAuthenticator):
+    def validate_credentials(self, credentials):
+        email, password = credentials
+        if email == 'user1@example.com' and password == '123456':
+            return MockupMember(id=1, email=email, roles=['user'])
+
+    def create_refresh_principal(self, member_id=None):
+        return JwtRefreshToken(dict(id=member_id))
+
+    def create_principal(self, member_id=None, session_id=None):
+        return JwtPrincipal(dict(id=1, email='user1@example.com', roles=['user'], sessionId='1'))
+
+
+class MockupApplication(Application):
+    __authenticator__ = MockupAuthenticator()
+    builtin_configuration = '''
+    debug: true
+    jwt:
+      max_age: 20
+      refresh_token:
+        max_age: 60
+        secure: false
+    '''
+
+    def __init__(self):
+        super().__init__(
+            'restfulpy-client-js-mockup-server',
+            root=Root(),
+            root_path=abspath(dirname(__file__)),
+            version=__version__,
+        )
+
+    def insert_basedata(self):
+        pass
+
+    def insert_mockup(self):
+        for i in range(1, 11):
+            # noinspection PyArgumentList
+            DBSession.add(Resource(id=i, title='resource%s' % i))
+        DBSession.commit()
+
+    def begin_request(self):
+        context.response_headers.add_header('Access-Control-Allow-Origin', context.environ['HTTP_ORIGIN'])
+
+
+class AuthController(RestController):
+
+    @json
+    def post(self):
+        email = context.form.get('email')
+        password = context.form.get('password')
+
+        def bad():
+            raise HttpBadRequest('Invalid email or password')
+
+        if not (email and password):
+            bad()
+
+        principal = context.application.__authenticator__.login((email, password))
+        if principal is None:
+            bad()
+
+        return dict(token=principal.dump())
+
+    @json
+    def delete(self):
+        return {}
+
+
+class ResourceController(JsonPatchControllerMixin, ModelRestController):
+    __model__ = Resource
+
+    @json
+    @etag
+    @Resource.expose
+    def get(self, id_: int=None):
+        q = Resource.query
+        if id_ is not None:
+            return q.filter(Resource.id == id_).one_or_none()
+        return q
+
+    @json
+    @etag
+    @Resource.expose
+    @commit
+    def put(self, id_: int=None):
+        m = Resource.query.filter(Resource.id == id_).one_or_none()
+        if m is None:
+            raise HttpNotFound()
+        m.update_from_request()
+        context.etag_match(m.__etag__)
+        return m
+
+    @json
+    @etag
+    @commit
+    def post(self):
+        m = Resource()
+        m.update_from_request()
+        DBSession.add(m)
+        return m
+
+    @json
+    @etag
+    @commit
+    def delete(self, id_: int=None):
+        m = Resource.query.filter(Resource.id == id_).one_or_none()
+        context.etag_match(m.__etag__)
+        DBSession.delete(m)
+        return m
+
+
+class Root(RootController):
+    resources = ResourceController()
+    sessions = AuthController()
+
+    @text('get')
+    def index(self):
+        return 'Index'
+
+    @json
+    def echo(self):
+        return {k: v for i in (context.form, context.query_string) for k, v in i.items()}
+
+    @text
+    @authorize
+    def protected(self):
+        return 'Protected'
+
+    @json
+    def version(self):
+        return {
+            'version': __version__
+        }
+
+
+class MockupServerLauncher(Launcher):
+    __command__ = 'mockup-server'
+
+    def __init__(self):
+        self.application = MockupApplication()
+
+    @classmethod
+    def create_parser(cls, subparsers):
+        parser = subparsers.add_parser(cls.__command__, help='Starts the mockup http server.')
+        parser.add_argument(
+            '-c', '--config-file',
+            metavar="FILE",
+            help='List of configuration files separated by space. Default: ""'
+        )
+
+        parser.add_argument(
+            'command',
+            nargs=argparse.REMAINDER,
+            metavar='COMMAND',
+            default=[],
+            help='The command to run tests.'
+        )
+
+        parser.add_argument('-v', '--version', action='store_true', help='Show the mockup server\'s version.')
+        return parser
+
+    def launch(self):
+        if self.args.version:
+            print(__version__)
+            return
+
+        self.application.configure(files=self.args.config_file)
+        makedirs(settings.data_directory, exist_ok=True)
+        self.application.initialize_models()
+        setup_schema()
+        # DBSession.commit()
+        self.application.insert_mockup()
+        httpd = make_server('localhost', 0, self.application)
+
+        url = 'http://%s:%d' % httpd.server_address
+        print(f'Serving on {url}')
+        print(f'Get {url}/help to more info about how to use it!')
+        server_thread = threading.Thread(target=httpd.serve_forever, daemon=True)
+        try:
+            server_thread.start()
+
+            if not self.args.command:
+                server_thread.start()
+                server_thread.join()
+            else:
+                test_runner_command = ' '.join(self.args.command) % dict(url=url)
+                time.sleep(2)
+                run(test_runner_command, shell=True)
+            return 0
+        except KeyboardInterrupt:
+            print('CTRL+X is pressed.')
+            return 1
+        finally:
+            httpd.shutdown()
+            server_thread.join()

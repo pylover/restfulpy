@@ -1,8 +1,9 @@
 
-from restfulpy.cli.main import MainLauncher
-from restfulpy.cli.base import Launcher, RequireSubCommand
-from restfulpy.cli.utils import ProgressBar, LineReaderProgressBar
+from .main import MainLauncher
+from .base import Launcher, RequireSubCommand
+from .utils import ProgressBar, LineReaderProgressBar
 
 
 def main():
-    print('main')
+    from .restfulpy_ import RestfulpyMainLauncher
+    RestfulpyMainLauncher()()

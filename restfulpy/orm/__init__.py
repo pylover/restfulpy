@@ -7,7 +7,6 @@ from sqlalchemy import create_engine as sa_create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.sql.schema import MetaData
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.exc import SQLAlchemyError
 from alembic import config, command
 
 from .field import Field, relationship, composite
@@ -16,6 +15,7 @@ from .mixines import ModifiedMixin, SoftDeleteMixin, TimestampMixin, ActivationM
 from .metadata import MetadataField
 from .models import BaseModel
 from .fulltext_search import to_tsvector, fts_escape
+from .types import FakeJson
 
 # Global session manager: DBSession() returns the Thread-local
 # session object appropriate for the current web request.

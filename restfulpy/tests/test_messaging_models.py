@@ -2,13 +2,13 @@ import unittest
 
 from nanohttp import settings
 
-from restfulpy.orm import DBSession, Field
+from restfulpy.orm import DBSession, Field, FakeJson
 from restfulpy.messaging import BaseEmail, Email, create_messenger
-from restfulpy.testing.helpers import FakeJson
 from restfulpy.testing import WebAppTestCase
 from restfulpy.tests.helpers import MockupApplication
 
 
+# FIXME:  Why ?
 BaseEmail.metadata.remove(Email.__table__)
 
 

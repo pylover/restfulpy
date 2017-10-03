@@ -3,9 +3,9 @@ from sqlalchemy import Integer, ForeignKey, Unicode, JSON
 from sqlalchemy.ext.declarative import declared_attr
 
 from nanohttp import settings
-from restfulpy.orm import Field
-from restfulpy.taskqueue import Task
-from restfulpy.logging_ import get_logger
+from ..orm import Field, FakeJson
+from ..taskqueue import Task
+from ..logging_ import get_logger
 from .providers import create_messenger
 
 logger = get_logger('messaging')
@@ -32,7 +32,7 @@ class BaseEmail(Task):
 
     @property
     def template_filename(self):  # pragma: no cover
-        raise NotImplementedError
+        raise NotImplementedError()
 
     def do_(self, context, attachments=None):
         messenger = create_messenger()
@@ -50,6 +50,7 @@ class BaseEmail(Task):
         logger.info('%s is sent to %s', self.subject, self.to)
 
 
+# FIXME: remove it
 # noinspection PyAbstractClass
 class Email(BaseEmail):  # pragma: no cover
     __tablename__ = 'email'
@@ -57,7 +58,7 @@ class Email(BaseEmail):  # pragma: no cover
         'polymorphic_identity': __tablename__
     }
 
-    body = Field(JSON, json='body')
+    body = Field(FakeJson, json='body')
 
     @property
     def email_body(self):

@@ -32,3 +32,11 @@ always deliver fresh API documentation.
 
 To pass all tests, you have to install postgres > 9.5
 
+
+
+#### Enabling the bash auto completion for restfulpy
+
+```bash
+$ echo "eval \"\$(register-python-argcomplete restfulpy)\"" >> $VIRTUAL_ENV/bin/postactivate
+$ deactivate && workon restfulpy
+```

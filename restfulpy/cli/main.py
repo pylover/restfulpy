@@ -34,12 +34,7 @@ class MainLauncher(Launcher):
         argcomplete.autocomplete(parser)
 
     def launch(self, args=None):
-
-        if args:
-            cli_args = self.parser.parse_args(args)
-        else:
-            cli_args = self.parser.parse_args()
-
+        cli_args = self.parser.parse_args(args)
         cli_args.application = self.application
         self.application.process_name = cli_args.process_name
         self.application.configure(files=cli_args.config_file, directories=cli_args.config_dir)

@@ -18,10 +18,7 @@ class Launcher:
         return instance
 
     def __call__(self, *args):
-        if len(args):
-            self.args = args[0]
-        else:
-            self.args = None
+        self.args = args[0] if len(args) else None
         self.launch()
 
     def launch(self):

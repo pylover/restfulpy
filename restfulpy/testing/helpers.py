@@ -1,8 +1,6 @@
 import base64
 import ujson
 
-from sqlalchemy import Unicode, TypeDecorator
-
 from restfulpy.messaging import Messenger
 from restfulpy.principal import JwtPrincipal
 
@@ -33,20 +31,6 @@ class MockupMessenger(Messenger):
             'body': body,
             'subject': subject
         }
-
-
-# noinspection PyAbstractClass
-class FakeJson(TypeDecorator):  # pragma: no cover
-    impl = Unicode
-
-    def process_bind_param(self, value, engine):
-        return ujson.dumps(value)
-
-    def process_result_value(self, value, engine):
-        if value is None:
-            return None
-
-        return ujson.loads(value)
 
 
 class UnsafePrincipal(JwtPrincipal):  # pragma: no cover

@@ -7,6 +7,8 @@ __builtin_config = """
 debug: true
 pretty_json: true
 
+data_directory: %(data_dir)s
+
 db:
   uri: sqlite:///%(data_dir)s/devdata.db
   # uri: postgresql://postgres:postgres@localhost/restfulpy_demo_dev
