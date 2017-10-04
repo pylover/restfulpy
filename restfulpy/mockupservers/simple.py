@@ -247,8 +247,8 @@ class SimpleMockupServerLauncher(Launcher):
             if not self.args.command:
                 server_thread.join()
             else:
-                test_runner_command = ' '.join(self.args.command) % dict(url=url)
-                time.sleep(2)
+                test_runner_command = ' '.join(self.args.command).replace('{url}', url)
+                time.sleep(1)
                 run(test_runner_command, shell=True)
             return 0
         except KeyboardInterrupt:
