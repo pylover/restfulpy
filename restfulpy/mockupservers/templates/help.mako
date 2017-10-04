@@ -9,5 +9,20 @@
 </head>
 <body>
     <h1>Restfulpy Mockup Server Help Page</h1>
+
+    <h2>Basic</h2>
+
+    <h3>${url}/</h3>
+    <p>This help page</p>
+
+    <h3>${url}/echo</h3>
+    <p></p>
+
+    <h3>${url}/protected</h3>
+    <p></p>
+
+    <h3>${url}/version</h3>
+    <p>To check the version of this mockup server</p>
+
 </body>
 </html>

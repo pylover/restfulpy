@@ -20,7 +20,7 @@ from restfulpy.cli import Launcher
 from restfulpy.templating import template
 
 
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 
 
 here = abspath(dirname(__file__))
@@ -133,9 +133,9 @@ class Root(RootController):
     resources = ResourceController()
     sessions = AuthController()
 
-    @text('get')
+    @template('help.mako')
     def index(self):
-        return 'Index'
+        return dict(url=f'http://{context.environ["HTTP_HOST"]}')
 
     @json
     def echo(self):
@@ -145,10 +145,6 @@ class Root(RootController):
     @authorize
     def protected(self):
         return 'Protected'
-
-    @template('help.mako')
-    def help(self):
-        return dict()
 
     @json
     def version(self):
@@ -199,6 +195,7 @@ class MockupApplication(Application):
 
 class SimpleMockupServerLauncher(Launcher):
     __command__ = 'mockup-server'
+    default_bind = '8080'
 
     def __init__(self):
         self.application = MockupApplication()
@@ -211,11 +208,17 @@ class SimpleMockupServerLauncher(Launcher):
             metavar="FILE",
             help='List of configuration files separated by space. Default: ""'
         )
+        parser.add_argument(
+            '-b', '--bind',
+            default=cls.default_bind,
+            metavar='{HOST:}PORT',
+            help=f'Bind Address. default is {cls.default_bind}, A free tcp port will be choosed automatically if the '
+                 f'0 (zero) is given'
+        )
 
         parser.add_argument(
             'command',
             nargs=argparse.REMAINDER,
-            metavar='COMMAND',
             default=[],
             help='The command to run tests.'
         )
@@ -235,11 +238,11 @@ class SimpleMockupServerLauncher(Launcher):
         # DBSession.commit()
         print(f'DB {DBSession.bind}')
         self.application.insert_mockup()
-        httpd = make_server('localhost', 0, self.application)
+        host, port = self.args.bind.split(':') if ':' in self.args.bind else ('localhost', self.args.bind)
+        httpd = make_server(host, int(port), self.application)
 
         url = 'http://%s:%d' % httpd.server_address
-        print(f'Serving on {url}')
-        print(f'Get {url}/help to more info about how to use it!')
+        print(f'The server is up!, Get {url} to more info about how to use it!')
         server_thread = threading.Thread(target=httpd.serve_forever, daemon=True)
         try:
             server_thread.start()

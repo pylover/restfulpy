@@ -1,7 +1,7 @@
 import argparse
 import sys
 import warnings
-
+from os.path import basename
 import argcomplete
 
 
@@ -19,7 +19,7 @@ class RestfulpyMainLauncher(Launcher):
 
     def __init__(self):
         self.parser = parser = argparse.ArgumentParser(description='Restfulpy command line interface.')
-        subparsers = parser.add_subparsers(title="Restfulpy sub commands", prog=sys.argv[0], dest="command")
+        subparsers = parser.add_subparsers(title="Restfulpy sub commands", prog=basename(sys.argv[0]), dest="command")
 
         from restfulpy.mockupservers import SimpleMockupServerLauncher
         SimpleMockupServerLauncher.register(subparsers)

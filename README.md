@@ -28,11 +28,6 @@ naming(camelCase).
 always deliver fresh API documentation.
 
 
-## Contribution
-
-To pass all tests, you have to install postgres > 9.5
-
-
 
 #### Enabling the bash auto completion for restfulpy
 
@@ -69,3 +64,24 @@ This example is showing how to use the famous `curl` command as a subprocess to 
 ```bash
 $ restfulpy mockup-server curl {url}/help
 ```
+
+More info?
+
+```bash
+$ restfulpy mockup-server -h
+usage: restfulpy mockup-server [-h] [-c FILE] [-b {HOST:}PORT] [-v] ...
+
+positional arguments:
+  command               The command to run tests.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -c FILE, --config-file FILE
+                        List of configuration files separated by space.
+                        Default: ""
+  -b {HOST:}PORT, --bind {HOST:}PORT
+                        Bind Address. default is 8080, A free tcp port will be
+                        choosed automatically if the 0 (zero) is given
+  -v, --version         Show the mockup server's version.
+```
+
