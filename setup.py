@@ -41,7 +41,7 @@ setup(
     packages=find_packages(),
     entry_points={
         'console_scripts': [
-            'restfulpy = restfulpy:cli.main'
+            'restfulpy = restfulpy:main'
         ]
     },
     test_suite='restfulpy.tests',

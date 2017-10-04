@@ -1,5 +1,5 @@
 
-from restfulpy.cli.base import RequireSubCommand, Launcher
+from restfulpy.cli import RequireSubCommand, Launcher
 from restfulpy.db import DatabaseManager
 from restfulpy.orm import setup_schema
 

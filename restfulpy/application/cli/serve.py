@@ -1,6 +1,6 @@
 from nanohttp import quickstart
 
-from restfulpy.cli.base import Launcher
+from restfulpy.cli import Launcher
 
 
 DEFAULT_ADDRESS = '8080'

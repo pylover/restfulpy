@@ -1,7 +1,7 @@
 
 import yaml
 from nanohttp import settings
-from restfulpy.cli.base import RequireSubCommand, Launcher
+from restfulpy.cli import RequireSubCommand, Launcher
 
 
 class EmailLauncher(Launcher):

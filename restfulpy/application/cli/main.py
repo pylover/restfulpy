@@ -3,12 +3,12 @@ import sys
 
 import argcomplete
 
-from restfulpy.cli.admin import AdminLauncher
-from restfulpy.cli.base import Launcher
-from restfulpy.cli.migrate import MigrateLauncher
-from restfulpy.cli.serve import ServeLauncher
-from restfulpy.cli.worker import WorkerLauncher
-from restfulpy.cli.dev import DevLauncher
+from ...cli import Launcher
+from .admin import AdminLauncher
+from .migrate import MigrateLauncher
+from .serve import ServeLauncher
+from .worker import WorkerLauncher
+from .dev import DevLauncher
 
 
 class MainLauncher(Launcher):

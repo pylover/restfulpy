@@ -4,7 +4,7 @@ import argparse
 
 from alembic.config import main as alembic_main
 
-from restfulpy.cli.base import Launcher
+from restfulpy.cli import Launcher
 
 
 class MigrateLauncher(Launcher):

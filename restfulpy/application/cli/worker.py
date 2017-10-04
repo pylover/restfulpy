@@ -5,7 +5,7 @@ import threading
 
 from nanohttp import settings
 
-from restfulpy.cli.base import Launcher, RequireSubCommand
+from restfulpy.cli import Launcher, RequireSubCommand
 
 
 class StartLauncher(Launcher):

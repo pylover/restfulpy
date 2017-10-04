@@ -1,16 +1,16 @@
-
 from os.path import abspath, exists, join, dirname
 
 from appdirs import user_config_dir
-from nanohttp import Application as NanohttpApplication, Controller, settings, context, HttpStatus, HttpInternalServerError
 from sqlalchemy.exc import SQLAlchemyError
 
-from restfulpy.orm import init_model, create_engine, DBSession
-from restfulpy.configuration import configure
-from restfulpy.cli.main import MainLauncher
-from restfulpy.logging_ import get_logger
-from restfulpy.authentication import Authenticator
-from restfulpy.exceptions import SqlError
+from nanohttp import Application as NanohttpApplication, Controller, settings, context, HttpStatus, \
+    HttpInternalServerError
+from .cli.main import MainLauncher
+from ..authentication import Authenticator
+from ..configuration import configure
+from ..exceptions import SqlError
+from ..logging_ import get_logger
+from ..orm import init_model, create_engine, DBSession
 
 
 class Application(NanohttpApplication):
@@ -68,7 +68,7 @@ class Application(NanohttpApplication):
     @classmethod
     def initialize_models(cls, session=None):
         init_model(create_engine(), session=session)
-        
+
     # Hooks
     def begin_request(self):
         self.__authenticator__.authenticate_request()

@@ -4,10 +4,8 @@ import unittest
 from os.path import dirname, abspath, join
 
 from nanohttp import settings, configure
-
 from restfulpy.messaging.providers import SmtpProvider
 from restfulpy.testing.mockup import smtp_server
-
 
 HERE = abspath(dirname(__file__))
 
