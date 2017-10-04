@@ -39,6 +39,9 @@ messaging:
   template_dirs:
     - %(restfulpy_dir)s/messaging/templates
 
+templates:
+  directories: []
+     
 authentication:
   redis:
     host: localhost
