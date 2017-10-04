@@ -3,6 +3,7 @@ import time
 import argparse
 import threading
 from os import makedirs
+from os.path import dirname, abspath
 from subprocess import run
 from wsgiref.simple_server import make_server
 
@@ -16,9 +17,13 @@ from restfulpy.orm import DeclarativeBase, OrderingMixin, PaginationMixin, Filte
     DBSession, ModifiedMixin, commit
 from restfulpy.principal import JwtPrincipal, JwtRefreshToken
 from restfulpy.cli import Launcher
+from restfulpy.templating import template
 
 
 __version__ = '0.1.0'
+
+
+here = abspath(dirname(__file__))
 
 
 class MockupMember:
@@ -141,6 +146,10 @@ class Root(RootController):
     def protected(self):
         return 'Protected'
 
+    @template('help.mako')
+    def help(self):
+        return dict()
+
     @json
     def version(self):
         return {
@@ -150,15 +159,21 @@ class Root(RootController):
 
 class MockupApplication(Application):
     __authenticator__ = MockupAuthenticator()
-    builtin_configuration = '''
+    builtin_configuration = f'''
     debug: true
+    
     db:
       uri: sqlite:///
+      
     jwt:
       max_age: 20
       refresh_token:
         max_age: 60
         secure: false
+    
+    templates:
+      directories:
+        - {here}/templates    
     '''
 
     def __init__(self):

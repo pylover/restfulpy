@@ -43,8 +43,3 @@ class RestfulpyMainLauncher(Launcher):
 
 def main():
     RestfulpyMainLauncher()()
-
-
-__all__ = [
-    'Application'
-]
