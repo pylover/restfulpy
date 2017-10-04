@@ -3,7 +3,6 @@ import time
 import argparse
 import threading
 from os import makedirs
-from os.path import abspath, dirname
 from subprocess import run
 from wsgiref.simple_server import make_server
 
@@ -56,38 +55,6 @@ class MockupAuthenticator(StatefulAuthenticator):
 
     def create_principal(self, member_id=None, session_id=None):
         return JwtPrincipal(dict(id=1, email='user1@example.com', roles=['user'], sessionId='1'))
-
-
-class MockupApplication(Application):
-    __authenticator__ = MockupAuthenticator()
-    builtin_configuration = '''
-    debug: true
-    jwt:
-      max_age: 20
-      refresh_token:
-        max_age: 60
-        secure: false
-    '''
-
-    def __init__(self):
-        super().__init__(
-            'restfulpy-client-js-mockup-server',
-            root=Root(),
-            root_path=abspath(dirname(__file__)),
-            version=__version__,
-        )
-
-    def insert_basedata(self):
-        pass
-
-    def insert_mockup(self):
-        for i in range(1, 11):
-            # noinspection PyArgumentList
-            DBSession.add(Resource(id=i, title='resource%s' % i))
-        DBSession.commit()
-
-    def begin_request(self):
-        context.response_headers.add_header('Access-Control-Allow-Origin', context.environ['HTTP_ORIGIN'])
 
 
 class AuthController(RestController):
@@ -181,7 +148,41 @@ class Root(RootController):
         }
 
 
-class MockupServerLauncher(Launcher):
+class MockupApplication(Application):
+    __authenticator__ = MockupAuthenticator()
+    builtin_configuration = '''
+    debug: true
+    db:
+      uri: sqlite:///
+    jwt:
+      max_age: 20
+      refresh_token:
+        max_age: 60
+        secure: false
+    '''
+
+    def __init__(self):
+        super().__init__(
+            'restfulpy-client-js-mockup-server',
+            root=Root(),
+            version=__version__,
+        )
+
+    def insert_basedata(self):
+        pass
+
+    def insert_mockup(self):
+        for i in range(1, 11):
+            # noinspection PyArgumentList
+            DBSession.add(Resource(id=i, title='resource%s' % i))
+        DBSession.commit()
+
+    def begin_request(self):
+        if 'HTTP_ORIGIN' in context.environ:
+            context.response_headers.add_header('Access-Control-Allow-Origin', context.environ['HTTP_ORIGIN'])
+
+
+class SimpleMockupServerLauncher(Launcher):
     __command__ = 'mockup-server'
 
     def __init__(self):
@@ -217,6 +218,7 @@ class MockupServerLauncher(Launcher):
         self.application.initialize_models()
         setup_schema()
         # DBSession.commit()
+        print(f'DB {DBSession.bind}')
         self.application.insert_mockup()
         httpd = make_server('localhost', 0, self.application)
 
@@ -228,7 +230,6 @@ class MockupServerLauncher(Launcher):
             server_thread.start()
 
             if not self.args.command:
-                server_thread.start()
                 server_thread.join()
             else:
                 test_runner_command = ' '.join(self.args.command) % dict(url=url)

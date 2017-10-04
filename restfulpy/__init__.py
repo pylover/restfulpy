@@ -21,8 +21,8 @@ class RestfulpyMainLauncher(Launcher):
         self.parser = parser = argparse.ArgumentParser(description='Restfulpy command line interface.')
         subparsers = parser.add_subparsers(title="Restfulpy sub commands", prog=sys.argv[0], dest="command")
 
-        from restfulpy.mockupservers import MockupServerLauncher
-        MockupServerLauncher.register(subparsers)
+        from restfulpy.mockupservers import SimpleMockupServerLauncher
+        SimpleMockupServerLauncher.register(subparsers)
         argcomplete.autocomplete(parser)
 
     def launch(self, args=None):
