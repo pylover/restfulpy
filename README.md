@@ -37,7 +37,7 @@ $ deactivate && workon restfulpy
 ```
 
 
-## Mockup Serve
+## Mockup Server
 
 A simple mockup server is available to wrap a process (normally a test runner). it helps to start an HTTP server before
 the tests are started in the other environments.
@@ -62,7 +62,7 @@ of the server:
 This example is showing how to use the famous `curl` command as a subprocess to get the help:
 
 ```bash
-$ restfulpy mockup-server curl {url}/help
+$ restfulpy mockup-server curl {url}
 ```
 
 More info?

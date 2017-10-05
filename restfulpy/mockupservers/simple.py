@@ -191,6 +191,7 @@ class MockupApplication(Application):
     def begin_request(self):
         if 'HTTP_ORIGIN' in context.environ:
             context.response_headers.add_header('Access-Control-Allow-Origin', context.environ['HTTP_ORIGIN'])
+        super(MockupApplication, self).begin_request()
 
 
 class SimpleMockupServerLauncher(Launcher):

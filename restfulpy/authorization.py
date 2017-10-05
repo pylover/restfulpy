@@ -1,7 +1,7 @@
 
 import functools
 
-from nanohttp import context, HttpUnauthorized, HttpForbidden
+from nanohttp import context, HttpUnauthorized
 
 
 def authorize(*roles):
