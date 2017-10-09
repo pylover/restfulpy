@@ -175,19 +175,25 @@ class StatefulAuthenticatorTestCase(WebAppTestCase):
 
     @freeze_time("2017-07-13T13:11:44", tz_offset=-4)
     def test_session_info(self):
+        # Login
+        response, headers = self.request('ALL', 'GET', '/login', json=dict(email='test@example.com', password='test'))
+        self.wsgi_app.jwt_token = response['token']
+
+        # Testing test cases
         for test_case in session_info_test_cases:
-            with Context(environ=test_case['environment'], application=self.application):
-                principal = self.application.__authenticator__.login(('test@example.com', 'test'))
-                info = self.application.__authenticator__.get_session_info(principal.session_id)
-                self.assertDictEqual(info, {
-                    'remoteAddress': test_case['expected_remote_address'],
-                    'machine': test_case['expected_machine'],
-                    'os': test_case['expected_os'],
-                    'agent': test_case['expected_agent'],
-                    'client': test_case['expected_client'],
-                    'app': test_case['expected_app'],
-                    'lastActivity': test_case['expected_last_activity'],
-                })
+            # Our new session info should be updated
+            payload, ___ = self.request(As.member, 'GET', '/me', extra_environ=test_case['environment'])
+
+            info = self.application.__authenticator__.get_session_info(payload['sessionId'])
+            self.assertDictEqual(info, {
+                'remoteAddress': test_case['expected_remote_address'],
+                'machine': test_case['expected_machine'],
+                'os': test_case['expected_os'],
+                'agent': test_case['expected_agent'],
+                'client': test_case['expected_client'],
+                'app': test_case['expected_app'],
+                'lastActivity': test_case['expected_last_activity'],
+            })
 
 
 if __name__ == '__main__':  # pragma: no cover

@@ -281,6 +281,13 @@ class StatefulAuthenticator(Authenticator):
     def get_session_member(self, session_id):
         return int(self.redis.hget(self.sessions_key, session_id))
 
+    def ok(self, principal, setup_header=False):
+        super().ok(principal, setup_header)
+        self.update_session_info(principal.session_id)
+
+    def update_session_info(self, session_id):
+        self.redis.set(self.get_session_info_key(session_id), ujson.dumps(self.extract_agent_info()))
+
     def get_session_info(self, session_id):
         info = self.redis.get(self.get_session_info_key(session_id))
         if info:
