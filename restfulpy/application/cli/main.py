@@ -39,7 +39,10 @@ class MainLauncher(Launcher):
         self.application.process_name = cli_args.process_name
         self.application.configure(files=cli_args.config_file, directories=cli_args.config_dir)
         self.application.initialize_models()
-        cli_args.func(cli_args)
+        if hasattr(cli_args, 'func'):
+            cli_args.func(cli_args)
+        else:
+            self.parser.print_help()
         sys.exit(0)
 
     @classmethod
