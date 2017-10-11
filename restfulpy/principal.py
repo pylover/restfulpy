@@ -1,4 +1,3 @@
-
 from itsdangerous import TimedJSONWebSignatureSerializer, JSONWebSignatureSerializer
 from nanohttp import settings, context, HttpForbidden
 
@@ -9,16 +8,18 @@ class JwtPrincipal:
 
     @classmethod
     def create_serializer(cls, force=False):
+        config = cls.get_config()
+
         if force:
             return JSONWebSignatureSerializer(
-                settings.jwt.secret,
-                algorithm_name=settings.jwt.algorithm
+                config['secret'],
+                algorithm_name=config['algorithm']
             )
         else:
             return TimedJSONWebSignatureSerializer(
-                settings.jwt.secret,
-                expires_in=settings.jwt.max_age,
-                algorithm_name=settings.jwt.algorithm
+                config['secret'],
+                expires_in=config['max_age'],
+                algorithm_name=config['algorithm']
             )
 
     def dump(self):
@@ -62,6 +63,14 @@ class JwtPrincipal:
     @property
     def roles(self):
         return self.payload.get('roles', [])
+
+    @classmethod
+    def get_config(cls):
+        """
+        Warning! Returned value is a dict, so it's mutable. If you modify this value, default config of the whole
+        project will be changed and it may cause unpredictable problems.
+        """
+        return settings.jwt
 
 
 class JwtRefreshToken:
