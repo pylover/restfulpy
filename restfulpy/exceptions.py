@@ -28,7 +28,7 @@ class SqlError(HttpStatus):
     @classmethod
     def map_exception(cls, ex):
         if not hasattr(ex, 'orig') or ex.orig is None:
-            return 500, HttpInternalServerError.status_text, ''
+            return None, 500, HttpInternalServerError.status_text, ''
 
         error_code = ex.orig.pgcode
         status_text = cls.postgresql_errors.get(error_code)
