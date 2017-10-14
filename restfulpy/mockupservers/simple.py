@@ -2,13 +2,14 @@
 import time
 import argparse
 import threading
-from os import makedirs
-from os.path import dirname, abspath
+from os import remove
+import tempfile
+from os.path import dirname, abspath, join, exists
 from subprocess import run
 from wsgiref.simple_server import make_server
 
 from sqlalchemy import Integer, Unicode
-from nanohttp import text, json, context, RestController, HttpBadRequest, etag, HttpNotFound, settings
+from nanohttp import text, json, context, RestController, HttpBadRequest, etag, HttpNotFound
 from restfulpy.authorization import authorize
 from restfulpy.application import Application
 from restfulpy.authentication import StatefulAuthenticator
@@ -24,6 +25,7 @@ __version__ = '0.1.1'
 
 
 here = abspath(dirname(__file__))
+db = abspath(join(tempfile.gettempdir(), 'restfulpy-mockup-server.sqlite'))
 
 
 class MockupMember:
@@ -159,7 +161,7 @@ class MockupApplication(Application):
     debug: true
     
     db:
-      uri: sqlite:///
+      uri: sqlite:///{db}
       
     jwt:
       max_age: 20
@@ -233,7 +235,9 @@ class SimpleMockupServerLauncher(Launcher):
             return
 
         self.application.configure(files=self.args.config_file)
-        makedirs(settings.data_directory, exist_ok=True)
+        if exists(db):
+            remove(db)
+        # makedirs(settings.data_directory, exist_ok=True)
         self.application.initialize_models()
         setup_schema()
         # DBSession.commit()
