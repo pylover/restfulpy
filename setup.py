@@ -15,7 +15,6 @@ dependencies = [
     'appdirs',
     'sqlalchemy',
     'alembic',
-    'psycopg2',
     'itsdangerous',
     'mako',
     'psycopg2',
