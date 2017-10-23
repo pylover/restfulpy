@@ -9,7 +9,7 @@ from restfulpy.utils import import_python_module_by_filename, construct_class_by
 
 
 HERE = abspath(dirname(__file__))
-DATA_DIR = join(HERE, 'data')
+DATA_DIR = join(HERE, '../../data')
 
 
 class MyClassToConstructByName:

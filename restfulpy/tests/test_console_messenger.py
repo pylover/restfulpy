@@ -18,7 +18,7 @@ class SmtpProviderTestCase(unittest.TestCase):
             template_dirs:
               - %s
         ''' % (
-        join(HERE, 'data', 'mako_modules'),
+        join(HERE, '../../data', 'mako_modules'),
         join(HERE, 'templates'),
     )
 
