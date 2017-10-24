@@ -81,7 +81,7 @@ class Application(NanohttpApplication):
             )
             context.response_headers.add_header(
                 'Access-Control-Allow-Headers',
-                'Content-Type, Authorization, X-HTTP-Verb, Content-Length, Connection, If-Match, If-None-Match'
+                'Content-Type, Authorization, Content-Length, Connection, If-Match, If-None-Match'
             )
             context.response_headers.add_header(
                 'Access-Control-Expose-Headers',
