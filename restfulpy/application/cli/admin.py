@@ -35,7 +35,7 @@ class CreateDatabaseLauncher(Launcher):
         parser.add_argument('-b', '--basedata', action='store_true', default=False,
                             help='Implies `(-s|--schema)`, Inserts basedata after schema generation.')
         parser.add_argument('-m', '--mockup', action='store_true', default=False,
-                            help='Implies `(-s|--schema, -b|--basedata)`, Inserts mockup data.')
+                            help='Implies `(-s|--schema)`, Inserts mockup data.')
         return parser
 
     def launch(self):
