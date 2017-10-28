@@ -148,7 +148,7 @@ class BaseModelTestCase(WebAppTestCase):
         self.assertEqual(resp[0]['visible'], False)
 
         # 404
-        self.request('ALL', 'GET', '/non-existance-user', doc=False, expected_status=404)
+        self.request('ALL', 'GET', '/non-existence-user', doc=False, expected_status=404)
 
         # Plain dictionary
         resp, ___ = self.request('ALL', 'GET', '/me', doc=False)
