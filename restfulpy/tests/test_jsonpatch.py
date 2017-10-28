@@ -1,7 +1,7 @@
 import unittest
 
 import ujson
-from nanohttp import context, json, RestController, configure
+from nanohttp import context, json, text, RestController, configure
 from nanohttp.contexts import Context
 
 from restfulpy.controllers import JsonPatchControllerMixin
@@ -30,6 +30,10 @@ class BiscuitsController(RestController):
 class SimpleJsonPatchController(JsonPatchControllerMixin, RestController):
     biscuits = BiscuitsController()
 
+    @text
+    def get(self):
+        yield 'hey'
+
 
 class JsonPatchTestCase(unittest.TestCase):
     __configuration__ = '''
@@ -46,11 +50,12 @@ class JsonPatchTestCase(unittest.TestCase):
         with Context(environ):
             controller = SimpleJsonPatchController()
             context.form = [
+                {"op": "get", "path": "/"},
                 {"op": "put", "path": "biscuits/1", "value": {"name": "Ginger Nut"}},
                 {"op": "get", "path": "biscuits/2", "value": {"name": "Ginger Nut"}},
             ]
             result = ujson.loads(controller())
-            self.assertEqual(len(result), 2)
+            self.assertEqual(len(result), 3)
 
     def test_jsonpatch_error(self):
         environ = {

@@ -53,7 +53,7 @@ class JsonPatchControllerMixin:
                     return_data = self(*remaining_paths)
 
                 if isinstance(return_data, types.GeneratorType):
-                    results.append(''.join(list(return_data)))
+                    results.append('"%s"' % ''.join(list(return_data)))
                 else:
                     results.append(return_data)
 
