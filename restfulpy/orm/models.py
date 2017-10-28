@@ -148,6 +148,10 @@ class BaseModel(object):
             #     else:
             #         continue
             if param_name in context.form:
+
+                if hasattr(c, 'property') and hasattr(c.property, 'mapper'):
+                    raise HttpBadRequest('Invalid attribute')
+
                 value = context.form[param_name]
                 # Ensuring the python type, and ignoring silently if python type is not specified
                 try:

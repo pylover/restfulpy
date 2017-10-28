@@ -32,6 +32,13 @@ class FullName(object):  # pragma: no cover
         return not self.__eq__(other)
 
 
+class Book(DeclarativeBase):
+    __tablename__ = 'book'
+    id = Field(Integer, primary_key=True)
+    title = Field(Unicode(10), nullable=True)
+    member_id = Field(Integer, ForeignKey("member.id"))
+
+
 class Keyword(DeclarativeBase):
     __tablename__ = 'keyword'
     id = Field(Integer, primary_key=True)
@@ -67,6 +74,7 @@ class Member(ActivationMixin, ModifiedMixin, FilteringMixin, PaginationMixin, Or
     keywords = association_proxy('_keywords', 'keyword', creator=lambda k: Keyword(keyword=k))
     visible = Field(Boolean, nullable=True)
     last_login_time = Field(DateTime, json='lastLoginTime')
+    books = relationship('Book')
 
     def _set_password(self, password):
         self._password = 'hashed:%s' % password
@@ -154,6 +162,25 @@ class BaseModelTestCase(WebAppTestCase):
         resp, ___ = self.request('ALL', 'GET', '/me', doc=False)
         self.assertEqual(resp['title'], 'me')
 
+        # 400 for sending relationship attribute
+        self.request(
+            'ALL', 'POST', '/', json=dict(
+                title='test',
+                firstName='test',
+                lastName='test',
+                email='test@example.com',
+                password='123456',
+                birth='2001-01-01',
+                weight=1.1,
+                visible='false',
+                lastLoginTime='2017-10-10T15:44:30.000',
+                isActive=True,
+                books=[]
+            ),
+            doc=False,
+            expected_status=400
+        )
+
     def test_iter_columns(self):
         columns = {c.key: c for c in Member.iter_columns(relationships=False, synonyms=False, composites=False)}
         self.assertEqual(len(columns), 15)
@@ -164,7 +191,7 @@ class BaseModelTestCase(WebAppTestCase):
     def test_iter_json_columns(self):
         columns = {c.key: c for c in Member.iter_json_columns(
             include_readonly_columns=False, include_protected_columns=False)}
-        self.assertEqual(len(columns), 12)
+        self.assertEqual(len(columns), 13)
         self.assertNotIn('name', columns)
         self.assertNotIn('password', columns)
         self.assertNotIn('_password', columns)
