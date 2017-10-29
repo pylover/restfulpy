@@ -12,6 +12,7 @@ from restfulpy.utils import to_camel_case
 
 
 FILTERING_IN_OPERATOR_REGEX = re.compile('!?IN\((?P<items>.*)\)')
+FILTERING_BETWEEN_OPERATOR_REGEX = re.compile('!?BETWEEN\((?P<min>.*),(?P<max>.*)\)')
 
 
 class TimestampMixin:
@@ -166,6 +167,9 @@ class FilteringMixin:
     @classmethod
     def _filter_by_column_value(cls, query, column, value):
 
+        def return_(e):
+            return query.filter(e)
+
         import_value = getattr(cls, 'import_value')
         if not isinstance(value, str):
             raise HttpBadRequest()
@@ -181,12 +185,22 @@ class FilteringMixin:
             if not_:
                 expression = ~expression
 
-        elif value.startswith('~'):
-            values = value[1:].split(',')
-            start, end = [import_value(column, v) for v in values]
-            expression = between(column, start, end)
+            return return_(expression)
 
-        elif value == 'null':
+        between_operator_match = FILTERING_BETWEEN_OPERATOR_REGEX.match(value)
+        if between_operator_match:
+            not_ = value.startswith('!')
+            groups = between_operator_match.groupdict()
+            start, end = groups['min'].strip(), groups['max'].strip()
+            if not (start or end):
+                raise HttpBadRequest('Invalid query string: %s' % value)
+            expression = between(column, start, end)
+            if not_:
+                expression = ~expression
+
+            return return_(expression)
+
+        if value == 'null':
             expression = column.is_(None)
         elif value == '!null':
             expression = column.isnot(None)
@@ -200,14 +214,17 @@ class FilteringMixin:
             expression = column <= import_value(column, value[2:])
         elif value.startswith('<'):
             expression = column < import_value(column, value[1:])
-        elif value.startswith('%~'):
-            expression = column.ilike('%%%s%%' % import_value(column, value[2:]))
-        elif value.startswith('%'):
-            expression = column.like('%%%s%%' % import_value(column, value[1:]))
+
+        # LIKE
+        elif '%' in value:
+            func, actual_value = (column.ilike, value[1:]) if value.startswith('~') else (column.like, value)
+            expression = func(import_value(column, actual_value))
+
+        # EQUAL
         else:
             expression = column == import_value(column, value)
 
-        return query.filter(expression)
+        return return_(expression)
 
 
 class OrderingMixin:
