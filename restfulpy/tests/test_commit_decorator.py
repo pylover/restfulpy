@@ -44,7 +44,7 @@ class CommitDecoratorTestCase(WebAppTestCase):
     application = MockupApplication('MockupApplication', Root())
     __configuration__ = '''
     db:
-      uri: sqlite://    # In memory DB
+      url: sqlite://    # In memory DB
       echo: false
     '''
 

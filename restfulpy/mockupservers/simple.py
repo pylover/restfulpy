@@ -161,7 +161,7 @@ class MockupApplication(Application):
     debug: true
     
     db:
-      uri: sqlite:///{db}
+      url: sqlite:///{db}
       
     jwt:
       max_age: 20

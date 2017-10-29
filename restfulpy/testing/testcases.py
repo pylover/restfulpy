@@ -48,7 +48,7 @@ class WebAppTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.configure_app()
-        settings.db.uri = settings.db.test_uri
+        settings.db.url = settings.db.test_url
         cls.prepare_database()
         cls.application.initialize_models()
         cls.mockup()

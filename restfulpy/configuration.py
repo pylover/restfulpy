@@ -10,10 +10,10 @@ pretty_json: true
 data_directory: %(data_dir)s
 
 db:
-  uri: sqlite:///%(data_dir)s/devdata.db
-  # uri: postgresql://postgres:postgres@localhost/restfulpy_demo_dev
-  # administrative_uri: postgresql://postgres:postgres@localhost/postgres
-  # test_uri: postgresql://postgres:postgres@localhost/restfulpy_test
+  url: sqlite:///%(data_dir)s/devdata.db
+  # url: postgresql://postgres:postgres@localhost/restfulpy_demo_dev
+  # administrative_url: postgresql://postgres:postgres@localhost/postgres
+  # test_url: postgresql://postgres:postgres@localhost/restfulpy_test
   echo: false
 
 migration:

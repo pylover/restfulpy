@@ -104,7 +104,7 @@ class Post(ModifiedMixin, DeclarativeBase):
 class ModelTestCase(unittest.TestCase):
     __configuration__ = '''
     db:
-      uri: sqlite://    # In memory DB
+      url: sqlite://    # In memory DB
       echo: false
     '''
 

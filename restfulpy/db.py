@@ -10,13 +10,13 @@ from nanohttp import settings
 class AbstractDatabaseManager(object):
 
     def __init__(self):
-        self.db_uri = settings.db.uri
-        self.db_name = urlparse(self.db_uri).path.lstrip('/')
-        self.admin_uri = settings.db.administrative_uri
-        self.admin_db_name = urlparse(settings.db.administrative_uri).path.lstrip('/')
+        self.db_url = settings.db.url
+        self.db_name = urlparse(self.db_url).path.lstrip('/')
+        self.admin_url = settings.db.administrative_url
+        self.admin_db_name = urlparse(settings.db.administrative_url).path.lstrip('/')
 
     def __enter__(self):
-        self.engine = create_engine(self.admin_uri)
+        self.engine = create_engine(self.admin_url)
         self.connection = self.engine.connect()
         self.connection.execute('commit')
         return self
@@ -67,7 +67,7 @@ class SqliteManager(AbstractDatabaseManager):
 
     def __init__(self):
         super().__init__()
-        self.filename = self.db_uri.replace('sqlite:///', '')
+        self.filename = self.db_url.replace('sqlite:///', '')
 
     def database_exists(self):
         return exists(self.filename)
@@ -87,12 +87,12 @@ class SqliteManager(AbstractDatabaseManager):
 class DatabaseManager(AbstractDatabaseManager):
 
     def __new__(cls, *args, **kwargs):
-        uri = settings.db.uri
-        if uri.startswith('sqlite'):
+        url = settings.db.url
+        if url.startswith('sqlite'):
             manager_class = SqliteManager
-        elif uri.startswith('postgres'):
+        elif url.startswith('postgres'):
             manager_class = PostgresManager
         else:
-            raise ValueError('Unsupported database uri: %s' % uri)
+            raise ValueError('Unsupported database url: %s' % url)
 
         return manager_class(*args, **kwargs)

@@ -23,7 +23,7 @@ class FullTextSearchMixinTestCase(WebAppTestCase):
     application = MockupApplication('MockupApplication', None)
     __configuration__ = '''
     db:
-      uri: sqlite://    # In memory DB
+      url: sqlite://    # In memory DB
       echo: false
     '''
 

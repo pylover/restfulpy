@@ -5,8 +5,8 @@ from restfulpy.application import Application
 class MockupApplication(Application):
     builtin_configuration = '''
     db:
-      test_uri: postgresql://postgres:postgres@localhost/restfulpy_test
-      administrative_uri: postgresql://postgres:postgres@localhost/postgres      
+      test_url: postgresql://postgres:postgres@localhost/restfulpy_test
+      administrative_url: postgresql://postgres:postgres@localhost/postgres      
     logging:
       loggers:
         default:

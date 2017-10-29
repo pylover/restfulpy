@@ -19,7 +19,7 @@ class Student(DeclarativeBase, ActivationMixin, PaginationMixin, FilteringMixin,
 class MixinTestCase(unittest.TestCase):
     __configuration__ = '''
         db:
-          uri: sqlite://    # In memory DB
+          url: sqlite://    # In memory DB
           echo: false
         '''
 

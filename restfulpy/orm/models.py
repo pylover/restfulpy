@@ -153,7 +153,7 @@ class BaseModel(object):
                     raise HttpBadRequest('Invalid attribute')
 
                 value = context.form[param_name]
-                # Ensuring the python type, and ignoring silently if python type is not specified
+                # Ensurlng the python type, and ignoring silently if python type is not specified
                 try:
                     c.type.python_type
                 except NotImplementedError:
