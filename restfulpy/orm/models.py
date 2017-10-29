@@ -14,7 +14,7 @@ from sqlalchemy.inspection import inspect
 from sqlalchemy.sql.sqltypes import NullType
 
 from restfulpy.utils import format_iso_datetime, format_iso_time, to_camel_case
-from restfulpy.orm.mixines import PaginationMixin, FilteringMixin, OrderingMixin
+from restfulpy.orm.mixins import PaginationMixin, FilteringMixin, OrderingMixin
 from restfulpy.orm.field import Field
 from restfulpy.orm.metadata import MetadataField
 from restfulpy.validation import validate_form
