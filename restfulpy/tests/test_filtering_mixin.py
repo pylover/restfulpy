@@ -44,15 +44,15 @@ class FilteringMixinTestCase(WebAppTestCase):
             self.assertRaises(HttpBadRequest, FilteringObject.filter_by_request)
 
         # IN
-        with Context({'QUERY_STRING': 'id=^1,2,3'}, self.application):
+        with Context({'QUERY_STRING': 'id=IN(1,2,3)'}, self.application):
             self.assertEqual(FilteringObject.filter_by_request().count(), 3)
 
         # NOT IN
-        with Context({'QUERY_STRING': 'id=!^1,2,3'}, self.application):
+        with Context({'QUERY_STRING': 'id=!IN(1,2,3)'}, self.application):
             self.assertEqual(FilteringObject.filter_by_request().count(), 2)
 
         # IN (error)
-        with Context({'QUERY_STRING': 'id=^'}, self.application):
+        with Context({'QUERY_STRING': 'id=IN()'}, self.application):
             self.assertRaises(HttpBadRequest, FilteringObject.filter_by_request)
 
         # Between

@@ -1,4 +1,5 @@
 from datetime import datetime
+import re
 
 from sqlalchemy import DateTime, Integer, between, desc
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -8,6 +9,9 @@ from nanohttp import context, HttpBadRequest, HttpConflict, settings
 
 from restfulpy.orm.field import Field
 from restfulpy.utils import to_camel_case
+
+
+FILTERING_IN_OPERATOR_REGEX = re.compile('!?IN\((?P<items>.*)\)')
 
 
 class TimestampMixin:
@@ -166,12 +170,11 @@ class FilteringMixin:
         if not isinstance(value, str):
             raise HttpBadRequest()
 
-        if value.startswith('^') or value.startswith('!^'):
-            value = value.split(',')
-            not_ = value[0].startswith('!^')
-            first_item = value[0][2 if not_ else 1:]
-            items = [first_item] + value[1:]
-            items = [i for i in items if i.strip()]
+        in_operator_match = FILTERING_IN_OPERATOR_REGEX.match(value)
+        if in_operator_match:
+            not_ = value.startswith('!')
+            items = in_operator_match.groupdict()['items'].split(',')
+            items = [i for i in items if i.strip() != '']
             if not len(items):
                 raise HttpBadRequest('Invalid query string: %s' % value)
             expression = column.in_([import_value(column, j) for j in items])
