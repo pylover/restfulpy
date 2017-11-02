@@ -23,7 +23,7 @@ class SqlError(HttpStatus):
 
     def __init__(self, sqlalchemy_error):
         pgcode, self.status_code, self.status_text, message = self.map_exception(sqlalchemy_error)
-        super().__init__(message, reason=pgcode)
+        super().__init__(info=message, reason=pgcode)
 
     @classmethod
     def map_exception(cls, ex):
@@ -36,7 +36,8 @@ class SqlError(HttpStatus):
 
     statuses = {
         '23502': 400,
-        '23505': 409
+        '23505': 409,
+        '22P02': 400
     }
     postgresql_errors = {
         '00000': 'successful_completion',

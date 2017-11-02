@@ -54,15 +54,20 @@ class SqlExceptionsTestCase(WebAppTestCase):
         resp, ___ = self.request('ALL', 'POST', '/', params=dict(title='test'), doc=False)
         self.assertEqual(resp['title'], 'test')
 
-        # Posting again to get Sql Error
+        # unique_violation
         resp, headers = self.request('ALL', 'POST', '/', params=dict(title='test'), expected_status=409, doc=False)
         self.assertEqual(resp['message'], 'unique_violation')
         self.assertEqual(headers['X-Reason'], '23505')
 
-        # null constraint
+        # not_null_violation
         resp, headers = self.request('ALL', 'POST', '/', expected_status=400, doc=False)
         self.assertEqual(resp['message'], 'not_null_violation')
         self.assertEqual(headers['X-Reason'], '23502')
+
+        # invalid_text_representation
+        resp, headers = self.request('ALL', 'POST', '/', expected_status=400, doc=False, query_string=dict(id='^'))
+        self.assertEqual(resp['message'], 'invalid_text_representation')
+        self.assertEqual(headers['X-Reason'], '22P02')
 
 
 if __name__ == '__main__':  # pragma: no cover
