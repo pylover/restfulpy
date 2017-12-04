@@ -5,11 +5,18 @@ from nanohttp import settings
 
 from restfulpy.testing import WebAppTestCase
 from restfulpy.tests.helpers import MockupApplication
-from restfulpy.orm import DeclarativeBase, Field, DBSession, ActivationMixin
+from restfulpy.orm import DeclarativeBase, Field, DBSession, ActivationMixin, AutoActivationMixin
 
 
 class ActiveObject(ActivationMixin, DeclarativeBase):
     __tablename__ = 'active_object'
+
+    id = Field(Integer, primary_key=True)
+    title = Field(Unicode(50))
+
+
+class AutoActiveObject(AutoActivationMixin, DeclarativeBase):
+    __tablename__ = 'auto_active_object'
 
     id = Field(Integer, primary_key=True)
     title = Field(Unicode(50))
@@ -57,8 +64,18 @@ class ActivationMixinTestCase(WebAppTestCase):
         self.assertTrue(ActiveObject.import_value(ActiveObject.is_active, 'true'))
         self.assertTrue(ActiveObject.import_value(ActiveObject.is_active, 'TRUE'))
         self.assertTrue(ActiveObject.import_value(ActiveObject.is_active, 'True'))
-
         self.assertEqual(ActiveObject.import_value(ActiveObject.title, 'title'), 'title')
+
+    def test_auto_activation(self):
+        # noinspection PyArgumentList
+        object1 = AutoActiveObject(
+            title='object 1',
+        )
+
+        DBSession.add(object1)
+        DBSession.commit()
+        self.assertTrue(object1.is_active)
+        self.assertEqual(1, DBSession.query(AutoActiveObject).filter(AutoActiveObject.is_active).count())
 
     def test_metadata(self):
         # Metadata

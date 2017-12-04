@@ -92,6 +92,7 @@ class SoftDeleteMixin:
 
 
 class ActivationMixin:
+
     activated_at = Field(DateTime, nullable=True, json='activatedAt', readonly=True, protected=True)
 
     @hybrid_property
@@ -114,9 +115,18 @@ class ActivationMixin:
 
     @classmethod
     def import_value(cls, column, v):
+        # noinspection PyUnresolvedReferences
         if column.key == cls.is_active.key and not isinstance(v, bool):
             return str(v).lower() == 'true'
+        # noinspection PyUnresolvedReferences
         return super().import_value(column, v)
+
+
+class AutoActivationMixin(ActivationMixin):
+
+    activated_at = Field(
+        DateTime, nullable=True, json='activatedAt', readonly=True, protected=True, default=datetime.now
+    )
 
 
 class PaginationMixin:
