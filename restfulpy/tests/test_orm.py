@@ -1,9 +1,10 @@
 import unittest
 from datetime import date, time
 
+from nanohttp import configure, HttpBadRequest
+from nanohttp.contexts import Context
 from sqlalchemy import Integer, Unicode, ForeignKey, Boolean, Table, Date, Time, Float
 from sqlalchemy.orm import synonym
-from nanohttp import configure, HttpBadRequest
 
 from restfulpy.orm import DeclarativeBase, init_model, create_engine, Field, DBSession, setup_schema, relationship, \
     composite, ModifiedMixin
@@ -116,91 +117,92 @@ class ModelTestCase(unittest.TestCase):
         setup_schema()
 
     def test_model(self):
-        # noinspection PyArgumentList
-        author1 = Author(
-            title='author1',
-            email='author1@example.org',
-            first_name='author 1 first name',
-            last_name='author 1 last name',
-            phone=None,
-            password='123456',
-            birth=date(1, 1, 1),
-            weight=1.1
-        )
+        with Context({}):
+            # noinspection PyArgumentList
+            author1 = Author(
+                title='author1',
+                email='author1@example.org',
+                first_name='author 1 first name',
+                last_name='author 1 last name',
+                phone=None,
+                password='123456',
+                birth=date(1, 1, 1),
+                weight=1.1
+            )
 
-        # noinspection PyArgumentList
-        post1 = Post(
-            title='First post',
-            author=author1,
-            tag_time=time(1, 1, 1)
-        )
-        DBSession.add(post1)
-        DBSession.commit()
+            # noinspection PyArgumentList
+            post1 = Post(
+                title='First post',
+                author=author1,
+                tag_time=time(1, 1, 1)
+            )
+            DBSession.add(post1)
+            DBSession.commit()
 
-        self.assertEqual(post1.id, 1)
+            self.assertEqual(post1.id, 1)
 
-        # Validation, Type
-        with self.assertRaises(HttpBadRequest):
-            Author(title=234)
+            # Validation, Type
+            with self.assertRaises(HttpBadRequest):
+                Author(title=234)
 
-        # Validation, Pattern
-        with self.assertRaises(HttpBadRequest):
-            Author(email='invalidEmailAddress')
+            # Validation, Pattern
+            with self.assertRaises(HttpBadRequest):
+                Author(email='invalidEmailAddress')
 
-        # Validation, Min length
-        with self.assertRaises(HttpBadRequest):
-            Author(title='1')
+            # Validation, Min length
+            with self.assertRaises(HttpBadRequest):
+                Author(title='1')
 
-        # Validation, Max length
-        # Validation, Max length
-        with self.assertRaises(HttpBadRequest):
-            Author(phone='12321321321312321312312')
+            # Validation, Max length
+            # Validation, Max length
+            with self.assertRaises(HttpBadRequest):
+                Author(phone='12321321321312321312312')
 
-        # Metadata
-        author_metadata = Author.json_metadata()
-        self.assertIn('id', author_metadata['fields'])
-        self.assertIn('email', author_metadata['fields'])
-        self.assertEqual(author_metadata['fields']['fullName']['protected'], True)
-        self.assertEqual(author_metadata['fields']['password']['protected'], True)
+            # Metadata
+            author_metadata = Author.json_metadata()
+            self.assertIn('id', author_metadata['fields'])
+            self.assertIn('email', author_metadata['fields'])
+            self.assertEqual(author_metadata['fields']['fullName']['protected'], True)
+            self.assertEqual(author_metadata['fields']['password']['protected'], True)
 
-        post_metadata = Post.json_metadata()
-        self.assertIn('author', post_metadata['fields'])
+            post_metadata = Post.json_metadata()
+            self.assertIn('author', post_metadata['fields'])
 
-        comment_metadata = Comment.json_metadata()
-        self.assertIn('post', comment_metadata['fields'])
+            comment_metadata = Comment.json_metadata()
+            self.assertIn('post', comment_metadata['fields'])
 
-        tag_metadata = Tag.json_metadata()
-        self.assertIn('posts', tag_metadata['fields'])
+            tag_metadata = Tag.json_metadata()
+            self.assertIn('posts', tag_metadata['fields'])
 
-        self.assertEqual(Comment.import_value(Comment.__table__.c.special, 'TRUE'), True)
+            self.assertEqual(Comment.import_value(Comment.__table__.c.special, 'TRUE'), True)
 
-        post1_dict = post1.to_dict()
-        self.assertDictContainsSubset(
-            {
-                'author': {
-                    'email': 'author1@example.org',
-                    'firstName': 'author 1 first name',
+            post1_dict = post1.to_dict()
+            self.assertDictContainsSubset(
+                {
+                    'author': {
+                        'email': 'author1@example.org',
+                        'firstName': 'author 1 first name',
+                        'id': 1,
+                        'lastName': 'author 1 last name',
+                        'phone': None,
+                        'title': 'author1',
+                        'birth': '0001-01-01',
+                        'weight': '1.1000000000'
+                    },
+                    'authorId': 1,
+                    'comments': [],
                     'id': 1,
-                    'lastName': 'author 1 last name',
-                    'phone': None,
-                    'title': 'author1',
-                    'birth': '0001-01-01',
-                    'weight': '1.1000000000'
+                    'tags': [],
+                    'title': 'First post',
+                    'tagTime': '01:01:01'
                 },
-                'authorId': 1,
-                'comments': [],
-                'id': 1,
-                'tags': [],
-                'title': 'First post',
-                'tagTime': '01:01:01'
-            },
-            post1_dict,
-        )
-        self.assertIn('createdAt', post1_dict)
-        self.assertIn('modifiedAt', post1_dict)
+                post1_dict,
+            )
+            self.assertIn('createdAt', post1_dict)
+            self.assertIn('modifiedAt', post1_dict)
 
-        author1_dict = author1.to_dict()
-        self.assertNotIn('fullName', author1_dict)
+            author1_dict = author1.to_dict()
+            self.assertNotIn('fullName', author1_dict)
 
 
 if __name__ == '__main__':  # pragma: no cover
