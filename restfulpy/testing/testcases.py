@@ -103,7 +103,7 @@ class WebAppTestCase(unittest.TestCase):
                 print_(resp.body.decode())
             print_('#' * 80)
 
-        self.assertEqual(resp.status_code, expected_status)
+        self.assertEqual(expected_status, resp.status_code)
 
         if expected_headers:
             for k, v in expected_headers.items():
