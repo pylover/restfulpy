@@ -37,7 +37,8 @@ class SqlError(HttpStatus):
     statuses = {
         '23502': 400,
         '23505': 409,
-        '22P02': 400
+        '22P02': 400,
+        '23503': 400
     }
     postgresql_errors = {
         '00000': 'successful_completion',
