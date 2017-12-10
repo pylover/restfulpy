@@ -98,8 +98,12 @@ class FormValidator:
 
         exact_fields = self.extract_rules_odd('exact', user_rules)
         if exact_fields:
-            if exact_fields != all_input_fields:
-                raise HttpBadRequest('Exactly these fields are allowed: [%s]' % ', '.join(exact_fields))
+            bad_fields = all_input_fields.symmetric_difference(exact_fields)
+            if bad_fields:
+                raise HttpBadRequest(
+                    reason=';'.join([f'invalid-{f}' for f in bad_fields]),
+                    info='Exactly these fields are allowed: [%s]' % ', '.join(exact_fields)
+                )
 
         type_pairs = self.extract_rules_pair('types', user_rules)
         if type_pairs:
@@ -110,7 +114,10 @@ class FormValidator:
                     try:
                         collection[field] = desired_type(collection[field])
                     except ValueError:
-                        raise HttpBadRequest('The field: %s must be %s' % (field, desired_type))
+                        raise HttpBadRequest(
+                            reason=f'invalid-{field}-type',
+                            info='The field: %s must be %s' % (field, desired_type.__name__)
+                        )
 
         pattern_pairs = self.extract_rules_pair('pattern', user_rules)
         if pattern_pairs:
@@ -121,7 +128,8 @@ class FormValidator:
                     pattern = re.compile(desired_pattern) if isinstance(desired_pattern, str) else desired_pattern
                     if pattern.match(collection[field]) is None:
                         raise HttpBadRequest(
-                            'The field %s: %s must be matched with %s pattern' %
+                            reason=f'invalid-{field}-format',
+                            info='The field %s: %s must be matched with %s pattern' %
                             (field, collection[field], pattern.pattern)
                         )
         return args, kwargs

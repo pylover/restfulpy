@@ -83,16 +83,22 @@ class Field(Column):
             return
 
         if not isinstance(value, str):
-            raise HttpBadRequest('Invalid type: %s for field: %s' % (type(value), self.name))
+            raise HttpBadRequest(info='Invalid type: %s for field: %s' % (type(value), self.name))
 
         value_length = len(value)
         if min_length is not None:
             if value_length < min_length:
-                raise HttpBadRequest('Please enter at least %d characters for field: %s.' % (min_length, self.name))
+                raise HttpBadRequest(
+                    reason=f'insufficient-{self.name}-length',
+                    info=f'Please enter at least {min_length} characters for field: {self.name}.'
+                )
 
         if max_length is not None:
             if value_length > max_length:
-                raise HttpBadRequest('Cannot enter more than: %d in field: %s.' % (max_length, self.name))
+                raise HttpBadRequest(
+                    reason=f'extra-{self.name}-length',
+                    info=f'Cannot enter more than: {max_length} in field: {self.name}.'
+                )
 
     def validate(self, value):
         if 'pattern' in self.info:
