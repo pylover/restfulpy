@@ -1,4 +1,5 @@
 from urllib.parse import parse_qs
+from os.path import join
 
 import yaml
 
@@ -38,12 +39,12 @@ class ApiCall:
         self.start_response = start_response
         self.response = Response()
 
-    def __call__(self, environ, start_response):
+    def __call__(self):
         self.response.profile(
-            self.application(self.environ, self.response.start_response_wrapper(start_response))
+            self.application(self.environ, self.response.start_response_wrapper(self.start_response))
         )
 
-    def dump(self):
+    def to_dict(self):
         return dict(
             title=self.title,
             url=self.url,
@@ -83,7 +84,12 @@ class ApiCall:
 
     @property
     def filename(self):
-        return f'{}'
+        url = self.url
+        return f'{url}'
+
+    def save(self, directory):
+        with open(join(directory, self.filename), '-w') as f:
+            self.dump(f)
 
 
 class DocumentaryMiddleware:
@@ -95,11 +101,7 @@ class DocumentaryMiddleware:
     def __call__(self, environ, start_response):
         case = ApiCall(self.application, environ, start_response)
         case()
-        case.save(join(self.directory, case.filename))
+        case.save(self.directory)
+
         for i in case.response.buffer:
             yield i
-
-        result = case.run(self.application, start_response)
-        with self.get_file(case) as file:
-            case.dump(file)
-        return result
