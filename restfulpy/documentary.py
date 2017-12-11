@@ -3,19 +3,47 @@ from urllib.parse import parse_qs
 import yaml
 
 
-class ApiTestCase:
+class Response:
+
+    def __init__(self, status=None, headers=None):
+        self.status = status
+        self.headers = headers or []
+        self.buffer = []
+
+    def start_response_wrapper(self, start_response):
+        def start_response_profiler(status, headers):
+            self.status = status
+            self.headers = headers
+            return start_response(status, headers)
+        return start_response_profiler
+
+    def profile(self, wsgi_response):
+        for chunk in wsgi_response:
+            self.buffer.append(chunk)
+
+    def dump(self):
+        return dict(
+            status=self.status,
+            headers=self.headers,
+            body=''.join(self.buffer)
+        )
+
+
+class ApiCall:
     response = None
 
-    def __init__(self, environ):
+    def __init__(self, application, environ, start_response):
+        self.application = application
         self.environ = environ
+        self.start_response = start_response
+        self.response = Response()
 
-    def run(self, application, start_response):
-        def _start_response(status, headers):
-            start_response(status, headers)
-        self.response = application(self.environ, _start_response)
-        return self.response
+    def __call__(self, environ, start_response):
+        self.response.profile(
+            self.application(self.environ, self.response.start_response_wrapper(start_response))
+        )
 
-    def to_dict(self):
+    def dump(self):
         return dict(
             title=self.title,
             url=self.url,
@@ -23,7 +51,7 @@ class ApiTestCase:
             query_string=self.query_string,
             environ=self.environ,
             request=self.request,
-            response=self.response,
+            response=self.response.dump(),
         )
 
     def dump(self, file):
@@ -53,17 +81,24 @@ class ApiTestCase:
             strict_parsing=False
         ).items()}
 
+    @property
+    def filename(self):
+        return f'{}'
+
 
 class DocumentaryMiddleware:
 
-    def __init__(self, application):
+    def __init__(self, application, directory=None):
         self.application = application
-
-    def get_file(self, case):
-        raise NotImplementedError()
+        self.directory = directory
 
     def __call__(self, environ, start_response):
-        case = ApiTestCase(environ)
+        case = ApiCall(self.application, environ, start_response)
+        case()
+        case.save(join(self.directory, case.filename))
+        for i in case.response.buffer:
+            yield i
+
         result = case.run(self.application, start_response)
         with self.get_file(case) as file:
             case.dump(file)
