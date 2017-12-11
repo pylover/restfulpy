@@ -44,20 +44,6 @@ class ApiCall:
             self.application(self.environ, self.response.start_response_wrapper(self.start_response))
         )
 
-    def to_dict(self):
-        return dict(
-            title=self.title,
-            url=self.url,
-            verb=self.verb,
-            query_string=self.query_string,
-            environ=self.environ,
-            request=self.request,
-            response=self.response.dump(),
-        )
-
-    def dump(self, file):
-        yaml.dump(self.to_dict(), file)
-
     @property
     def url(self):
         return self.environ['PATH_INFO']
@@ -82,26 +68,51 @@ class ApiCall:
             strict_parsing=False
         ).items()}
 
-    @property
-    def filename(self):
-        url = self.url
-        return f'{url}'
+    def to_dict(self):
+        return dict(
+            title=self.title,
+            url=self.url,
+            verb=self.verb,
+            query_string=self.query_string,
+            environ=self.environ,
+            request=self.request,
+            response=self.response.dump(),
+        )
+
+    def dump(self, file):
+        yaml.dump(self.to_dict(), file)
 
     def save(self, directory):
         with open(join(directory, self.filename), '-w') as f:
             self.dump(f)
 
+    @property
+    def filename(self):
+        url = self.url
+        return f'{url}'
 
-class DocumentaryMiddleware:
 
-    def __init__(self, application, directory=None):
+class AbstractDocumentaryMiddleware:
+
+    def __init__(self, application):
         self.application = application
-        self.directory = directory
+
+    def on_call_done(self, call):
+        raise NotImplementedError()
 
     def __call__(self, environ, start_response):
-        case = ApiCall(self.application, environ, start_response)
-        case()
-        case.save(self.directory)
-
-        for i in case.response.buffer:
+        call = ApiCall(self.application, environ, start_response)
+        call()
+        self.on_call_done(call)
+        for i in call.response.buffer:
             yield i
+
+
+class FileDocumentaryMiddleware(AbstractDocumentaryMiddleware):
+
+    def __init__(self, application, directory=None):
+        super().__init__(application)
+        self.directory = directory
+
+    def on_call_done(self, call):
+        call.save(self.directory)
