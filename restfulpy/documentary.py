@@ -1,7 +1,13 @@
 from urllib.parse import parse_qs
-from os.path import join
+from os.path import join, abspath
+import unittest
 
 import yaml
+import webtest
+from nanohttp import settings
+
+from restfulpy.db import DatabaseManager
+from restfulpy.orm import setup_schema, session_factory, create_engine
 
 
 class Response:
@@ -26,7 +32,7 @@ class Response:
         return dict(
             status=self.status,
             headers=self.headers,
-            body=''.join(self.buffer)
+            body=b''.join(self.buffer)
         )
 
 
@@ -116,3 +122,97 @@ class FileDocumentaryMiddleware(AbstractDocumentaryMiddleware):
 
     def on_call_done(self, call):
         call.save(self.directory)
+
+
+class WSGIDocumentaryTestCase(unittest.TestCase):
+    application = None
+    api_client = None
+
+    @staticmethod
+    def application_factory():
+        raise NotImplementedError()
+
+    @staticmethod
+    def documentary_middleware_factory(app):
+        return FileDocumentaryMiddleware(app, abspath(join(settings.api_documents.directory, 'source')))
+
+    @classmethod
+    def setUpClass(cls):
+        cls.application = cls.application_factory()
+        cls.api_client = webtest.TestApp(cls.documentary_middleware_factory(cls.application))
+        super().setUpClass()
+
+    def call(self, title, verb, url, *, arguments=None, environ=None, description=None, **kwargs):
+        environ = environ or {}
+        environ['TEST_CASE_TITLE'] = title
+
+        if description:
+            environ['TEST_CASE_DESCRIPTION'] = description
+
+        if arguments:
+            environ['TEST_CASE_ARGUMENT_NAMES'] = arguments
+
+        return self.api_client._gen_request(
+            verb.upper(), url,
+            expect_errors=True,
+            extra_environ=environ,
+            **kwargs
+        )
+
+
+# noinspection PyAbstractClass
+class RestfulpyApplicationTestCase(WSGIDocumentaryTestCase):
+    session = None
+    engine = None
+
+    @classmethod
+    def configure_application(cls):
+        cls.application.configure(force=True, context=dict(unittest=True))
+        settings.merge("""
+            messaging:
+              default_messenger: restfulpy.testing.MockupMessenger
+            logging:
+              loggers:
+                default:
+                  level: critical
+        """)
+
+    @classmethod
+    def prepare_database(cls):
+        with DatabaseManager() as m:
+            m.drop_database()
+            m.create_database()
+
+        cls.engine = create_engine()
+        cls.session = session = session_factory(bind=cls.engine, expire_on_commit=False)
+        setup_schema(session)
+        session.commit()
+
+    @classmethod
+    def drop_database(cls):
+        cls.session.close_all()
+        if cls.session.bind and hasattr(cls.session.bind, 'dispose'):
+            cls.session.bind.dispose()
+        cls.engine.dispose()
+
+        with DatabaseManager() as m:
+            m.drop_database()
+
+    @classmethod
+    def mockup(cls):
+        pass
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.configure_application()
+        settings.db.url = settings.db.test_url
+        cls.prepare_database()
+        cls.application.initialize_models()
+        cls.mockup()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.drop_database()
+        super().tearDownClass()
+

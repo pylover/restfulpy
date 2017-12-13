@@ -1,34 +1,38 @@
 
 import unittest
 
-import webtest
 from nanohttp import Application, Controller, text
 
-from restfulpy.documentary import AbstractDocumentaryMiddleware
+from restfulpy.documentary import AbstractDocumentaryMiddleware, WSGIDocumentaryTestCase
+
+
+last_call = None
 
 
 class ExaminationMiddleware(AbstractDocumentaryMiddleware):
-    call = None
-
     def on_call_done(self, call):
-        self.call = call
+        global last_call
+        last_call = call
 
 
 class Root(Controller):
     @text
-    def index(self, id):
-        yield str(id)
+    def index(self, id=None):
+        yield id
 
 
-class DocumentaryTestCase(unittest.TestCase):
+class DocumentaryTestCase(WSGIDocumentaryTestCase):
+    documentary_middleware_factory = ExaminationMiddleware
+
+    @staticmethod
+    def application_factory():
+        return Application(Root())
 
     def test_basic_pipeline(self):
-        middleware = ExaminationMiddleware(Application(Root()))
-        app = webtest.TestApp(middleware)
-        response = app.get('/')
-        self.assertEqual(response.body, '')
+        response = self.call('Simple pipeline', 'GET', '/1')
+        self.assertEqual(response.text, '1')
         self.assertDictEqual(
-            middleware.call.to_dict(),
+            last_call.to_dict(),
             dict(
 
             )

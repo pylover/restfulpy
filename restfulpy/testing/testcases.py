@@ -11,7 +11,7 @@ from os.path import join, abspath
 from nanohttp import settings
 
 from restfulpy.db import DatabaseManager
-from restfulpy.orm import setup_schema, session_factory, DBSession, create_engine
+from restfulpy.orm import setup_schema, session_factory, create_engine
 from restfulpy.testing.documentation import DocumentaryTestApp
 
 
@@ -39,7 +39,7 @@ class WebAppTestCase(unittest.TestCase):
     def drop_database(cls):
         cls.session.close_all()
         if cls.session.bind and hasattr(cls.session.bind, 'dispose'):
-            DBSession.bind.dispose()
+            cls.session.bind.dispose()
         cls.engine.dispose()
 
         with DatabaseManager() as m:
