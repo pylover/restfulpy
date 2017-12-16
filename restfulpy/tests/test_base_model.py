@@ -1,4 +1,5 @@
 import unittest
+from datetime import date, datetime
 
 from nanohttp import json, settings
 from sqlalchemy import Unicode, Integer, Date, Float, ForeignKey, Boolean, DateTime
@@ -367,6 +368,26 @@ class BaseModelTestCase(WebAppTestCase):
             doc=False
         )
         self.assertEqual(resp['birth'], '2001-01-01')
+        self.assertEqual(resp['lastLoginTime'], '2017-10-10T10:10:00.004546Z')
+
+        # posix timestamp
+        resp, ___ = self.request(
+            'ALL', 'POST', '/',
+            params=dict(
+                title='test',
+                firstName='test',
+                lastName='test',
+                email='test11@example.com',
+                password='123456',
+                birth='2001-01-01',
+                weight=1.1,
+                visible='false',
+                lastLoginTime=datetime(2017, 10, 10, 10, 10, 0, 4546).timestamp()
+            ),
+            doc=False
+        )
+        self.assertEqual(resp['birth'], '2001-01-01')
+        self.assertEqual(resp['lastLoginTime'], '2017-10-10T10:10:00.4546Z')
 
         # none iso date format
         self.request(

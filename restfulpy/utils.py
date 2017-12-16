@@ -91,12 +91,11 @@ def format_iso_datetime(stamp):
         ...     tzinfo=EET()))
         '2012-02-22T12:52:29+02:00'
     """
+
     if stamp.tzinfo:
         if stamp.utcoffset() == ZERO:
-            return datetime(*stamp.timetuple()[:6]).isoformat() + 'Z'
-    if stamp.microsecond:
-        stamp = stamp.replace(microsecond=0)
-    return stamp.isoformat()
+            stamp = datetime(*stamp.timetuple()[:6])
+    return stamp.isoformat() + 'Z'
 
 
 def format_iso_time(stamp):
@@ -120,8 +119,6 @@ def format_iso_time(stamp):
         ...     tzinfo=EET()))
         '12:52:29+02:00'
     """
-    if stamp.microsecond:
-        stamp = stamp.replace(microsecond=0)
     if stamp.tzinfo:
         if stamp.utcoffset() == ZERO:
             return stamp.replace(tzinfo=None).isoformat() + 'Z'

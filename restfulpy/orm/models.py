@@ -153,7 +153,7 @@ class BaseModel(object):
                     raise HttpBadRequest('Invalid attribute')
 
                 value = context.form[param_name]
-                # Ensurlng the python type, and ignoring silently if python type is not specified
+                # Ensuring the python type, and ignoring silently if python type is not specified
                 try:
                     c.type.python_type
                 except NotImplementedError:
@@ -162,11 +162,19 @@ class BaseModel(object):
 
                 if c.type.python_type == datetime:
                     try:
-                        match = ISO_DATETIME_PATTERN.match(value)
-                        if not match:
-                            raise ValueError()
-                        extracted_value = datetime.strptime(match.groups()[0], ISO_DATETIME_FORMAT)
+                        if isinstance(value, float):
+                            extracted_value = datetime.fromtimestamp(value)
+                        else:
+                            match = ISO_DATETIME_PATTERN.match(value)
+                            if not match:
+                                raise ValueError()
+                            groups = list(match.groups())
+                            if groups[1]:
+                                value = f'{groups[0]}.{groups[1][1:].zfill(6)}Z'
+                            extracted_value = datetime.strptime(value, ISO_DATETIME_FORMAT)
+
                         yield c, extracted_value
+
                     except ValueError:
                         raise HttpBadRequest('Invalid datetime format')
 
