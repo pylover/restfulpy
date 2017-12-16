@@ -380,14 +380,14 @@ class BaseModelTestCase(WebAppTestCase):
                 lastName='test',
                 email='test12@example.com',
                 password='123456',
-                birth='2001-01-01',
+                birth='1513434403',
                 weight=1.1,
                 visible='false',
                 lastLoginTime=datetime(2017, 10, 10, 10, 10, 0, 4546).timestamp()
             ),
             doc=False
         )
-        self.assertEqual(resp['birth'], '2001-01-01')
+        self.assertEqual(resp['birth'], '2017-12-16')
         self.assertEqual(resp['lastLoginTime'], '2017-10-10T10:10:00.004546Z')
 
         # none iso date format

@@ -179,7 +179,11 @@ class BaseModel(object):
 
                 elif c.type.python_type == date:
                     try:
-                        yield c, datetime.strptime(value, ISO_DATE_FORMAT)
+                        if isinstance(value, float) or POSIX_TIME_PATTERN.match(value):
+                            extracted_value = date.fromtimestamp(float(value))
+                        else:
+                            extracted_value = datetime.strptime(value, ISO_DATE_FORMAT)
+                        yield c, extracted_value
                     except ValueError:
                         raise HttpBadRequest('Invalid date format')
                 else:
