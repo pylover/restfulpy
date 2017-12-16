@@ -92,9 +92,9 @@ def format_iso_datetime(stamp):
         '2012-02-22T12:52:29+02:00'
     """
 
-    if stamp.tzinfo:
-        if stamp.utcoffset() == ZERO:
-            stamp = datetime(*stamp.timetuple()[:6])
+    if stamp.tzinfo and stamp.utcoffset() != ZERO:
+        return stamp.isoformat()
+    stamp = stamp.replace(tzinfo=None)
     return stamp.isoformat() + 'Z'
 
 

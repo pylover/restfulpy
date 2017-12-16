@@ -1,7 +1,7 @@
 import unittest
 from datetime import date, datetime
 
-from nanohttp import json, settings
+from nanohttp import json, settings, context
 from sqlalchemy import Unicode, Integer, Date, Float, ForeignKey, Boolean, DateTime
 from sqlalchemy.orm import synonym
 from sqlalchemy.ext.associationproxy import association_proxy
@@ -260,7 +260,8 @@ class BaseModelTestCase(WebAppTestCase):
                 visible='false',
                 lastLoginTime='2017-10-10T10:10:00.'
             ),
-            doc=False
+            doc=False,
+            expected_status=400
         )
 
         self.request(
@@ -331,7 +332,7 @@ class BaseModelTestCase(WebAppTestCase):
             ),
             doc=False
         )
-        self.assertEqual(resp['lastLoginTime'], '2017-10-10T10:10:00')
+        self.assertEqual(resp['lastLoginTime'], '2017-10-10T10:10:00.004546Z')
 
         # datetime containing ending Z
         resp, ___ = self.request(
@@ -348,7 +349,7 @@ class BaseModelTestCase(WebAppTestCase):
             ),
             doc=False
         )
-        self.assertEqual(resp['lastLoginTime'], '2017-10-10T10:10:00')
+        self.assertEqual(resp['lastLoginTime'], '2017-10-10T10:10:00.004546Z')
 
     def test_date_format(self):
         # iso date format
@@ -377,7 +378,7 @@ class BaseModelTestCase(WebAppTestCase):
                 title='test',
                 firstName='test',
                 lastName='test',
-                email='test11@example.com',
+                email='test12@example.com',
                 password='123456',
                 birth='2001-01-01',
                 weight=1.1,
@@ -387,7 +388,7 @@ class BaseModelTestCase(WebAppTestCase):
             doc=False
         )
         self.assertEqual(resp['birth'], '2001-01-01')
-        self.assertEqual(resp['lastLoginTime'], '2017-10-10T10:10:00.4546Z')
+        self.assertEqual(resp['lastLoginTime'], '2017-10-10T10:10:00.004546Z')
 
         # none iso date format
         self.request(
@@ -396,7 +397,7 @@ class BaseModelTestCase(WebAppTestCase):
                 title='test',
                 firstName='test',
                 lastName='test',
-                email='test12@example.com',
+                email='test13@example.com',
                 password='123456',
                 birth='01-01-01',
                 weight=1.1,
@@ -414,7 +415,7 @@ class BaseModelTestCase(WebAppTestCase):
                 title='test',
                 firstName='test',
                 lastName='test',
-                email='test13@example.com',
+                email='test14@example.com',
                 password='123456',
                 birth='2001/01/01',
                 weight=1.1,

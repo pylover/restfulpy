@@ -5,20 +5,18 @@ from decimal import Decimal
 
 from nanohttp import context, HttpNotFound, HttpBadRequest
 from sqlalchemy import Column, event
-from sqlalchemy.orm import validates, Query, CompositeProperty
+from sqlalchemy.orm import validates, Query, CompositeProperty, RelationshipProperty
 from sqlalchemy.orm.attributes import InstrumentedAttribute
-from sqlalchemy.orm.relationships import RelationshipProperty
 from sqlalchemy.ext.hybrid import HYBRID_PROPERTY
 from sqlalchemy.ext.associationproxy import ASSOCIATION_PROXY
 from sqlalchemy.inspection import inspect
-from sqlalchemy.sql.sqltypes import NullType
 
 from restfulpy.utils import format_iso_datetime, format_iso_time, to_camel_case
 from restfulpy.orm.mixins import PaginationMixin, FilteringMixin, OrderingMixin
 from restfulpy.orm.field import Field
 from restfulpy.orm.metadata import MetadataField
 from restfulpy.validation import validate_form
-from restfulpy.constants import ISO_DATETIME_FORMAT, ISO_DATE_FORMAT, ISO_DATETIME_PATTERN
+from restfulpy.constants import ISO_DATETIME_FORMAT, ISO_DATE_FORMAT, ISO_DATETIME_PATTERN, POSIX_TIME_PATTERN
 
 
 class BaseModel(object):
@@ -159,11 +157,10 @@ class BaseModel(object):
                 except NotImplementedError:
                     yield c, value
                     continue
-
                 if c.type.python_type == datetime:
                     try:
-                        if isinstance(value, float):
-                            extracted_value = datetime.fromtimestamp(value)
+                        if isinstance(value, float) or POSIX_TIME_PATTERN.match(value):
+                            extracted_value = datetime.fromtimestamp(float(value))
                         else:
                             match = ISO_DATETIME_PATTERN.match(value)
                             if not match:
@@ -171,6 +168,8 @@ class BaseModel(object):
                             groups = list(match.groups())
                             if groups[1]:
                                 value = f'{groups[0]}.{groups[1][1:].zfill(6)}Z'
+                            else:
+                                value = f'{groups[0]}.000000Z'
                             extracted_value = datetime.strptime(value, ISO_DATETIME_FORMAT)
 
                         yield c, extracted_value
