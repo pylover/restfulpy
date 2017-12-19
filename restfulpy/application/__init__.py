@@ -17,6 +17,7 @@ class Application(NanohttpApplication):
     builtin_configuration = None
     __logger__ = get_logger()
     __authenticator__ = None
+    engine = None
 
     def __init__(self, name: str, root: Controller, root_path='.', version='0.1.0-dev.0', process_name=None,
                  authenticator=None):
@@ -65,9 +66,9 @@ class Application(NanohttpApplication):
         """
         pass
 
-    @classmethod
-    def initialize_models(cls, session=None):
-        init_model(create_engine(), session=session)
+    def initialize_models(self, session=None):
+        self.engine = create_engine()
+        init_model(self.engine, session=session)
 
     # Hooks
     def begin_request(self):
@@ -95,7 +96,10 @@ class Application(NanohttpApplication):
         DBSession.remove()
 
     def insert_basedata(self):  # pragma: no cover
-        raise NotImplementedError
+        raise NotImplementedError()
 
     def insert_mockup(self):  # pragma: no cover
-        raise NotImplementedError
+        raise NotImplementedError()
+
+    def shutdown(self):
+        self.engine.dispose()
