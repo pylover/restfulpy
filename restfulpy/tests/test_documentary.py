@@ -31,12 +31,12 @@ class DocumentaryTestCase(WSGIDocumentaryTestCase):
     def test_basic_pipeline(self):
         response = self.call('Simple pipeline', 'GET', '/1')
         self.assertEqual(response.text, '1')
-        self.assertDictEqual(
-            last_call.to_dict(),
-            dict(
-
-            )
-        )
+        # self.assertDictEqual(
+        #     last_call.to_dict(),
+        #     dict(
+        #
+        #     )
+        # )
 
 
 if __name__ == '__main__':  # pragma: no cover
