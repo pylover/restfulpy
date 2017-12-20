@@ -102,4 +102,5 @@ class Application(NanohttpApplication):
         raise NotImplementedError()
 
     def shutdown(self):
+        DBSession.close_all()
         self.engine.dispose()

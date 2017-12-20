@@ -37,12 +37,8 @@ class WebAppTestCase(unittest.TestCase):
 
     @classmethod
     def drop_database(cls):
-        DBSession.close_all()
         cls.session.close_all()
-        if cls.session.bind and hasattr(cls.session.bind, 'dispose'):
-            cls.session.bind.dispose()
         cls.engine.dispose()
-
         with DatabaseManager() as m:
             m.drop_database()
 
