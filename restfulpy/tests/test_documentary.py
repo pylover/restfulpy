@@ -29,8 +29,17 @@ class DocumentaryTestCase(WSGIDocumentaryTestCase):
         return Application(Root())
 
     def test_basic_pipeline(self):
-        response = self.call('Simple pipeline', 'GET', '/1')
-        self.assertEqual(response.text, '1')
+        response = self.call('Simple pipeline', 'GET', '/id: 1')
+        self.assertEqual('1', response.text)
+
+        self.assertDictEqual(last_call.to_dict(), dict(
+            title='Simple pipeline',
+            url='/1',
+            verb='GET',
+            query_string={},
+            response='1'
+        ))
+        # self.assertDictEqual(last_call.url_params, ['id'])
         # self.assertDictEqual(
         #     last_call.to_dict(),
         #     dict(

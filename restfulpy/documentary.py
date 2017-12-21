@@ -1,6 +1,7 @@
 from urllib.parse import parse_qs
 from os.path import join, abspath
 import unittest
+import re
 
 import yaml
 import webtest
@@ -8,6 +9,8 @@ from nanohttp import settings
 
 from restfulpy.db import DatabaseManager
 from restfulpy.orm import setup_schema, session_factory, create_engine
+
+URL_PARAMETER_PATTERN = re.compile('/(?P<key>\w+):\s?(?P<value>\w+)')
 
 
 class Response:
@@ -17,16 +20,10 @@ class Response:
         self.headers = headers or []
         self.buffer = []
 
-    def start_response_wrapper(self, start_response):
-        def start_response_profiler(status, headers):
-            self.status = status
-            self.headers = headers
-            return start_response(status, headers)
-        return start_response_profiler
-
-    def profile(self, wsgi_response):
+    def load(self, wsgi_response):
         for chunk in wsgi_response:
             self.buffer.append(chunk)
+        return self.buffer
 
     def dump(self):
         return dict(
@@ -43,16 +40,35 @@ class ApiCall:
         self.application = application
         self.environ = environ
         self.start_response = start_response
-        self.response = Response()
+
+        # noinspection PyTypeChecker
+        self.url_parameters = dict()
+        url = self.url
+        for k, v in URL_PARAMETER_PATTERN.findall(self.url):
+            self.url_parameters[k] = v
+            url.replace(f'{k}:\s?', '')
+        self.url = url
 
     def __call__(self):
-        self.response.profile(
-            self.application(self.environ, self.response.start_response_wrapper(self.start_response))
+        response = self.application(
+            self.environ,
+            self.start_response_wrapper(self.start_response)
         )
+        self.response.load(response)
+
+    def start_response_wrapper(self, start_response):
+        def start_response_profiler(status, headers):
+            self.response = Response(status, headers)
+            return start_response(status, headers)
+        return start_response_profiler
 
     @property
     def url(self):
         return self.environ['PATH_INFO']
+
+    @url.setter
+    def url(self, v):
+        self.environ['PATH_INFO'] = v
 
     @property
     def title(self):
@@ -63,7 +79,7 @@ class ApiCall:
         return self.environ['REQUEST_METHOD'].upper()
 
     @property
-    def request(self):
+    def payload(self):
         return self.environ['wsgi.input']
 
     @property
@@ -80,8 +96,6 @@ class ApiCall:
             url=self.url,
             verb=self.verb,
             query_string=self.query_string,
-            environ=self.environ,
-            request=self.request,
             response=self.response.dump(),
         )
 
