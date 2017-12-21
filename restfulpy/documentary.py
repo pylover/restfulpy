@@ -46,7 +46,7 @@ class ApiCall:
         url = self.url
         for k, v in URL_PARAMETER_PATTERN.findall(self.url):
             self.url_parameters[k] = v
-            url.replace(f'{k}:\s?', '')
+            url = re.sub(f'{k}:\s?', '', url)
         self.url = url
 
     def __call__(self):

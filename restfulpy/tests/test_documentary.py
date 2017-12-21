@@ -37,7 +37,11 @@ class DocumentaryTestCase(WSGIDocumentaryTestCase):
             url='/1',
             verb='GET',
             query_string={},
-            response='1'
+            response=dict(
+                body=b'1',
+                headers=[('Content-Type', 'text/plain; charset=utf-8')],
+                status='200 OK'
+            )
         ))
         # self.assertDictEqual(last_call.url_params, ['id'])
         # self.assertDictEqual(
