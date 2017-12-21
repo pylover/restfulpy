@@ -17,8 +17,8 @@ class ExaminationMiddleware(AbstractDocumentaryMiddleware):
 
 class Root(Controller):
     @text
-    def index(self, id=None):
-        yield id
+    def index(self, id_=None):
+        yield f'Content {id_}'
 
 
 class DocumentaryTestCase(WSGIDocumentaryTestCase):
@@ -30,15 +30,18 @@ class DocumentaryTestCase(WSGIDocumentaryTestCase):
 
     def test_basic_pipeline(self):
         response = self.call('Simple pipeline', 'GET', '/id: 1')
-        self.assertEqual('1', response.text)
+        self.assertEqual('Content 1', response.text)
 
         self.assertDictEqual(last_call.to_dict(), dict(
             title='Simple pipeline',
             url='/1',
+            url_parameters=dict(
+                id='1'
+            ),
             verb='GET',
             query_string={},
             response=dict(
-                body=b'1',
+                body=b'Content 1',
                 headers=[('Content-Type', 'text/plain; charset=utf-8')],
                 status='200 OK'
             )

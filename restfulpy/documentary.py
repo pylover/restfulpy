@@ -94,6 +94,7 @@ class ApiCall:
         return dict(
             title=self.title,
             url=self.url,
+            url_parameters=self.url_parameters,
             verb=self.verb,
             query_string=self.query_string,
             response=self.response.dump(),
