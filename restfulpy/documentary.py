@@ -1,4 +1,4 @@
-from urllib.parse import parse_qs
+from urllib.parse import parse_qs, urlencode
 from os.path import join, abspath
 import unittest
 import re
@@ -200,20 +200,24 @@ class WSGIDocumentaryTestCase(unittest.TestCase):
         cls.api_client = webtest.TestApp(cls.documentary_middleware_factory(cls.application))
         super().setUpClass()
 
-    def call(self, title, verb, url, *, arguments=None, environ=None, description=None, **kwargs):
+    def call(self, title, verb, url, *, query=None, environ=None, description=None, **kwargs):
         environ = environ or {}
         environ['TEST_CASE_TITLE'] = title
 
         if description:
             environ['TEST_CASE_DESCRIPTION'] = description
 
-        if arguments:
-            environ['TEST_CASE_ARGUMENT_NAMES'] = arguments
+        if query:
+            if isinstance(query, str):
+                url += f'?{query}'
+            else:
+                url = f'{url}?{urlencode(query, doseq=True)}'
 
         return self.api_client._gen_request(
             verb.upper(), url,
             expect_errors=True,
             extra_environ=environ,
+
             **kwargs
         )
 

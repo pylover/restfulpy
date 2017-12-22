@@ -26,6 +26,10 @@ class Root(Controller):
         if name:
             yield f' {name}'
 
+    @text
+    def search(self, resource, *, query=None):
+        yield f'{resource} {query}'
+
 
 class DocumentaryTestCase(WSGIDocumentaryTestCase):
     documentary_middleware_factory = ExaminationMiddleware
@@ -66,22 +70,37 @@ class DocumentaryTestCase(WSGIDocumentaryTestCase):
         ))
 
     def test_url_parameters(self):
-        response = self.call('Simple pipeline', 'GET', '/id: 1')
+        response = self.call('Url parameters 1', 'GET', '/id: 1')
         self.assertEqual('Content 1', response.text)
         self.assertEqual('/1', last_call.url)
         self.assertDictEqual(dict(id='1'), last_call.url_parameters)
 
-        response = self.call('Simple pipeline', 'GET', '/books/isbn: 2')
+        response = self.call('Url parameters 2', 'GET', '/books/isbn: 2')
         self.assertEqual('Book 2', response.text)
         self.assertEqual('/books/2', last_call.url)
         self.assertDictEqual(dict(isbn='2'), last_call.url_parameters)
 
-        response = self.call('Simple pipeline', 'GET', '/books/isbn: 2/name: abc')
+        response = self.call('Url parameters 3', 'GET', '/books/isbn: 2/name: abc')
         self.assertEqual('Book 2 abc', response.text)
         self.assertEqual('/books/2/abc', last_call.url)
         self.assertDictEqual(dict(isbn='2', name='abc'), last_call.url_parameters)
 
-    # TODO: Test query strings
+    def test_query_string(self):
+        response = self.call('Query string', 'GET', '/search/books', query=dict(query='abc'))
+        self.assertEqual('books abc', response.text)
+        self.assertDictEqual(dict(query='abc'), last_call.query_string)
+
+    # def test_forms(self):
+    #     response = self.call(
+    #         'Url-encoded form',
+    #         'POST', '/signup',
+    #         query=dict(query='abc'),
+    #
+    #     )
+    #     self.assertEqual('books abc', response.text)
+    #     self.assertDictEqual(dict(query='abc'), last_call.query_string)
+    #
+    # TODO: Test Form
     # TODO: Test call history
     # TODO: Test JSON response
 
