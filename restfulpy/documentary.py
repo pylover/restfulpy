@@ -2,6 +2,7 @@ from urllib.parse import parse_qs
 from os.path import join, abspath
 import unittest
 import re
+import collections
 
 import yaml
 import webtest
@@ -11,43 +12,87 @@ from restfulpy.db import DatabaseManager
 from restfulpy.orm import setup_schema, session_factory, create_engine
 
 URL_PARAMETER_PATTERN = re.compile('/(?P<key>\w+):\s?(?P<value>\w+)')
+CONTENT_TYPE_PATTERN = re.compile('(\w+/\w+)(?:;\s?charset=(.+))?')
 
 
 class Response:
+    _status = None
+    status_code = None
+    status_text = None
+    content_type = None
+    encoding = None
 
     def __init__(self, status=None, headers=None):
         self.status = status
-        self.headers = headers or []
         self.buffer = []
+        self.headers = headers or []
+
+        for k, v in self.headers:
+            if k == 'Content-Type':
+                match = CONTENT_TYPE_PATTERN.match(v)
+                if match:
+                    self.content_type, self.encoding = match.groups()
+                break
 
     def load(self, wsgi_response):
         for chunk in wsgi_response:
             self.buffer.append(chunk)
         return self.buffer
 
+    @property
+    def status(self):
+        return self._status
+
+    @status.setter
+    def status(self, value):
+        self._status = value
+        status_code, self.status_text = value.split(' ')
+        self.status_code = int(status_code)
+
     def dump(self):
         return dict(
-            status=self.status,
+            status_code=self.status_code,
+            status_text=self.status_text,
             headers=self.headers,
             body=b''.join(self.buffer)
         )
 
+    @property
+    def body(self):
+        return b''.join(self.buffer)
+
+    @property
+    def text(self):
+        return self.body.decode()
+
 
 class ApiCall:
     response = None
+    url_parameters = None
+    query_string = None
 
     def __init__(self, application, environ, start_response):
         self.application = application
         self.environ = environ
         self.start_response = start_response
 
-        # noinspection PyTypeChecker
-        self.url_parameters = dict()
-        url = self.url
-        for k, v in URL_PARAMETER_PATTERN.findall(self.url):
-            self.url_parameters[k] = v
-            url = re.sub(f'{k}:\s?', '', url)
-        self.url = url
+        if URL_PARAMETER_PATTERN.search(self.url):
+            # noinspection PyTypeChecker
+            self.url_parameters = dict()
+            url = self.url
+            for k, v in URL_PARAMETER_PATTERN.findall(self.url):
+                self.url_parameters[k] = v
+                url = re.sub(f'{k}:\s?', '', url)
+            self.url = url
+
+        if self.environ['QUERY_STRING']:
+            self.query_string = {
+                k: v[0] if len(v) == 1 else v for k, v in parse_qs(
+                    self.environ['QUERY_STRING'],
+                    keep_blank_values=True,
+                    strict_parsing=False
+                ).items()
+            }
 
     def __call__(self):
         response = self.application(
@@ -82,14 +127,6 @@ class ApiCall:
     def payload(self):
         return self.environ['wsgi.input']
 
-    @property
-    def query_string(self):
-        return {k: v[0] if len(v) == 1 else v for k, v in parse_qs(
-            self.environ['QUERY_STRING'],
-            keep_blank_values=True,
-            strict_parsing=False
-        ).items()}
-
     def to_dict(self):
         return dict(
             title=self.title,
@@ -115,8 +152,9 @@ class ApiCall:
 
 class AbstractDocumentaryMiddleware:
 
-    def __init__(self, application):
+    def __init__(self, application, history_maxlen=50):
         self.application = application
+        self.call_history = collections.deque(maxlen=history_maxlen)
 
     def on_call_done(self, call):
         raise NotImplementedError()
@@ -124,6 +162,7 @@ class AbstractDocumentaryMiddleware:
     def __call__(self, environ, start_response):
         call = ApiCall(self.application, environ, start_response)
         call()
+        self.call_history.append(call)
         self.on_call_done(call)
         for i in call.response.buffer:
             yield i
