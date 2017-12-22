@@ -48,7 +48,7 @@ class Response:
         self._status = value
         if ' ' in value:
             parts = value.split(' ')
-            status_code, self.status_text = parts[0], ' '.join(parts)
+            status_code, self.status_text = parts[0], ' '.join(parts[1:])
         else:
             status_code = value
         self.status_code = int(status_code)
