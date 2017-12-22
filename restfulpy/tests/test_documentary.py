@@ -20,6 +20,12 @@ class Root(Controller):
     def index(self, id_='empty'):
         yield f'Content {id_}'
 
+    @text
+    def books(self, isbn, name=None):
+        yield f'Book {isbn}'
+        if name:
+            yield f' {name}'
+
 
 class DocumentaryTestCase(WSGIDocumentaryTestCase):
     documentary_middleware_factory = ExaminationMiddleware
@@ -59,28 +65,26 @@ class DocumentaryTestCase(WSGIDocumentaryTestCase):
             )
         ))
 
+    def test_url_parameters(self):
+        response = self.call('Simple pipeline', 'GET', '/id: 1')
+        self.assertEqual('Content 1', response.text)
+        self.assertEqual('/1', last_call.url)
+        self.assertDictEqual(dict(id='1'), last_call.url_parameters)
+
+        response = self.call('Simple pipeline', 'GET', '/books/isbn: 2')
+        self.assertEqual('Book 2', response.text)
+        self.assertEqual('/books/2', last_call.url)
+        self.assertDictEqual(dict(isbn='2'), last_call.url_parameters)
+
+        response = self.call('Simple pipeline', 'GET', '/books/isbn: 2/name: abc')
+        self.assertEqual('Book 2 abc', response.text)
+        self.assertEqual('/books/2/abc', last_call.url)
+        self.assertDictEqual(dict(isbn='2', name='abc'), last_call.url_parameters)
+
     # TODO: Test url params
     # TODO: Test query strings
     # TODO: Test call history
-    #
-    # def test_basic_pipeline(self):
-    #     response = self.call('Simple pipeline', 'GET', '/id: 1')
-    #     self.assertEqual('Content 1', response.text)
-    #
-    #     self.assertDictEqual(last_call.to_dict(), dict(
-    #         title='Simple pipeline',
-    #         url='/1',
-    #         url_parameters=dict(
-    #             id='1'
-    #         ),
-    #         verb='GET',
-    #         query_string={},
-    #         response=dict(
-    #             body=b'Content 1',
-    #             headers=[('Content-Type', 'text/plain; charset=utf-8')],
-    #             status='200 OK'
-    #         )
-    #     ))
+    # TODO: Test JSON response
 
 
 if __name__ == '__main__':  # pragma: no cover

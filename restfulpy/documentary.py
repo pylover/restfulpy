@@ -46,7 +46,11 @@ class Response:
     @status.setter
     def status(self, value):
         self._status = value
-        status_code, self.status_text = value.split(' ')
+        if ' ' in value:
+            parts = value.split(' ')
+            status_code, self.status_text = parts[0], ' '.join(parts)
+        else:
+            status_code = value
         self.status_code = int(status_code)
 
     def dump(self):
