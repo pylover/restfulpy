@@ -81,7 +81,6 @@ class DocumentaryTestCase(WSGIDocumentaryTestCase):
         self.assertEqual('/books/2/abc', last_call.url)
         self.assertDictEqual(dict(isbn='2', name='abc'), last_call.url_parameters)
 
-    # TODO: Test url params
     # TODO: Test query strings
     # TODO: Test call history
     # TODO: Test JSON response
