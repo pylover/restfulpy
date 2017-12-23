@@ -1,7 +1,7 @@
 
 import unittest
 
-from nanohttp import Application, Controller, text
+from nanohttp import Application, Controller, text, context, json
 
 from restfulpy.documentary import AbstractDocumentaryMiddleware, WSGIDocumentaryTestCase, Response
 
@@ -29,6 +29,10 @@ class Root(Controller):
     @text
     def search(self, resource, *, query=None):
         yield f'{resource} {query}'
+
+    @json
+    def signup(self):
+        return context.form
 
 
 class DocumentaryTestCase(WSGIDocumentaryTestCase):
@@ -61,6 +65,7 @@ class DocumentaryTestCase(WSGIDocumentaryTestCase):
             url_parameters=None,
             verb='GET',
             query_string=None,
+            form=None,
             response=dict(
                 body=b'Content empty',
                 headers=[('Content-Type', 'text/plain; charset=utf-8')],
@@ -90,19 +95,22 @@ class DocumentaryTestCase(WSGIDocumentaryTestCase):
         self.assertEqual('books abc', response.text)
         self.assertDictEqual(dict(query='abc'), last_call.query_string)
 
-    # def test_forms(self):
-    #     response = self.call(
-    #         'Url-encoded form',
-    #         'POST', '/signup',
-    #         query=dict(query='abc'),
-    #
-    #     )
-    #     self.assertEqual('books abc', response.text)
-    #     self.assertDictEqual(dict(query='abc'), last_call.query_string)
-    #
-    # TODO: Test Form
+    def test_forms(self):
+        response = self.call(
+            'Url-encoded form',
+            'POST',
+            '/signup',
+            form=dict(
+                field1=1,
+                field2=2
+            )
+        )
+        expected_dict = dict(field1='1', field2='2')
+        self.assertDictEqual(expected_dict, response.json)
+        self.assertDictEqual(expected_dict, last_call.form)
+
     # TODO: Test call history
-    # TODO: Test JSON response
+    # TODO: Extract form info from metadata
 
 
 if __name__ == '__main__':  # pragma: no cover

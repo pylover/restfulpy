@@ -1,12 +1,15 @@
+import io
+import re
+import unittest
+import collections
 from urllib.parse import parse_qs, urlencode
 from os.path import join, abspath
-import unittest
-import re
-import collections
 
+import ujson
 import yaml
 import webtest
 from nanohttp import settings
+from nanohttp.helpers import parse_any_form
 
 from restfulpy.db import DatabaseManager
 from restfulpy.orm import setup_schema, session_factory, create_engine
@@ -69,6 +72,10 @@ class Response:
     def text(self):
         return self.body.decode()
 
+    @property
+    def json(self):
+        return ujson.loads(self.buffer)
+
 
 class ApiCall:
     response = None
@@ -97,6 +104,18 @@ class ApiCall:
                     strict_parsing=False
                 ).items()
             }
+
+        self.form = self.parse_form()
+
+    def parse_form(self):
+        form_file = self.environ['wsgi.input']
+        content_length = int(self.environ.get('CONTENT_LENGTH', 0))
+        form_data = form_file.read(content_length)
+        monkey_form_file = io.BytesIO(form_data)
+        self.environ['wsgi.input'] = monkey_form_file
+        form = parse_any_form(self.environ)
+        monkey_form_file.seek(0)
+        return form if form else None
 
     def __call__(self):
         response = self.application(
@@ -139,6 +158,7 @@ class ApiCall:
             verb=self.verb,
             query_string=self.query_string,
             response=self.response.dump(),
+            form=self.form,
         )
 
     def dump(self, file):
@@ -200,7 +220,7 @@ class WSGIDocumentaryTestCase(unittest.TestCase):
         cls.api_client = webtest.TestApp(cls.documentary_middleware_factory(cls.application))
         super().setUpClass()
 
-    def call(self, title, verb, url, *, query=None, environ=None, description=None, **kwargs):
+    def call(self, title, verb, url, *, query=None, environ=None, description=None, form=None, **kwargs):
         environ = environ or {}
         environ['TEST_CASE_TITLE'] = title
 
@@ -213,11 +233,13 @@ class WSGIDocumentaryTestCase(unittest.TestCase):
             else:
                 url = f'{url}?{urlencode(query, doseq=True)}'
 
+        if form:
+            kwargs['params'] = form
+
         return self.api_client._gen_request(
             verb.upper(), url,
             expect_errors=True,
             extra_environ=environ,
-
             **kwargs
         )
 
