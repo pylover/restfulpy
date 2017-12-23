@@ -13,6 +13,8 @@ from nanohttp.helpers import parse_any_form
 
 from restfulpy.db import DatabaseManager
 from restfulpy.orm import setup_schema, session_factory, create_engine
+from restfulpy.application import Application
+
 
 URL_PARAMETER_PATTERN = re.compile('/(?P<key>\w+):\s?(?P<value>\w+)')
 CONTENT_TYPE_PATTERN = re.compile('(\w+/\w+)(?:;\s?charset=(.+))?')
@@ -205,10 +207,8 @@ class FileDocumentaryMiddleware(AbstractDocumentaryMiddleware):
 class WSGIDocumentaryTestCase(unittest.TestCase):
     application = None
     api_client = None
-
-    @staticmethod
-    def application_factory():
-        raise NotImplementedError()
+    controller_factory = None
+    application_factory = None
 
     @staticmethod
     def documentary_middleware_factory(app):
@@ -216,7 +216,14 @@ class WSGIDocumentaryTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.application = cls.application_factory()
+        if cls.controller_factory:
+            cls.application = Application(f'{cls.__name__}Application', cls.controller_factory())
+            cls.application.configure(force=True)
+        elif cls.application_factory:
+            cls.application = cls.application_factory()
+        else:
+            raise ValueError('One of controller_factory and or application_factory must be provided.'
+                             )
         cls.api_client = webtest.TestApp(cls.documentary_middleware_factory(cls.application))
         super().setUpClass()
 
@@ -299,4 +306,3 @@ class RestfulpyApplicationTestCase(WSGIDocumentaryTestCase):
     def tearDownClass(cls):
         cls.drop_database()
         super().tearDownClass()
-

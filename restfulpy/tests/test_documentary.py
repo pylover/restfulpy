@@ -3,7 +3,8 @@ import unittest
 
 from nanohttp import Application, Controller, text, context, json
 
-from restfulpy.documentary import AbstractDocumentaryMiddleware, WSGIDocumentaryTestCase, Response
+from restfulpy.documentary import AbstractDocumentaryMiddleware, WSGIDocumentaryTestCase, Response, \
+    FileDocumentaryMiddleware
 
 
 last_call = None
@@ -37,11 +38,12 @@ class Root(Controller):
 
 class DocumentaryTestCase(WSGIDocumentaryTestCase):
     documentary_middleware_factory = ExaminationMiddleware
+    controller_factory = Root
 
-    @staticmethod
-    def application_factory():
-        return Application(Root())
-
+    # @staticmethod
+    # def application_factory():
+    #     return Application(Root())
+    #
     def test_basic_pipeline(self):
         response = self.call('Simple pipeline', 'GET', '/')
         self.assertEqual('Content empty', response.text)
@@ -108,9 +110,16 @@ class DocumentaryTestCase(WSGIDocumentaryTestCase):
         expected_dict = dict(field1='1', field2='2')
         self.assertDictEqual(expected_dict, response.json)
         self.assertDictEqual(expected_dict, last_call.form)
-
-    # TODO: Test call history
-    # TODO: Extract form info from metadata
+#
+# class FileDocumentaryTestCase(WSGIDocumentaryTestCase):
+#     documentary_middleware_factory = FileDocumentaryMiddleware
+#
+#     @staticmethod
+#     def application_factory():
+#         return Application(Root())
+#
+#     # TODO: Test call history
+#     # TODO: Extract form info from metadata
 
 
 if __name__ == '__main__':  # pragma: no cover

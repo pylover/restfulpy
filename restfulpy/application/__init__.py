@@ -74,22 +74,23 @@ class Application(NanohttpApplication):
     def begin_request(self):
         self.__authenticator__.authenticate_request()
 
-    # noinspection PyMethodMayBeStatic
-    def begin_response(self):
-        if settings.debug:
-            context.response_headers.add_header(
-                'Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, UNDELETE, METADATA, PATCH, SEARCH'
-            )
-            context.response_headers.add_header(
-                'Access-Control-Allow-Headers',
-                'Content-Type, Authorization, Content-Length, Connection, If-Match, If-None-Match'
-            )
-            context.response_headers.add_header(
-                'Access-Control-Expose-Headers',
-                'Content-Type, Content-Length, X-Pagination-Count, X-Pagination-Skip, X-Pagination-Take, '
-                'X-New-JWT-Token, ETag, X-Reason'
-            )
-            context.response_headers.add_header('Access-Control-Allow-Credentials', 'true')
+    # Commented for security purposes
+    # # noinspection PyMethodMayBeStatic
+    # def begin_response(self):
+    #     if settings.debug:
+    #         context.response_headers.add_header(
+    #             'Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, UNDELETE, METADATA, PATCH, SEARCH'
+    #         )
+    #         context.response_headers.add_header(
+    #             'Access-Control-Allow-Headers',
+    #             'Content-Type, Authorization, Content-Length, Connection, If-Match, If-None-Match'
+    #         )
+    #         context.response_headers.add_header(
+    #             'Access-Control-Expose-Headers',
+    #             'Content-Type, Content-Length, X-Pagination-Count, X-Pagination-Skip, X-Pagination-Take, '
+    #             'X-New-JWT-Token, ETag, X-Reason'
+    #         )
+    #         context.response_headers.add_header('Access-Control-Allow-Credentials', 'true')
 
     # noinspection PyMethodMayBeStatic
     def end_response(self):

@@ -57,7 +57,10 @@ class Authenticator:
     def setup_identity_response_header(self, principal):
         if self.identity_response_header in context.response_headers:
             del context.response_headers[self.identity_response_header]
-        context.response_headers.add_header(self.identity_response_header, str(principal.id) if principal else '')
+
+        if principal is not None:
+            context.response_headers.add_header(self.identity_response_header, str(principal.id))
+
         if principal is None and self.refresh_token_key in context.cookies:
             del context.cookies[self.refresh_token_key]
 

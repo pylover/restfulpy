@@ -109,7 +109,7 @@ class AuthenticatorTestCase(WebAppTestCase):
         self.assertEqual(headers['X-Identity'], '1')
         self.wsgi_app.jwt_token = response['token']
         response, headers = self.request('ALL', 'DELETE', '/logout')
-        self.assertEqual(headers['X-Identity'], '')
+        self.assertNotIn('X-Identity', headers)
 
     def test_refresh_token(self):
         global token_expired, refresh_token_expired

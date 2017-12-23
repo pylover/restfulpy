@@ -166,7 +166,7 @@ class StatefulAuthenticatorTestCase(WebAppTestCase):
         self.assertEqual(headers['X-Identity'], '1')
         self.wsgi_app.jwt_token = response['token']
         response, headers = self.request('ALL', 'DELETE', '/logout')
-        self.assertEqual(headers['X-Identity'], '')
+        self.assertNotIn('X-Identity', headers)
 
     def test_session_member(self):
         with Context(environ={}, application=self.application):
