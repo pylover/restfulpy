@@ -1,7 +1,7 @@
 
 import unittest
 
-from nanohttp import Application, Controller, text, context, json
+from nanohttp import Controller, text, context, json
 
 from restfulpy.documentary import AbstractDocumentaryMiddleware, WSGIDocumentaryTestCase, Response, \
     FileDocumentaryMiddleware
@@ -120,6 +120,7 @@ class DocumentaryTestCase(WSGIDocumentaryTestCase):
 #
 #     # TODO: Test call history
 #     # TODO: Extract form info from metadata
+#     # TODO: Optional role parameter
 
 
 if __name__ == '__main__':  # pragma: no cover
