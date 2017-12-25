@@ -68,8 +68,11 @@ class DocumentaryTestCase(WSGIDocumentaryTestCase):
             verb='GET',
             query_string=None,
             form=None,
+            role=None,
+            expected_status=200,
+            description=None,
             response=dict(
-                body=b'Content empty',
+                body='Content empty',
                 headers=[('Content-Type', 'text/plain; charset=utf-8')],
                 status_code=200,
                 status_text='OK'

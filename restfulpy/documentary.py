@@ -3,7 +3,7 @@ import re
 import unittest
 import collections
 from urllib.parse import parse_qs, urlencode
-from os.path import join, abspath
+from os import path, makedirs
 
 import ujson
 import yaml
@@ -63,7 +63,7 @@ class Response:
             status_code=self.status_code,
             status_text=self.status_text,
             headers=self.headers,
-            body=b''.join(self.buffer)
+            body=self.text
         )
 
     @property
@@ -152,6 +152,19 @@ class ApiCall:
     def payload(self):
         return self.environ['wsgi.input']
 
+    @property
+    def role(self):
+        return self.environ.get('TEST_CASE_ROLE', None)
+
+    @property
+    def expected_status(self):
+        status = self.environ.get('TEST_CASE_EXPECTED_STATUS', None)
+        return int(status) if status else status
+
+    @property
+    def description(self):
+        return self.environ.get('TEST_CASE_DESCRIPTION', None)
+
     def to_dict(self):
         return dict(
             title=self.title,
@@ -161,19 +174,24 @@ class ApiCall:
             query_string=self.query_string,
             response=self.response.dump(),
             form=self.form,
+            role=self.role,
+            expected_status=self.expected_status,
+            description=self.description
+
         )
 
     def dump(self, file):
-        yaml.dump(self.to_dict(), file)
+        yaml.dump(self.to_dict(), file, default_flow_style=False)
 
     def save(self, directory):
-        with open(join(directory, self.filename), '-w') as f:
+        with open(path.join(directory, self.filename), 'w') as f:
             self.dump(f)
 
     @property
     def filename(self):
-        url = self.url
-        return f'{url}'
+        url = self.url.strip('/').replace('/', '-')
+        title = self.title.replace(' ', '-')
+        return f'{url}-{self.verb}-{self.response.status}-{title}.yml'.replace(' ', '-')
 
 
 class AbstractDocumentaryMiddleware:
@@ -198,6 +216,8 @@ class FileDocumentaryMiddleware(AbstractDocumentaryMiddleware):
 
     def __init__(self, application, directory=None):
         super().__init__(application)
+        if not path.exists(directory):
+            makedirs(directory, exist_ok=True)
         self.directory = directory
 
     def on_call_done(self, call):
@@ -212,27 +232,36 @@ class WSGIDocumentaryTestCase(unittest.TestCase):
 
     @staticmethod
     def documentary_middleware_factory(app):
-        return FileDocumentaryMiddleware(app, abspath(join(settings.api_documents.directory, 'source')))
+        return FileDocumentaryMiddleware(app, path.abspath(path.join(settings.api_documents.directory, 'source')))
+
+    @classmethod
+    def application_factory(cls):
+        if cls.controller_factory:
+            app = Application(f'{cls.__name__}Application', cls.controller_factory())
+            app.configure(force=True)
+            return app
+        else:
+            raise ValueError('One of controller_factory and or application_factory must be provided.')
 
     @classmethod
     def setUpClass(cls):
-        if cls.controller_factory:
-            cls.application = Application(f'{cls.__name__}Application', cls.controller_factory())
-            cls.application.configure(force=True)
-        elif cls.application_factory:
-            cls.application = cls.application_factory()
-        else:
-            raise ValueError('One of controller_factory and or application_factory must be provided.'
-                             )
-        cls.api_client = webtest.TestApp(cls.documentary_middleware_factory(cls.application))
         super().setUpClass()
+        cls.application = cls.application_factory()
+        cls.api_client = webtest.TestApp(cls.documentary_middleware_factory(cls.application))
 
-    def call(self, title, verb, url, *, query=None, environ=None, description=None, form=None, **kwargs):
+    def call(self, title, verb, url, *, query=None, environ=None, description=None, form=None, role=None, status=200,
+             **kwargs):
         environ = environ or {}
         environ['TEST_CASE_TITLE'] = title
 
         if description:
             environ['TEST_CASE_DESCRIPTION'] = description
+
+        if role:
+            environ['TEST_CASE_ROLE'] = role
+
+        if status:
+            environ['TEST_CASE_EXPECTED_STATUS'] = str(status)
 
         if query:
             if isinstance(query, str):
@@ -243,12 +272,15 @@ class WSGIDocumentaryTestCase(unittest.TestCase):
         if form:
             kwargs['params'] = form
 
-        return self.api_client._gen_request(
+        response = self.api_client._gen_request(
             verb.upper(), url,
-            expect_errors=True,
+            expect_errors=status is not None,
             extra_environ=environ,
             **kwargs
         )
+        if status:
+            self.assertEqual(status, response.status_code)
+        return response
 
 
 # noinspection PyAbstractClass
@@ -257,16 +289,19 @@ class RestfulpyApplicationTestCase(WSGIDocumentaryTestCase):
     engine = None
 
     @classmethod
-    def configure_application(cls):
-        cls.application.configure(force=True, context=dict(unittest=True))
-        settings.merge("""
+    def application_factory(cls):
+        app = super().application_factory()
+        app.configure(force=True, context=dict(unittest=True))
+        settings.merge('''
             messaging:
               default_messenger: restfulpy.testing.MockupMessenger
             logging:
               loggers:
                 default:
                   level: critical
-        """)
+        ''')
+        settings.db.url = settings.db.test_url
+        return app
 
     @classmethod
     def prepare_database(cls):
@@ -282,10 +317,7 @@ class RestfulpyApplicationTestCase(WSGIDocumentaryTestCase):
     @classmethod
     def drop_database(cls):
         cls.session.close_all()
-        if cls.session.bind and hasattr(cls.session.bind, 'dispose'):
-            cls.session.bind.dispose()
         cls.engine.dispose()
-
         with DatabaseManager() as m:
             m.drop_database()
 
@@ -296,13 +328,12 @@ class RestfulpyApplicationTestCase(WSGIDocumentaryTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.configure_application()
-        settings.db.url = settings.db.test_url
         cls.prepare_database()
         cls.application.initialize_models()
         cls.mockup()
 
     @classmethod
     def tearDownClass(cls):
+        cls.application.shutdown()
         cls.drop_database()
         super().tearDownClass()

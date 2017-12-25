@@ -56,6 +56,9 @@ worker:
 api_documents:
   directory: %(data_dir)s/api-documents
 
+documentary:
+  source_directory: %(data_dir)s/documentary/source
+
 smtp:
   host: smtp.example.com
   port: 587
