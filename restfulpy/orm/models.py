@@ -11,12 +11,12 @@ from sqlalchemy.ext.hybrid import HYBRID_PROPERTY
 from sqlalchemy.ext.associationproxy import ASSOCIATION_PROXY
 from sqlalchemy.inspection import inspect
 
-from restfulpy.utils import format_iso_datetime, format_iso_time, to_camel_case
-from restfulpy.orm.mixins import PaginationMixin, FilteringMixin, OrderingMixin
-from restfulpy.orm.field import Field
-from restfulpy.orm.metadata import MetadataField
-from restfulpy.validation import validate_form
-from restfulpy.constants import ISO_DATETIME_FORMAT, ISO_DATE_FORMAT, ISO_DATETIME_PATTERN, POSIX_TIME_PATTERN
+from ..utils import format_iso_datetime, format_iso_time, to_camel_case
+from ..metadata import MetadataField
+from ..validation import validate_form
+from ..constants import ISO_DATETIME_FORMAT, ISO_DATE_FORMAT, ISO_DATETIME_PATTERN, POSIX_TIME_PATTERN
+from .mixins import PaginationMixin, FilteringMixin, OrderingMixin
+from .field import Field
 
 
 class BaseModel(object):

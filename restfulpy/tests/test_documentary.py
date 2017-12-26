@@ -3,9 +3,7 @@ import unittest
 
 from nanohttp import Controller, text, context, json
 
-from restfulpy.documentary import AbstractDocumentaryMiddleware, WSGIDocumentaryTestCase, Response, \
-    FileDocumentaryMiddleware
-
+from restfulpy.documentary import AbstractDocumentaryMiddleware, WSGIDocumentaryTestCase, Response
 
 last_call = None
 
@@ -110,6 +108,6 @@ class DocumentaryTestCase(WSGIDocumentaryTestCase):
         self.assertDictEqual(expected_dict, response.json)
         self.assertDictEqual(expected_dict, last_call.form)
 
-    
+
 if __name__ == '__main__':  # pragma: no cover
     unittest.main()

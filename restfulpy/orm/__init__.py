@@ -12,7 +12,6 @@ from alembic import config, command
 from .field import Field, relationship, composite
 from .mixins import ModifiedMixin, SoftDeleteMixin, TimestampMixin, ActivationMixin, PaginationMixin, FilteringMixin, \
     OrderingMixin, OrderableMixin, ApproveRequiredMixin, FullTextSearchMixin, AutoActivationMixin
-from .metadata import MetadataField
 from .models import BaseModel
 from .fulltext_search import to_tsvector, fts_escape
 from .types import FakeJson

@@ -67,15 +67,8 @@ class MetadataField(object):
             except NotImplementedError:
                 # As we spoke, hybrid properties have no type
                 type_ = ''
-        # Commented out because cannot reach here by tests
-        # elif hasattr(c, 'target'):
-        #     try:
-        #         type_ = c.target.name
-        #     except AttributeError:  # pragma: no cover
-        #         type_ = c.target.right.name
         else:  # pragma: no cover
             type_ = 'str'
-            # raise AttributeError('Unable to recognize type of the column: %s' % c.key)
 
         result.append(cls(
             json_name,
@@ -85,7 +78,7 @@ class MetadataField(object):
             optional=c.nullable if hasattr(c, 'nullable') else None,
             pattern=info.get('pattern'),
             max_length=info.get('max_length') if 'max_length' in info else
-            (c.type.length if hasattr(c, 'type') and hasattr(c.type, 'length') else None),
+                (c.type.length if hasattr(c, 'type') and hasattr(c.type, 'length') else None),
             min_length=info.get('min_length'),
             message=info.get('message', 'Invalid Value'),
             watermark=info.get('watermark', None),
