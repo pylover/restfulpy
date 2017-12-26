@@ -12,7 +12,7 @@ from sqlalchemy.ext.associationproxy import ASSOCIATION_PROXY
 from sqlalchemy.inspection import inspect
 
 from ..utils import format_iso_datetime, format_iso_time, to_camel_case
-from ..metadata import MetadataField
+from .field import ModelFieldInfo
 from ..validation import validate_form
 from ..constants import ISO_DATETIME_FORMAT, ISO_DATE_FORMAT, ISO_DATETIME_PATTERN, POSIX_TIME_PATTERN
 from .mixins import PaginationMixin, FilteringMixin, OrderingMixin
@@ -80,7 +80,7 @@ class BaseModel(object):
     @classmethod
     def iter_metadata_fields(cls):
         for c in cls.iter_json_columns(relationships=True, include_readonly_columns=True, include_protected_columns=True):
-            yield from MetadataField.from_column(cls.get_column(c), info=c.info)
+            yield from ModelFieldInfo.from_column(cls.get_column(c), info=c.info)
 
     @classmethod
     def json_metadata(cls):

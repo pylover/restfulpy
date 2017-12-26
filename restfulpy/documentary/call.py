@@ -8,6 +8,7 @@ import yaml
 from nanohttp.helpers import parse_any_form
 
 from .constants import  URL_PARAMETER_PATTERN, CONTENT_TYPE_PATTERN
+from ..fieldinfo import FieldInfo
 
 
 class Response:
@@ -97,7 +98,12 @@ class ApiCall:
                 ).items()
             }
 
-        self.form = self.parse_form()
+        fields = environ.get('TEST_CASE_FIELDS')
+        if fields:
+            fields = ujson.loads(fields)
+        form = self.parse_form()
+
+        self.form = {k: ApiField(v, **fields.get(k, {})) for k, v in form.items()} if form else None
 
     def parse_form(self):
         form_file = self.environ['wsgi.input']
@@ -163,11 +169,10 @@ class ApiCall:
             verb=self.verb,
             query_string=self.query_string,
             response=self.response.dump(),
-            form=self.form,
+            form={k: v.to_dict() for k, v in self.form.items()} if self.form else None,
             role=self.role,
             expected_status=self.expected_status,
             description=self.description
-
         )
 
     def dump(self, file):
@@ -182,3 +187,11 @@ class ApiCall:
         url = self.url.strip('/').replace('/', '-')
         title = self.title.replace(' ', '-')
         return f'{url}-{self.verb}-{self.response.status}-{title}.yml'.replace(' ', '-')
+
+
+class ApiField(FieldInfo):
+    def __init__(self, value, **kwargs):
+        super().__init__(**kwargs)
+        import builtins
+        t = getattr(builtins, self.type_, str)
+        self.value = t(value)

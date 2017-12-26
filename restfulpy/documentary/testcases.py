@@ -4,6 +4,7 @@ from os import path
 
 import webtest
 from nanohttp import settings
+import ujson
 
 from restfulpy.db import DatabaseManager
 from restfulpy.orm import setup_schema, session_factory, create_engine
@@ -15,6 +16,7 @@ class WSGIDocumentaryTestCase(unittest.TestCase):
     api_client = None
     controller_factory = None
     application_factory = None
+    fields = None
 
     @staticmethod
     def documentary_middleware_factory(app):
@@ -48,6 +50,9 @@ class WSGIDocumentaryTestCase(unittest.TestCase):
 
         if status:
             environ['TEST_CASE_EXPECTED_STATUS'] = str(status)
+
+        if self.fields:
+            environ['TEST_CASE_FIELDS'] = ujson.dumps({n: f.to_dict() for n, f in self.fields.items()})
 
         if query:
             if isinstance(query, str):

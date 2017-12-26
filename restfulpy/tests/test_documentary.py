@@ -3,8 +3,8 @@ import unittest
 
 from nanohttp import Controller, text, context, json
 
-from restfulpy.documentary import AbstractDocumentaryMiddleware, WSGIDocumentaryTestCase, Response
-from restfulpy.metadata import MetadataField
+from restfulpy.fieldinfo import FieldInfo
+from restfulpy.documentary import AbstractDocumentaryMiddleware, WSGIDocumentaryTestCase, Response, ApiField
 
 last_call = None
 
@@ -39,9 +39,10 @@ class DocumentaryTestCase(WSGIDocumentaryTestCase):
     documentary_middleware_factory = ExaminationMiddleware
     controller_factory = Root
 
-    # fields = [
-    #     MetadataField('field1', )
-    # ]
+    fields = {
+        'field1': FieldInfo(type_=int),
+        'field2': FieldInfo(type_=str)
+    }
 
     def test_basic_pipeline(self):
         response = self.call('Simple pipeline', 'GET', '/')
@@ -105,13 +106,29 @@ class DocumentaryTestCase(WSGIDocumentaryTestCase):
             'POST',
             '/signup',
             form=dict(
-                field1=1,
-                field2=2
+                field1=12,
+                field2='two'
             )
         )
-        expected_dict = dict(field1='1', field2='2')
+        expected_dict = dict(field1='12', field2='two')
         self.assertDictEqual(expected_dict, response.json)
-        self.assertDictEqual(expected_dict, last_call.form)
+        self.assertDictEqual(
+            ApiField(type_=int, value=12).to_dict(),
+            last_call.form['field1'].to_dict()
+        )
+        self.assertDictEqual(dict(
+                type_='int',
+                value=12,
+                default=None,
+                optional=False,
+                pattern=None,
+                max_length=None,
+                min_length=None,
+                readonly=False,
+                protected=False
+            ),
+            last_call.to_dict()['form']['field1']
+        )
 
 
 if __name__ == '__main__':  # pragma: no cover
