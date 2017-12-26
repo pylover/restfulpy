@@ -84,7 +84,7 @@ class BaseModel(object):
 
     @classmethod
     def json_metadata(cls):
-        fields = {f.json_name: f.to_json() for f in cls.iter_metadata_fields()}
+        fields = {f.name: f.to_json() for f in cls.iter_metadata_fields()}
         mapper = inspect(cls)
         return {
             'name': cls.__name__,
@@ -248,11 +248,11 @@ class BaseModel(object):
         requires = []
         for field in cls.iter_metadata_fields():
             if field.pattern:
-                patterns[field.json_name] = field.pattern
+                patterns[field.name] = field.pattern
             if field.readonly:
-                blacklist.append(field.json_name)
+                blacklist.append(field.name)
             elif not field.optional:
-                requires.append(field.json_name)
+                requires.append(field.name)
         result = {}
         if patterns:
             result['pattern'] = patterns

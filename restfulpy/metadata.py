@@ -1,25 +1,19 @@
 from restfulpy.utils import to_camel_case
 
 
-class MetadataField(object):
-    def __init__(self, json_name, key, type_=str, default_=None, optional=None,
-                 pattern=None, max_length=None, min_length=None, message='Invalid value',
-                 watermark=None, label=None, icon=None, example=None, primary_key=False, readonly=False,
+class Field:
+    def __init__(self, name, type_=str, default_=None, optional=None,
+                 pattern=None, max_length=None, min_length=None,
+                 example=None, readonly=False,
                  protected=False):
-        self.json_name = json_name
-        self.key = key[1:] if key.startswith('_') else key
+        self.name = name
         self.type_ = type_
         self.default_ = default_
         self.optional = optional
         self.pattern = pattern
         self.max_length = max_length
         self.min_length = min_length
-        self.message = message
-        self.watermark = watermark
-        self.label = label or watermark
-        self.icon = icon
         self.example = example
-        self.primary_key = primary_key
         self.readonly = readonly
         self.protected = protected
 
@@ -29,23 +23,29 @@ class MetadataField(object):
 
     def to_json(self):
         return dict(
-            name=self.json_name,
-            key=self.key,
+            name=self.name,
             type_=self.type_name,
             default=self.default_,
             optional=self.optional,
             pattern=self.pattern,
             maxLength=self.max_length,
             minLength=self.min_length,
-            message=self.message,
-            watermark=self.watermark,
-            label=self.label,
-            icon=self.icon,
             example=self.example,
-            primaryKey=self.primary_key,
             readonly=self.readonly,
             protected=self.protected
         )
+
+
+class MetadataField(Field):
+    def __init__(self, name, key, primary_key=False, label=None, watermark=None, icon=None,
+                 message='Invalid value', **kwargs):
+        super().__init__(name, **kwargs)
+        self.key = key[1:] if key.startswith('_') else key
+        self.primary_key = primary_key
+        self.label = label or watermark
+        self.watermark = watermark
+        self.icon = icon
+        self.message = message
 
     @classmethod
     def from_column(cls, c, info=None):
@@ -90,4 +90,16 @@ class MetadataField(object):
             protected=info.get('protected', False)
         ))
 
+        return result
+
+    def to_json(self):
+        result = super().to_json()
+        result.update(
+            message=self.message,
+            watermark=self.watermark,
+            label=self.label,
+            icon=self.icon,
+            key=self.key,
+            primaryKey=self.primary_key,
+        )
         return result

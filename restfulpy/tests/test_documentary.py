@@ -4,6 +4,7 @@ import unittest
 from nanohttp import Controller, text, context, json
 
 from restfulpy.documentary import AbstractDocumentaryMiddleware, WSGIDocumentaryTestCase, Response
+from restfulpy.metadata import MetadataField
 
 last_call = None
 
@@ -37,6 +38,10 @@ class Root(Controller):
 class DocumentaryTestCase(WSGIDocumentaryTestCase):
     documentary_middleware_factory = ExaminationMiddleware
     controller_factory = Root
+
+    # fields = [
+    #     MetadataField('field1', )
+    # ]
 
     def test_basic_pipeline(self):
         response = self.call('Simple pipeline', 'GET', '/')
