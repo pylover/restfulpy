@@ -1,5 +1,6 @@
 import collections
-from os import path, makedirs
+from os import path, makedirs, remove
+import glob
 
 from .call import ApiCall
 
@@ -26,8 +27,12 @@ class FileDocumentaryMiddleware(AbstractDocumentaryMiddleware):
 
     def __init__(self, application, directory=None):
         super().__init__(application)
+        directory = directory.rstrip('/')
         if not path.exists(directory):
             makedirs(directory, exist_ok=True)
+        # FIXME: Start once
+        # for f in glob.glob(f'{directory}/*.yml'):
+        #     remove(f)
         self.directory = directory
 
     def on_call_done(self, call):
