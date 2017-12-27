@@ -53,13 +53,14 @@ class Response:
         return dict(
             status_code=self.status_code,
             status_text=self.status_text,
-            headers=self.headers,
-            body=self.text
+            headers=[f'{k}: {v}' for k, v in self.headers],
+            body=self.json if self.content_type == 'application/json' else self.text
         )
 
     @property
     def body(self):
-        return b''.join(self.buffer)
+        payload = b''.join(self.buffer)
+        return payload
 
     @property
     def text(self):
@@ -67,7 +68,7 @@ class Response:
 
     @property
     def json(self):
-        return ujson.loads(self.buffer)
+        return ujson.loads(self.body)
 
 
 class ApiCall:
@@ -99,10 +100,8 @@ class ApiCall:
             }
 
         fields = environ.get('TEST_CASE_FIELDS')
-        if fields:
-            fields = ujson.loads(fields)
+        fields = ujson.loads(fields) if fields else {}
         form = self.parse_form()
-
         self.form = {k: ApiField(v, **fields.get(k, {})) for k, v in form.items()} if form else None
 
     def parse_form(self):
