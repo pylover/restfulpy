@@ -73,7 +73,7 @@ class DocumentaryTestCase(WSGIDocumentaryTestCase):
             description=None,
             response=dict(
                 body='Content empty',
-                headers=[('Content-Type', 'text/plain; charset=utf-8')],
+                headers=['Content-Type: text/plain; charset=utf-8'],
                 status_code=200,
                 status_text='OK'
             )
