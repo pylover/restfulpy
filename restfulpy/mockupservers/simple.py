@@ -199,9 +199,7 @@ class MockupApplication(Application):
 class SimpleMockupServerLauncher(Launcher):
     __command__ = 'mockup-server'
     default_bind = '8080'
-
-    def __init__(self):
-        self.application = MockupApplication()
+    application = None
 
     @classmethod
     def create_parser(cls, subparsers):
@@ -234,6 +232,7 @@ class SimpleMockupServerLauncher(Launcher):
             print(__version__)
             return
 
+        self.application = MockupApplication()
         self.application.configure(files=self.args.config_file)
         if exists(db):
             remove(db)

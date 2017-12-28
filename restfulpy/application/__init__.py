@@ -3,8 +3,7 @@ from os.path import abspath, exists, join, dirname
 from appdirs import user_config_dir
 from sqlalchemy.exc import SQLAlchemyError
 
-from nanohttp import Application as NanohttpApplication, Controller, settings, context, HttpStatus, \
-    HttpInternalServerError
+from nanohttp import Application as NanohttpApplication, Controller, HttpStatus, HttpInternalServerError
 from .cli.main import MainLauncher
 from ..authentication import Authenticator
 from ..configuration import configure
@@ -73,24 +72,6 @@ class Application(NanohttpApplication):
     # Hooks
     def begin_request(self):
         self.__authenticator__.authenticate_request()
-
-    # Commented for security purposes
-    # # noinspection PyMethodMayBeStatic
-    # def begin_response(self):
-    #     if settings.debug:
-    #         context.response_headers.add_header(
-    #             'Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, UNDELETE, METADATA, PATCH, SEARCH'
-    #         )
-    #         context.response_headers.add_header(
-    #             'Access-Control-Allow-Headers',
-    #             'Content-Type, Authorization, Content-Length, Connection, If-Match, If-None-Match'
-    #         )
-    #         context.response_headers.add_header(
-    #             'Access-Control-Expose-Headers',
-    #             'Content-Type, Content-Length, X-Pagination-Count, X-Pagination-Skip, X-Pagination-Take, '
-    #             'X-New-JWT-Token, ETag, X-Reason'
-    #         )
-    #         context.response_headers.add_header('Access-Control-Allow-Credentials', 'true')
 
     # noinspection PyMethodMayBeStatic
     def end_response(self):

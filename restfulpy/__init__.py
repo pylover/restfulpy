@@ -18,7 +18,7 @@ __version__ = '0.39.0'
 class RestfulpyMainLauncher(Launcher):
 
     def __init__(self):
-        self.parser = parser = argparse.ArgumentParser(description='Restfulpy command line interface.')
+        self.parser = parser = argparse.ArgumentParser(prog='restfulpy', description='Restfulpy command line interface.')
         subparsers = parser.add_subparsers(title="Restfulpy sub commands", prog=basename(sys.argv[0]), dest="command")
 
         from restfulpy.mockupservers import SimpleMockupServerLauncher
