@@ -1,7 +1,7 @@
 from glob import glob
 from os.path import join
 
-import yaml
+from .call import ApiCall
 
 
 class DocumentFormatter:
@@ -12,11 +12,13 @@ class DocumentFormatter:
         for filename in glob(join(directory, '*.yml')):
             with open(filename) as f:
                 self.load_file(f)
+        print(self.locations)
 
     def load_file(self, f):
-        spec = yaml.load(f)
-        # self.locations.setdefault(sepc)
-        return spec
+        call = ApiCall.load(f)
+        verbs = self.locations.setdefault(call.url, {})
+        calls = verbs.setdefault(call.verb, [])
+        calls.append(call)
 
     def dump(self, directory):
         raise NotImplementedError()

@@ -14,7 +14,7 @@ class AbstractDocumentaryMiddleware:
         raise NotImplementedError()
 
     def __call__(self, environ, start_response):
-        call = ApiCall.from_environ(environ, self.application, start_response)
+        call = ApiCall.from_environ(environ)
 
         response = self.application(
             environ,
