@@ -79,6 +79,13 @@ class DocumentaryTestCase(WSGIDocumentaryTestCase):
             )
         ))
 
+    def test_skip(self):
+        global last_call
+        last_call = None
+        response = self.call('SKIP:', 'GET', '/')
+        self.assertEqual('Content empty', response.text)
+        self.assertIsNone(last_call)
+
     def test_url_parameters(self):
         response = self.call('Url parameters 1', 'GET', '/id: 1')
         self.assertEqual('Content 1', response.text)

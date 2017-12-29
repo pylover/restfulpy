@@ -1,6 +1,5 @@
 import collections
-from os import path, makedirs, remove
-import glob
+from os import path, makedirs
 
 from .call import ApiCall
 
@@ -17,8 +16,9 @@ class AbstractDocumentaryMiddleware:
     def __call__(self, environ, start_response):
         call = ApiCall(self.application, environ, start_response)
         call()
-        self.call_history.append(call)
-        self.on_call_done(call)
+        if not call.title.startswith('SKIP:'):
+            self.call_history.append(call)
+            self.on_call_done(call)
         for i in call.response.buffer:
             yield i
 
@@ -30,9 +30,6 @@ class FileDocumentaryMiddleware(AbstractDocumentaryMiddleware):
         directory = directory.rstrip('/')
         if not path.exists(directory):
             makedirs(directory, exist_ok=True)
-        # FIXME: Start once
-        # for f in glob.glob(f'{directory}/*.yml'):
-        #     remove(f)
         self.directory = directory
 
     def on_call_done(self, call):

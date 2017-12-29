@@ -39,6 +39,7 @@ class WSGIDocumentaryTestCase(unittest.TestCase):
 
     def call(self, title, verb, url, *, query=None, environ=None, description=None, form=None, role=None, status=200,
              **kwargs):
+
         environ = environ or {}
         environ['TEST_CASE_TITLE'] = title
 
