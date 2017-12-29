@@ -30,6 +30,10 @@ class RestfulpyMainLauncher(Launcher):
 
         from restfulpy.mockupservers import SimpleMockupServerLauncher
         SimpleMockupServerLauncher.register(subparsers)
+
+        from restfulpy.documentary import DocumentaryLauncher
+        DocumentaryLauncher.register(subparsers)
+
         argcomplete.autocomplete(parser)
 
     def launch(self, args=None):
