@@ -14,8 +14,14 @@ class AbstractDocumentaryMiddleware:
         raise NotImplementedError()
 
     def __call__(self, environ, start_response):
-        call = ApiCall(self.application, environ, start_response)
-        call()
+        call = ApiCall.from_environ(environ, self.application, start_response)
+
+        response = self.application(
+            environ,
+            call.start_response_wrapper(start_response)
+        )
+        call.response.load(response)
+
         if not call.title.startswith('SKIP:'):
             self.call_history.append(call)
             self.on_call_done(call)

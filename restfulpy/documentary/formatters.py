@@ -5,6 +5,8 @@ import yaml
 
 
 class DocumentFormatter:
+    def __init__(self):
+        self.locations = {}
 
     def load(self, directory):
         for filename in glob(join(directory, '*.yml')):
@@ -13,7 +15,8 @@ class DocumentFormatter:
 
     def load_file(self, f):
         spec = yaml.load(f)
-        print(spec)
+        # self.locations.setdefault(sepc)
+        return spec
 
     def dump(self, directory):
         raise NotImplementedError()

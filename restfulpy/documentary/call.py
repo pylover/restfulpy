@@ -76,89 +76,72 @@ class ApiCall:
     url_parameters = None
     query_string = None
 
-    def __init__(self, application, environ, start_response):
+    def __init__(self, url, application, start_response, verb='GET', title=None, description=None, query_string=None,
+                 form=None, role=None, expected_status=None, url_parameters=None):
         self.application = application
-        self.environ = environ
         self.start_response = start_response
+        self.description = description
+        self.query_string = query_string
+        self.form = form
+        self.url = url
+        self.title = title
+        self.verb = verb
+        self.role = role
+        self.expected_status = expected_status
+        self.url_parameters = url_parameters
 
-        if URL_PARAMETER_PATTERN.search(self.url):
-            # noinspection PyTypeChecker
-            self.url_parameters = dict()
-            url = self.url
-            for k, v in URL_PARAMETER_PATTERN.findall(self.url):
-                self.url_parameters[k] = v
-                url = re.sub(f'{k}:\s?', '', url)
-            self.url = url
-
-        if self.environ['QUERY_STRING']:
-            self.query_string = {
+    @classmethod
+    def from_environ(cls, environ, application, start_response, *args, **kwargs):
+        if environ['QUERY_STRING']:
+            kwargs['query_string'] = {
                 k: v[0] if len(v) == 1 else v for k, v in parse_qs(
-                    self.environ['QUERY_STRING'],
+                    environ['QUERY_STRING'],
                     keep_blank_values=True,
                     strict_parsing=False
                 ).items()
             }
 
+        kwargs['description'] = environ.get('TEST_CASE_DESCRIPTION', None)
+        kwargs['title'] = environ['TEST_CASE_TITLE']
+        kwargs['verb'] = environ['REQUEST_METHOD'].upper()
+        kwargs['role'] = environ.get('TEST_CASE_ROLE', None)
+
+        status = environ.get('TEST_CASE_EXPECTED_STATUS', None)
+        kwargs['expected_status'] = int(status) if status else status
+
+        url = environ['PATH_INFO']
+        if URL_PARAMETER_PATTERN.search(url):
+            # noinspection PyTypeChecker
+            url_parameters = dict()
+            for k, v in URL_PARAMETER_PATTERN.findall(url):
+                url_parameters[k] = v
+                url = re.sub(f'{k}:\s?', '', url)
+            environ['PATH_INFO'] = url
+        else:
+            url_parameters = None
+        kwargs['url_parameters'] = url_parameters
+
         fields = environ.get('TEST_CASE_FIELDS')
         fields = ujson.loads(fields) if fields else {}
-        form = self.parse_form()
-        self.form = {k: ApiField(v, **fields.get(k, {})) for k, v in form.items()} if form else None
+        kwargs['form'] = cls.parse_form(environ, fields=fields)
+        return cls(url, application, start_response, *args, **kwargs)
 
-    def parse_form(self):
-        form_file = self.environ['wsgi.input']
-        content_length = int(self.environ.get('CONTENT_LENGTH', 0))
+    @staticmethod
+    def parse_form(environ, fields):
+        form_file = environ['wsgi.input']
+        content_length = int(environ.get('CONTENT_LENGTH', 0))
         form_data = form_file.read(content_length)
         monkey_form_file = io.BytesIO(form_data)
-        self.environ['wsgi.input'] = monkey_form_file
-        form = parse_any_form(self.environ)
+        environ['wsgi.input'] = monkey_form_file
+        form = parse_any_form(environ)
         monkey_form_file.seek(0)
-        return form if form else None
-
-    def __call__(self):
-        response = self.application(
-            self.environ,
-            self.start_response_wrapper(self.start_response)
-        )
-        self.response.load(response)
+        return {k: ApiField(v, **fields.get(k, {})) for k, v in form.items()} if form else None
 
     def start_response_wrapper(self, start_response):
         def start_response_profiler(status, headers):
             self.response = Response(status, headers)
             return start_response(status, headers)
         return start_response_profiler
-
-    @property
-    def url(self):
-        return self.environ['PATH_INFO']
-
-    @url.setter
-    def url(self, v):
-        self.environ['PATH_INFO'] = v
-
-    @property
-    def title(self):
-        return self.environ['TEST_CASE_TITLE']
-
-    @property
-    def verb(self):
-        return self.environ['REQUEST_METHOD'].upper()
-
-    @property
-    def payload(self):
-        return self.environ['wsgi.input']
-
-    @property
-    def role(self):
-        return self.environ.get('TEST_CASE_ROLE', None)
-
-    @property
-    def expected_status(self):
-        status = self.environ.get('TEST_CASE_EXPECTED_STATUS', None)
-        return int(status) if status else status
-
-    @property
-    def description(self):
-        return self.environ.get('TEST_CASE_DESCRIPTION', None)
 
     def to_dict(self):
         return dict(
