@@ -35,3 +35,4 @@ class DocumentGeneratorLauncher(Launcher):
         from .formatters import MarkdownFormatter
         formatter = MarkdownFormatter()
         formatter.load(self.args.input_directory)
+        formatter.dump(self.args.output_directory)
