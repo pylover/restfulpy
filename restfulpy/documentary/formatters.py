@@ -37,7 +37,7 @@ class DocumentFormatter:
 
     def write_file(self, filename, calls):
         with open(filename) as file:
-            
+            raise NotImplementedError()
 
 
 class MarkdownFormatter(DocumentFormatter):
