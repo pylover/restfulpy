@@ -49,7 +49,7 @@ class Task(TimestampMixin, DeclarativeBase):
             .order_by(cls.priority.desc()) \
             .order_by(cls.created_at) \
             .limit(1) \
-            .with_lockmode('update')
+            .with_for_update()
 
         cte = find_query.cte('find_query')
 
