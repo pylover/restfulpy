@@ -53,7 +53,6 @@ class Application(NanohttpApplication):
         files = ([files] if isinstance(files, str) else files) or []
         local_config_file = join(user_config_dir(), '%s.yml' % self.name)
         if exists(local_config_file):  # pragma: no cover
-            print('Gathering config file: %s' % local_config_file)
             files.insert(0, local_config_file)
 
         configure(config=self.builtin_configuration, files=files, context=_context, **kwargs)
