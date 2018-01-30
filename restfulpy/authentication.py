@@ -13,6 +13,49 @@ from restfulpy.principal import JwtPrincipal, JwtRefreshToken
 class Authenticator:
     """
     An extendable stateless abstract class for encapsulating all stuff about authentication
+                                                  +
+                                                  |
+                                    Yes  +--------+-------+  No
+                                    +----+  Token Exists? +-----+
+                                    |    +----------------+     |
+                                    |                           |
+                                    |                           |
+                                    |                           |
+                       No  +--------+-------+  Yes              |
+                      +----+ Verify Tokens? +-------+           |
+                      |    +----------------+       |           |
+                      |                             |   Continue|
+    +---+   Yes +-----+-----+                       |      as   |
+    |400+<------+  Damaged? |                       |    visitor|
+    +---+       +-----------+                       |           |
+                    No|                             |           |
+                      |                             |           |
+                 +----+----+                        |           |
+                 | Expired |                        |           |
+                 +----+----+                        |           |
+                      |                             |           |
+                 +----+----+                        |           |
+     +---+  No   | Refresh |                        |           |
+     |401+<------+ Token   |                 As User|           |
+     +---+       | Exists? |                        |           |
+                 +----+----+                        |           |
+                      |                             |           |
+                   Yes|                             |           |
+                      |                             |           |
+              +-------+-------+                     |           |
+              |               |                     |           |
+              | Renew Token   |                     |           |
+              |     &         |                     |           |
+              | Add to Header |                     |           |
+              |               |                     |           |
+              +-------+-------+                     |           |
+                      |                             |           |
+                      |                             |           |
+                      |                             |           |
+                      |          +----------+       |           |
+                      +----------> WSGI App <-------v-----------+
+                                 +----------+
+
     """
 
     token_key = 'HTTP_AUTHORIZATION'
