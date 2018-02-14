@@ -9,7 +9,7 @@ from sqlalchemy.sql.schema import MetaData
 from sqlalchemy.ext.declarative import declarative_base
 from alembic import config, command
 
-from .field import Field, relationship, composite
+from .field import Field, relationship, composite, ModelFieldInfo
 from .mixins import ModifiedMixin, SoftDeleteMixin, TimestampMixin, ActivationMixin, PaginationMixin, FilteringMixin, \
     OrderingMixin, OrderableMixin, ApproveRequiredMixin, FullTextSearchMixin, AutoActivationMixin
 from .models import BaseModel
