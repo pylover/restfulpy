@@ -17,7 +17,7 @@ dependencies = [
     'alembic',
     'itsdangerous',
     'mako',
-    'psycopg2',
+    'psycopg2-binary',
     'redis',
     'pyyaml',
     'ua-parser',
