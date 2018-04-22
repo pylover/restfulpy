@@ -7,7 +7,7 @@ class JwtPrincipal:
         self.payload = payload
 
     @classmethod
-    def create_serializer(cls, force=False):
+    def create_serializer(cls, force=False, max_age=None):
         config = cls.get_config()
 
         if force:
@@ -18,12 +18,12 @@ class JwtPrincipal:
         else:
             return TimedJSONWebSignatureSerializer(
                 config['secret'],
-                expires_in=config['max_age'],
+                expires_in=max_age or config['max_age'],
                 algorithm_name=config['algorithm']
             )
 
-    def dump(self):
-        return self.create_serializer().dumps(self.payload)
+    def dump(self, max_age=None):
+        return self.create_serializer(max_age=max_age).dumps(self.payload)
 
     @classmethod
     def load(cls, encoded, force=False):
