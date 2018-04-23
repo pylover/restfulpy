@@ -22,6 +22,7 @@ dependencies = [
     'pyyaml',
     'ua-parser',
     'user-agents',
+    'pycrypto',
 
     # Testing
     'requests',
