@@ -3,7 +3,8 @@ from os.path import abspath, exists, join, dirname
 from appdirs import user_config_dir
 from sqlalchemy.exc import SQLAlchemyError
 
-from nanohttp import Application as NanohttpApplication, Controller, HttpStatus, HttpInternalServerError
+from nanohttp import Application as NanohttpApplication, Controller, HttpStatus, \
+    HttpInternalServerError, settings
 from .cli.main import MainLauncher
 from ..authentication import Authenticator
 from ..configuration import configure

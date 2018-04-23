@@ -12,7 +12,7 @@ from .cli import Launcher
 warnings.filterwarnings('ignore', message='Unknown REQUEST_METHOD')
 
 
-__version__ = '0.46.0'
+__version__ = '0.46.1'
 
 
 class RestfulpyMainLauncher(Launcher):
