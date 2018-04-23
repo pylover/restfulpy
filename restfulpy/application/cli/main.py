@@ -10,6 +10,7 @@ from .serve import ServeLauncher
 from .worker import WorkerLauncher
 from .dev import DevLauncher
 from .configuration import ConfigurationLauncher
+from .jwttoken import JWTLauncher
 
 
 class MainLauncher(Launcher):
@@ -51,6 +52,9 @@ class MainLauncher(Launcher):
 
         if application.__configuration_cipher__ is not None:
             ConfigurationLauncher.register(subparsers)
+
+        if application.__authenticator__ is not None:
+            JWTLauncher.register(subparsers)
 
         application.register_cli_launchers(subparsers)
         argcomplete.autocomplete(parser)
