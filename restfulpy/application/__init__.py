@@ -51,12 +51,21 @@ class Application(NanohttpApplication):
         if context:
             _context.update(context)
 
+        configure(config=self.builtin_configuration, context=_context, **kwargs)
+
         files = ([files] if isinstance(files, str) else files) or []
         local_config_file = join(user_config_dir(), '%s.yml' % self.name)
         if exists(local_config_file):  # pragma: no cover
             files.insert(0, local_config_file)
 
-        configure(config=self.builtin_configuration, files=files, context=_context, **kwargs)
+        for filename in files:
+            with open(filename, 'rb') as f:
+                header = f.read(4)
+                if header == b'#enc':
+                    content = self.__configuration_cipher__.decrypt(f.read())
+                else:
+                    content = header + f.read()
+                settings.merge(content.decode())
 
     # noinspection PyMethodMayBeStatic
     def register_cli_launchers(self, subparsers):
