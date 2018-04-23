@@ -9,6 +9,7 @@ from .migrate import MigrateLauncher
 from .serve import ServeLauncher
 from .worker import WorkerLauncher
 from .dev import DevLauncher
+from .configuration import ConfigurationLauncher
 
 
 class MainLauncher(Launcher):
@@ -47,6 +48,10 @@ class MainLauncher(Launcher):
         MigrateLauncher.register(subparsers)
         WorkerLauncher.register(subparsers)
         DevLauncher.register(subparsers)
+
+        if application.__configuration_cipher__ is not None:
+            ConfigurationLauncher.register(subparsers)
+
         application.register_cli_launchers(subparsers)
         argcomplete.autocomplete(parser)
 

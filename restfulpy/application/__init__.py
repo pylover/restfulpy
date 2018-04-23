@@ -16,10 +16,11 @@ class Application(NanohttpApplication):
     builtin_configuration = None
     __logger__ = get_logger()
     __authenticator__ = None
+    __configuration_cipher__ = None
     engine = None
 
-    def __init__(self, name: str, root: Controller, root_path='.', version='0.1.0-dev.0', process_name=None,
-                 authenticator=None):
+    def __init__(self, name: str, root: Controller, root_path='.', version='0.1.0-dev.0',
+                 process_name=None, authenticator=None):
         super(Application, self).__init__(root=root)
         self.process_name = process_name or name
         self.version = version

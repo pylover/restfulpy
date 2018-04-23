@@ -1,9 +1,19 @@
 import os
+import abc
 
 from Crypto.Cipher import AES, DES3
 
+class Cipher(metaclass=abc.ABCMeta):
+    @abc.abstractmethod
+    def encrypt(self, raw):
+        pass
 
-class AESCipher(object):
+    @abc.abstractmethod
+    def decrypt(self, enc):
+        pass
+
+
+class AESCipher(Cipher):
 
     def __init__(self, key, random=os.urandom):
         self.bs = 16
