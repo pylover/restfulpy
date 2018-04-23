@@ -90,7 +90,7 @@ class Application(NanohttpApplication):
     def insert_basedata(self):  # pragma: no cover
         raise NotImplementedError()
 
-    def insert_mockup(self):  # pragma: no cover
+    def insert_mockup(self, args):  # pragma: no cover
         raise NotImplementedError()
 
     def shutdown(self):

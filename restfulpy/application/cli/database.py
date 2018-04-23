@@ -1,3 +1,4 @@
+import argparse
 
 from restfulpy.cli import RequireSubCommand, Launcher
 from restfulpy.db import DatabaseManager
@@ -18,10 +19,12 @@ class MockupDataLauncher(Launcher):
 
     @classmethod
     def create_parser(cls, subparsers):
-        return subparsers.add_parser('mockup', help='Insert mockup data.')
+        parser = subparsers.add_parser('mockup', help='Insert mockup data.')
+        parser.add_argument('mockup_args', nargs=argparse.REMAINDER)
+        return parser
 
     def launch(self):
-        self.args.application.insert_mockup()
+        self.args.application.insert_mockup(self.args.mockup_args)
 
 
 class CreateDatabaseLauncher(Launcher):
