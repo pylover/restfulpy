@@ -4,7 +4,7 @@ import sys
 import argcomplete
 
 from ...cli import Launcher
-from .admin import AdminLauncher
+from .database import DatabaseLauncher
 from .migrate import MigrateLauncher
 from .serve import ServeLauncher
 from .worker import WorkerLauncher
@@ -44,7 +44,7 @@ class MainLauncher(Launcher):
             dest="command"
         )
 
-        AdminLauncher.register(subparsers)
+        DatabaseLauncher.register(subparsers)
         ServeLauncher.register(subparsers)
         MigrateLauncher.register(subparsers)
         WorkerLauncher.register(subparsers)

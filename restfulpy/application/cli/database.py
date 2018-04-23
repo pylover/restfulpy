@@ -8,7 +8,7 @@ class BasedataLauncher(Launcher):
 
     @classmethod
     def create_parser(cls, subparsers):
-        return subparsers.add_parser('base-data', help="Setup the server's database.")
+        return subparsers.add_parser('basedata', help='Setup the server\'s database.')
 
     def launch(self):
         self.args.application.insert_basedata()
@@ -18,7 +18,7 @@ class MockupDataLauncher(Launcher):
 
     @classmethod
     def create_parser(cls, subparsers):
-        return subparsers.add_parser('mockup-data', help="Insert mockup data.")
+        return subparsers.add_parser('mockup', help='Insert mockup data.')
 
     def launch(self):
         self.args.application.insert_mockup()
@@ -27,7 +27,7 @@ class MockupDataLauncher(Launcher):
 class CreateDatabaseLauncher(Launcher):
     @classmethod
     def create_parser(cls, subparsers):
-        parser = subparsers.add_parser('create-db', help="Create the server's database.")
+        parser = subparsers.add_parser('create', help='Create the server\'s database.')
         parser.add_argument('-d', '--drop', dest='drop_db', action='store_true', default=False,
                             help='Drop existing database before create another one.')
         parser.add_argument('-s', '--schema', dest='schema', action='store_true', default=False,
@@ -55,31 +55,32 @@ class DropDatabaseLauncher(Launcher):
 
     @classmethod
     def create_parser(cls, subparsers):
-        return subparsers.add_parser('drop-db', help="Setup the server's database.")
+        return subparsers.add_parser('drop', help='Setup the server\'s database.')
 
     def launch(self):
         with DatabaseManager() as db_admin:
             db_admin.drop_database()
 
 
-class SetupDatabaseLauncher(Launcher):
+class CreateDatabaseSchemaLauncher(Launcher):
 
     @classmethod
     def create_parser(cls, subparsers):
-        return subparsers.add_parser('setup-db', help="Setup the server's database.")
+        return subparsers.add_parser('schema', help='Creates the database objects.')
 
     def launch(self):
         setup_schema()
 
 
-class AdminLauncher(Launcher, RequireSubCommand):
+class DatabaseLauncher(Launcher, RequireSubCommand):
     @classmethod
     def create_parser(cls, subparsers):
-        parser = subparsers.add_parser('admin', help="Administrate the application")
-        admin_subparsers = parser.add_subparsers(title="admin command", dest="admin_command")
-        SetupDatabaseLauncher.register(admin_subparsers)
+        parser = subparsers.add_parser('db', help='Database administrationn')
+        admin_subparsers = parser.add_subparsers(title='admin command', dest='admin_command')
+        CreateDatabaseSchemaLauncher.register(admin_subparsers)
         BasedataLauncher.register(admin_subparsers)
         MockupDataLauncher.register(admin_subparsers)
         DropDatabaseLauncher.register(admin_subparsers)
         CreateDatabaseLauncher.register(admin_subparsers)
         return parser
+
