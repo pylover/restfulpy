@@ -213,9 +213,6 @@ class StatefulAuthenticator(Authenticator):
     remote_address_key = 'REMOTE_ADDR'
     agent_key = 'HTTP_USER_AGENT'
 
-    def __init__(self):
-        super().__init__()
-
     @staticmethod
     def create_blocking_redis_client():
         # FIXME: use unix socket
