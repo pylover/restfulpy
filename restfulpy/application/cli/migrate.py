@@ -1,4 +1,4 @@
-
+import os
 from os.path import join
 import argparse
 
@@ -17,5 +17,11 @@ class MigrateLauncher(Launcher):
         return migrate_parser
 
     def launch(self):
-        alembic_ini = join(self.args.application.root_path, 'alembic.ini')
-        alembic_main(argv=['--config', alembic_ini] + self.args.alembic_args)
+        current_directory = os.curdir()
+        try:
+            os.chdir(self.args.application.root_path)
+            alembic_ini = join(self.args.application.root_path, 'alembic.ini')
+            alembic_main(argv=['--config', alembic_ini] + self.args.alembic_args)
+        finally:
+            os.chdir(current_directory)
+
