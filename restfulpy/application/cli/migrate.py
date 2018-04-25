@@ -17,7 +17,7 @@ class MigrateLauncher(Launcher):
         return migrate_parser
 
     def launch(self):
-        current_directory = os.curdir()
+        current_directory = os.curdir
         try:
             os.chdir(self.args.application.root_path)
             alembic_ini = join(self.args.application.root_path, 'alembic.ini')
