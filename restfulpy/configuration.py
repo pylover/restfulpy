@@ -41,7 +41,7 @@ messaging:
 
 templates:
   directories: []
-     
+
 authentication:
   redis:
     host: localhost
@@ -80,11 +80,11 @@ logging:
       level: debug
       formatter: default
       propagate: true
-      
+
     root:
       level: debug
-      formatter: default    
-    
+      formatter: default
+
   handlers:
 
     default:
