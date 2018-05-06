@@ -15,7 +15,7 @@ class DeactiveObject(DeactivationMixin, DeclarativeBase):
     title = Field(Unicode(50))
 
 
-class ActivationMixinTestCase(WebAppTestCase):
+class DeactivationMixinTestCase(WebAppTestCase):
     application = MockupApplication('MockupApplication', None)
     __configuration__ = '''
     db:
@@ -28,7 +28,7 @@ class ActivationMixinTestCase(WebAppTestCase):
         cls.application.configure(force=True)
         settings.merge(cls.__configuration__)
 
-    def test_activation_mixin(self):
+    def test_deactivation_mixin(self):
         # noinspection PyArgumentList
         object1 = DeactiveObject(
             title='object 1',
