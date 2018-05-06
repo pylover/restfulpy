@@ -17,6 +17,10 @@ class Student(DeclarativeBase, ActivationMixin, PaginationMixin, FilteringMixin,
 
 
 class MixinTestCase(unittest.TestCase):
+    """
+    This unittest is wrote to test the combination of mixins
+    """
+
     __configuration__ = '''
         db:
           url: sqlite://    # In memory DB

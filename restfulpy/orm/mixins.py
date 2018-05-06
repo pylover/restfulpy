@@ -129,6 +129,21 @@ class AutoActivationMixin(ActivationMixin):
     )
 
 
+class DeactivationMixin(ActivationMixin):
+
+    deactivated_at = Field(DateTime, nullable=True, json='deactivatedAt', readonly=True, protected=True)
+
+    @ActivationMixin.is_active.setter
+    def is_active(self, value):
+        now = datetime.now()
+        if value:
+            self.activated_at = now
+            self.deactivated_at = None
+        else:
+            self.activated_at = None
+            self.deactivated_at = now
+
+
 class PaginationMixin:
     __take_header_key__ = 'X_TAKE'
     __skip_header_key__ = 'X_SKIP'
