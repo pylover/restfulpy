@@ -106,12 +106,6 @@ class Root(Controller):
         context.application.__authenticator__.invalidate_member(1)
         return context.identity.payload
 
-    @json(verbs='delete')
-    @authorize
-    def logout(self):
-        context.application.__authenticator__.logout()
-        return {}
-
 
 class StatefulAuthenticatorTestCase(WebAppTestCase):
     application = MockupApplication('MockupApplication', Root(), authenticator=MockupStatefulAuthenticator())
@@ -123,8 +117,8 @@ class StatefulAuthenticatorTestCase(WebAppTestCase):
             jwt:
               max_age: .3
               refresh_token:
-                max_age: 3 
-                secure: false               
+                max_age: 3
+                secure: false                
         """)
 
     def test_invalidate_token(self):
@@ -138,14 +132,6 @@ class StatefulAuthenticatorTestCase(WebAppTestCase):
         self.wsgi_app.jwt_token = token
 
         # Request a protected resource to ensure authenticator is working well
-        response, ___ = self.request(As.member, 'GET', '/me', headers={'Cookie': refresh_token})
-        self.assertListEqual(response['roles'], roles)
-
-        # Invalidating the token by server
-        roles.append('god')
-        response, headers = self.request(As.member, 'GET', '/invalidate_token', headers={'Cookie': refresh_token})
-        self.assertListEqual(response['roles'], roles)
-        self.assertIn('X-New-JWT-Token', headers)
 
         # Invalidating the token by server after the token has been expired expired, with appropriate cookies.
         time.sleep(1)
@@ -159,41 +145,6 @@ class StatefulAuthenticatorTestCase(WebAppTestCase):
         self.assertIsNotNone(headers['X-New-JWT-Token'])
         self.wsgi_app.jwt_token = headers['X-New-JWT-Token']
         self.request(As.member, 'GET', '/me', headers={'Cookie': refresh_token})
-
-    def test_logout(self):
-        response, headers = self.request('ALL', 'POST', '/login', json=dict(email='test@example.com', password='test'))
-        self.assertIn('token', response)
-        self.assertEqual(headers['X-Identity'], '1')
-        self.wsgi_app.jwt_token = response['token']
-        response, headers = self.request('ALL', 'DELETE', '/logout')
-        self.assertNotIn('X-Identity', headers)
-
-    def test_session_member(self):
-        with Context(environ={}, application=self.application):
-            principal = self.application.__authenticator__.login(('test@example.com', 'test'))
-            self.assertEqual(self.application.__authenticator__.get_session_member(principal.session_id), 1)
-
-    @freeze_time("2017-07-13T13:11:44", tz_offset=-4)
-    def test_session_info(self):
-        # Login
-        response, headers = self.request('ALL', 'GET', '/login', json=dict(email='test@example.com', password='test'))
-        self.wsgi_app.jwt_token = response['token']
-
-        # Testing test cases
-        for test_case in session_info_test_cases:
-            # Our new session info should be updated
-            payload, ___ = self.request(As.member, 'GET', '/me', extra_environ=test_case['environment'])
-
-            info = self.application.__authenticator__.get_session_info(payload['sessionId'])
-            self.assertDictEqual(info, {
-                'remoteAddress': test_case['expected_remote_address'],
-                'machine': test_case['expected_machine'],
-                'os': test_case['expected_os'],
-                'agent': test_case['expected_agent'],
-                'client': test_case['expected_client'],
-                'app': test_case['expected_app'],
-                'lastActivity': test_case['expected_last_activity'],
-            })
 
 
 if __name__ == '__main__':  # pragma: no cover

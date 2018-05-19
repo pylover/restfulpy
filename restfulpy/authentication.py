@@ -13,48 +13,60 @@ from restfulpy.principal import JwtPrincipal, JwtRefreshToken
 class Authenticator:
     """
     An extendable stateless abstract class for encapsulating all stuff about authentication
-                                                  +
-                                                  |
-                                    Yes  +--------+-------+  No
-                                    +----+  Token Exists? +-----+
-                                    |    +----------------+     |
-                                    |                           |
-                                    |                           |
-                                    |                           |
-                       No  +--------+-------+  Yes              |
-                      +----+ Verify Tokens? +-------+           |
-                      |    +----------------+       |           |
-                      |                             |   Continue|
-    +---+   Yes +-----+-----+                       |      as   |
-    |400+<------+  Damaged? |                       |    visitor|
-    +---+       +-----------+                       |           |
-                    No|                             |           |
-                      |                             |           |
-                 +----+----+                        |           |
-                 | Expired |                        |           |
-                 +----+----+                        |           |
-                      |                             |           |
-                 +----+----+                        |           |
-     +---+  No   | Refresh |                        |           |
-     |401+<------+ Token   |                 As User|           |
-     +---+       | Exists? |                        |           |
-                 +----+----+                        |           |
-                      |                             |           |
-                   Yes|                             |           |
-                      |                             |           |
-              +-------+-------+                     |           |
-              |               |                     |           |
-              | Renew Token   |                     |           |
-              |     &         |                     |           |
-              | Add to Header |                     |           |
-              |               |                     |           |
-              +-------+-------+                     |           |
-                      |                             |           |
-                      |                             |           |
-                      |                             |           |
-                      |          +----------+       |           |
-                      +----------> WSGI App <-------v-----------+
-                                 +----------+
+                                                            +
+                                                            |
+                                              Yes  +--------+-------+  No
+                                              +----+  Token Exists? +-----+
+                                              |    +----------------+     |
+                                              |                           |
+                                              |                           |
+                                              |                           |
+                                 No  +--------+-------+  Yes              |
+                                +----+ Verify Tokens? +------+            |
+                                |    +----------------+      |            |
+                                |                            |    Continue|
+        +---+         Yes +-----+-----+                      |       as   |
+        |400+^------------+  Damaged? |                      |     isitor |
+        +---+             +-----------+                      |            |
+                              No|                            |            |
+                                |                            |            |
+                           +----+----+                       |            |
+                           | Expired |                       |            |
+                           +----+----+                       |            |
+                                |                            |            |
+                           +----+----+                       |            |
+        +---+         No   | Refresh |                       |            |
+        |401+^-------------+ Token   |                 As Use|            |
+        +---+              | Exists? |                       |            |
+                           +----+----+                       |            |
+                                |                            |            |
+                             Yes|                            |            |
+                                |                            |            |
+        +---+       No +--------+---------+                  |            |
+        |400+^---------+Is connection SSL?|                  |            |
+        +---+          +--------+---------+                  |            |
+                                |                            |            |
+                            Yes |                            |            |
+                                |                            |            |
+                       +--------+---------+                  |            |
+                       |                  |                  |            |
+                       |                  |                  |            |
+                       |   Renew Token    |                  |            |
+                       |        &         |                  |            |
+                       |   Add to Header  |                  |            |
+                       |                  |                  |            |
+                       |                  |                  |            |
+                       +--------+---------+                  |            |
+                                |                            |            |
+                                |                            |            |
+                                |                            |            |
+                                |                            |            |
+                                |                            |            |
+                                |          +----------+      |            |
+                                +----------> WSGI App <------+------------+
+                                           +----------+
+
+
 
     """
 
@@ -79,9 +91,14 @@ class Authenticator:
 
     def try_refresh_token(self, session_id):
         morsel = context.cookies.get(self.refresh_token_key)
-        if not morsel or morsel.value is None or not morsel.value.strip():
-            self.bad()
-            return
+        if not morsel:
+            return self.bad()
+
+        if settings.jwt.refresh_token.secure and context.request_scheme != 'https':
+            raise HttpBadRequest()
+
+        if morsel.value is None or not morsel.value.strip():
+            return self.bad()
 
         refresh_token_encoded = morsel.value
         # Decoding the refresh token

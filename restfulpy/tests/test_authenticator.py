@@ -1,7 +1,7 @@
 import unittest
 
 import itsdangerous
-from nanohttp import json, Controller, context, HttpBadRequest
+from nanohttp import json, Controller, context, HttpBadRequest, settings
 
 from restfulpy.authentication import Authenticator
 from restfulpy.authorization import authorize
@@ -78,6 +78,17 @@ class Root(Controller):
 class AuthenticatorTestCase(WebAppTestCase):
     application = MockupApplication('MockupApplication', Root(), authenticator=MockupStatelessAuthenticator())
 
+    @classmethod
+    def configure_app(cls):
+        cls.application.configure(force=True)
+        settings.merge("""
+            jwt:
+              max_age: .3
+              refresh_token:
+                max_age: 3 
+                secure: true               
+        """)
+
     def test_login(self):
         response, headers = self.request('ALL', 'POST', '/login', json=dict(email='test@example.com', password='test'))
         self.assertIn('token', response)
@@ -123,7 +134,7 @@ class AuthenticatorTestCase(WebAppTestCase):
         token = response['token']
         self.wsgi_app.jwt_token = token
         token_expired = True
-
+        settings.jwt.refresh_token.secure = False
         # Request a protected resource after the token has been expired, with broken cookies
         self.request(
             As.member, 'GET', '/me',
