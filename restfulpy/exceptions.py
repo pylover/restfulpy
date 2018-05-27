@@ -40,6 +40,7 @@ class SqlError(HttpStatus):
         '22P02': 400,
         '23503': 400
     }
+
     postgresql_errors = {
         '00000': 'successful_completion',
         '01000': 'warning',
