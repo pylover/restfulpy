@@ -58,7 +58,7 @@ class DropDatabaseLauncher(Launcher):
 
     @classmethod
     def create_parser(cls, subparsers):
-        return subparsers.add_parser('drop', help='Setup the server\'s database.')
+        return subparsers.add_parser('drop', help='Drop the server\'s database.')
 
     def launch(self):
         with DatabaseManager() as db_admin:
