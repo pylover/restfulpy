@@ -5,7 +5,7 @@ from nanohttp import settings, json, etag, context
 
 from restfulpy.orm import DeclarativeBase, DBSession, Field, ModifiedMixin, commit
 from restfulpy.testing import WebAppTestCase, FormParameter
-from restfulpy.tests.helpers import MockupApplication
+from restfulpy.testing.helpers import MockupApplication
 from restfulpy.controllers import ModelRestController
 
 

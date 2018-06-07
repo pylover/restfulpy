@@ -5,7 +5,7 @@ from nanohttp import settings
 from restfulpy.orm import DBSession, Field, FakeJson
 from restfulpy.messaging import BaseEmail, Email, create_messenger
 from restfulpy.testing import WebAppTestCase
-from restfulpy.tests.helpers import MockupApplication
+from restfulpy.testing.helpers import MockupApplication
 
 
 # FIXME:  Why ?
