@@ -4,7 +4,7 @@ import unittest
 from nanohttp import json, Controller, context
 
 from restfulpy.testing import WebAppTestCase
-from restfulpy.tests.helpers import MockupApplication
+from restfulpy.testing.helpers import MockupApplication
 
 
 class Root(Controller):

@@ -6,7 +6,7 @@ from nanohttp import action
 
 from restfulpy.controllers import RootController
 from restfulpy.testing import WebAppTestCase
-from restfulpy.tests.helpers import MockupApplication
+from restfulpy.testing.helpers import MockupApplication
 
 
 HERE = abspath(dirname(__file__))

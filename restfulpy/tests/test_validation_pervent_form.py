@@ -3,7 +3,7 @@ import unittest
 from nanohttp import json, settings
 
 from restfulpy.testing import WebAppTestCase
-from restfulpy.tests.helpers import MockupApplication
+from restfulpy.testing.helpers import MockupApplication
 from restfulpy.validation import prevent_form
 from restfulpy.controllers import RestController, RootController
 

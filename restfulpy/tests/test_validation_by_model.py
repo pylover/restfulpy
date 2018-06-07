@@ -6,7 +6,7 @@ from sqlalchemy import Unicode, Integer, DateTime
 from restfulpy.controllers import JsonPatchControllerMixin, ModelRestController
 from restfulpy.orm import commit, DeclarativeBase, Field, DBSession
 from restfulpy.testing import WebAppTestCase
-from restfulpy.tests.helpers import MockupApplication
+from restfulpy.testing.helpers import MockupApplication
 
 
 class ModelValidationCheckingModel(DeclarativeBase):

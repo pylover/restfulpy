@@ -5,7 +5,7 @@ from nanohttp import settings
 
 from restfulpy.orm import DeclarativeBase, DBSession, Field, OrderableMixin
 from restfulpy.testing import WebAppTestCase
-from restfulpy.tests.helpers import MockupApplication
+from restfulpy.testing.helpers import MockupApplication
 
 
 class OrderableCheckingModel(OrderableMixin, DeclarativeBase):

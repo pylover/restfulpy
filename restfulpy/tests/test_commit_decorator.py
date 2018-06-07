@@ -7,7 +7,7 @@ from sqlalchemy import Unicode, Integer
 from restfulpy.controllers import JsonPatchControllerMixin
 from restfulpy.orm import commit, DeclarativeBase, Field, DBSession
 from restfulpy.testing import WebAppTestCase
-from restfulpy.tests.helpers import MockupApplication
+from restfulpy.testing.helpers import MockupApplication
 
 
 class CommitCheckingModel(DeclarativeBase):

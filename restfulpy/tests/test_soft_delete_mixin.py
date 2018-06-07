@@ -5,7 +5,7 @@ from nanohttp import settings, HttpConflict
 
 from restfulpy.orm import DeclarativeBase, DBSession, Field, SoftDeleteMixin
 from restfulpy.testing import WebAppTestCase
-from restfulpy.tests.helpers import MockupApplication
+from restfulpy.testing.helpers import MockupApplication
 
 
 class SoftDeleteCheckingModel(SoftDeleteMixin, DeclarativeBase):
