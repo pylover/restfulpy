@@ -1,5 +1,5 @@
 
-from nanohttp import HttpStatus, HttpInternalServerError
+from nanohttp import HttpStatus
 
 
 class RestfulException(Exception):
@@ -22,17 +22,18 @@ class UnsupportedError(Exception):
 class SqlError(HttpStatus):
 
     def __init__(self, sqlalchemy_error):
-        pgcode, self.status_code, self.status_text, message = self.map_exception(sqlalchemy_error)
-        super().__init__(info=message, reason=pgcode)
+        super().__init__(self.map_exception(sqlalchemy_error))
 
     @classmethod
     def map_exception(cls, ex):
-        if not hasattr(ex, 'orig') or ex.orig is None:
-            return None, 500, HttpInternalServerError.status_text, ''
-
         error_code = ex.orig.pgcode
+
+        if not hasattr(ex, 'orig') or ex.orig is None:
+            return '500 Internal server error'
+
         status_text = cls.postgresql_errors.get(error_code)
-        return error_code, cls.statuses.get(error_code, 500), status_text, ex.orig.pgerror
+        return f'{cls.statuses.get(error_code, 500)} {status_text} ' \
+               f'{ex.orig.pgerror}'
 
     statuses = {
         '23502': 400,

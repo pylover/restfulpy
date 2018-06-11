@@ -56,15 +56,16 @@ class SqlExceptionsTestCase(WebAppTestCase):
 
         self.max_diff = None
         # unique_violation
-        resp, headers = self.request('ALL', 'POST', '/', params=dict(title='test'), expected_status=409, doc=False)
-        print(resp['description'])
-        self.assertEqual(
-            resp['description'],
-            'ERROR:  duplicate key value violates unique constraint '
-            '"sql_error_checking_model_title_key"\n'
-            'DETAIL:  Key (title)=(test) already exists.\n'
+        resp, headers = self.request(
+            'ALL',
+            'POST',
+            '/',
+            params=dict(title='test'),
+            expected_status=r'''409 unique_violation ERROR:  duplicate key value violates unique constraint "sql_error_checking_model_title_key"
+DETAIL:  Key (title)=(test) already exists.
+''',
+            doc=False
         )
-        self.assertEqual(headers['X-Reason'], '23505')
 
 
 if __name__ == '__main__':  # pragma: no cover

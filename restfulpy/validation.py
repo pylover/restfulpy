@@ -101,8 +101,7 @@ class FormValidator:
             bad_fields = all_input_fields.symmetric_difference(exact_fields)
             if bad_fields:
                 raise HttpBadRequest(
-                    reason=';'.join([f'invalid-{f}' for f in bad_fields]),
-                    info='Exactly these fields are allowed: [%s]' % ', '.join(exact_fields)
+                    status_text='Exactly these fields are allowed: [%s]' % ', '.join(exact_fields)
                 )
 
         type_pairs = self.extract_rules_pair('types', user_rules)
@@ -115,8 +114,7 @@ class FormValidator:
                         collection[field] = desired_type(collection[field])
                     except ValueError:
                         raise HttpBadRequest(
-                            reason=f'invalid-{field}-type',
-                            info='The field: %s must be %s' % (field, desired_type.__name__)
+                            status_text='The field: %s must be %s' % (field, desired_type.__name__)
                         )
 
         pattern_pairs = self.extract_rules_pair('pattern', user_rules)
@@ -128,8 +126,7 @@ class FormValidator:
                     pattern = re.compile(desired_pattern) if isinstance(desired_pattern, str) else desired_pattern
                     if pattern.match(collection[field]) is None:
                         raise HttpBadRequest(
-                            reason=f'invalid-{field}-format',
-                            info='The field %s: %s must be matched with %s pattern' %
+                            status_text='The field %s: %s must be matched with %s pattern' %
                             (field, collection[field], pattern.pattern)
                         )
         return args, kwargs
