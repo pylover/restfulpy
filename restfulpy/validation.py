@@ -125,9 +125,13 @@ class FormValidator:
                     desired_pattern = pattern_pairs[field]
                     pattern = re.compile(desired_pattern) if isinstance(desired_pattern, str) else desired_pattern
                     if pattern.match(collection[field]) is None:
+                        status_text = \
+                            'The field %s: %s must be matched with ' \
+                            '%s pattern' % (
+                                field, collection[field], pattern.pattern
+                            )
                         raise HttpBadRequest(
-                            status_text='The field %s: %s must be matched with %s pattern' %
-                            (field, collection[field], pattern.pattern)
+                            status_text=status_text
                         )
         return args, kwargs
 
