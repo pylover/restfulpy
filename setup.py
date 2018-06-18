@@ -9,7 +9,7 @@ with open(join(dirname(__file__), 'restfulpy', '__init__.py')) as v_file:
 
 
 dependencies = [
-    'nanohttp >= 0.27.5',
+    'nanohttp >= 0.29.0',
     'argcomplete',
     'ujson',
     'appdirs',

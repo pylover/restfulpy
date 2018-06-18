@@ -1,4 +1,4 @@
-
+import re
 import sys
 import ujson
 import asyncio
@@ -11,7 +11,7 @@ from os.path import join, abspath
 from nanohttp import settings
 
 from restfulpy.db import DatabaseManager
-from restfulpy.orm import setup_schema, session_factory, create_engine, DBSession
+from restfulpy.orm import setup_schema, session_factory, create_engine
 from restfulpy.testing.documentation import DocumentaryTestApp
 
 
@@ -27,7 +27,10 @@ class WebAppTestCase(unittest.TestCase):
             m.create_database()
 
         cls.engine = create_engine()
-        cls.session = session = session_factory(bind=cls.engine, expire_on_commit=False)
+        cls.session = session = session_factory(
+            bind=cls.engine,
+            expire_on_commit=False
+        )
         setup_schema(session)
         session.commit()
 
@@ -73,10 +76,43 @@ class WebAppTestCase(unittest.TestCase):
         cls.drop_database()
         super().tearDownClass()
 
-    def request(self, role, method, url, query_string=None, url_params=None, params=None, model=None, doc=True,
-                expected_status=200, expected_headers=None, json=None, **kwargs):
+    def _print_statuses_mismatch_error(self, expected_status, response):
 
-        resp = self.wsgi_app.send_request(
+        if isinstance(expected_status,int) and response.status_code != expected_status:
+
+            print_ = functools.partial(
+                print,
+                file=sys.stderr if response.status_code != 200 else sys.stdout
+            )
+
+            print_('#' * 80)
+            if 'content-type' in response.headers and response.headers[
+                'content-type'].startswith('application/json'):
+                result = ujson.loads(response.body.decode())
+                if isinstance(result, dict) and 'description' in result:
+                    print_(result['message'])
+                    print_(result['description'])
+                else:
+                    print_(result)
+            else:
+                print_(response.body.decode())
+            print_('#' * 80)
+
+    def _statuses_are_the_same(self, expected, response):
+        if isinstance(expected, int):
+            return response.status_code == expected
+
+        if isinstance(expected, str):
+            return re.match(expected, response.status)
+
+        raise ValueError('Invalid expected status')
+
+    def request(self, role, method, url, query_string=None, url_params=None,
+                params=None, model=None, doc=True,
+                expected_status=200, expected_headers=None, json=None,
+                **kwargs):
+
+        response = self.wsgi_app.send_request(
             role, method, url,
             query_string=query_string,
             url_params=url_params,
@@ -86,34 +122,20 @@ class WebAppTestCase(unittest.TestCase):
             json=json,
             **kwargs
         )
-
-        if resp.status_code != expected_status:
-            print_ = functools.partial(print, file=sys.stderr if resp.status_code != 200 else sys.stdout)
-            print_('#' * 80)
-            if 'content-type' in resp.headers and resp.headers['content-type'].startswith('application/json'):
-                result = ujson.loads(resp.body.decode())
-                if isinstance(result, dict) and 'description' in result:
-                    print_(result['message'])
-                    print_(result['description'])
-                else:
-                    print_(result)
-            else:
-                print_(resp.body.decode())
-            print_('#' * 80)
-
-        self.assertEqual(expected_status, resp.status_code)
+        if expected_status and not self._statuses_are_the_same(expected_status, response):
+            self._print_statuses_mismatch_error(expected_status, response)
 
         if expected_headers:
             for k, v in expected_headers.items():
-                self.assertIn(k, resp.headers)
-                self.assertEqual(v, resp.headers[k])
+                self.assertIn(k, response.headers)
+                self.assertEqual(v, response.headers[k])
 
-        if 'content-type' in resp.headers and resp.headers['content-type'].startswith('application/json'):
-            result = ujson.loads(resp.body.decode())
+        if 'content-type' in response.headers and response.headers['content-type'].startswith('application/json'):
+            result = ujson.loads(response.body.decode())
         else:
-            result = resp.body
+            result = response.body
 
-        return result, resp.headers
+        return result, response.headers
 
     def assertDictContainsSubset(self, dictionary, subset, msg=None):
         """Checks whether dictionary is a superset of subset."""
@@ -124,16 +146,19 @@ class WebAppTestCase(unittest.TestCase):
             if key not in dictionary:
                 missing.append(key)
             elif value != dictionary[key]:
-                mismatched.append('%s, expected: %s, actual: %s' %
-                                  (safe_repr(key), safe_repr(value),
-                                   safe_repr(dictionary[key])))
+                mismatched.append(
+                    '%s, expected: %s, actual: %s' %
+                    (safe_repr(key), safe_repr(value),
+                    safe_repr(dictionary[key]))
+                )
 
         if not (missing or mismatched):
             return
 
         standard_message = ''
         if missing:
-            standard_message = 'Missing: %s' % ','.join(safe_repr(m) for m in missing)
+            standard_message = 'Missing: %s' % ','.join(
+                safe_repr(m) for m in missing)
         if mismatched:
             if standard_message:
                 standard_message += '; '
@@ -176,19 +201,18 @@ class AioTestCase(unittest.TestCase):
         result.startTest(self)
 
         test_method = getattr(self, self._testMethodName)
-        if getattr(self.__class__, "__unittest_skip__", False) or getattr(test_method, "__unittest_skip__", False):
+        if getattr(self.__class__, "__unittest_skip__", False) or getattr(
+                test_method, "__unittest_skip__", False):
             # If the class or method was skipped.
             try:
-                skip_why = (getattr(self.__class__, '__unittest_skip_why__', '')
-                            or getattr(test_method, '__unittest_skip_why__', ''))
+                skip_why = (getattr(self.__class__, '__unittest_skip_why__','')
+                     or getattr(test_method, '__unittest_skip_why__',''))
                 self._addSkip(result, self, skip_why)
             finally:
                 result.stopTest(self)
             return
-        expecting_failure_method = getattr(test_method,
-                                           "__unittest_expecting_failure__", False)
-        expecting_failure_class = getattr(self,
-                                          "__unittest_expecting_failure__", False)
+        expecting_failure_method = getattr(test_method, "__unittest_expecting_failure__", False)
+        expecting_failure_class = getattr(self, "__unittest_expecting_failure__", False)
         expecting_failure = expecting_failure_class or expecting_failure_method
         outcome = _Outcome(result)
         try:
@@ -240,5 +264,6 @@ class AioTestCase(unittest.TestCase):
         except Exception as ex:
             if not isinstance(ex, expected_exception):
                 # noinspection PyUnresolvedReferences
-                msg = self._formatMessage(self.msg, "%s not raised by %s" % (expected_exception, func.__name__))
+                msg = self._formatMessage(self.msg, "%s not raised by %s" % (
+                expected_exception, func.__name__))
                 raise self.failureException(msg)
