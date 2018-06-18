@@ -11,8 +11,7 @@ from os.path import join, abspath
 from nanohttp import settings
 
 from restfulpy.db import DatabaseManager
-from restfulpy.orm import setup_schema, session_factory, create_engine, \
-    DBSession
+from restfulpy.orm import setup_schema, session_factory, create_engine
 from restfulpy.testing.documentation import DocumentaryTestApp
 
 
@@ -28,8 +27,10 @@ class WebAppTestCase(unittest.TestCase):
             m.create_database()
 
         cls.engine = create_engine()
-        cls.session = session = session_factory(bind=cls.engine,
-                                                expire_on_commit=False)
+        cls.session = session = session_factory(
+            bind=cls.engine,
+            expire_on_commit=False
+        )
         setup_schema(session)
         session.commit()
 
@@ -77,11 +78,13 @@ class WebAppTestCase(unittest.TestCase):
 
     def _print_statuses_mismatch_error(self, expected_status, response):
 
-        if isinstance(expected_status,
-                      int) and response.status_code != expected_status:
+        if isinstance(expected_status,int) and response.status_code != expected_status:
 
-            print_ = functools.partial(print,
-                                       file=sys.stderr if response.status_code != 200 else sys.stdout)
+            print_ = functools.partial(
+                print,
+                file=sys.stderr if response.status_code != 200 else sys.stdout
+            )
+
             print_('#' * 80)
             if 'content-type' in response.headers and response.headers[
                 'content-type'].startswith('application/json'):
@@ -119,8 +122,7 @@ class WebAppTestCase(unittest.TestCase):
             json=json,
             **kwargs
         )
-        if expected_status and not self._statuses_are_the_same(expected_status,
-                                                               response):
+        if expected_status and not self._statuses_are_the_same(expected_status, response):
             self._print_statuses_mismatch_error(expected_status, response)
 
         if expected_headers:
@@ -128,8 +130,7 @@ class WebAppTestCase(unittest.TestCase):
                 self.assertIn(k, response.headers)
                 self.assertEqual(v, response.headers[k])
 
-        if 'content-type' in response.headers and response.headers[
-            'content-type'].startswith('application/json'):
+        if 'content-type' in response.headers and response.headers['content-type'].startswith('application/json'):
             result = ujson.loads(response.body.decode())
         else:
             result = response.body
@@ -145,9 +146,11 @@ class WebAppTestCase(unittest.TestCase):
             if key not in dictionary:
                 missing.append(key)
             elif value != dictionary[key]:
-                mismatched.append('%s, expected: %s, actual: %s' %
-                                  (safe_repr(key), safe_repr(value),
-                                   safe_repr(dictionary[key])))
+                mismatched.append(
+                    '%s, expected: %s, actual: %s' %
+                    (safe_repr(key), safe_repr(value),
+                    safe_repr(dictionary[key]))
+                )
 
         if not (missing or mismatched):
             return
@@ -202,20 +205,14 @@ class AioTestCase(unittest.TestCase):
                 test_method, "__unittest_skip__", False):
             # If the class or method was skipped.
             try:
-                skip_why = (getattr(self.__class__, '__unittest_skip_why__',
-                                    '')
-                            or getattr(test_method, '__unittest_skip_why__',
-                                       ''))
+                skip_why = (getattr(self.__class__, '__unittest_skip_why__','')
+                     or getattr(test_method, '__unittest_skip_why__',''))
                 self._addSkip(result, self, skip_why)
             finally:
                 result.stopTest(self)
             return
-        expecting_failure_method = getattr(test_method,
-                                           "__unittest_expecting_failure__",
-                                           False)
-        expecting_failure_class = getattr(self,
-                                          "__unittest_expecting_failure__",
-                                          False)
+        expecting_failure_method = getattr(test_method, "__unittest_expecting_failure__", False)
+        expecting_failure_class = getattr(self, "__unittest_expecting_failure__", False)
         expecting_failure = expecting_failure_class or expecting_failure_method
         outcome = _Outcome(result)
         try:
@@ -238,8 +235,7 @@ class AioTestCase(unittest.TestCase):
             if outcome.success:
                 if expecting_failure:
                     if outcome.expectedFailure:
-                        self._addExpectedFailure(result,
-                                                 outcome.expectedFailure)
+                        self._addExpectedFailure(result, outcome.expectedFailure)
                     else:
                         self._addUnexpectedSuccess(result)
                 else:
