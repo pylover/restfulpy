@@ -8,10 +8,10 @@ from nanohttp.contexts import Context
 
 from restfulpy.testing import WebAppTestCase
 from restfulpy.testing.helpers import MockupApplication
-from restfulpy.orm import DeclarativeBase, Field, DBSession, OrderingMixin, OrderableMixin
+from restfulpy.orm import DeclarativeBase, Field, DBSession, OrderingMixin
 
 
-class OrderableOrderingObject(OrderableMixin, OrderingMixin, DeclarativeBase):
+class OrderableOrderingObject(OrderingMixin, DeclarativeBase):
     __tablename__ = 'orderable_ordering_object'
 
     id = Field(Integer, primary_key=True)
