@@ -11,7 +11,7 @@ from sqlalchemy.ext.hybrid import HYBRID_PROPERTY
 from sqlalchemy.ext.associationproxy import ASSOCIATION_PROXY
 from sqlalchemy.inspection import inspect
 
-from ..utils import format_iso_datetime, format_iso_time, to_camel_case
+from ..utils import to_camel_case
 from .field import ModelFieldInfo
 from ..validation import validate_form
 from ..constants import ISO_DATETIME_FORMAT, ISO_DATE_FORMAT, ISO_DATETIME_PATTERN, POSIX_TIME_PATTERN
@@ -53,24 +53,14 @@ class BaseModel(object):
         elif v is None:
             result = v
 
-        elif isinstance(v, datetime):
-            result = format_iso_datetime(v)
-
-        elif isinstance(v, date):
+        elif isinstance(v, (datetime, date, time)):
             result = v.isoformat()
-
-        elif isinstance(v, time):
-            result = format_iso_time(v)
 
         elif hasattr(v, 'to_dict'):
             result = v.to_dict()
 
         elif isinstance(v, Decimal):
             result = str(v)
-
-        # Commented-out by vahid, I think it's not necessary at all.
-        # elif isinstance(v, set):
-        #     result = list(v)
 
         else:
             result = v
@@ -108,10 +98,10 @@ class BaseModel(object):
 
                 if k == '__mapper__':
                     continue
-                    
+
                 if c.extension_type == ASSOCIATION_PROXY:
                     continue
-                    
+
                 if (not hybrids and c.extension_type == HYBRID_PROPERTY) \
                         or (not relationships and k in mapper.relationships) \
                         or (not synonyms and k in mapper.synonyms) \
@@ -151,7 +141,8 @@ class BaseModel(object):
                     raise HttpBadRequest('Invalid attribute')
 
                 value = context.form[param_name]
-                # Ensuring the python type, and ignoring silently if python type is not specified
+                # Ensuring the python type, and ignoring silently if the
+                # python type is not specified
                 try:
                     c.type.python_type
                 except NotImplementedError:

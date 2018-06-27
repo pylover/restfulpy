@@ -9,6 +9,13 @@ pretty_json: true
 
 data_directory: %(data_dir)s
 
+# Default timezone. empty for utc, ie. +3:30 for tehran
+# An instance of datetime.tzinfo is also acceptable
+# default_timezone: !!python/object/apply:datetime.timezone
+#   - !!python/object/apply:datetime.timedelta [0, 7200, 0]
+#   - myzone
+default_timezone:
+
 db:
   url: sqlite:///%(data_dir)s/devdata.db
   # url: postgresql://postgres:postgres@localhost/restfulpy_demo_dev
@@ -112,9 +119,14 @@ logging:
 """
 
 
-def configure(config=None, directories=None, files=None, context=None, force=False):  # pragma: no cover
+def configure(config=None, directories=None, files=None, context=None,
+              force=False):
 
-    nanohttp_configure(init_value=__builtin_config, context=context, force=force)
+    nanohttp_configure(
+        init_value=__builtin_config,
+        context=context,
+        force=force
+    )
 
     if config:
         settings.merge(config)
@@ -124,3 +136,4 @@ def configure(config=None, directories=None, files=None, context=None, force=Fal
 
     if files:
         settings.load_files(files)
+

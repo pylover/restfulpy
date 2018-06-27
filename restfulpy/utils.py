@@ -11,13 +11,16 @@ from hashlib import md5
 
 ZERO = timedelta(0)
 
+def parse_datetime(value):
+    if :
+
 
 def import_python_module_by_filename(name, module_filename):
     """
     Import's a file as a python module, with specified name.
 
     Don't ask about the `name` argument, it's required.
-    
+
     :param name: The name of the module to override upon imported filename.
     :param module_filename: The filename to import as a python module.
     :return: The newly imported python module.
@@ -68,64 +71,6 @@ def deprecated(func):  # pragma: no cover
     new_func.__doc__ = func.__doc__
     new_func.__dict__.update(func.__dict__)
     return new_func
-
-
-def format_iso_datetime(stamp):
-    """ Return a string representing the date and time in ISO 8601 format.
-        If the time is in UTC, adds a 'Z' directly after the time without
-        a space.
-
-        see http://en.wikipedia.org/wiki/ISO_8601.
-
-        >>> class EET(tzinfo):
-        ...     def utcoffset(self, dt):
-        ...         return timedelta(minutes=120)
-        ...     def dst(self, dt):
-        ...         return timedelta()
-        >>> format_iso_datetime(datetime(2012, 2, 22, 12, 52, 29, 300))
-        '2012-02-22T12:52:29'
-        >>> format_iso_datetime(datetime(2012, 2, 22, 12, 52, 29, 300,
-        ...     tzinfo=UTC))
-        '2012-02-22T12:52:29Z'
-        >>> format_iso_datetime(datetime(2012, 2, 22, 12, 52, 29, 300,
-        ...     tzinfo=EET()))
-        '2012-02-22T12:52:29+02:00'
-    """
-
-    if stamp.tzinfo and stamp.utcoffset() != ZERO:
-        return stamp.isoformat()
-    stamp = stamp.replace(tzinfo=None)
-    return stamp.isoformat() + 'Z'
-
-
-def format_iso_time(stamp):
-    """ Return a string representing the time in ISO 8601 format.
-        If the time is in UTC, adds a 'Z' directly after the time without
-        a space.
-
-        see http://en.wikipedia.org/wiki/ISO_8601.
-
-        >>> class EET(tzinfo):
-        ...     def utcoffset(self, dt):
-        ...         return timedelta(minutes=120)
-        ...     def dst(self, dt):
-        ...         return timedelta()
-        >>> format_iso_time(time(12, 52, 29, 300))
-        '12:52:29'
-        >>> format_iso_time(time(12, 52, 29, 300,
-        ...     tzinfo=UTC))
-        '12:52:29Z'
-        >>> format_iso_time(time(12, 52, 29, 300,
-        ...     tzinfo=EET()))
-        '12:52:29+02:00'
-    """
-    if stamp.tzinfo:
-        if stamp.utcoffset() == ZERO:
-            return stamp.replace(tzinfo=None).isoformat() + 'Z'
-        else:
-            return stamp.isoformat()
-    else:
-        return stamp.isoformat()
 
 
 def random_password(length=10):
