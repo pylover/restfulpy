@@ -42,16 +42,29 @@ def parse_datetime(value):
     timezone = configuredtimezone()
     parsed_value = parse(value)
 
-    if not timezone:
-        # The application is configured to use system's local timezone
+    if timezone:
+        # The application is configured to use UTC or another time zone:
 
-        if parsed_value.tzinfo:
-            # The sumittd value has tzinfo.
-            # So converting it to system's local and removing the tzinfo
-            # to achieve a naive object.
-            parsed_value = parsed_value\
-                .astimezone(localtimezone())\
-                .replace(tzinfo=None)
+        # Submit without timezone: Reject and tell the user to specify the
+        # timezone.
+        if parsed_value.tzinfo is None:
+            raise ValueError('You have to specify the timezone')
+
+        # The parsed value is a timezone aware value
+        # If ends with Z: accept and assume as the UTC
+        # Then converting it to configured timezone and continue the
+        # rest of process
+        parsed_value = parsed_value.astimezone(timezone)
+
+
+    elif parsed_value.tzinfo:
+        # The application is configured to use system's local timezone
+        # And the sumittd value has tzinfo.
+        # So converting it to system's local and removing the tzinfo
+        # to achieve a naive object.
+        parsed_value = parsed_value\
+            .astimezone(localtimezone())\
+            .replace(tzinfo=None)
 
     return parsed_value
 

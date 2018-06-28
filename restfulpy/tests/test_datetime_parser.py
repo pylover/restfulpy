@@ -4,7 +4,7 @@ from dateutil.tz import tzutc, tzoffset
 from os.path import dirname, join
 
 from restfulpy.datetimehelpers import parse_datetime
-from restfulpy.configuration import configure
+from restfulpy.configuration import configure, settings
 from restfulpy.testing import localtimezone_mockup
 
 
@@ -53,20 +53,21 @@ class DateTimeParserTestCase(unittest.TestCase):
                 parse_datetime('1970-01-01T00:00:00-0:30')
             )
 
+    def test_timezone_aware_datetime_parsing(self):
+        # The application is configured to use server's local date and time.
+        settings.timezone = tzoffset('Tehran', 12600)
+        with self.assertRaises(ValueError):
+            parse_datetime('1970-01-01T00:00:00')
 
+        self.assertEquals(
+            datetime(1970, 1, 1, 3, 30, tzinfo=tzoffset('Tehran', 12600)),
+            parse_datetime('1970-01-01T00:00:00Z')
+        )
 
-#    def test_timezone_aware_datetime_parsing(self):
-#        self.ensure_asserts((
-#            # Timezone aware
-#            (
-#                datetime(1970, 1, 1, tzinfo=tzutc(0)),
-#                parse_datetime('1970-01-01T00:00:00Z')
-#            ),
-#            (
-#                datetime(1970, 1, 1, tzinfo=tzoffset(None, 5400)),
-#                parse_datetime('1970-01-01T00:00:00+1:30')
-#            ),
-#        ))
+        self.assertEquals(
+            datetime(1970, 1, 1, 4, 30, tzinfo=tzoffset('Tehran', 12600)),
+            parse_datetime('1970-01-01T00:00:00-1:00')
+        )
 
 
 if __name__ == '__main__':  # pragma: no cover
