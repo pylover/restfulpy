@@ -1,18 +1,16 @@
-import sys
-import warnings
-import importlib
 import importlib.util
-import uuid
 import re
-from os.path import dirname, abspath
-from datetime import datetime, timedelta
+import sys
+import uuid
+import warnings
 from hashlib import md5
+from os.path import dirname, abspath
 
+import dateutil.parser
 
-ZERO = timedelta(0)
 
 def parse_datetime(value):
-    if :
+    return dateutil.parser.parse(value)
 
 
 def import_python_module_by_filename(name, module_filename):
