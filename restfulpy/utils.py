@@ -6,15 +6,6 @@ import warnings
 from hashlib import md5
 from os.path import dirname, abspath
 
-import dateutil.parser
-
-
-def parse_datetime(value):
-    """The reason of wrapping this functionality is to preserve compatibillity
-    and future exceptions handling.
-    """
-    return dateutil.parser.parse(value)
-
 
 def import_python_module_by_filename(name, module_filename):
     """

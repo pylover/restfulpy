@@ -1,9 +1,11 @@
 import base64
 import ujson
+import contextlib
 
-from restfulpy.messaging import Messenger
-from restfulpy.principal import JwtPrincipal
-from restfulpy.application import Application
+from ..messaging import Messenger
+from ..principal import JwtPrincipal
+from ..application import Application
+from .. import datetimehelpers
 
 
 # noinspection PyAbstractClass
@@ -25,6 +27,7 @@ class MockupApplication(Application):
         if context:
             _context.update(context)
         super().configure(files=files, context=_context, **kwargs)
+
 
 class MockupMessenger(Messenger):
     _last_message = None
@@ -54,9 +57,15 @@ class MockupMessenger(Messenger):
         }
 
 
-class UnsafePrincipal(JwtPrincipal):  # pragma: no cover
-    @classmethod
-    def load(cls, encoded, force=False):
-        decoded = base64.b64decode('%s=' % encoded.split('.')[1])  # To avoid padding exception
-        payload = ujson.loads(decoded)
-        return cls(payload)
+@contextlib.contextmanager
+def localtimezone_mockup(timezone):
+    backup = datetimehelpers.localtimezone
+    if callable(timezone):
+        datetimehelpers.localtimezone = timezone
+    else:
+        datetimehelpers.localtimezone = lambda: timezone
+
+    yield
+
+    datetimehelpers.localtimezone = backup
+

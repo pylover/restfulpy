@@ -9,12 +9,16 @@ pretty_json: true
 
 data_directory: %(data_dir)s
 
-# Default timezone. empty for utc, ie. +3:30 for tehran
+# Default timezone.
+# empty for local time
+# 0, utc, UTC, z or Z for the UTC,
+# UTC±HH:MM for specify timezone. ie. +3:30 for tehran
 # An instance of datetime.tzinfo is also acceptable
-# default_timezone: !!python/object/apply:datetime.timezone
+# Example:
+# timezone: !!python/object/apply:datetime.timezone
 #   - !!python/object/apply:datetime.timedelta [0, 7200, 0]
 #   - myzone
-default_timezone:
+timezone:
 
 db:
   url: sqlite:///%(data_dir)s/devdata.db
