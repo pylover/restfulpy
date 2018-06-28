@@ -3,12 +3,12 @@ from datetime import datetime, timedelta
 from dateutil.tz import tzutc, tzoffset
 from os.path import dirname, join
 
-from restfulpy.datetimehelpers import parse_datetime
+from restfulpy.datetimehelpers import parse_datetime, format_datetime
 from restfulpy.configuration import configure, settings
 from restfulpy.testing import localtimezone_mockup
 
 
-class DateTimeParserTestCase(unittest.TestCase):
+class DateTimeParserFormatterTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -23,7 +23,9 @@ class DateTimeParserTestCase(unittest.TestCase):
         configure(context=context, force=True)
 
     def test_naive_datetime_parsing(self):
-        # Naive
+        # The application is configured to use system's local date and time.
+        settings.timezone = None
+
         # Submit without timezone: accept and assume the local date and time.
         self.assertEquals(
             datetime(1970, 1, 1),
@@ -68,6 +70,27 @@ class DateTimeParserTestCase(unittest.TestCase):
             datetime(1970, 1, 1, 4, 30, tzinfo=tzoffset('Tehran', 12600)),
             parse_datetime('1970-01-01T00:00:00-1:00')
         )
+
+    def test_naive_datetime_formatting(self):
+        # The application is configured to use system's local date and time.
+        settings.timezone = None
+
+        self.assertEqual(
+            '1970-01-01T00:00:00',
+            format_datetime(datetime(1970, 1, 1))
+        )
+
+        self.assertEqual(
+            '1970-01-01T00:00:00.000001',
+            format_datetime(datetime(1970, 1, 1, 0, 0, 0, 1))
+        )
+
+        with localtimezone_mockup(tzoffset(None, 3600)):
+            self.assertEqual(
+                '1970-01-01T00:00:00',
+                format_datetime(datetime(1970, 1, 1, tzinfo=tzoffset(None, 3600)))
+            )
+
 
 
 if __name__ == '__main__':  # pragma: no cover
