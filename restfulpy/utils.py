@@ -10,6 +10,9 @@ import dateutil.parser
 
 
 def parse_datetime(value):
+    """The reason of wrapping this functionality is to preserve compatibillity
+    and future exceptions handling.
+    """
     return dateutil.parser.parse(value)
 
 
