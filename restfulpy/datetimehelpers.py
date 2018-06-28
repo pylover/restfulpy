@@ -85,7 +85,7 @@ def format_datetime(value):
         if value.tzinfo is None:
             raise ValueError('The value must have a timezone specifier')
 
-        elif value.tzinfo.utcoffset() != timezone.utcoffset():
+        elif value.utcoffset() != timezone.utcoffset(value):
             value = value.astimezone(timezone)
 
     result = value.isoformat()
