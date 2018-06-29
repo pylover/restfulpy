@@ -3,8 +3,8 @@ import unittest
 import threading
 
 from restfulpy.taskqueue import Task, worker
-from restfulpy.testing import WebAppTestCase
-from restfulpy.testing.helpers import MockupApplication
+from restfulpy.tests.helpers import WebAppTestCase
+from restfulpy.testing import MockupApplication
 
 
 awesome_task_done = threading.Event()

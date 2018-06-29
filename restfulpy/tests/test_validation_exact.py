@@ -4,8 +4,8 @@ import unittest
 from nanohttp import context, json, settings
 
 from restfulpy.principal import DummyIdentity
-from restfulpy.testing import WebAppTestCase
-from restfulpy.testing.helpers import MockupApplication
+from restfulpy.tests.helpers import WebAppTestCase
+from restfulpy.testing import MockupApplication
 from restfulpy.validation import validate_form
 from restfulpy.controllers import RestController, RootController
 
@@ -42,22 +42,22 @@ class ValidationExactTestCase(WebAppTestCase):
     def test_validation_exact(self):
         # Test `exact`
         # role -> All
-        self.wsgi_app.jwt_token = DummyIdentity().dump().decode()
-        result, ___ = self.request('All', 'POST', '/validation', doc=False, params={'exactParamForAll': 'param'})
-        self.request('All', 'POST', '/validation', doc=False, expected_status=400)
+        self.wsgi_application.jwt_token = DummyIdentity().dump().decode()
+        result, ___ = self.request('All', 'POST', '/validation', params={'exactParamForAll': 'param'})
+        self.request('All', 'POST', '/validation', expected_status=400)
         self.request(
-            'All', 'POST', '/validation', doc=False,
+            'All', 'POST', '/validation',
             params={
                 'exactParamForAll': 'param',
                 'exactParamForCustom': 'param',
             },
             expected_status=400
         )
-        self.request('All', 'POST', '/validation', doc=False, params={'exactParamForCustom': 'param'},
+        self.request('All', 'POST', '/validation', params={'exactParamForCustom': 'param'},
                      expected_status=400)
         self.assertIn('exactParamForAll', result)
         self.request(
-            'All', 'POST', '/validation', doc=False,
+            'All', 'POST', '/validation',
             params={
                 'exactParamForAll': 'param',
                 'exactParamForClient': 'param',
@@ -66,10 +66,10 @@ class ValidationExactTestCase(WebAppTestCase):
         )
         # -----------------------------
         # role -> Client
-        self.wsgi_app.jwt_token = DummyIdentity('client').dump().decode()
+        self.wsgi_application.jwt_token = DummyIdentity('client').dump().decode()
 
         result, ___ = self.request(
-            'Client', 'POST', '/validation', doc=False,
+            'Client', 'POST', '/validation',
             params={
                 'exactParamForAll': 'param',
                 'exactParamForClient': 'param',
@@ -79,7 +79,7 @@ class ValidationExactTestCase(WebAppTestCase):
         self.assertIn('exactParamForAll', result)
 
         self.request(
-            'Client', 'POST', '/validation', doc=False,
+            'Client', 'POST', '/validation',
             params={
                 'exactParamForAll': 'param',
                 'exactParamForClient': 'param',
@@ -90,16 +90,16 @@ class ValidationExactTestCase(WebAppTestCase):
 
         # -----------------------------
         # role -> Admin
-        self.wsgi_app.jwt_token = DummyIdentity('admin').dump().decode()
+        self.wsgi_application.jwt_token = DummyIdentity('admin').dump().decode()
 
-        result, ___ = self.request('Admin', 'POST', '/validation', doc=False, params={
+        result, ___ = self.request('Admin', 'POST', '/validation', params={
             'exactParamForAll': 'param',
             'exactParamForAdmin': 'param',
         })
         self.assertIn('exactParamForAdmin', result)
         self.assertIn('exactParamForAll', result)
 
-        self.request('Admin', 'POST', '/validation', doc=False, params={
+        self.request('Admin', 'POST', '/validation', params={
             'exactParamForAll': 'param',
             'exactParamForClient': 'param',
             'exactParamForAdmin': 'param',
@@ -108,9 +108,9 @@ class ValidationExactTestCase(WebAppTestCase):
         # ------------------------------------------------------------
 
         # Test query string
-        self.wsgi_app.jwt_token = DummyIdentity('admin').dump().decode()
+        self.wsgi_application.jwt_token = DummyIdentity('admin').dump().decode()
         result, ___ = self.request(
-            'Admin', 'POST', '/validation', doc=False,
+            'Admin', 'POST', '/validation',
             query_string={
                 'exactParamForAll': 'param',
             },
@@ -122,7 +122,7 @@ class ValidationExactTestCase(WebAppTestCase):
         self.assertIn('exactParamForAll', result)
 
         self.request(
-            'Admin', 'POST', '/validation', doc=False,
+            'Admin', 'POST', '/validation',
             query_string={
                 'exactParamForAll': 'param',
                 'exactParamForClient': 'param',

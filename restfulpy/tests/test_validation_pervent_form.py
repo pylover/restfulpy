@@ -2,8 +2,8 @@ import unittest
 
 from nanohttp import json, settings
 
-from restfulpy.testing import WebAppTestCase
-from restfulpy.testing.helpers import MockupApplication
+from restfulpy.tests.helpers import WebAppTestCase
+from restfulpy.testing import MockupApplication
 from restfulpy.validation import prevent_form
 from restfulpy.controllers import RestController, RootController
 
@@ -34,16 +34,16 @@ class ValidationPreventFormTestCase(WebAppTestCase):
 
     def test_validation_prevent_form(self):
         # Good
-        self.request('All', 'POST', '/validation', doc=False)
+        self.request('All', 'POST', '/validation')
 
         # Bad
         self.request(
-            'All', 'POST', '/validation', doc=False,
+            'All', 'POST', '/validation',
             params={'param': 'param'},
             expected_status=400
         )
         self.request(
-            'All', 'POST', '/validation', doc=False,
+            'All', 'POST', '/validation',
             query_string={'param': 'param'},
             expected_status=400
         )

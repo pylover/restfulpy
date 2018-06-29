@@ -4,8 +4,8 @@ from sqlalchemy import Integer, Unicode
 from nanohttp import settings, HttpBadRequest
 from nanohttp.contexts import Context
 
-from restfulpy.testing import WebAppTestCase
-from restfulpy.testing.helpers import MockupApplication
+from restfulpy.tests.helpers import WebAppTestCase
+from restfulpy.testing import MockupApplication
 from restfulpy.orm import DeclarativeBase, Field, DBSession, FilteringMixin
 
 

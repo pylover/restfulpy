@@ -4,8 +4,8 @@ from nanohttp import settings
 
 from restfulpy.orm import DBSession, Field, FakeJson
 from restfulpy.messaging import BaseEmail, Email, create_messenger
-from restfulpy.testing import WebAppTestCase
-from restfulpy.testing.helpers import MockupApplication
+from restfulpy.tests.helpers import WebAppTestCase
+from restfulpy.testing import MockupApplication
 
 
 # FIXME:  Why ?
@@ -36,10 +36,10 @@ class MessagingModelTestCase(WebAppTestCase):
     db:
       url: sqlite://    # In memory DB
       echo: false
-      
+
     messaging:
       default_sender: test@example.com
-      default_messenger: restfulpy.testing.helpers.MockupMessenger
+      default_messenger: restfulpy.testing.MockupMessenger
     '''
 
     @classmethod

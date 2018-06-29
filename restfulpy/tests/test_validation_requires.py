@@ -4,8 +4,8 @@ import unittest
 from nanohttp import context, json, settings
 
 from restfulpy.principal import DummyIdentity
-from restfulpy.testing import WebAppTestCase
-from restfulpy.testing.helpers import MockupApplication
+from restfulpy.tests.helpers import WebAppTestCase
+from restfulpy.testing import MockupApplication
 from restfulpy.validation import validate_form
 from restfulpy.controllers import RestController, RootController
 
@@ -42,14 +42,14 @@ class ValidationRequiresTestCase(WebAppTestCase):
     def test_validation_requires(self):
         # Test `requires`
         # role -> All
-        self.wsgi_app.jwt_token = DummyIdentity().dump().decode()
+        self.wsgi_application.jwt_token = DummyIdentity().dump().decode()
 
-        result, ___ = self.request('All', 'POST', '/validation', doc=False,
+        result, ___ = self.request('All', 'POST', '/validation',
                                    params={'requiresParamForAll': 'param'})
         self.assertIn('requiresParamForAll', result)
 
         result, ___ = self.request(
-            'All', 'POST', '/validation', doc=False,
+            'All', 'POST', '/validation',
             params={
                 'customParam': 'param',
                 'requiresParamForAll': 'param',
@@ -58,19 +58,19 @@ class ValidationRequiresTestCase(WebAppTestCase):
         self.assertIn('customParam', result)
         self.assertIn('requiresParamForAll', result)
 
-        self.request('All', 'POST', '/validation', doc=False, expected_status=400)
+        self.request('All', 'POST', '/validation', expected_status=400)
 
-        self.request('All', 'POST', '/validation', doc=False, params={'customParam': 'param'},
+        self.request('All', 'POST', '/validation', params={'customParam': 'param'},
                      expected_status=400)
 
-        self.request('All', 'POST', '/validation', doc=False, params={'requiresParamForClient': 'param'},
+        self.request('All', 'POST', '/validation', params={'requiresParamForClient': 'param'},
                      expected_status=400)
 
         # -----------------------------
         # role -> Client
-        self.wsgi_app.jwt_token = DummyIdentity('client').dump().decode()
+        self.wsgi_application.jwt_token = DummyIdentity('client').dump().decode()
         result, ___ = self.request(
-            'Client', 'POST', '/validation', doc=False,
+            'Client', 'POST', '/validation',
             params={
                 'requiresParamForAll': 'param',
                 'requiresParamForClient': 'param',
@@ -80,7 +80,7 @@ class ValidationRequiresTestCase(WebAppTestCase):
         self.assertIn('requiresParamForClient', result)
 
         result, ___ = self.request(
-            'Client', 'POST', '/validation', doc=False,
+            'Client', 'POST', '/validation',
             params={
                 'customParam': 'param',
                 'requiresParamForAll': 'param',
@@ -91,29 +91,29 @@ class ValidationRequiresTestCase(WebAppTestCase):
         self.assertIn('requiresParamForAll', result)
         self.assertIn('requiresParamForClient', result)
 
-        self.request('Client', 'POST', '/validation', doc=False, expected_status=400)
+        self.request('Client', 'POST', '/validation', expected_status=400)
 
-        self.request('Client', 'POST', '/validation', doc=False, params={'customParam': 'param'},
+        self.request('Client', 'POST', '/validation', params={'customParam': 'param'},
                      expected_status=400)
 
-        self.request('Client', 'POST', '/validation', doc=False, params={'requiresParamForAll': 'param'},
+        self.request('Client', 'POST', '/validation', params={'requiresParamForAll': 'param'},
                      expected_status=400)
 
-        self.request('Client', 'POST', '/validation', doc=False, params={
+        self.request('Client', 'POST', '/validation', params={
             'requiresParamForClient':
                 'param',
         }, expected_status=400)
         # -----------------------------
         # role -> Admin
-        self.wsgi_app.jwt_token = DummyIdentity('admin').dump().decode()
-        result, ___ = self.request('Admin', 'POST', '/validation', doc=False, params={
+        self.wsgi_application.jwt_token = DummyIdentity('admin').dump().decode()
+        result, ___ = self.request('Admin', 'POST', '/validation', params={
             'requiresParamForAll': 'param',
             'requiresParamForAdmin': 'param',
         })
         self.assertIn('requiresParamForAll', result)
         self.assertIn('requiresParamForAdmin', result)
         result, ___ = self.request(
-            'Admin', 'POST', '/validation', doc=False,
+            'Admin', 'POST', '/validation',
             params={
                 'customParam': 'param',
                 'requiresParamForAll': 'param',
@@ -124,13 +124,13 @@ class ValidationRequiresTestCase(WebAppTestCase):
         self.assertIn('requiresParamForAll', result)
         self.assertIn('requiresParamForAdmin', result)
 
-        self.request('Admin', 'POST', '/validation', doc=False, expected_status=400)
+        self.request('Admin', 'POST', '/validation', expected_status=400)
 
-        self.request('Admin', 'POST', '/validation', doc=False, params={'customParam': 'param'},
+        self.request('Admin', 'POST', '/validation', params={'customParam': 'param'},
                      expected_status=400)
 
         self.request(
-            'Admin', 'POST', '/validation', doc=False,
+            'Admin', 'POST', '/validation',
             params={
                 'requiresParamForAll': 'param',
                 'requiresParamForClient': 'param',
@@ -138,7 +138,7 @@ class ValidationRequiresTestCase(WebAppTestCase):
             expected_status=400
         )
 
-        self.request('Admin', 'POST', '/validation', doc=False, params={'requiresParamForAdmin': 'param'},
+        self.request('Admin', 'POST', '/validation', params={'requiresParamForAdmin': 'param'},
                      expected_status=400)
 
 

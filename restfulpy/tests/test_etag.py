@@ -4,8 +4,8 @@ from sqlalchemy import Unicode
 from nanohttp import settings, json, etag, context
 
 from restfulpy.orm import DeclarativeBase, DBSession, Field, ModifiedMixin, commit
-from restfulpy.testing import WebAppTestCase, FormParameter
-from restfulpy.testing.helpers import MockupApplication
+from restfulpy.tests.helpers import WebAppTestCase
+from restfulpy.testing import MockupApplication
 from restfulpy.controllers import ModelRestController
 
 
@@ -65,9 +65,9 @@ class EtagCheckingModelTestCase(WebAppTestCase):
         settings.merge(cls.__configuration__)
 
     def test_etag_match(self):
-        resp, headers = self.request('ALL', 'POST', '/', params=[
-            FormParameter('title', 'etag_test')
-        ])
+        resp, headers = self.request('ALL', 'POST', '/', params={
+            'title': 'etag_test'
+        })
         self.assertIn('ETag', headers)
         initial_etag = headers['ETag']
 
@@ -83,18 +83,18 @@ class EtagCheckingModelTestCase(WebAppTestCase):
         # Putting without the etag header, expected error: Precondition Failed
         self.request(
             'ALL', 'PUT', '/etag_test',
-            params=[
-                FormParameter('title', 'etag_test_edit1')
-            ],
+            params={
+                'title': 'etag_test_edit1'
+            },
             expected_status=412
         )
 
         # Putting with the etag header, expected: success
         resp, headers = self.request(
             'ALL', 'PUT', '/etag_test',
-            params=[
-                FormParameter('title', 'etag_test_edit1')
-            ],
+            params={
+                'title': 'etag_test_edit1'
+            },
             headers={
                 'If-Match': initial_etag
             }

@@ -4,8 +4,8 @@ from nanohttp import json, Controller, context, settings
 from restfulpy.authentication import StatefulAuthenticator
 from restfulpy.authorization import authorize
 from restfulpy.principal import JwtPrincipal, JwtRefreshToken
-from restfulpy.testing import WebAppTestCase, As
-from restfulpy.testing.helpers import MockupApplication
+from restfulpy.tests.helpers import WebAppTestCase
+from restfulpy.testing import MockupApplication
 
 
 class MockupMember:
@@ -65,8 +65,8 @@ class StatefulAuthenticatorTestCase(WebAppTestCase):
             jwt:
               max_age: .3
               refresh_token:
-                max_age: 3 
-                secure: true          
+                max_age: 3
+                secure: true
         """)
 
     def test_invalidate_token(self):
@@ -80,10 +80,10 @@ class StatefulAuthenticatorTestCase(WebAppTestCase):
         token = principal.dump().decode("utf-8")
         refresh_token = 'refresh-token=' + JwtRefreshToken(dict(id=1)).dump().decode("utf-8")
         self.assertTrue(refresh_token.startswith('refresh-token='))
-        self.wsgi_app.jwt_token = token
+        self.wsgi_application.jwt_token = token
 
         time.sleep(1)
-        self.request(As.member, 'GET', '/me', headers={'Cookie': refresh_token}, expected_status=400)
+        self.request('member', 'GET', '/me', headers={'Cookie': refresh_token}, expected_status=400)
 
 
 if __name__ == '__main__':  # pragma: no cover

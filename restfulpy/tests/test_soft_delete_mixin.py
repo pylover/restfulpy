@@ -4,8 +4,8 @@ from sqlalchemy import Unicode
 from nanohttp import settings, HttpConflict
 
 from restfulpy.orm import DeclarativeBase, DBSession, Field, SoftDeleteMixin
-from restfulpy.testing import WebAppTestCase
-from restfulpy.testing.helpers import MockupApplication
+from restfulpy.tests.helpers import WebAppTestCase
+from restfulpy.testing import MockupApplication
 
 
 class SoftDeleteCheckingModel(SoftDeleteMixin, DeclarativeBase):

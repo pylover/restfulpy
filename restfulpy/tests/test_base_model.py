@@ -9,8 +9,8 @@ from restfulpy.controllers import JsonPatchControllerMixin, ModelRestController
 from restfulpy.orm import commit, DeclarativeBase, Field, DBSession, \
     composite, FilteringMixin, PaginationMixin, OrderingMixin, relationship, \
     ModifiedMixin, ActivationMixin, synonym
-from restfulpy.testing import WebAppTestCase
-from restfulpy.testing.helpers import MockupApplication
+from restfulpy.tests.helpers import WebAppTestCase
+from restfulpy.testing import MockupApplication
 
 
 class FullName(object):  # pragma: no cover
@@ -165,23 +165,22 @@ class BaseModelTestCase(WebAppTestCase):
                 lastLoginTime='2017-10-10T15:44:30.000',
                 isActive=True
             ),
-            doc=False
         )
         self.assertEqual(resp['title'], 'test')
         self.assertNotIn('avatar', resp)
         self.assertNotIn('_avatar', resp)
         self.assertIn('avatarImage', resp)
 
-        resp, ___ = self.request('ALL', 'GET', '/', query_string=dict(take=1), doc=False)
+        resp, ___ = self.request('ALL', 'GET', '/', query_string=dict(take=1))
         self.assertEqual(len(resp), 1)
         self.assertEqual(resp[0]['title'], 'test')
         self.assertEqual(resp[0]['visible'], False)
 
         # 404
-        self.request('ALL', 'GET', '/non-existence-user', doc=False, expected_status=404)
+        self.request('ALL', 'GET', '/non-existence-user', expected_status=404)
 
         # Plain dictionary
-        resp, ___ = self.request('ALL', 'GET', '/me', doc=False)
+        resp, ___ = self.request('ALL', 'GET', '/me')
         self.assertEqual(resp['title'], 'me')
 
         # 400 for sending relationship attribute
@@ -199,7 +198,7 @@ class BaseModelTestCase(WebAppTestCase):
                 isActive=True,
                 books=[]
             ),
-            doc=False,
+
             expected_status=400
         )
 
@@ -221,7 +220,7 @@ class BaseModelTestCase(WebAppTestCase):
         self.assertIn('avatar', columns)
 
     def test_metadata(self):
-        resp, ___ = self.request('ALL', 'METADATA', '/', doc=False)
+        resp, ___ = self.request('ALL', 'METADATA', '/')
 
         self.assertIn('fields', resp)
         self.assertIn('name', resp)
@@ -268,7 +267,6 @@ class BaseModelTestCase(WebAppTestCase):
                 visible='false',
                 lastLoginTime='2017-10-10T10:10:00.12313'
             ),
-            doc=False
         )
 
         self.request(
@@ -284,7 +282,6 @@ class BaseModelTestCase(WebAppTestCase):
                 visible='false',
                 lastLoginTime='2017-10-10T10:10:00'
             ),
-            doc=False
         )
 
         # Invalid month value
@@ -301,7 +298,7 @@ class BaseModelTestCase(WebAppTestCase):
                 visible='false',
                 lastLoginTime='2017-13-10T10:10:00'
             ),
-            doc=False,
+
             expected_status=400
         )
 
@@ -319,7 +316,7 @@ class BaseModelTestCase(WebAppTestCase):
                 visible='false',
                 lastLoginTime='InvalidDatetime'
             ),
-            doc=False,
+
             expected_status=400
         )
 
@@ -336,7 +333,6 @@ class BaseModelTestCase(WebAppTestCase):
                 visible='false',
                 lastLoginTime='2017-10-10T10:10:00.4546'
             ),
-            doc=False
         )
         self.assertEqual(resp['lastLoginTime'], '2017-10-10T10:10:00.454600')
 
@@ -353,7 +349,6 @@ class BaseModelTestCase(WebAppTestCase):
                 visible='false',
                 lastLoginTime='2017-10-10T10:10:00.4546'
             ),
-            doc=False
         )
         self.assertEqual(resp['lastLoginTime'], '2017-10-10T10:10:00.454600')
 
@@ -372,7 +367,6 @@ class BaseModelTestCase(WebAppTestCase):
                 visible='false',
                 lastLoginTime='2017-10-10T10:10:00.4546'
             ),
-            doc=False
         )
         self.assertEqual(resp['birth'], '2001-01-01')
         self.assertEqual(resp['lastLoginTime'], '2017-10-10T10:10:00.454600')
@@ -391,7 +385,6 @@ class BaseModelTestCase(WebAppTestCase):
                 visible='false',
                 lastLoginTime=datetime(2017, 10, 10, 10, 10, 0, 4546).timestamp()
             ),
-            doc=False
         )
         self.assertEqual(resp['birth'], '2017-12-16')
 

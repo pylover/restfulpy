@@ -6,8 +6,8 @@ from sqlalchemy import Unicode, Integer
 
 from restfulpy.controllers import JsonPatchControllerMixin
 from restfulpy.orm import commit, DeclarativeBase, Field, DBSession
-from restfulpy.testing import WebAppTestCase
-from restfulpy.testing.helpers import MockupApplication
+from restfulpy.tests.helpers import WebAppTestCase
+from restfulpy.testing import MockupApplication
 
 
 class CommitCheckingModel(DeclarativeBase):
@@ -54,22 +54,22 @@ class CommitDecoratorTestCase(WebAppTestCase):
         settings.merge(cls.__configuration__)
 
     def test_commit_decorator(self):
-        self.request('ALL', 'POST', '/', params=dict(title='first'), doc=False)
-        resp, ___ = self.request('ALL', 'GET', '/first', doc=False)
+        self.request('ALL', 'POST', '/', params=dict(title='first'))
+        resp, ___ = self.request('ALL', 'GET', '/first')
         self.assertEqual(resp['title'], 'first')
         self.assertEqual(resp['id'], 1)
 
     def test_commit_decorator_and_json_patch(self):
         # The commit decorator should not to do anything if the request is a jsonpatch.
-        self.request('ALL', 'PATCH', '/', doc=False, json=[
+        self.request('ALL', 'PATCH', '/', json=[
             dict(op='post', path='', value=dict(title='second')),
             dict(op='post', path='', value=dict(title='third'))
         ])
-        resp, ___ = self.request('ALL', 'GET', '/third', doc=False)
+        resp, ___ = self.request('ALL', 'GET', '/third')
         self.assertEqual(resp['title'], 'third')
 
     def test_rollback(self):
-        self.request('ALL', 'ERROR', '/', doc=False, expected_status=500)
+        self.request('ALL', 'ERROR', '/', expected_status=500)
 
 
 if __name__ == '__main__':  # pragma: no cover

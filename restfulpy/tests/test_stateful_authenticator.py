@@ -7,8 +7,8 @@ from nanohttp.contexts import Context
 from restfulpy.authentication import StatefulAuthenticator
 from restfulpy.authorization import authorize
 from restfulpy.principal import JwtPrincipal, JwtRefreshToken
-from restfulpy.testing import WebAppTestCase, As
-from restfulpy.testing.helpers import MockupApplication
+from restfulpy.tests.helpers import WebAppTestCase
+from restfulpy.testing import MockupApplication
 
 session_info_test_cases = [
     {
@@ -123,8 +123,8 @@ class StatefulAuthenticatorTestCase(WebAppTestCase):
             jwt:
               max_age: .3
               refresh_token:
-                max_age: 3 
-                secure: false               
+                max_age: 3
+                secure: false
         """)
 
     def test_invalidate_token(self):
@@ -135,36 +135,36 @@ class StatefulAuthenticatorTestCase(WebAppTestCase):
 
         # Login on client
         token = response['token']
-        self.wsgi_app.jwt_token = token
+        self.wsgi_application.jwt_token = token
 
         # Request a protected resource to ensure authenticator is working well
-        response, ___ = self.request(As.member, 'GET', '/me', headers={'Cookie': refresh_token})
+        response, ___ = self.request('member', 'GET', '/me', headers={'Cookie': refresh_token})
         self.assertListEqual(response['roles'], roles)
 
         # Invalidating the token by server
         roles.append('god')
-        response, headers = self.request(As.member, 'GET', '/invalidate_token', headers={'Cookie': refresh_token})
+        response, headers = self.request('member', 'GET', '/invalidate_token', headers={'Cookie': refresh_token})
         self.assertListEqual(response['roles'], roles)
         self.assertIn('X-New-JWT-Token', headers)
 
         # Invalidating the token by server after the token has been expired expired, with appropriate cookies.
         time.sleep(1)
         response, headers = self.request(
-            As.member, 'GET', '/invalidate_token',
+            'member', 'GET', '/invalidate_token',
             headers={
                 'Cookie': refresh_token
             }
         )
         self.assertIn('X-New-JWT-Token', headers)
         self.assertIsNotNone(headers['X-New-JWT-Token'])
-        self.wsgi_app.jwt_token = headers['X-New-JWT-Token']
-        self.request(As.member, 'GET', '/me', headers={'Cookie': refresh_token})
+        self.wsgi_application.jwt_token = headers['X-New-JWT-Token']
+        self.request('member', 'GET', '/me', headers={'Cookie': refresh_token})
 
     def test_logout(self):
         response, headers = self.request('ALL', 'POST', '/login', json=dict(email='test@example.com', password='test'))
         self.assertIn('token', response)
         self.assertEqual(headers['X-Identity'], '1')
-        self.wsgi_app.jwt_token = response['token']
+        self.wsgi_application.jwt_token = response['token']
         response, headers = self.request('ALL', 'DELETE', '/logout')
         self.assertNotIn('X-Identity', headers)
 
@@ -177,12 +177,12 @@ class StatefulAuthenticatorTestCase(WebAppTestCase):
     def test_session_info(self):
         # Login
         response, headers = self.request('ALL', 'GET', '/login', json=dict(email='test@example.com', password='test'))
-        self.wsgi_app.jwt_token = response['token']
+        self.wsgi_application.jwt_token = response['token']
 
         # Testing test cases
         for test_case in session_info_test_cases:
             # Our new session info should be updated
-            payload, ___ = self.request(As.member, 'GET', '/me', extra_environ=test_case['environment'])
+            payload, ___ = self.request('member', 'GET', '/me', extra_environ=test_case['environment'])
 
             info = self.application.__authenticator__.get_session_info(payload['sessionId'])
             self.assertDictEqual(info, {

@@ -5,7 +5,7 @@ from os.path import dirname, join
 
 from restfulpy.datetimehelpers import parse_datetime, format_datetime
 from restfulpy.configuration import configure, settings
-from restfulpy.testing import localtimezone_mockup
+from restfulpy.testing import mockup_localtimezone
 
 
 class DateTimeParserFormatterTestCase(unittest.TestCase):
@@ -44,7 +44,7 @@ class DateTimeParserFormatterTestCase(unittest.TestCase):
         # Submit with 'Z' and or '+3:30':
         # accept and assume as the UTC, so we have to convert
         # it to local date and time before continuing the rest of process
-        with localtimezone_mockup(tzoffset(None, 3600)):
+        with mockup_localtimezone(tzoffset(None, 3600)):
             self.assertEquals(
                 datetime(1970, 1, 1, 1),
                 parse_datetime('1970-01-01T00:00:00Z')
@@ -85,7 +85,7 @@ class DateTimeParserFormatterTestCase(unittest.TestCase):
             format_datetime(datetime(1970, 1, 1, 0, 0, 0, 1))
         )
 
-        with localtimezone_mockup(tzoffset(None, 3600)):
+        with mockup_localtimezone(tzoffset(None, 3600)):
             self.assertEqual(
                 '1970-01-01T00:00:00',
                 format_datetime(

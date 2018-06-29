@@ -4,8 +4,8 @@ import unittest
 from nanohttp import context, json, settings
 
 from restfulpy.principal import DummyIdentity
-from restfulpy.testing import WebAppTestCase
-from restfulpy.testing.helpers import MockupApplication
+from restfulpy.tests.helpers import WebAppTestCase
+from restfulpy.testing import MockupApplication
 from restfulpy.validation import validate_form
 from restfulpy.controllers import RestController, RootController
 
@@ -44,9 +44,9 @@ class ValidationFilterTestCase(WebAppTestCase):
     def test_validation_filter(self):
         # Test `filter`
         # role -> All
-        self.wsgi_app.jwt_token = DummyIdentity().dump().decode()
+        self.wsgi_application.jwt_token = DummyIdentity().dump().decode()
         result, ___ = self.request(
-            'All', 'POST', '/validation', doc=False,
+            'All', 'POST', '/validation',
             params={
                 'customParam': 'param',
                 'filteredParamForAll': 'param',
@@ -60,9 +60,9 @@ class ValidationFilterTestCase(WebAppTestCase):
         self.assertIn('filteredParamForAll', result)
         # -----------------------------
         # role -> Client
-        self.wsgi_app.jwt_token = DummyIdentity('client').dump().decode()
+        self.wsgi_application.jwt_token = DummyIdentity('client').dump().decode()
         result, ___ = self.request(
-            'Client', 'POST', '/validation', doc=False,
+            'Client', 'POST', '/validation',
             params={
                 'customParam': 'param',
                 'filteredParamForAll': 'param',
@@ -76,9 +76,9 @@ class ValidationFilterTestCase(WebAppTestCase):
         self.assertIn('filteredParamForAll', result)
         # -----------------------------
         # role -> Admin
-        self.wsgi_app.jwt_token = DummyIdentity('admin').dump().decode()
+        self.wsgi_application.jwt_token = DummyIdentity('admin').dump().decode()
         result, ___ = self.request(
-            'Admin', 'POST', '/validation', doc=False,
+            'Admin', 'POST', '/validation',
             params={
                 'customParam': 'param',
                 'filteredParamForAll': 'param',

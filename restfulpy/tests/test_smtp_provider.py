@@ -5,7 +5,7 @@ from os.path import dirname, abspath, join
 
 from nanohttp import settings, configure
 from restfulpy.messaging.providers import SmtpProvider
-from restfulpy.testing.mockup import smtp_server
+from restfulpy.testing import mockup_smtp_server
 
 HERE = abspath(dirname(__file__))
 
@@ -23,7 +23,7 @@ class SmtpProviderTestCase(unittest.TestCase):
           ssl: false
         messaging:
             mako_modules_directory: %s
-            template_dirs: 
+            template_dirs:
               - %s
         ''' % (
         join(HERE, '../../data', 'mako_modules'),
@@ -35,7 +35,7 @@ class SmtpProviderTestCase(unittest.TestCase):
         configure(init_value=cls.__configuration__, force=True)
 
     def test_smtp_provider(self):
-        with smtp_server() as (server, bind):
+        with mockup_smtp_server() as (server, bind):
             settings.smtp.host = bind[0]
             settings.smtp.port = bind[1]
 

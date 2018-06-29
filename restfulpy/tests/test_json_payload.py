@@ -3,8 +3,8 @@ import unittest
 
 from nanohttp import json, Controller, context
 
-from restfulpy.testing import WebAppTestCase
-from restfulpy.testing.helpers import MockupApplication
+from restfulpy.tests.helpers import WebAppTestCase
+from restfulpy.testing import MockupApplication
 
 
 class Root(Controller):

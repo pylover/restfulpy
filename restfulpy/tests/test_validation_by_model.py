@@ -5,8 +5,8 @@ from sqlalchemy import Unicode, Integer, DateTime
 
 from restfulpy.controllers import JsonPatchControllerMixin, ModelRestController
 from restfulpy.orm import commit, DeclarativeBase, Field, DBSession
-from restfulpy.testing import WebAppTestCase
-from restfulpy.testing.helpers import MockupApplication
+from restfulpy.tests.helpers import WebAppTestCase
+from restfulpy.testing import MockupApplication
 
 
 class ModelValidationCheckingModel(DeclarativeBase):
@@ -60,7 +60,7 @@ class ModelValidationDecoratorTestCase(WebAppTestCase):
 
         # Correct pattern
         resp, ___ = self.request(
-            'ALL', 'POST', '/', params=dict(title='Test'), doc=False
+            'ALL', 'POST', '/', params=dict(title='Test')
         )
         self.assertEqual(resp['title'], 'Test')
 
@@ -69,7 +69,6 @@ class ModelValidationDecoratorTestCase(WebAppTestCase):
             'ALL', 'POST', '/',
             params=dict(title='startWithSmallCase'),
             expected_status=400,
-            doc=False
         )
 
         # Readonly
@@ -80,7 +79,6 @@ class ModelValidationDecoratorTestCase(WebAppTestCase):
                 modified=datetime.utcnow().isoformat()
             ),
             expected_status=400,
-            doc=False
         )
 
 

@@ -5,8 +5,8 @@ import unittest
 from nanohttp import context, json, settings
 
 from restfulpy.principal import DummyIdentity
-from restfulpy.testing import WebAppTestCase
-from restfulpy.testing.helpers import MockupApplication
+from restfulpy.tests.helpers import WebAppTestCase
+from restfulpy.testing import MockupApplication
 from restfulpy.validation import validate_form
 from restfulpy.controllers import RestController, RootController
 
@@ -59,10 +59,10 @@ class ValidationPatternTestCase(WebAppTestCase):
     def test_validation_pattern(self):
         # Test `pattern`
         # role -> All
-        self.wsgi_app.jwt_token = DummyIdentity().dump().decode()
+        self.wsgi_application.jwt_token = DummyIdentity().dump().decode()
         self.request(
             'All', 'POST', '/validation',
-            doc=False,
+           
             params={
                 'patternedParam1': '0123456789',
                 'patternedParam2': 'abcdeFGHIJ',
@@ -72,17 +72,17 @@ class ValidationPatternTestCase(WebAppTestCase):
 
         self.request(
             'All', 'POST', '/validation',
-            doc=False,
+           
             params={'patternedParam1': '12345'},
             expected_status=400
         )
 
         # -----------------------------
         # role -> Client
-        self.wsgi_app.jwt_token = DummyIdentity('client').dump().decode()
+        self.wsgi_application.jwt_token = DummyIdentity('client').dump().decode()
         self.request(
             'Client', 'POST', '/validation',
-            doc=False,
+           
             params={
                 'patternedParam1': '12345',
                 'patternedParam2': 'ABCDE',
@@ -93,17 +93,17 @@ class ValidationPatternTestCase(WebAppTestCase):
 
         self.request(
             'Client', 'POST', '/validation',
-            doc=False,
+           
             params={'patternedParam1': '1'},
             expected_status=400
         )
 
         # -----------------------------
         # role -> Admin
-        self.wsgi_app.jwt_token = DummyIdentity('admin').dump().decode()
+        self.wsgi_application.jwt_token = DummyIdentity('admin').dump().decode()
         self.request(
             'Admin', 'POST', '/validation',
-            doc=False,
+           
             params={
                 'patternedParam1': '1',
                 'patternedParam2': 'ABCDEFGHIJ',
@@ -113,7 +113,7 @@ class ValidationPatternTestCase(WebAppTestCase):
 
         self.request(
             'Admin', 'POST', '/validation',
-            doc=False,
+           
             params={'patternedParam4': 'anything'},
             expected_status=400
         )

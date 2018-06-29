@@ -6,8 +6,8 @@ from sqlalchemy import Unicode, Integer
 from restfulpy.controllers import JsonPatchControllerMixin, ModelRestController
 from restfulpy.orm import commit, DeclarativeBase, Field, DBSession, FilteringMixin, PaginationMixin, OrderingMixin, \
     ModifiedMixin
-from restfulpy.testing import WebAppTestCase
-from restfulpy.testing.helpers import MockupApplication
+from restfulpy.tests.helpers import WebAppTestCase
+from restfulpy.testing import MockupApplication
 
 
 class SqlErrorCheckingModel(ModifiedMixin, FilteringMixin, PaginationMixin, OrderingMixin, DeclarativeBase):
@@ -51,7 +51,7 @@ class SqlExceptionsTestCase(WebAppTestCase):
         settings.merge(cls.__configuration__)
 
     def test_sql_errors(self):
-        resp, ___ = self.request('ALL', 'POST', '/', params=dict(title='test'), doc=False)
+        resp, ___ = self.request('ALL', 'POST', '/', params=dict(title='test'))
         self.assertEqual(resp['title'], 'test')
 
         self.max_diff = None
@@ -62,7 +62,6 @@ class SqlExceptionsTestCase(WebAppTestCase):
             '/',
             params=dict(title='test'),
             expected_status=r'''409 unique_violation ERROR:  duplicate key value violates unique constraint "sql_error_checking_model_title_key"\nDETAIL:  Key (title)=(test) already exists.\n''',
-            doc=False
         )
 
 

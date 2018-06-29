@@ -4,8 +4,8 @@ import unittest
 from nanohttp import context, json, settings
 
 from restfulpy.principal import DummyIdentity
-from restfulpy.testing import WebAppTestCase
-from restfulpy.testing.helpers import MockupApplication
+from restfulpy.tests.helpers import WebAppTestCase
+from restfulpy.testing import MockupApplication
 from restfulpy.validation import validate_form
 from restfulpy.controllers import RestController, RootController
 
@@ -58,10 +58,10 @@ class ValidationTypesTestCase(WebAppTestCase):
     def test_validation_types(self):
         # Test `type`
         # role -> All
-        self.wsgi_app.jwt_token = DummyIdentity().dump().decode()
+        self.wsgi_application.jwt_token = DummyIdentity().dump().decode()
         result, ___ = self.request(
             'All', 'POST', '/validation',
-            doc=False,
+           
             params={
                 'typedParam1': '1',
                 'typedParam2': '2',
@@ -76,17 +76,17 @@ class ValidationTypesTestCase(WebAppTestCase):
 
         self.request(
             'All', 'POST', '/validation',
-            doc=False,
+           
             params={'typedParam1': 'not_convertible'},
             expected_status=400
         )
 
         # -----------------------------
         # role -> Client
-        self.wsgi_app.jwt_token = DummyIdentity('client').dump().decode()
+        self.wsgi_application.jwt_token = DummyIdentity('client').dump().decode()
         result, ___ = self.request(
             'Client', 'POST', '/validation',
-            doc=False,
+           
             params={
                 'typedParam1': '1',
                 'typedParam2': '2',
@@ -101,17 +101,17 @@ class ValidationTypesTestCase(WebAppTestCase):
 
         self.request(
             'Client', 'POST', '/validation',
-            doc=False,
+           
             params={'typedParam1': 'not_convertible'},
             expected_status=400
         )
 
         # -----------------------------
         # role -> Admin
-        self.wsgi_app.jwt_token = DummyIdentity('admin').dump().decode()
+        self.wsgi_application.jwt_token = DummyIdentity('admin').dump().decode()
         result, ___ = self.request(
             'Admin', 'POST', '/validation',
-            doc=False,
+           
             params={
                 'typedParam1': '1',
                 'typedParam2': '2',
@@ -127,7 +127,7 @@ class ValidationTypesTestCase(WebAppTestCase):
 
         self.request(
             'Admin', 'POST', '/validation',
-            doc=False,
+           
             params={'typedParam1': 'not_convertible'},
             expected_status=400
         )
