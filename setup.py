@@ -23,7 +23,7 @@ dependencies = [
     'ua-parser',
     'user-agents',
     'pycrypto',
-    'dateutil',
+    'python-dateutil',
 
     # Testing
     'requests',

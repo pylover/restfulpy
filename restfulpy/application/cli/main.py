@@ -11,6 +11,7 @@ from .worker import WorkerLauncher
 from .dev import DevLauncher
 from .configuration import ConfigurationLauncher
 from .jwttoken import JWTLauncher
+from .autocompletion import AutoCompletionLauncher
 
 
 class MainLauncher(Launcher):
@@ -49,6 +50,7 @@ class MainLauncher(Launcher):
         MigrateLauncher.register(subparsers)
         WorkerLauncher.register(subparsers)
         DevLauncher.register(subparsers)
+        AutoCompletionLauncher.register(subparsers)
 
         if application.__configuration_cipher__ is not None:
             ConfigurationLauncher.register(subparsers)
