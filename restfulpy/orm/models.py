@@ -5,18 +5,18 @@ from decimal import Decimal
 
 from nanohttp import context, HttpNotFound, HttpBadRequest
 from sqlalchemy import Column, event
-from sqlalchemy.orm import validates, Query, CompositeProperty, RelationshipProperty
+from sqlalchemy.orm import validates, Query, CompositeProperty, \
+    RelationshipProperty
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy.ext.hybrid import HYBRID_PROPERTY
 from sqlalchemy.ext.associationproxy import ASSOCIATION_PROXY
 from sqlalchemy.inspection import inspect
 
-from ..utils import to_camel_case
-from .field import ModelFieldInfo
-from ..validation import validate_form
-from ..constants import ISO_DATETIME_FORMAT, ISO_DATE_FORMAT, ISO_DATETIME_PATTERN, POSIX_TIME_PATTERN
+from .field import ModelFieldInfo, Field
 from .mixins import PaginationMixin, FilteringMixin, OrderingMixin
-from .field import Field
+from ..validation import validate_form
+from ..utils import to_camel_case
+from ..datetimehelpers import parse_datetime, format_datetime
 
 
 class BaseModel(object):
@@ -44,17 +44,20 @@ class BaseModel(object):
     def prepare_for_export(cls, column, v):
         param_name = column.info.get('json') or to_camel_case(column.key)
 
-        if hasattr(column, 'property') and isinstance(column.property, RelationshipProperty) and column.property.uselist:
+        if hasattr(column, 'property') \
+                and isinstance(column.property, RelationshipProperty) \
+                and column.property.uselist:
             result = [c.to_dict() for c in v]
 
-        elif hasattr(column, 'property') and isinstance(column.property, CompositeProperty):
+        elif hasattr(column, 'property') \
+            and isinstance(column.property, CompositeProperty):
             result = v.__composite_values__()
 
         elif v is None:
             result = v
 
         elif isinstance(v, (datetime, date, time)):
-            result = v.isoformat()
+            result = format_datetime(v)
 
         elif hasattr(v, 'to_dict'):
             result = v.to_dict()
@@ -69,8 +72,15 @@ class BaseModel(object):
 
     @classmethod
     def iter_metadata_fields(cls):
-        for c in cls.iter_json_columns(relationships=True, include_readonly_columns=True, include_protected_columns=True):
-            yield from ModelFieldInfo.from_column(cls.get_column(c), info=c.info)
+        for c in cls.iter_json_columns(
+                relationships=True,
+                include_readonly_columns=True,
+                include_protected_columns=True
+            ):
+            yield from ModelFieldInfo.from_column(
+                cls.get_column(c),
+                info=c.info
+            )
 
     @classmethod
     def json_metadata(cls):
@@ -91,7 +101,8 @@ class BaseModel(object):
             )
 
     @classmethod
-    def iter_columns(cls, relationships=True, synonyms=True, composites=True, use_inspection=True, hybrids=True):
+    def iter_columns(cls, relationships=True, synonyms=True, composites=True,
+                     use_inspection=True, hybrids=True):
         if use_inspection:
             mapper = inspect(cls)
             for k, c in mapper.all_orm_descriptors.items():
@@ -116,7 +127,8 @@ class BaseModel(object):
                 yield c
 
     @classmethod
-    def iter_json_columns(cls, include_readonly_columns=True, include_protected_columns=False, **kw):
+    def iter_json_columns(cls, include_readonly_columns=True,
+                          include_protected_columns=False, **kw):
         for c in cls.iter_columns(**kw):
             if (not include_protected_columns and c.info.get('protected')) or \
                     (not include_readonly_columns and c.info.get('readonly')):
@@ -126,15 +138,11 @@ class BaseModel(object):
 
     @classmethod
     def extract_data_from_request(cls):
-        for c in cls.iter_json_columns(include_protected_columns=True, include_readonly_columns=False):
+        for c in cls.iter_json_columns(
+                include_protected_columns=True,
+                include_readonly_columns=False
+        ):
             param_name = c.info.get('json', to_camel_case(c.key))
-
-            # Commented-out by Vahid, I think it's not necessary at all.
-            # if c.info.get('readonly') and param_name in context.form:
-            #     if c.info.get('strict', None):
-            #         raise HttpBadRequest('Invalid parameter: %s' % c.info['json'])
-            #     else:
-            #         continue
             if param_name in context.form:
 
                 if hasattr(c, 'property') and hasattr(c.property, 'mapper'):
@@ -148,35 +156,13 @@ class BaseModel(object):
                 except NotImplementedError:
                     yield c, value
                     continue
-                if c.type.python_type == datetime:
+
+                # Parsing date and or time if required.
+                if c.type.python_type in (datetime, date, time):
                     try:
-                        if isinstance(value, float) or POSIX_TIME_PATTERN.match(value):
-                            extracted_value = datetime.fromtimestamp(float(value))
-                        else:
-                            match = ISO_DATETIME_PATTERN.match(value)
-                            if not match:
-                                raise ValueError()
-                            groups = list(match.groups())
-                            if groups[1]:
-                                value = f'{groups[0]}.{groups[1][1:].zfill(6)}Z'
-                            else:
-                                value = f'{groups[0]}.000000Z'
-                            extracted_value = datetime.strptime(value, ISO_DATETIME_FORMAT)
-
-                        yield c, extracted_value
-
+                        yield c, parse_datetime(value)
                     except ValueError:
-                        raise HttpBadRequest('Invalid datetime format')
-
-                elif c.type.python_type == date:
-                    try:
-                        if isinstance(value, float) or POSIX_TIME_PATTERN.match(value):
-                            extracted_value = date.fromtimestamp(float(value))
-                        else:
-                            extracted_value = datetime.strptime(value, ISO_DATE_FORMAT)
-                        yield c, extracted_value
-                    except ValueError:
-                        raise HttpBadRequest('Invalid date format')
+                        raise HttpBadRequest('Invalid date or time format')
                 else:
                     yield c, value
 

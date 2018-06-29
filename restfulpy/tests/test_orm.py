@@ -6,8 +6,8 @@ from nanohttp.contexts import Context
 from sqlalchemy import Integer, Unicode, ForeignKey, Boolean, Table, Date, Time, Float
 from sqlalchemy.orm import synonym
 
-from restfulpy.orm import DeclarativeBase, init_model, create_engine, Field, DBSession, setup_schema, relationship, \
-    composite, ModifiedMixin
+from restfulpy.orm import DeclarativeBase, init_model, create_engine, Field, \
+    DBSession, setup_schema, relationship, composite, ModifiedMixin
 
 
 class FullName(object):  # pragma: no cover
@@ -107,6 +107,9 @@ class ModelTestCase(unittest.TestCase):
     db:
       url: sqlite://    # In memory DB
       echo: false
+
+    timezone:
+
     '''
 
     @classmethod

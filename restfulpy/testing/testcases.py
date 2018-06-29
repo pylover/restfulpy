@@ -1,13 +1,13 @@
+import asyncio
+import functools
 import re
 import sys
-import ujson
-import asyncio
 import unittest
-import functools
-from unittest.util import safe_repr
-from unittest.case import _Outcome
 from os.path import join, abspath
+from unittest.case import _Outcome
+from unittest.util import safe_repr
 
+import ujson
 from nanohttp import settings
 
 from restfulpy.db import DatabaseManager
@@ -97,6 +97,11 @@ class WebAppTestCase(unittest.TestCase):
             else:
                 print_(response.body.decode())
             print_('#' * 80)
+
+            if isinstance(expected_status, int):
+                self.assertEqual(expected_status, response.status_code)
+            else:
+                self.assertEqual(expected_status, response.status)
 
     def _statuses_are_the_same(self, expected, response):
         if isinstance(expected, int):

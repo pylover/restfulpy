@@ -1,9 +1,13 @@
-from datetime import datetime, tzinfo
+import re
+from datetime import datetime, tzinfo, date
 
 from dateutil.parser import parse
 from dateutil.tz import tzutc, tzstr, tzlocal
 
 from .configuration import settings
+
+
+POSIX_TIME_PATTERN = re.compile('^\d+(\.\d+)?$')
 
 
 def localtimezone():
@@ -42,8 +46,14 @@ def parse_datetime(value) -> datetime:
     and time.
     """
     timezone = configuredtimezone()
-    parsed_value = parse(value)
 
+    # Parse and return if value is unix timestamp
+    if isinstance(value, float) \
+            or POSIX_TIME_PATTERN.match(value):
+        return datetime.fromtimestamp(float(value), timezone)
+
+
+    parsed_value = parse(value)
     if timezone is not None:
         # The application is configured to use UTC or another time zone:
 
@@ -57,7 +67,6 @@ def parse_datetime(value) -> datetime:
         # Then converting it to configured timezone and continue the
         # rest of process
         parsed_value = parsed_value.astimezone(timezone)
-
 
     elif parsed_value.tzinfo:
         # The application is configured to use system's local timezone
@@ -73,6 +82,9 @@ def parse_datetime(value) -> datetime:
 
 def format_datetime(value):
     timezone = configuredtimezone()
+    if not isinstance(value, datetime) and isinstance(value, date):
+        return value.isoformat()
+
     if timezone is None and value.tzinfo is not None:
         # The output shoudn't have a timezone specifier.
         # So, converting it to system's local time

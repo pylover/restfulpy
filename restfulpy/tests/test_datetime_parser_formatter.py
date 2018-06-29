@@ -88,7 +88,9 @@ class DateTimeParserFormatterTestCase(unittest.TestCase):
         with localtimezone_mockup(tzoffset(None, 3600)):
             self.assertEqual(
                 '1970-01-01T00:00:00',
-                format_datetime(datetime(1970, 1, 1, tzinfo=tzoffset(None, 3600)))
+                format_datetime(
+					datetime(1970, 1, 1, tzinfo=tzoffset(None, 3600))
+				)
             )
 
     def test_timezone_aware_datetime_formatting(self):
@@ -97,15 +99,36 @@ class DateTimeParserFormatterTestCase(unittest.TestCase):
         settings.timezone = tzoffset('Tehran', 12600)
 
         with self.assertRaises(ValueError):
-            self.assertEqual(
-                '1970-01-01T00:00:00+03:30',
-                format_datetime(datetime(1970, 1, 1))
-            )
+            format_datetime(datetime(1970, 1, 1))
 
         self.assertEqual(
             '1970-01-01T00:00:00+03:30',
             format_datetime(datetime(1970, 1, 1, tzinfo=tzoffset(None, 12600)))
         )
+
+    def test_naive_unix_timestamp(self):
+        # The application is configured to use system's local date and time.
+        settings.timezone = None
+
+        self.assertEquals(
+            datetime(1970, 1, 1, 3, 30, 1, 334300),
+            parse_datetime('1.3343')
+        )
+
+    def test_timezone_aware_unix_timestamp(self):
+        # The application is configured to use a specific timezone as the
+        # default
+        settings.timezone = tzoffset('Tehran', 12600)
+
+
+        self.assertEquals(
+            datetime(
+                1970, 1, 1, 3, 30, 1, 334300,
+                tzinfo=tzoffset('Tehran', 12600)
+            ),
+            parse_datetime('1.3343')
+        )
+
 
 
 if __name__ == '__main__':  # pragma: no cover

@@ -248,22 +248,6 @@ class BaseModelTestCase(WebAppTestCase):
             ),
             doc=False
         )
-        self.request(
-            'ALL', 'POST', '/',
-            params=dict(
-                title='test',
-                firstName='test',
-                lastName='test',
-                email='test2@example.com',
-                password='123456',
-                birth='2001-01-01',
-                weight=1.1,
-                visible='false',
-                lastLoginTime='2017-10-10T10:10:00.'
-            ),
-            doc=False,
-            expected_status=400
-        )
 
         self.request(
             'ALL', 'POST', '/',
@@ -332,7 +316,7 @@ class BaseModelTestCase(WebAppTestCase):
             ),
             doc=False
         )
-        self.assertEqual(resp['lastLoginTime'], '2017-10-10T10:10:00.004546')
+        self.assertEqual(resp['lastLoginTime'], '2017-10-10T10:10:00.454600')
 
         # datetime containing ending Z
         resp, ___ = self.request(
@@ -345,11 +329,11 @@ class BaseModelTestCase(WebAppTestCase):
                 birth='2001-01-01',
                 weight=1.1,
                 visible='false',
-                lastLoginTime='2017-10-10T10:10:00.4546Z'
+                lastLoginTime='2017-10-10T10:10:00.4546'
             ),
             doc=False
         )
-        self.assertEqual(resp['lastLoginTime'], '2017-10-10T10:10:00.004546')
+        self.assertEqual(resp['lastLoginTime'], '2017-10-10T10:10:00.454600')
 
     def test_date_format(self):
         # iso date format
@@ -364,12 +348,12 @@ class BaseModelTestCase(WebAppTestCase):
                 birth='2001-01-01',
                 weight=1.1,
                 visible='false',
-                lastLoginTime='2017-10-10T10:10:00.4546Z'
+                lastLoginTime='2017-10-10T10:10:00.4546'
             ),
             doc=False
         )
         self.assertEqual(resp['birth'], '2001-01-01')
-        self.assertEqual(resp['lastLoginTime'], '2017-10-10T10:10:00.004546')
+        self.assertEqual(resp['lastLoginTime'], '2017-10-10T10:10:00.454600')
 
         # posix timestamp
         resp, ___ = self.request(
@@ -388,43 +372,6 @@ class BaseModelTestCase(WebAppTestCase):
             doc=False
         )
         self.assertEqual(resp['birth'], '2017-12-16')
-        self.assertEqual(resp['lastLoginTime'], '2017-10-10T10:10:00.004546')
-
-        # none iso date format
-        self.request(
-            'ALL', 'POST', '/',
-            params=dict(
-                title='test',
-                firstName='test',
-                lastName='test',
-                email='test13@example.com',
-                password='123456',
-                birth='01-01-01',
-                weight=1.1,
-                visible='false',
-                lastLoginTime='2017-10-10T10:10:00.4546Z'
-            ),
-            doc=False,
-            expected_status=400
-        )
-
-        # none iso date format
-        self.request(
-            'ALL', 'POST', '/',
-            params=dict(
-                title='test',
-                firstName='test',
-                lastName='test',
-                email='test14@example.com',
-                password='123456',
-                birth='2001/01/01',
-                weight=1.1,
-                visible='false',
-                lastLoginTime='2017-10-10T10:10:00.4546Z'
-            ),
-            doc=False,
-            expected_status=400
-        )
 
 
 if __name__ == '__main__':  # pragma: no cover
