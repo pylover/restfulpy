@@ -50,7 +50,12 @@ def parse_datetime(value) -> datetime:
     # Parse and return if value is unix timestamp
     if isinstance(value, float) \
             or POSIX_TIME_PATTERN.match(value):
-        return datetime.fromtimestamp(float(value), timezone)
+        value = float(value)
+        if timezone is None:
+            return datetime.fromtimestamp(float(value), tzutc()) \
+                .replace(tzinfo=None)
+        else:
+            return datetime.fromtimestamp(value, timezone)
 
 
     parsed_value = parse(value)
