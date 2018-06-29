@@ -3,7 +3,8 @@
 import re
 
 from sqlalchemy import Column, Unicode, String
-from sqlalchemy.orm import relationship as sa_relationship, composite as sa_composite
+from sqlalchemy.orm import relationship as sa_relationship, \
+    composite as sa_composite, synonym as sa_synonym
 from nanohttp import HttpBadRequest
 
 from ..utils import to_camel_case
@@ -125,16 +126,31 @@ def relationship(*args, json=None, protected=None, **kwargs):
 def composite(*args, json=None, protected=None, readonly=None, **kwargs):
     info = dict()
 
-    if json:
+    if json is not None:
         info['json'] = json
 
-    if protected:
+    if protected is not None:
         info['protected'] = protected
 
     if readonly is not None:
         info['readonly'] = readonly
 
     return sa_composite(*args, info=info, **kwargs)
+
+
+def synonym(*args, json=None, protected=None, readonly=None, **kwargs):
+    info = dict()
+
+    if json is not None:
+        info['json'] = json
+
+    if protected is not None:
+        info['protected'] = protected
+
+    if readonly is not None:
+        info['readonly'] = readonly
+
+    return sa_synonym(*args, info=info, **kwargs)
 
 
 class ModelFieldInfo(FieldInfo):

@@ -3,13 +3,12 @@ from datetime import date, datetime
 
 from nanohttp import json, settings, context
 from sqlalchemy import Unicode, Integer, Date, Float, ForeignKey, Boolean, DateTime
-from sqlalchemy.orm import synonym
 from sqlalchemy.ext.associationproxy import association_proxy
 
 from restfulpy.controllers import JsonPatchControllerMixin, ModelRestController
 from restfulpy.orm import commit, DeclarativeBase, Field, DBSession, \
     composite, FilteringMixin, PaginationMixin, OrderingMixin, relationship, \
-    ModifiedMixin, ActivationMixin
+    ModifiedMixin, ActivationMixin, synonym
 from restfulpy.testing import WebAppTestCase
 from restfulpy.testing.helpers import MockupApplication
 
@@ -84,7 +83,25 @@ class Member(ActivationMixin, ModifiedMixin, FilteringMixin, PaginationMixin, Or
     def _get_password(self):  # pragma: no cover
         return self._password
 
-    password = synonym('_password', descriptor=property(_get_password, _set_password), info=dict(protected=True))
+    password = synonym(
+        '_password',
+        descriptor=property(_get_password, _set_password),
+        protected=True
+    )
+
+    _avatar = Field('avatar', Unicode(255), nullable=True, protected=True)
+    def _set_avatar(self, avatar):  # pragma: no cover
+        self._avatar = 'avatar:%s' % avatar
+
+    def _get_avatar(self):  # pragma: no cover
+        return self._avatar
+
+    avatar = synonym(
+        '_avatar',
+        descriptor=property(_get_avatar, _set_avatar),
+        protected=False,
+        json='avatarImage'
+    )
 
 
 class Root(JsonPatchControllerMixin, ModelRestController):
@@ -151,6 +168,9 @@ class BaseModelTestCase(WebAppTestCase):
             doc=False
         )
         self.assertEqual(resp['title'], 'test')
+        self.assertNotIn('avatar', resp)
+        self.assertNotIn('_avatar', resp)
+        self.assertIn('avatarImage', resp)
 
         resp, ___ = self.request('ALL', 'GET', '/', query_string=dict(take=1), doc=False)
         self.assertEqual(len(resp), 1)
@@ -185,7 +205,7 @@ class BaseModelTestCase(WebAppTestCase):
 
     def test_iter_columns(self):
         columns = {c.key: c for c in Member.iter_columns(relationships=False, synonyms=False, composites=False)}
-        self.assertEqual(len(columns), 15)
+        self.assertEqual(len(columns), 16)
         self.assertNotIn('name', columns)
         self.assertNotIn('password', columns)
         self.assertIn('_password', columns)
@@ -193,10 +213,12 @@ class BaseModelTestCase(WebAppTestCase):
     def test_iter_json_columns(self):
         columns = {c.key: c for c in Member.iter_json_columns(
             include_readonly_columns=False, include_protected_columns=False)}
-        self.assertEqual(len(columns), 13)
+        self.assertEqual(len(columns), 14)
         self.assertNotIn('name', columns)
         self.assertNotIn('password', columns)
         self.assertNotIn('_password', columns)
+        self.assertNotIn('_avatar', columns)
+        self.assertIn('avatar', columns)
 
     def test_metadata(self):
         resp, ___ = self.request('ALL', 'METADATA', '/', doc=False)

@@ -41,8 +41,20 @@ class BaseModel(object):
         return v
 
     @classmethod
+    def get_column_info(cls, column):
+        # Use original property for proxies
+        if hasattr(column, 'original_property') and column.original_property:
+            info = column.info.copy()
+            info.update(column.original_property.info)
+        else:
+            info = column.info
+
+        return info
+
+    @classmethod
     def prepare_for_export(cls, column, v):
-        param_name = column.info.get('json') or to_camel_case(column.key)
+        info = cls.get_column_info(column)
+        param_name = info.get('json') or to_camel_case(column.key)
 
         if hasattr(column, 'property') \
                 and isinstance(column.property, RelationshipProperty) \
@@ -79,7 +91,7 @@ class BaseModel(object):
             ):
             yield from ModelFieldInfo.from_column(
                 cls.get_column(c),
-                info=c.info
+                info=cls.get_column_info(c)
             )
 
     @classmethod
@@ -130,8 +142,10 @@ class BaseModel(object):
     def iter_json_columns(cls, include_readonly_columns=True,
                           include_protected_columns=False, **kw):
         for c in cls.iter_columns(**kw):
-            if (not include_protected_columns and c.info.get('protected')) or \
-                    (not include_readonly_columns and c.info.get('readonly')):
+
+            info = cls.get_column_info(c)
+            if (not include_protected_columns and info.get('protected')) or \
+                    (not include_readonly_columns and info.get('readonly')):
                 continue
 
             yield c
@@ -143,6 +157,8 @@ class BaseModel(object):
                 include_readonly_columns=False
         ):
             param_name = c.info.get('json', to_camel_case(c.key))
+#            import pudb; pudb.set_trace()  # XXX BREAKPOINT
+
             if param_name in context.form:
 
                 if hasattr(c, 'property') and hasattr(c.property, 'mapper'):
