@@ -44,6 +44,7 @@ class JsonPatchControllerMixin:
         try:
             for patch in patches:
                 context.form = patch.get('value', {})
+                context.query = patch.get
                 context.method = patch['op']
 
                 remaining_paths = patch['path'].split('/')

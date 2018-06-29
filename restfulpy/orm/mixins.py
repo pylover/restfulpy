@@ -170,12 +170,12 @@ class PaginationMixin:
 
         try:
             take = int(
-                context.query_string.get('take') or context.environ.get(cls.__take_header_key__) or cls.__max_take__)
+                context.query.get('take') or context.environ.get(cls.__take_header_key__) or cls.__max_take__)
         except ValueError:
             take = cls.__max_take__
 
         try:
-            skip = int(context.query_string.get('skip') or context.environ.get(cls.__skip_header_key__) or 0)
+            skip = int(context.query.get('skip') or context.environ.get(cls.__skip_header_key__) or 0)
         except ValueError:
             skip = 0
 
@@ -197,8 +197,8 @@ class FilteringMixin:
         # noinspection PyUnresolvedReferences
         for c in cls.iter_json_columns():
             json_name = c.info.get('json', to_camel_case(c.key))
-            if json_name in context.query_string:
-                value = context.query_string[json_name]
+            if json_name in context.query:
+                value = context.query[json_name]
                 query = cls._filter_by_column_value(query, c, value)
 
         return query
@@ -284,7 +284,7 @@ class OrderingMixin:
         # noinspection PyUnresolvedReferences
         query = query or cls.query
 
-        sort_exp = context.query_string.get('sort', '').strip()
+        sort_exp = context.query.get('sort', '').strip()
         if not sort_exp:
             return query
 

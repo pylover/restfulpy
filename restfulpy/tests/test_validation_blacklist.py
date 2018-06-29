@@ -17,7 +17,7 @@ class ValidationBlackListController(RestController):
                    admin={'blacklist': ['blacklistParamForAdmin']})
     def post(self):
         result = copy.deepcopy(context.form)
-        result.update(context.query_string)
+        result.update(context.query)
         return result
 
 

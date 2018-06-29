@@ -62,7 +62,7 @@ class FormValidator:
         return result
 
     def __call__(self, *args, **kwargs):
-        input_collections = [context.form, context.query_string]
+        input_collections = [context.form, context.query]
         all_input_fields = set(chain(*input_collections))
         user_rules = [v for k, v in self._rules_per_role.items() if k in context.identity.roles] \
             if context.identity else []
@@ -176,7 +176,7 @@ def validate_form(blacklist=None, exclude=None, filter_=None, whitelist=None, re
 def prevent_form(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        if context.form or context.query_string:
+        if context.form or context.query:
             raise HttpBadRequest('No input allowed.')
         return func(*args, **kwargs)
 

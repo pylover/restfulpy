@@ -141,7 +141,7 @@ class Root(RootController):
 
     @json
     def echo(self):
-        return {k: v for i in (context.form, context.query_string) for k, v in i.items()}
+        return {k: v for i in (context.form, context.query) for k, v in i.items()}
 
     @text
     @authorize

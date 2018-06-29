@@ -18,7 +18,7 @@ class ValidationWhitelistController(RestController):
                    admin={'whitelist': ['whitelistParamForAdmin']})
     def post(self):
         result = copy.deepcopy(context.form)
-        result.update(context.query_string)
+        result.update(context.query)
         return result
 
 

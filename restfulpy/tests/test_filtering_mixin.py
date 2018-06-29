@@ -44,7 +44,7 @@ class FilteringMixinTestCase(WebAppTestCase):
 
         # Bad Value
         with Context({'QUERY_STRING': 'id=1'}, self.application) as context:
-            context.query_string['id'] = 1
+            context.query['id'] = 1
             self.assertRaises(HttpBadRequest, FilteringObject.filter_by_request)
 
         # IN
