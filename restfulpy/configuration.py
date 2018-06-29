@@ -5,7 +5,6 @@ from nanohttp import configure as nanohttp_configure, settings
 __builtin_config = """
 
 debug: true
-pretty_json: true
 
 data_directory: %(data_dir)s
 
@@ -21,8 +20,11 @@ data_directory: %(data_dir)s
 timezone:
 
 db:
+  # The main uri
   url: sqlite:///%(data_dir)s/devdata.db
   # url: postgresql://postgres:postgres@localhost/restfulpy_demo_dev
+
+  # Will be used to create and drop database(s).
   # administrative_url: postgresql://postgres:postgres@localhost/postgres
   # test_url: postgresql://postgres:postgres@localhost/restfulpy_test
   echo: false
@@ -80,6 +82,7 @@ smtp:
   auth: true
   ssl: false
 
+# Logging stuff
 logging:
   loggers:
 
