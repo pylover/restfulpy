@@ -3,9 +3,10 @@ import unittest
 from sqlalchemy import Integer, Unicode
 from nanohttp import settings
 
-from restfulpy.testing import WebAppTestCase
-from restfulpy.testing.helpers import MockupApplication
-from restfulpy.orm import DeclarativeBase, Field, DBSession, ApproveRequiredMixin
+from restfulpy.tests.helpers import WebAppTestCase
+from restfulpy.testing import MockupApplication
+from restfulpy.orm import DeclarativeBase, Field, DBSession, \
+    ApproveRequiredMixin
 
 
 class ApproveRequiredObject(ApproveRequiredMixin, DeclarativeBase):

@@ -6,8 +6,8 @@ from nanohttp import json, Controller, context, HttpBadRequest, settings
 from restfulpy.authentication import Authenticator
 from restfulpy.authorization import authorize
 from restfulpy.principal import JwtPrincipal, JwtRefreshToken
-from restfulpy.testing import WebAppTestCase, As
-from restfulpy.testing.helpers import MockupApplication
+from restfulpy.testing import MockupApplication
+from restfulpy.tests.helpers import WebAppTestCase
 
 
 token_expired = False
@@ -85,8 +85,8 @@ class AuthenticatorTestCase(WebAppTestCase):
             jwt:
               max_age: .3
               refresh_token:
-                max_age: 3 
-                secure: true               
+                max_age: 3
+                secure: true
         """)
 
     def test_login(self):
@@ -94,20 +94,20 @@ class AuthenticatorTestCase(WebAppTestCase):
         self.assertIn('token', response)
         self.assertEqual(headers['X-Identity'], '1')
 
-        self.wsgi_app.jwt_token = response['token']
+        self.wsgi_application.jwt_token = response['token']
         response, headers = self.request('ALL', 'GET', '/', json=dict(a='a', b='b'))
         self.assertEqual(headers['X-Identity'], '1')
 
         # Broken token
-        self.wsgi_app.jwt_token = self.wsgi_app.jwt_token[:-10]
+        self.wsgi_application.jwt_token = self.wsgi_application.jwt_token[:-10]
         self.request('ALL', 'GET', '/', expected_status=400)
 
         # Empty
-        self.wsgi_app.jwt_token = ' '
+        self.wsgi_application.jwt_token = ' '
         self.request('ALL', 'GET', '/me', expected_status=401)
 
         # Bad Password
-        self.wsgi_app.jwt_token = None
+        self.wsgi_application.jwt_token = None
         self.request(
             'ALL', 'POST', '/login',
             json=dict(email='test@example.com', password='bad'),
@@ -118,13 +118,13 @@ class AuthenticatorTestCase(WebAppTestCase):
         response, headers = self.request('ALL', 'POST', '/login', json=dict(email='test@example.com', password='test'))
         self.assertIn('token', response)
         self.assertEqual(headers['X-Identity'], '1')
-        self.wsgi_app.jwt_token = response['token']
+        self.wsgi_application.jwt_token = response['token']
         response, headers = self.request('ALL', 'DELETE', '/logout')
         self.assertNotIn('X-Identity', headers)
 
     def test_refresh_token(self):
         global token_expired, refresh_token_expired
-        self.wsgi_app.jwt_token = None
+        self.wsgi_application.jwt_token = None
         response, headers = self.request('ALL', 'POST', '/login', json=dict(email='test@example.com', password='test'))
         refresh_token = headers['Set-Cookie'].split('; ')[0]
         self.assertIn('token', response)
@@ -132,12 +132,12 @@ class AuthenticatorTestCase(WebAppTestCase):
 
         # Login on client
         token = response['token']
-        self.wsgi_app.jwt_token = token
+        self.wsgi_application.jwt_token = token
         token_expired = True
         settings.jwt.refresh_token.secure = False
         # Request a protected resource after the token has been expired, with broken cookies
         self.request(
-            As.member, 'GET', '/me',
+            'Member', 'GET', '/me',
             headers={
                 'Cookie': 'refresh-token=broken-data'
             },
@@ -146,7 +146,7 @@ class AuthenticatorTestCase(WebAppTestCase):
 
         # Request a protected resource after the token has been expired, with empty cookies
         self.request(
-            As.member, 'GET', '/me',
+            'member', 'GET', '/me',
             headers={
                 'Cookie': 'refresh-token='
             },
@@ -154,11 +154,11 @@ class AuthenticatorTestCase(WebAppTestCase):
         )
 
         # Request a protected resource after the token has been expired, without the cookies
-        self.request(As.member, 'GET', '/me', expected_status=401)
+        self.request('member', 'GET', '/me', expected_status=401)
 
         # Request a protected resource after the token has been expired, with appropriate cookies.
         response, response_headers = self.request(
-            As.member, 'GET', '/me',
+            'member', 'GET', '/me',
             headers={
                 'Cookie': refresh_token
             }
@@ -168,7 +168,7 @@ class AuthenticatorTestCase(WebAppTestCase):
 
         # Test with invalid Refresh Token
         self.request(
-            As.member, 'GET', '/me',
+            'member', 'GET', '/me',
             headers={
                 'Cookie': 'refresh-token=InvalidToken'
             },
@@ -179,7 +179,7 @@ class AuthenticatorTestCase(WebAppTestCase):
         refresh_token_expired = True
         # Request a protected resource after the refresh-token has been expired.
         self.request(
-            As.member, 'GET', '/me',
+            'member', 'GET', '/me',
             headers={
                 'Cookie': refresh_token
             },
@@ -190,7 +190,7 @@ class AuthenticatorTestCase(WebAppTestCase):
         response, headers = self.request('ALL', 'POST', '/login', json=dict(email='test@example.com', password='test'))
         self.assertIn('token', response)
         self.assertEqual(headers['X-Identity'], '1')
-        self.wsgi_app.jwt_token = response['token']
+        self.wsgi_application.jwt_token = response['token']
         response, headers = self.request('ALL', 'GET', '/kill', expected_status=403)
         self.assertEqual(headers['X-Identity'], '1')
 
