@@ -88,6 +88,21 @@ class JsonPatchTestCase(unittest.TestCase):
             self.assertNotIn('a', result[0])
             self.assertNotIn('a', result[2])
 
+    def test_jsonpatch_caseinsesitive_verb(self):
+        environ = {
+            'REQUEST_METHOD': 'PATCH',
+            'QUERY_STRING': 'a=10'
+        }
+        with Context(environ):
+            controller = SimpleJsonPatchController()
+            context.form = [
+                {"op": "GET", "path": "/"},
+                {"op": "PUT", "path": "biscuits/1?a=1", "value": {"name": "Ginger Nut"}},
+                {"op": "GET", "path": "biscuits/2", "value": {"name": "Ginger Nut"}},
+            ]
+            result = ujson.loads(controller())
+            self.assertEqual(len(result), 3)
+
 
 if __name__ == '__main__':  # pragma: no cover
     unittest.main()
