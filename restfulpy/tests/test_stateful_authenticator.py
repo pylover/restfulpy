@@ -171,7 +171,7 @@ class StatefulAuthenticatorTestCase(WebAppTestCase):
     def test_session_member(self):
         with Context(environ={}, application=self.application):
             principal = self.application.__authenticator__.login(('test@example.com', 'test'))
-            self.assertEqual(self.application.__authenticator__.get_session_member(principal.session_id), 1)
+            self.assertEqual(self.application.__authenticator__.get_member_id_by_session(principal.session_id), 1)
 
     @freeze_time("2017-07-13T13:11:44", tz_offset=-4)
     def test_session_info(self):
