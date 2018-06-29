@@ -1,5 +1,6 @@
 
 import types
+from urllib.parse import parse_qs
 
 from nanohttp import Controller, context, json, RestController, action, etag
 
@@ -27,6 +28,19 @@ class ModelRestController(RestController):
         return self.__model__.json_metadata()
 
 
+def split_path(url):
+    if '?' in url:
+        path, query = url.split('?')
+    else:
+        path, query = url, ''
+
+    return path, {k: v[0] if len(v) == 1 else v for k, v in parse_qs(
+        query,
+        keep_blank_values=True,
+        strict_parsing=False
+    ).items()}
+
+
 class JsonPatchControllerMixin:
 
     @action(content_type='application/json')
@@ -44,10 +58,10 @@ class JsonPatchControllerMixin:
         try:
             for patch in patches:
                 context.form = patch.get('value', {})
-                context.query = patch.get
+                path, context.query = split_path(patch['path'])
                 context.method = patch['op']
 
-                remaining_paths = patch['path'].split('/')
+                remaining_paths = path.split('/')
                 if remaining_paths and not remaining_paths[0]:
                     return_data = self()
                 else:
@@ -59,6 +73,8 @@ class JsonPatchControllerMixin:
                     results.append(return_data)
 
                 DBSession.flush()
+                context.query = {}
+
             DBSession.commit()
             return '[%s]' % ',\n'.join(results)
         except:

@@ -13,6 +13,7 @@ class BiscuitsController(RestController):
         result = {}
         result.update(context.form)
         result['id'] = id_
+        result['a'] = context.query.get('a')
         return result
 
     @json
@@ -68,6 +69,24 @@ class JsonPatchTestCase(unittest.TestCase):
                 {"op": "error", "path": "biscuits", "value": None},
             ]
             self.assertRaises(Exception, controller)
+
+    def test_jsonpatch_querystring(self):
+        environ = {
+            'REQUEST_METHOD': 'PATCH',
+            'QUERY_STRING': 'a=10'
+        }
+        with Context(environ):
+            controller = SimpleJsonPatchController()
+            context.form = [
+                {"op": "get", "path": "/"},
+                {"op": "put", "path": "biscuits/1?a=1", "value": {"name": "Ginger Nut"}},
+                {"op": "get", "path": "biscuits/2", "value": {"name": "Ginger Nut"}},
+            ]
+            result = ujson.loads(controller())
+            self.assertEqual(len(result), 3)
+            self.assertEqual(result[1]['a'], '1')
+            self.assertNotIn('a', result[0])
+            self.assertNotIn('a', result[2])
 
 
 if __name__ == '__main__':  # pragma: no cover
