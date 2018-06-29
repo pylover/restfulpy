@@ -319,6 +319,22 @@ class BaseModelTestCase(WebAppTestCase):
 
             expected_status=400
         )
+        self.request(
+            'ALL', 'POST', '/',
+            params=dict(
+                title='test',
+                firstName='test',
+                lastName='test',
+                email='test4@example.com',
+                password='123456',
+                birth='2001-01-01',
+                weight=1.1,
+                visible='false',
+                lastLoginTime='2017-02-07T19:30:00+000'
+            ),
+
+            expected_status=400
+        )
 
         resp, ___ = self.request(
             'ALL', 'POST', '/',
