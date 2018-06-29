@@ -45,7 +45,8 @@ class PaginationMixinTestCase(WebAppTestCase):
             self.assertEqual(context.response_headers['X-Pagination-Skip'], '1')
             self.assertEqual(context.response_headers['X-Pagination-Count'], '5')
 
-        with Context({'QUERY_STRING': 'take=two&skip=one'}, self.application):
+        with Context({'QUERY_STRING': 'take=two&skip=one'}, self.application) \
+                , self.assertRaises(HttpBadRequest):
             self.assertEqual(PagingObject.paginate_by_request().count(), 4)
 
         with Context({'QUERY_STRING': 'take=5'}, self.application):
