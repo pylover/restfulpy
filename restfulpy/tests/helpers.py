@@ -45,7 +45,7 @@ class RestfulpyTestApp(TestApp):
             if self.__jwt_header_key__ in self.extra_environ:
                 del self.extra_environ[self.__jwt_header_key__]
 
-    def send_request(self, role, method, url, query_string=None,
+    def send_request(self, role, method, url, query=None,
                      url_params=None, params=None, model=None, json=None,
                      content_type=None, **kwargs):
         files = []
@@ -79,8 +79,8 @@ class RestfulpyTestApp(TestApp):
         real_url = (url % url_params) if url_params else url
         real_url = quote(real_url)
 
-        if query_string:
-            real_url = '%s?%s' % (real_url, urlencode(query_string))
+        if query:
+            real_url = '%s?%s' % (real_url, urlencode(query))
 
         resp = self._gen_request(
             method.upper(), real_url, expect_errors=True, **kwargs
@@ -188,13 +188,13 @@ class WebAppTestCase(unittest.TestCase):
 
         raise ValueError('Invalid expected status')
 
-    def request(self, role, method, url, query_string=None, url_params=None,
+    def request(self, role, method, url, query=None, url_params=None,
                 params=None, model=None, expected_status=200,
                 expected_headers=None, json=None, **kwargs):
 
         response = self.wsgi_application.send_request(
             role, method, url,
-            query_string=query_string,
+            query=query,
             url_params=url_params,
             params=params,
             model=model,

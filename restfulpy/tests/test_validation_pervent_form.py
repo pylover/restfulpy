@@ -44,7 +44,7 @@ class ValidationPreventFormTestCase(WebAppTestCase):
         )
         self.request(
             'All', 'POST', '/validation',
-            query_string={'param': 'param'},
+            query={'param': 'param'},
             expected_status=400
         )
 

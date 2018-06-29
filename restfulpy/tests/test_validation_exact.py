@@ -111,7 +111,7 @@ class ValidationExactTestCase(WebAppTestCase):
         self.wsgi_application.jwt_token = DummyIdentity('admin').dump().decode()
         result, ___ = self.request(
             'Admin', 'POST', '/validation',
-            query_string={
+            query={
                 'exactParamForAll': 'param',
             },
             params={
@@ -123,7 +123,7 @@ class ValidationExactTestCase(WebAppTestCase):
 
         self.request(
             'Admin', 'POST', '/validation',
-            query_string={
+            query={
                 'exactParamForAll': 'param',
                 'exactParamForClient': 'param',
             },

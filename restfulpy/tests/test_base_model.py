@@ -171,7 +171,7 @@ class BaseModelTestCase(WebAppTestCase):
         self.assertNotIn('_avatar', resp)
         self.assertIn('avatarImage', resp)
 
-        resp, ___ = self.request('ALL', 'GET', '/', query_string=dict(take=1))
+        resp, ___ = self.request('ALL', 'GET', '/', query=dict(take=1))
         self.assertEqual(len(resp), 1)
         self.assertEqual(resp[0]['title'], 'test')
         self.assertEqual(resp[0]['visible'], False)
