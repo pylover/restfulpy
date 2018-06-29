@@ -9,5 +9,5 @@ import argcomplete
 warnings.filterwarnings('ignore', message='Unknown REQUEST_METHOD')
 
 
-__version__ = '1.0.1a0'
+__version__ = '1.0.2a0'
 
