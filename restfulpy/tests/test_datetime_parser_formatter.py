@@ -110,10 +110,11 @@ class DateTimeParserFormatterTestCase(unittest.TestCase):
         # The application is configured to use system's local date and time.
         settings.timezone = None
 
-        self.assertEquals(
-            datetime(1970, 1, 1, 3, 30, 1, 334300),
-            parse_datetime('1.3343')
-        )
+        with mockup_localtimezone(tzoffset(None, 12600)):
+            self.assertEquals(
+                datetime(1970, 1, 1, 3, 30, 1, 334300),
+                parse_datetime('1.3343')
+            )
 
     def test_timezone_aware_unix_timestamp(self):
         # The application is configured to use a specific timezone as the
