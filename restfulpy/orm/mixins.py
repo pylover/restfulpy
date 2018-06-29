@@ -170,14 +170,18 @@ class PaginationMixin:
 
         try:
             take = int(
-                context.query.get('take') or context.environ.get(cls.__take_header_key__) or cls.__max_take__)
-        except ValueError:
-            take = cls.__max_take__
+                context.query.get('take') \
+                or context.environ.get(cls.__take_header_key__) \
+                or cls.__max_take__
+            )
 
-        try:
-            skip = int(context.query.get('skip') or context.environ.get(cls.__skip_header_key__) or 0)
+            skip = int(
+                context.query.get('skip') \
+                or context.environ.get(cls.__skip_header_key__) \
+                or 0
+            )
         except ValueError:
-            skip = 0
+            raise HttpBadRequest()
 
         if take > cls.__max_take__:
             raise HttpBadRequest()
