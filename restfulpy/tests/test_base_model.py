@@ -7,8 +7,9 @@ from sqlalchemy.orm import synonym
 from sqlalchemy.ext.associationproxy import association_proxy
 
 from restfulpy.controllers import JsonPatchControllerMixin, ModelRestController
-from restfulpy.orm import commit, DeclarativeBase, Field, DBSession, composite, FilteringMixin, PaginationMixin, \
-    OrderingMixin, relationship, ModifiedMixin, ActivationMixin
+from restfulpy.orm import commit, DeclarativeBase, Field, DBSession, \
+    composite, FilteringMixin, PaginationMixin, OrderingMixin, relationship, \
+    ModifiedMixin, ActivationMixin
 from restfulpy.testing import WebAppTestCase
 from restfulpy.testing.helpers import MockupApplication
 
@@ -316,7 +317,6 @@ class BaseModelTestCase(WebAppTestCase):
             expected_status=400
         )
 
-        # datetime might not have ending Z
         resp, ___ = self.request(
             'ALL', 'POST', '/',
             params=dict(
@@ -332,7 +332,7 @@ class BaseModelTestCase(WebAppTestCase):
             ),
             doc=False
         )
-        self.assertEqual(resp['lastLoginTime'], '2017-10-10T10:10:00.004546Z')
+        self.assertEqual(resp['lastLoginTime'], '2017-10-10T10:10:00.004546')
 
         # datetime containing ending Z
         resp, ___ = self.request(
@@ -349,7 +349,7 @@ class BaseModelTestCase(WebAppTestCase):
             ),
             doc=False
         )
-        self.assertEqual(resp['lastLoginTime'], '2017-10-10T10:10:00.004546Z')
+        self.assertEqual(resp['lastLoginTime'], '2017-10-10T10:10:00.004546')
 
     def test_date_format(self):
         # iso date format
@@ -369,7 +369,7 @@ class BaseModelTestCase(WebAppTestCase):
             doc=False
         )
         self.assertEqual(resp['birth'], '2001-01-01')
-        self.assertEqual(resp['lastLoginTime'], '2017-10-10T10:10:00.004546Z')
+        self.assertEqual(resp['lastLoginTime'], '2017-10-10T10:10:00.004546')
 
         # posix timestamp
         resp, ___ = self.request(
@@ -388,7 +388,7 @@ class BaseModelTestCase(WebAppTestCase):
             doc=False
         )
         self.assertEqual(resp['birth'], '2017-12-16')
-        self.assertEqual(resp['lastLoginTime'], '2017-10-10T10:10:00.004546Z')
+        self.assertEqual(resp['lastLoginTime'], '2017-10-10T10:10:00.004546')
 
         # none iso date format
         self.request(

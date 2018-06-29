@@ -13,8 +13,10 @@ class ModelValidationCheckingModel(DeclarativeBase):
     __tablename__ = 'model_validation_checking_model'
 
     id = Field(Integer, primary_key=True, readonly=True)
-    title = Field(Unicode(50), unique=True, nullable=False, pattern='[A-Z][a-zA-Z]*')
-    modified = Field(DateTime, default=datetime.now, readonly=True)
+    title = Field(
+        Unicode(50), unique=True, nullable=False, pattern='[A-Z][a-zA-Z]*'
+    )
+    modified = Field(DateTime, default=datetime.utcnow, readonly=True)
 
 
 class Root(JsonPatchControllerMixin, ModelRestController):
@@ -34,7 +36,8 @@ class Root(JsonPatchControllerMixin, ModelRestController):
     def get(self, title: str=None):
         query = ModelValidationCheckingModel.query
         if title:
-            return query.filter(ModelValidationCheckingModel.title == title).one_or_none()
+            return query.filter(ModelValidationCheckingModel.title == title) \
+                .one_or_none()
         return query
 
 
@@ -56,7 +59,9 @@ class ModelValidationDecoratorTestCase(WebAppTestCase):
         self.request('ALL', 'POST', '/', params={}, expected_status=400)
 
         # Correct pattern
-        resp, ___ = self.request('ALL', 'POST', '/', params=dict(title='Test'), doc=False)
+        resp, ___ = self.request(
+            'ALL', 'POST', '/', params=dict(title='Test'), doc=False
+        )
         self.assertEqual(resp['title'], 'Test')
 
         # Invalid pattern
@@ -72,7 +77,7 @@ class ModelValidationDecoratorTestCase(WebAppTestCase):
             'ALL', 'POST', '/',
             params=dict(
                 title='Test',
-                modified=datetime.now().isoformat()
+                modified=datetime.utcnow().isoformat()
             ),
             expected_status=400,
             doc=False
@@ -81,3 +86,4 @@ class ModelValidationDecoratorTestCase(WebAppTestCase):
 
 if __name__ == '__main__':  # pragma: no cover
     unittest.main()
+

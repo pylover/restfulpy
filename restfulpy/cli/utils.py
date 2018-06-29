@@ -9,6 +9,7 @@ def terminal_size():
     return w, h
 
 
+# TODO: Move this class into a new module named: progressbar
 class ProgressBar:
 
     def __init__(self, total):
@@ -39,7 +40,7 @@ class ProgressBar:
 
     @property
     def time(self):
-        td = datetime.now() - self.start_time
+        td = datetime.utcnow() - self.start_time
         return 'time: %.2d:%.2d' % (td.seconds // 60, td.seconds % 60)
 
     @property
@@ -47,7 +48,7 @@ class ProgressBar:
         if self.value is 0:
             et = 0
         else:
-            td = datetime.now() - self.start_time
+            td = datetime.utcnow() - self.start_time
             et = td.total_seconds() * (self.total / self.value - 1)
         return 'eta: %.2d:%.2d' % (int(et) // 60, int(et) % 60)
 
@@ -91,7 +92,7 @@ class ProgressBar:
         print(' ' * (self.terminal_width - len(line)), end='\r', flush=True)
 
     def __enter__(self):
-        self.start_time = datetime.now()
+        self.start_time = datetime.utcnow()
         self._invalidate()
         return self
 
@@ -103,7 +104,7 @@ class ProgressBar:
 class LineReaderProgressBar(ProgressBar):
     """
     A proxy for IO file, with progressbar for reading file line by line.
-    
+
     """
     def __init__(self, filename, mode='r'):
         self.filename = filename

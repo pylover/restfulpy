@@ -37,7 +37,7 @@ class MixinTestCase(unittest.TestCase):
     def test_activation_mixin(self):
         activated_student = Student()
         activated_student.name = 'activated-student'
-        activated_student.activated_at = datetime.now()
+        activated_student.activated_at = datetime.utcnow()
         DBSession.add(activated_student)
 
         deactivated_student = Student()

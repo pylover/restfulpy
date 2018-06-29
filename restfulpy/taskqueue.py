@@ -126,7 +126,7 @@ def worker(statuses={'new'}, filters=None, tries=-1):
 
             # Task success
             task.status = 'success'
-            task.terminated_at = datetime.now()
+            task.terminated_at = datetime.utcnow()
 
         except:
             logger.exception('Error when executing task: %s' % task.id)

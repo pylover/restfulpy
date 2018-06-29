@@ -29,10 +29,7 @@ def configuredtimezone():
 
 def now():
     timezone = configuredtimezone()
-    if timezone is not None:
-        return datetime.now(timezone)
-
-    return datetime.now()
+    return datetime.now(timezone)
 
 
 def parse_datetime(value) -> datetime:
