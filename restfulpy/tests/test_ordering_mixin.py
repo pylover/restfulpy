@@ -1,8 +1,8 @@
 import unittest
+from datetime import datetime
 
-from sqlalchemy import Integer, Unicode
+from sqlalchemy import Integer, Unicode, DateTime
 from sqlalchemy.orm import synonym
-
 from nanohttp import settings
 from nanohttp.contexts import Context
 
@@ -17,6 +17,15 @@ class OrderingObject(OrderingMixin, DeclarativeBase):
     id = Field(Integer, primary_key=True)
     title = Field(Unicode(50))
     _age = Field(Integer)
+    created_at = Field(
+        DateTime,
+        nullable=False,
+        json='createdAt',
+        readonly=True,
+        default=datetime.utcnow,
+    )
+
+
 
     def _set_age(self, age):
         self._age = age
@@ -43,7 +52,10 @@ class OrderingMixinTestCase(WebAppTestCase):
     def test_ordering_mixin(self):
         for i in range(1, 6):
             # noinspection PyArgumentList
-            obj = OrderingObject(title=f'object {6-i//2}', age=i * 10)
+            obj = OrderingObject(
+                title=f'object {6-i//2}',
+                age=i * 10,
+            )
             DBSession.add(obj)
 
         DBSession.commit()
@@ -75,6 +87,15 @@ class OrderingMixinTestCase(WebAppTestCase):
             self.assertEqual(result[2].id, 2)
             self.assertEqual(result[3].id, 3)
 
+            self.assertEqual(result[4].id, 1)
+
+        # Sort by date
+        with Context({'QUERY_STRING': 'sort=-createdAt'}, self.application):
+            result = OrderingObject.sort_by_request().all()
+            self.assertEqual(result[0].id, 5)
+            self.assertEqual(result[1].id, 4)
+            self.assertEqual(result[2].id, 3)
+            self.assertEqual(result[3].id, 2)
             self.assertEqual(result[4].id, 1)
 
 
