@@ -175,10 +175,13 @@ class BaseModel(object):
     @classmethod
     def create_sort_criteria(cls, sort_columns):
         criteria = []
-        for c in cls.iter_json_columns():
-            json_name = c.info.get('json', to_camel_case(c.key))
-            if json_name in sort_columns:
-                criteria.append((c, sort_columns[json_name] == 'desc'))
+        columns = {
+            c.info.get('json', to_camel_case(c.key)): c
+            for c in cls.iter_json_columns()
+        }
+        for column_name, option in sort_columns:
+            if column_name in columns:
+                criteria.append((columns[column_name], option == 'desc'))
         return criteria
 
     # noinspection PyUnresolvedReferences
