@@ -18,7 +18,9 @@ class Field(Column):
     def can_validate(self):
         return 'pattern' in self.info or \
             'min_length' in self.info or \
-            'max_length' in self.info
+            'max_length' in self.info or \
+            'max' in self.info or \
+            'min' in self.info
 
     def __init__(self,
                  *args,
@@ -26,6 +28,8 @@ class Field(Column):
                  readonly=None,
                  max_length=None,
                  min_length=None,
+                 max_=None,
+                 min_=None,
                  pattern=None,
                  protected=None,
                  watermark=None,
@@ -58,6 +62,12 @@ class Field(Column):
         if min_length is not None:
             info['min_length'] = min_length
 
+        if max_ is not None:
+            info['max'] = max_
+
+        if min_ is not None:
+            info['min'] = min_
+
         if pattern is not None:
             info['pattern'] = pattern
 
@@ -76,38 +86,54 @@ class Field(Column):
         super(Field, self).__init__(*args, info=info, nullable=nullable, **kwargs)
 
     def _validate_pattern(self, value):
-        if value is None:
-            return
         if not re.match(self.info['pattern'], value):
             raise HttpBadRequest('Cannot match field: %s with value "%s" by acceptable pattern' % (self.name, value))
         return value
 
     def _validate_length(self, value, min_length, max_length):
-        if value is None:
-            return
-
         if not isinstance(value, str):
             raise HttpBadRequest(status_text='Invalid type: %s for field: %s' % (type(value), self.name))
 
         value_length = len(value)
-        if min_length is not None:
-            if value_length < min_length:
-                raise HttpBadRequest(
-                    status_text=f'Please enter at least {min_length} characters for field: {self.name}.'
-                )
+        if min_length is not None and value_length < min_length:
+            raise HttpBadRequest(
+                status_text=f'Please enter at least {min_length} characters for field: {self.name}.'
+            )
 
-        if max_length is not None:
-            if value_length > max_length:
-                raise HttpBadRequest(
-                    status_text=f'Cannot enter more than: {max_length} in field: {self.name}.'
-                )
+        if max_length is not None and value_length > max_length:
+            raise HttpBadRequest(
+                status_text=f'Cannot enter more than: {max_length} in field: {self.name}.'
+            )
+
+    def _validate_min_max(self, value, min_, max_):
+        if not isinstance(value, (int, float)):
+            raise HttpBadRequest(status_text='Invalid type: %s for field: %s' % (type(value), self.name))
+
+        if min_ is not None and value < min_:
+            import pudb; pudb.set_trace()  # XXX BREAKPOINT
+            raise HttpBadRequest(
+                status_text=f'Minimum allowed value is {min_} for field: {self.name}.'
+            )
+
+        if max_ is not None and value > max_:
+            import pudb; pudb.set_trace()  # XXX BREAKPOINT
+            raise HttpBadRequest(
+                status_text=f'Maximum allowed value is {max_} for field: {self.name}.'
+            )
+
 
     def validate(self, value):
+        if value is None:
+            return value
+
         if 'pattern' in self.info:
             self._validate_pattern(value)
 
         if 'min_length' in self.info or 'max_length' in self.info:
             self._validate_length(value, self.info.get('min_length'), self.info.get('max_length'))
+
+        if 'min' in self.info or 'max' in self.info:
+            self._validate_min_max(self, self.info.get('min'), self.info.get('max'))
         return value
 
 
@@ -199,6 +225,8 @@ class ModelFieldInfo(FieldInfo):
             max_length=info.get('max_length') if 'max_length' in info else
                 (c.type.length if hasattr(c, 'type') and hasattr(c.type, 'length') else None),
             min_length=info.get('min_length'),
+            min_=info.get('min'),
+            max_=info.get('max'),
             message=info.get('message', 'Invalid Value'),
             watermark=info.get('watermark', None),
             label=info.get('label', None),
@@ -224,3 +252,4 @@ class ModelFieldInfo(FieldInfo):
             primaryKey=self.primary_key,
         )
         return result
+

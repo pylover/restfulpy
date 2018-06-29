@@ -240,8 +240,8 @@ class BaseModelTestCase(WebAppTestCase):
         self.assertEqual(fields['firstName']['name'], 'firstName')
         self.assertEqual(fields['firstName']['key'], 'first_name')
 
-        self.assertEqual(fields['firstName']['type_'], 'str')
-        self.assertEqual(fields['birth']['type_'], 'date')
+        self.assertEqual(fields['firstName']['type'], 'str')
+        self.assertEqual(fields['birth']['type'], 'date')
 
         self.assertEqual(fields['weight']['default_'], 50)
         self.assertEqual(fields['visible']['optional'], True)

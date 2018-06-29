@@ -49,6 +49,7 @@ class Author(DeclarativeBase):
     _password = Field('password', Unicode(128), index=True, json='password', protected=True, min_length=6)
     birth = Field(Date)
     weight = Field(Float(asdecimal=True))
+    age = Field(Integer, default=18, min_=18, max_=100)
 
     def _set_password(self, password):
         self._password = 'hashed:%s' % password
@@ -161,6 +162,14 @@ class ModelTestCase(unittest.TestCase):
             with self.assertRaises(HttpBadRequest):
                 Author(phone='12321321321312321312312')
 
+            # validate Min/Max
+            with self.assertRaises(HttpBadRequest):
+                Author(age=17)
+
+            with self.assertRaises(HttpBadRequest):
+                Author(age=101)
+
+
             # Metadata
             author_metadata = Author.json_metadata()
             self.assertIn('id', author_metadata['fields'])
@@ -190,14 +199,15 @@ class ModelTestCase(unittest.TestCase):
                         'phone': None,
                         'title': 'author1',
                         'birth': '0001-01-01',
-                        'weight': '1.1000000000'
+                        'weight': '1.1000000000',
+                        'age': 18
                     },
                     'authorId': 1,
                     'comments': [],
                     'id': 1,
                     'tags': [],
                     'title': 'First post',
-                    'tagTime': '01:01:01'
+                    'tagTime': '01:01:01',
                 },
                 post1_dict,
             )

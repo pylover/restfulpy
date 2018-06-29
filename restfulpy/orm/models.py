@@ -14,7 +14,6 @@ from sqlalchemy.inspection import inspect
 
 from .field import ModelFieldInfo, Field
 from .mixins import PaginationMixin, FilteringMixin, OrderingMixin
-from ..validation import validate_form
 from ..utils import to_camel_case
 from ..datetimehelpers import parse_datetime, format_datetime
 
@@ -236,34 +235,6 @@ class BaseModel(object):
             return result
 
         return wrapper
-
-    @classmethod
-    def create_validation_rules(cls, **rules):
-        patterns = {}
-        blacklist = []
-        requires = []
-        for field in cls.iter_metadata_fields():
-            if field.pattern:
-                patterns[field.name] = field.pattern
-            if field.readonly:
-                blacklist.append(field.name)
-            elif not field.optional:
-                requires.append(field.name)
-        result = {}
-        if patterns:
-            result['pattern'] = patterns
-        if blacklist:
-            result['blacklist'] = blacklist
-        if requires:
-            result['requires'] = requires
-        result.update(rules)
-        return result
-
-    @classmethod
-    def validate(cls, *args, **kwargs):
-        validation_rules = cls.create_validation_rules(**kwargs)
-        decorator = validate_form(**validation_rules)
-        return decorator(args[0]) if args and callable(args[0]) else decorator
 
 
 @event.listens_for(BaseModel, 'class_instrument')
