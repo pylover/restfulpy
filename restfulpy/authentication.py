@@ -176,6 +176,10 @@ class Authenticator:
         context.cookies[self.refresh_token_key]['max-age'] = settings.jwt.refresh_token.max_age
         context.cookies[self.refresh_token_key]['httponly'] = settings.jwt.refresh_token.httponly
         context.cookies[self.refresh_token_key]['secure'] = settings.jwt.refresh_token.secure
+        if 'path' in settings.jwt.refresh_token:
+            context.cookies[self.refresh_token_key]['path'] = \
+                settings.jwt.refresh_token.path
+
         return principal
 
     def logout(self):

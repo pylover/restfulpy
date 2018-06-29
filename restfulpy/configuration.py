@@ -43,6 +43,8 @@ jwt:
     max_age: 2678400  # 30 Days
     secure: true
     httponly: false
+    # path: optional
+    #path: /
 
 messaging:
   # default_messenger: restfulpy.messaging.providers.SmtpProvider
