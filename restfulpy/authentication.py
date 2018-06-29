@@ -342,7 +342,7 @@ class StatefulAuthenticator(Authenticator):
     def validate_session(self, session_id):
         return self.redis.hexists(self.sessions_key, session_id)
 
-    def get_session_member(self, session_id):
+    def get_member_id_by_session(self, session_id):
         return int(self.redis.hget(self.sessions_key, session_id))
 
     def ok(self, principal, setup_header=False):
@@ -357,3 +357,4 @@ class StatefulAuthenticator(Authenticator):
         if info:
             return ujson.loads(info)
         return None
+
