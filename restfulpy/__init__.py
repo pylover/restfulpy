@@ -4,6 +4,7 @@ import warnings
 from os.path import basename
 import argcomplete
 
+from .application import Application
 
 
 warnings.filterwarnings('ignore', message='Unknown REQUEST_METHOD')
