@@ -113,6 +113,7 @@ logging:
 def configure(config=None, directories=None, files=None, context=None,
               force=False):
 
+    context = context or {}
     context['restfulpy_root'] = path.dirname(__file__)
 
     nanohttp_configure(
