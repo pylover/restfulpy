@@ -1,3 +1,4 @@
+from os import path
 
 from nanohttp import configure as nanohttp_configure, settings
 
@@ -5,8 +6,6 @@ from nanohttp import configure as nanohttp_configure, settings
 __builtin_config = """
 
 debug: true
-
-data_directory: %(data_dir)s
 
 # Default timezone.
 # empty for local time
@@ -21,7 +20,7 @@ timezone:
 
 db:
   # The main uri
-  url: sqlite:///%(data_dir)s/devdata.db
+  url: sqlite:///devdata.db
   # url: postgresql://postgres:postgres@localhost/restfulpy_demo_dev
 
   # Will be used to create and drop database(s).
@@ -30,8 +29,8 @@ db:
   echo: false
 
 migration:
-  directory: %(root_path)s/migration
-  ini: %(root_path)s/alembic.ini
+  directory: migration
+  ini: alembic.ini
 
 jwt:
   secret: JWT-SECRET
@@ -50,9 +49,9 @@ messaging:
   # default_messenger: restfulpy.messaging.providers.SmtpProvider
   default_messenger: restfulpy.messaging.ConsoleMessenger
   default_sender: restfulpy
-  mako_modules_directory: %(data_dir)s/mako_modules
+  mako_modules_directory:
   template_dirs:
-    - %(restfulpy_dir)s/messaging/templates
+    - %(restfulpy_root)s/messaging/templates
 
 templates:
   directories: []
@@ -67,12 +66,6 @@ authentication:
 worker:
   gap: .5
   number_of_threads: 1
-
-api_documents:
-  directory: %(data_dir)s/api-documents
-
-documentary:
-  source_directory: %(data_dir)s/documentary/source
 
 smtp:
   host: smtp.example.com
@@ -91,8 +84,6 @@ logging:
     default:
       handlers:
         - console
-        - main
-        - error
       level: debug
       formatter: default
       propagate: true
@@ -111,15 +102,6 @@ logging:
     console:
       type: console
 
-    main:
-      type: file
-      filename: %(data_dir)s/logs/%(process_name)s.log
-
-    error:
-      type: file
-      level: error
-      filename: %(data_dir)s/logs/%(process_name)s-error.log
-
   formatters:
     default:
       format: "%%(asctime)s - %%(name)s - %%(levelname)s - %%(message)s"
@@ -130,6 +112,8 @@ logging:
 
 def configure(config=None, directories=None, files=None, context=None,
               force=False):
+
+    context['restfulpy_root'] = path.dirname(__file__)
 
     nanohttp_configure(
         init_value=__builtin_config,
