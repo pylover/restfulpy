@@ -29,7 +29,6 @@ dependencies = [
     # Testing
     'requests',
     'webtest',
-    'nose',
     'pytest',
 ]
 
