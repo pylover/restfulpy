@@ -24,11 +24,12 @@ dependencies = [
     'user-agents',
     'pycrypto',
     'python-dateutil',
+    'freezegun',
 
     # Testing
     'requests',
     'webtest',
-    'nose'
+    'pytest',
 ]
 
 

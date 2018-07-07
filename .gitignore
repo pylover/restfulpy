@@ -91,3 +91,6 @@ ENV/
 restfulpy/tests/data
 data
 .*.sw[op]
+
+# pytest
+.pytest_cache
