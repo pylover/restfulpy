@@ -159,8 +159,9 @@ class WebAppTestCase(unittest.TestCase):
             )
 
             print_('#' * 80)
-            if 'content-type' in response.headers and response.headers[
-                'content-type'].startswith('application/json'):
+            if 'content-type' in response.headers and \
+                    response.headers['content-type']\
+                            .startswith('application/json'):
                 result = ujson.loads(response.body.decode())
                 if isinstance(result, dict) and 'description' in result:
                     print_(result['message'])
@@ -201,6 +202,7 @@ class WebAppTestCase(unittest.TestCase):
 
         if expected_status and not self._statuses_are_the_same(expected_status, response):
             self._print_statuses_mismatch_error(expected_status, response)
+
 
         if expected_headers:
             for k, v in expected_headers.items():

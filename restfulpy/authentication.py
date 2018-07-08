@@ -95,7 +95,7 @@ class Authenticator:
             return self.bad()
 
         if settings.jwt.refresh_token.secure and context.request_scheme != 'https':
-            raise HttpBadRequest()
+            raise HttpBadRequest('not allowed')
 
         if morsel.value is None or not morsel.value.strip():
             return self.bad()
