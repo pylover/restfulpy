@@ -42,7 +42,6 @@ class SmtpProvider(Messenger):
         """
         Sending messages with SMTP server
         """
-        # FIXME: Exception handling
 
         body = self.render_body(body, template_filename)
 
