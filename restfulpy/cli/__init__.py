@@ -1,3 +1,3 @@
 
 from .launchers import Launcher, RequireSubCommand
-from .utils import ProgressBar, LineReaderProgressBar
+from .progressbar import ProgressBar, LineReaderProgressBar

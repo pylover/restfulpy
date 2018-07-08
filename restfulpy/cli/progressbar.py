@@ -9,7 +9,6 @@ def terminal_size():
     return w, h
 
 
-# TODO: Move this class into a new module named: progressbar
 class ProgressBar:
 
     def __init__(self, total):

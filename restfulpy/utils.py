@@ -65,14 +65,6 @@ def deprecated(func):  # pragma: no cover
     return new_func
 
 
-def random_password(length=10):
-    """Returns a random string of length string_length."""
-    random = str(uuid.uuid4())  # Convert UUID format to a Python string.
-    random = random.upper()  # Make all characters uppercase.
-    random = random.replace("-", "")  # Remove the UUID '-'.
-    return random[0:length]  # Return the random string.
-
-
 def to_camel_case(text):
     return re.sub("(_\w)", lambda x: x.group(1)[1:].upper(), text)
 
@@ -105,3 +97,4 @@ def md5sum(f):
     finally:
         if file_obj is not f:
             file_obj.close()
+

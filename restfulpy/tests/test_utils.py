@@ -5,7 +5,7 @@ from os.path import dirname, abspath, join
 from datetime import datetime, timezone, timedelta, time
 
 from restfulpy.utils import import_python_module_by_filename, \
-    construct_class_by_name, random_password, copy_stream, md5sum
+    construct_class_by_name, copy_stream, md5sum
 
 
 HERE = abspath(dirname(__file__))
@@ -31,10 +31,6 @@ class UtilsTestCase(unittest.TestCase):
         obj = construct_class_by_name('restfulpy.tests.test_utils.MyClassToConstructByName', 1)
         self.assertEqual(obj.a, 1)
         self.assertIsNotNone(obj)
-
-    def test_random_password(self):
-        result = random_password(5)
-        self.assertEqual(len(result), 5)
 
     def test_copy_stream(self):
         content = b'This is the initial source file'
