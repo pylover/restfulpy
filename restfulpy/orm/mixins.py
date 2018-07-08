@@ -38,15 +38,14 @@ class ModifiedMixin(TimestampMixin):
     def last_modification_time(self):
         return self.modified_at or self.created_at
 
-    # FIXME: rename it to before_update
     # noinspection PyUnusedLocal
     @staticmethod
-    def on_update(mapper, connection, target):
+    def before_update(mapper, connection, target):
         target.modified_at = datetime.utcnow()
 
     @classmethod
     def __declare_last__(cls):
-        event.listen(cls, 'before_update', cls.on_update)
+        event.listen(cls, 'before_update', cls.before_update)
 
 
 class SoftDeleteMixin:
@@ -74,14 +73,13 @@ class SoftDeleteMixin:
             self.assert_is_deleted()
         self.removed_at = None
 
-    # FIXME: rename it to before_delete
     @staticmethod
-    def on_delete(mapper, connection, target):
+    def before_delete(mapper, connection, target):
         raise HttpConflict('Cannot remove this object: %s' % target)
 
     @classmethod
     def __declare_last__(cls):
-        event.listen(cls, 'before_delete', cls.on_delete)
+        event.listen(cls, 'before_delete', cls.before_delete)
 
     @classmethod
     def filter_deleted(cls, query=None):
