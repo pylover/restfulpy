@@ -236,7 +236,6 @@ class StatefulAuthenticator(Authenticator):
 
     @staticmethod
     def create_blocking_redis_client():
-        # FIXME: use unix socket
         return redis.StrictRedis(
             host=settings.authentication.redis.host,
             port=settings.authentication.redis.port,
