@@ -61,7 +61,7 @@ class SqlExceptionsTestCase(WebAppTestCase):
             'POST',
             '/',
             params=dict(title='test'),
-            expected_status=r'''409 unique_violation ERROR:  duplicate key value violates unique constraint "sql_error_checking_model_title_key"\nDETAIL:  Key (title)=(test) already exists.\n''',
+            expected_status='''409 unique_violation ERROR:  duplicate key value violates unique constraint "sql_error_checking_model_title_key"\nDETAIL:  Key (title)=(test) already exists.\n''',
         )
 
 

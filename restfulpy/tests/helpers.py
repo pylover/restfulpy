@@ -150,32 +150,28 @@ class WebAppTestCase(unittest.TestCase):
         super().tearDownClass()
 
     def _print_statuses_mismatch_error(self, expected_status, response):  # pragma: no cover
+        print_ = functools.partial(
+            print,
+            file=sys.stderr if response.status_code != 200 else sys.stdout
+        )
 
-        if isinstance(expected_status, int) and response.status_code != expected_status:
-
-            print_ = functools.partial(
-                print,
-                file=sys.stderr if response.status_code != 200 else sys.stdout
-            )
-
-            print_('#' * 80)
-            if 'content-type' in response.headers and \
-                    response.headers['content-type']\
-                            .startswith('application/json'):
-                result = ujson.loads(response.body.decode())
-                if isinstance(result, dict) and 'description' in result:
-                    print_(result['message'])
-                    print_(result['description'])
-                else:
-                    print_(result)
+        print_('#' * 80)
+        content_type = response.headers.get('content-type')
+        if content_type and content_type.startswith('application/json'):
+            result = ujson.loads(response.body.decode())
+            if isinstance(result, dict) and 'description' in result:
+                print_(result['message'])
+                print_(result['description'])
             else:
-                print_(response.body.decode())
-            print_('#' * 80)
+                print_(result)
+        else:
+            print_(response.body.decode())
+        print_('#' * 80)
 
-            if isinstance(expected_status, int):
-                self.assertEqual(expected_status, response.status_code)
-            else:
-                self.assertEqual(expected_status, response.status)
+        if isinstance(expected_status, int):
+            self.assertEqual(expected_status, response.status_code)
+        else:
+            self.assertEqual(expected_status, response.status)
 
     def _statuses_are_the_same(self, expected, response):
         if isinstance(expected, int):
@@ -202,7 +198,6 @@ class WebAppTestCase(unittest.TestCase):
 
         if expected_status and not self._statuses_are_the_same(expected_status, response):
             self._print_statuses_mismatch_error(expected_status, response)
-
 
         if expected_headers:
             for k, v in expected_headers.items():

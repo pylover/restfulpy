@@ -1,26 +1,18 @@
 import time
 import unittest
-from nanohttp import json, Controller, context, settings
+from nanohttp import settings
 from restfulpy.authentication import StatefulAuthenticator
-from restfulpy.authorization import authorize
 from restfulpy.principal import JwtPrincipal, JwtRefreshToken
 from restfulpy.tests.helpers import WebAppTestCase
 from restfulpy.testing import MockupApplication
-
-
-class MockupMember:
-    def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-
+    
 
 roles = ['admin', 'test']
 
 
 class MockupAuthenticator(StatefulAuthenticator):
     def validate_credentials(self, credentials):
-        email, password = credentials
-        if password == 'test':
-            return MockupMember(id=1, email=email, roles=['admin', 'test'])
+        raise NotImplementedError()
 
     def create_refresh_principal(self, member_id=None):
         return JwtRefreshToken(dict(
@@ -29,29 +21,6 @@ class MockupAuthenticator(StatefulAuthenticator):
 
     def create_principal(self, member_id=None, session_id=None, **kwargs):
         return JwtPrincipal(dict(id=1, email='test@example.com', roles=roles, sessionId='1'))
-
-
-# class Root(Controller):
-#
-#     @json
-#     def login(self):
-#         principal = context.application.__authenticator__.login(
-#             context.form['email'], context.form['password']
-#         )
-#
-#         return dict(token=principal.dump())
-#
-#
-#     @json
-#     @authorize
-#     def me(self):
-#         return context.identity.payload
-#
-#     @json
-#     @authorize
-#     def invalidate_token(self):
-#         context.application.__authenticator__.invalidate_member(1)
-#         return context.identity.payload
 
 
 class StatefulAuthenticatorTestCase(WebAppTestCase):
@@ -71,12 +40,6 @@ class StatefulAuthenticatorTestCase(WebAppTestCase):
 
     def test_invalidate_token(self):
         principal = self.application.__authenticator__.create_principal()
-        # principal = JwtPrincipal(dict(
-        #     email='test@example.com',
-        #     id=1,
-        #     sessionId=1,
-        #     roles=roles
-        # ))
 
         token = principal.dump().decode("utf-8")
         refresh_principal = self.application.__authenticator__.\
@@ -93,7 +56,7 @@ class StatefulAuthenticatorTestCase(WebAppTestCase):
             'GET',
             '/',
             headers={'Cookie': refresh_token},
-            expected_status='400 allowed'
+            expected_status='400 not allowed'
         )
 
 
