@@ -1,11 +1,12 @@
 import time
 import unittest
+
 from nanohttp import settings
 from restfulpy.authentication import StatefulAuthenticator
 from restfulpy.principal import JwtPrincipal, JwtRefreshToken
 from restfulpy.tests.helpers import WebAppTestCase
 from restfulpy.testing import MockupApplication
-    
+
 
 roles = ['admin', 'test']
 
