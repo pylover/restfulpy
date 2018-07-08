@@ -18,28 +18,34 @@ class Member(DeclarativeBase):
 
 class DatabaseManager:
 
-    session = None
-    engine = None
-
-    def __init__(self, configuration):
-        self.configure(configuration)
+    _session = None
+    _engine = None
+    _sessions = []
 
     def configure(self, configuration):
         configure(configuration, force=True)
         settings.db.url = settings.db.test_url
 
     @classmethod
-    def connect(cls) -> 'Session':
-        cls.engine = create_engine()
-        cls.session = session =session_factory(
-            bind=cls.engine,
-            expire_on_commit=False
-        )
+    def create_engine(cls):
+        cls._engine = create_engine()
+        cls._session = cls.connect()
+
+    @classmethod
+    def connect(cls, *args, **kw):
+        session = session_factory(bind=cls._engine, *args, **kw)
+        cls._sessions.append(session)
+        return session
 
     @classmethod
     def close_all_connections(cls):
-        cls.session.close_all()
-        cls.engine.dispose()
+        cls._session.close()
+
+        # Closing all sessions created by the test writer
+        for s in cls._sessions:
+            s.close()
+
+        cls._engine.dispose()
 
     def drop_database(self):
         with DBManager() as m:
@@ -51,15 +57,12 @@ class DatabaseManager:
 
     @classmethod
     def create_schema(cls):
-        setup_schema(cls.session)
-        cls.session.commit()
+        setup_schema(cls._session)
+        cls._session.commit()
 
 
 @pytest.fixture
-def db():
-
-    print('Setup')
-
+def connect():
     builtin_configuration = '''
     db:
       test_url: postgresql://postgres:postgres@localhost/pytest_test
@@ -70,33 +73,24 @@ def db():
           level: critical
     '''
 
-    # configure
-    database_manager = DatabaseManager(builtin_configuration)
+    database_manager = DatabaseManager()
+    database_manager.configure(builtin_configuration)
 
-    # drop
+
+    # Drop the previosely created db if exists.
     database_manager.drop_database()
 
-    # create
     database_manager.create_database()
-
-    # connect
-    database_manager.connect()
-
-    # schema
+    database_manager.create_engine()
     database_manager.create_schema()
 
-    #tear dwon
-    yield database_manager
-    print('Tear down')
+    yield database_manager.connect
 
-    # close all connections
     database_manager.close_all_connections()
-
-    # Drop Db
     database_manager.drop_database()
 
 
-def test_db(db):
-
-    assert db.session.query(Member).count() == 0
+def test_db(connect):
+    session = connect()
+    assert session.query(Member).count() == 0
 
