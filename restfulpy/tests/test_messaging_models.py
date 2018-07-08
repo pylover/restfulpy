@@ -8,10 +8,6 @@ from restfulpy.tests.helpers import WebAppTestCase
 from restfulpy.testing import MockupApplication
 
 
-# FIXME:  Why ?
-BaseEmail.metadata.remove(Email.__table__)
-
-
 class Welcome(BaseEmail):
     __tablename__ = 'welcome'
 
