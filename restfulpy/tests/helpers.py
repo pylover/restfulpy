@@ -154,6 +154,7 @@ class WebAppTestCase(unittest.TestCase):
             file=sys.stderr if response.status_code != 200 else sys.stdout
         )
 
+
         print_('#' * 80)
         content_type = response.headers.get('content-type')
         if content_type and content_type.startswith('application/json'):
