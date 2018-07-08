@@ -49,18 +49,3 @@ class BaseEmail(Task):
 
         logger.info('%s is sent to %s', self.subject, self.to)
 
-
-# FIXME: remove it
-# noinspection PyAbstractClass
-class Email(BaseEmail):  # pragma: no cover
-    __tablename__ = 'email'
-    __mapper_args__ = {
-        'polymorphic_identity': __tablename__
-    }
-
-    body = Field(FakeJson, json='body')
-
-    @property
-    def email_body(self):
-        return self.body
-

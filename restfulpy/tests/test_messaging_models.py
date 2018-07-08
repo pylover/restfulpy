@@ -3,7 +3,7 @@ import unittest
 from nanohttp import settings
 
 from restfulpy.orm import DBSession, Field, FakeJson
-from restfulpy.messaging import BaseEmail, Email, create_messenger
+from restfulpy.messaging import BaseEmail, create_messenger
 from restfulpy.tests.helpers import WebAppTestCase
 from restfulpy.testing import MockupApplication
 
