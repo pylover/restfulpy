@@ -283,139 +283,52 @@ class TestBaseModel(ApplicableTestCase):
             )
             assert status == 200
 
-'''
-        self.request(
-            'ALL', 'POST', '/',
-            params=dict(
-                title='test',
-                firstName='test',
-                lastName='test',
-                email='test3@example.com',
-                password='123456',
-                birth='2001-01-01',
-                weight=1.1,
-                visible='false',
-                lastLoginTime='2017-10-10T10:10:00'
-            ),
-        )
+            when(
+                'Month is invalid',
+                form=Update(
+                    email='test_invalidmonth@example.com',
+                    lastLoginTime='2017-13-10T10:10:00'
+                )
+            )
+            assert status == '400 Invalid date or time format'
 
-        # Invalid month value
-        self.request(
-            'ALL', 'POST', '/',
-            params=dict(
-                title='test',
-                firstName='test',
-                lastName='test',
-                email='test4@example.com',
-                password='123456',
-                birth='2001-01-01',
-                weight=1.1,
-                visible='false',
-                lastLoginTime='2017-13-10T10:10:00'
-            ),
+            when(
+                'Malformed date and or time',
+                form=Update(
+                    email='test_malformed@example.com',
+                    lastLoginTime='malformed'
+                )
+            )
+            assert status == '400 Invalid date or time format'
 
-            expected_status=400
-        )
 
-        # Invalid datetime format
-        self.request(
-            'ALL', 'POST', '/',
-            params=dict(
-                title='test',
-                firstName='test',
-                lastName='test',
-                email='test4@example.com',
-                password='123456',
-                birth='2001-01-01',
-                weight=1.1,
-                visible='false',
-                lastLoginTime='InvalidDatetime'
-            ),
+            when(
+                'Microsecond is not zero padded',
+                form=Update(
+                    email='test_micronotzeropadded@example.com',
+                    lastLoginTime='2017-10-10T10:10:00.4546'
+                )
+            )
 
-            expected_status=400
-        )
-        self.request(
-            'ALL', 'POST', '/',
-            params=dict(
-                title='test',
-                firstName='test',
-                lastName='test',
-                email='test4@example.com',
-                password='123456',
-                birth='2001-01-01',
-                weight=1.1,
-                visible='false',
-                lastLoginTime='2017-02-07T19:30:00+000'
-            ),
+            assert status == 200
+            assert response.json['lastLoginTime'] == '2017-10-10T10:10:00.454600'
 
-            expected_status=400
-        )
+    def test_posix_timestamp_format(self):
+        with self.given(
+                'Datetime allows contain microseconds',
+                 verb='POST',
+                 form=dict(
+                    title='test',
+                    firstName='test',
+                    lastName='test',
+                    email='testposix@example.com',
+                    password='123456',
+                    birth='1513434403',
+                    weight=1.1,
+                    visible='false',
+                    lastLoginTime='2017-10-10T10:10:00.12313'
+                )
+            ):
+            assert status == 200
+            assert response.json['birth'] == '2017-12-16'
 
-        resp, ___ = self.request(
-            'ALL', 'POST', '/',
-            params=dict(
-                title='test',
-                firstName='test',
-                lastName='test',
-                email='test5@example.com',
-                password='123456',
-                birth='2001-01-01',
-                weight=1.1,
-                visible='false',
-                lastLoginTime='2017-10-10T10:10:00.4546'
-            ),
-        )
-        self.assertEqual(resp['lastLoginTime'], '2017-10-10T10:10:00.454600')
-
-        # datetime containing ending Z
-        resp, ___ = self.request(
-            'ALL', 'POST', '/', params=dict(
-                title='test',
-                firstName='test',
-                lastName='test',
-                email='test6@example.com',
-                password='123456',
-                birth='2001-01-01',
-                weight=1.1,
-                visible='false',
-                lastLoginTime='2017-10-10T10:10:00.4546'
-            ),
-        )
-        self.assertEqual(resp['lastLoginTime'], '2017-10-10T10:10:00.454600')
-
-    def test_date_format(self):
-        # iso date format
-        resp, ___ = self.request(
-            'ALL', 'POST', '/',
-            params=dict(
-                title='test',
-                firstName='test',
-                lastName='test',
-                email='test11@example.com',
-                password='123456',
-                birth='2001-01-01',
-                weight=1.1,
-                visible='false',
-                lastLoginTime='2017-10-10T10:10:00.4546'
-            ),
-        )
-        self.assertEqual(resp['birth'], '2001-01-01')
-        self.assertEqual(resp['lastLoginTime'], '2017-10-10T10:10:00.454600')
-
-        # posix timestamp
-        resp, ___ = self.request(
-            'ALL', 'POST', '/',
-            params=dict(
-                title='test',
-                firstName='test',
-                lastName='test',
-                email='test12@example.com',
-                password='123456',
-                birth='1513434403',
-                weight=1.1,
-                visible='false',
-                lastLoginTime=datetime(2017, 10, 10, 10, 10, 0, 4546).timestamp()
-            ),
-        )
-        self.assertEqual(resp['birth'], '2017-12-16')
-'''
