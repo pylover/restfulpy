@@ -5,7 +5,7 @@ from nanohttp import json, settings, context
 from sqlalchemy import Unicode, Integer, Date, Float, ForeignKey, Boolean, \
     DateTime
 from sqlalchemy.ext.associationproxy import association_proxy
-from bddrest import response, when, Append, Update
+from bddrest import response, when, Append, Update, status
 
 from restfulpy.controllers import JsonPatchControllerMixin, ModelRestController
 from restfulpy.orm import commit, DeclarativeBase, Field, DBSession, \
@@ -162,7 +162,7 @@ class TestBaseModel(ApplicableTestCase):
                 'Sending a relationship attribute',
                 form=Update(email='test2@example.com', books=[])
             )
-            assert response.status == '200 OK'
+            assert status == '200 OK'
             assert {
                 'Keywords': [{'id': 2, 'keyword': 'Hello'}],
                 'birth': '2001-01-01',
@@ -191,7 +191,7 @@ class TestBaseModel(ApplicableTestCase):
                 'Trying to get an non-existence db object',
                 '/non-existence-user'
             )
-            assert response.status == 404
+            assert status == 404
 
             when('Getting a plain dictionary', '/me')
             assert response.json == {'title': 'me'}
@@ -228,43 +228,39 @@ class TestBaseModel(ApplicableTestCase):
             'Fetching the metadata',
             verb='METADATA'
         ):
-
             assert 'fields' in response.json
             assert 'name' in response.json
             assert 'primaryKeys' in response.json
             assert 'id' in response.json['primaryKeys']
             assert response.json['name'] == 'Member'
-'''
-        fields = resp['fields']
-        self.assertIn('id', fields)
-        self.assertIn('firstName', fields)
-        self.assertEqual(fields['id']['primaryKey'], True)
-        self.assertEqual(fields['email']['primaryKey'], False)
-        self.assertEqual(fields['title']['primaryKey'], False)
-        self.assertEqual(fields['title']['minLength'], 2)
-        self.assertEqual(fields['title']['maxLength'], 50)
-        self.assertEqual(fields['email']['pattern'], '(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)')
 
-        self.assertEqual(fields['firstName']['name'], 'firstName')
-        self.assertEqual(fields['firstName']['key'], 'first_name')
+            fields = response.json['fields']
+            assert 'id' in fields
+            assert 'firstName' in fields
+            assert fields['id']['primaryKey'] == True
+            assert fields['email']['primaryKey'] == False
+            assert fields['title']['primaryKey'] == False
+            assert fields['title']['minLength'] == 2
+            assert fields['title']['maxLength'] == 50
+            assert fields['email']['pattern'] == '(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)'
 
-        self.assertEqual(fields['firstName']['type'], 'str')
-        self.assertEqual(fields['birth']['type'], 'date')
-
-        self.assertEqual(fields['weight']['default_'], 50)
-        self.assertEqual(fields['visible']['optional'], True)
-
-        self.assertEqual(fields['email']['message'], 'Invalid email address, please be accurate!')
-        self.assertEqual(fields['email']['watermark'], 'Email')
-        self.assertEqual(fields['email']['label'], 'Email')
-        self.assertEqual(fields['email']['icon'], 'email.svg')
-        self.assertEqual(fields['email']['example'], 'user@example.com')
+            assert fields['firstName']['name'] == 'firstName'
+            assert fields['firstName']['key'] == 'first_name'
+            assert fields['firstName']['type'] == 'str'
+            assert fields['birth']['type'] == 'date'
+            assert fields['weight']['default_'] == 50
+            assert fields['visible']['optional'] == True
+            assert fields['email']['message'] == 'Invalid email address, please be accurate!'
+            assert fields['email']['watermark'] == 'Email'
+            assert fields['email']['label'] == 'Email'
+            assert fields['email']['icon'] == 'email.svg'
+            assert fields['email']['example'] == 'user@example.com'
 
     def test_datetime_format(self):
-        # datetime allows contain microseconds
-        self.request(
-            'ALL', 'POST', '/',
-            params=dict(
+        with self.given(
+            'Datetime allows contain microseconds',
+             verb='POST',
+             form=dict(
                 title='test',
                 firstName='test',
                 lastName='test',
@@ -274,9 +270,18 @@ class TestBaseModel(ApplicableTestCase):
                 weight=1.1,
                 visible='false',
                 lastLoginTime='2017-10-10T10:10:00.12313'
-            ),
-        )
+            )
+        ):
+            assert status == 200
 
+            when(
+                'Without microseconds',
+                form=Update(
+                    lastLoginTime='2017-10-10T10:10:00'
+                )
+            )
+            assert status == 200
+'''
         self.request(
             'ALL', 'POST', '/',
             params=dict(

@@ -30,7 +30,7 @@ dependencies = [
     'requests',
     'webtest',
     'pytest',
-    'bddrest >= 1.9.0a6'
+    'bddrest >= 1.10.0a6'
 ]
 
 
