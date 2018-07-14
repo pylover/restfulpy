@@ -1,11 +1,8 @@
-import unittest
 
 from sqlalchemy import Integer, Unicode
 from nanohttp import settings
 
-from restfulpy.tests.helpers import WebAppTestCase
-from restfulpy.testing import MockupApplication
-from restfulpy.orm import DeclarativeBase, Field, DBSession, DeactivationMixin
+from restfulpy.orm import DeclarativeBase, Field, DeactivationMixin
 
 
 class DeactiveObject(DeactivationMixin, DeclarativeBase):
@@ -15,47 +12,36 @@ class DeactiveObject(DeactivationMixin, DeclarativeBase):
     title = Field(Unicode(50))
 
 
-class DeactivationMixinTestCase(WebAppTestCase):
-    application = MockupApplication('MockupApplication', None)
-    __configuration__ = '''
-    db:
-      url: sqlite://    # In memory DB
-      echo: false
-    '''
+def test_deactivation_mixin(db):
+    session = db()
 
-    @classmethod
-    def configure_app(cls):
-        cls.application.configure(force=True)
-        settings.merge(cls.__configuration__)
+    # noinspection PyArgumentList
+    object1 = DeactiveObject(
+        title='object 1',
+    )
 
-    def test_deactivation_mixin(self):
-        # noinspection PyArgumentList
-        object1 = DeactiveObject(
-            title='object 1',
-        )
+    session.add(object1)
+    session.commit()
 
-        DBSession.add(object1)
-        DBSession.commit()
+    assert object1.is_active == False
+    assert session.query(DeactiveObject).filter(DeactiveObject.is_active)\
+        .count() == 0
 
-        self.assertFalse(object1.is_active)
-        self.assertEqual(DBSession.query(DeactiveObject).filter(DeactiveObject.is_active).count(), 0)
+    object1.is_active = True
 
-        object1.is_active = True
-        self.assertTrue(object1.is_active)
-        DBSession.commit()
-        object1 = DBSession.query(DeactiveObject).one()
-        self.assertTrue(object1.is_active)
-        self.assertIsNone(object1.deactivated_at)
-        self.assertIsNotNone(object1.activated_at)
+    assert object1.is_active == True
+    session.commit()
+    object1 = session.query(DeactiveObject).one()
+    assert object1.is_active == True
+    assert object1.deactivated_at is None
+    assert object1.activated_at is not None
 
-        object1.is_active = False
-        self.assertFalse(object1.is_active)
-        DBSession.commit()
-        object1 = DBSession.query(DeactiveObject).one()
-        self.assertFalse(object1.is_active)
-        self.assertIsNone(object1.activated_at)
-        self.assertIsNotNone(object1.deactivated_at)
+    object1.is_active = False
+    assert object1.is_active == False
+    session.commit()
+    object1 = session.query(DeactiveObject).one()
 
+    assert object1.is_active == False
+    assert object1.activated_at is None
+    assert object1.deactivated_at is not None
 
-if __name__ == '__main__':  # pragma: no cover
-    unittest.main()

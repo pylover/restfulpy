@@ -1,35 +1,27 @@
 
-import io
-import unittest
-from os.path import dirname, abspath, join
+from os.path import dirname, abspath
 
 from nanohttp import settings, configure
 
-from restfulpy.messaging.providers import create_messenger, ConsoleMessenger, SmtpProvider
+from restfulpy.messaging.providers import create_messenger, ConsoleMessenger,\
+    SmtpProvider
 
 
 HERE = abspath(dirname(__file__))
 
+def test_messenger_factory():
 
-class MessengerFactoryTestCase(unittest.TestCase):
     __configuration__ = '''
         messaging:
-          default_messenger: restfulpy.messaging.ConsoleMessenger 
+          default_messenger: restfulpy.messaging.ConsoleMessenger
         '''
+    configure(init_value=__configuration__, force=True)
 
-    @classmethod
-    def setUpClass(cls):
-        configure(init_value=cls.__configuration__, force=True)
+    console_messenger = create_messenger()
+    assert isinstance(console_messenger, ConsoleMessenger)
 
-    def test_messenger_factory(self):
-        console_messenger = create_messenger()
-        self.assertIsInstance(console_messenger, ConsoleMessenger)
-
-        settings.messaging.default_messenger = 'restfulpy.messaging.providers.SmtpProvider'
-        smtp_messenger = create_messenger()
-        self.assertIsInstance(smtp_messenger, SmtpProvider)
-
-
-if __name__ == '__main__':  # pragma: no cover
-    unittest.main()
+    settings.messaging.default_messenger =\
+        'restfulpy.messaging.providers.SmtpProvider'
+    smtp_messenger = create_messenger()
+    assert isinstance(smtp_messenger, SmtpProvider)
 

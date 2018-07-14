@@ -1,7 +1,7 @@
 
 import io
-import unittest
-from os.path import dirname, abspath, join
+from os import mkdir
+from os.path import dirname, abspath, join, exists
 from datetime import datetime, timezone, timedelta, time
 
 from restfulpy.utils import import_python_module_by_filename, \
@@ -9,7 +9,10 @@ from restfulpy.utils import import_python_module_by_filename, \
 
 
 HERE = abspath(dirname(__file__))
-DATA_DIR = join(HERE, '../../data')
+DATA_DIR = join(HERE, 'data')
+
+if not exists(DATA_DIR):
+    mkdir(DATA_DIR)
 
 
 class MyClassToConstructByName:
@@ -17,38 +20,36 @@ class MyClassToConstructByName:
         self.a = a
 
 
-class UtilsTestCase(unittest.TestCase):
+def test_import_python_module_by_filename():
+    filename = join(DATA_DIR, 'a.py')
+    with open(filename, mode='w') as f:
+        f.write('b = 123\n')
 
-    def test_import_python_module_by_filename(self):
-        filename = join(DATA_DIR, 'a.py')
-        with open(filename, mode='w') as f:
-            f.write('b = 123\n')
+    module_ = import_python_module_by_filename('a', filename)
+    assert module_.b == 123
 
-        module_ = import_python_module_by_filename('a', filename)
-        self.assertEqual(module_.b, 123)
+def test_construct_class_by_name():
+    obj = construct_class_by_name(
+        'restfulpy.tests.test_utils.MyClassToConstructByName',
+        1
+    )
+    assert obj.a ==  1
+    assert obj is not None
 
-    def test_construct_class_by_name(self):
-        obj = construct_class_by_name('restfulpy.tests.test_utils.MyClassToConstructByName', 1)
-        self.assertEqual(obj.a, 1)
-        self.assertIsNotNone(obj)
+def test_copy_stream():
+    content = b'This is the initial source file'
+    source = io.BytesIO(content)
+    target = io.BytesIO()
+    copy_stream(source, target)
+    target.seek(0)
+    assert target.read() == content
 
-    def test_copy_stream(self):
-        content = b'This is the initial source file'
-        source = io.BytesIO(content)
-        target = io.BytesIO()
-        copy_stream(source, target)
-        target.seek(0)
-        self.assertEqual(target.read(), content)
+def test_md5sum():
+    content = b'This is the initial source file'
+    source = io.BytesIO(content)
+    filename = join(DATA_DIR, 'a.txt')
+    with open(filename, mode='wb') as f:
+        f.write(content)
 
-    def test_md5sum(self):
-        content = b'This is the initial source file'
-        source = io.BytesIO(content)
-        filename = join(DATA_DIR, 'a.txt')
-        with open(filename, mode='wb') as f:
-            f.write(content)
+    assert md5sum(source) == md5sum(filename)
 
-        self.assertEqual(md5sum(source), md5sum(filename))
-
-
-if __name__ == '__main__':  # pragma: no cover
-    unittest.main()

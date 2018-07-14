@@ -1,5 +1,5 @@
 from itsdangerous import TimedJSONWebSignatureSerializer, JSONWebSignatureSerializer
-from nanohttp import settings, context, HttpForbidden
+from nanohttp import settings, context, HTTPForbidden
 
 
 class JwtPrincipal:
@@ -46,7 +46,7 @@ class JwtPrincipal:
         :return:
         """
         if roles and not self.is_in_roles(*roles):
-            raise HttpForbidden()
+            raise HTTPForbidden()
 
     @property
     def email(self):

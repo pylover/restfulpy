@@ -3,7 +3,7 @@ import functools
 from datetime import datetime, date, time
 from decimal import Decimal
 
-from nanohttp import context, HttpNotFound, HttpBadRequest
+from nanohttp import context, HTTPNotFound, HTTPBadRequest
 from sqlalchemy import Column, event
 from sqlalchemy.orm import validates, Query, CompositeProperty, \
     RelationshipProperty
@@ -161,7 +161,7 @@ class BaseModel(object):
             if param_name in context.form:
 
                 if hasattr(c, 'property') and hasattr(c.property, 'mapper'):
-                    raise HttpBadRequest('Invalid attribute')
+                    raise HTTPBadRequest('Invalid attribute')
 
                 value = context.form[param_name]
                 # Ensuring the python type, and ignoring silently if the
@@ -177,7 +177,7 @@ class BaseModel(object):
                     try:
                         yield c, parse_datetime(value)
                     except ValueError:
-                        raise HttpBadRequest('Invalid date or time format')
+                        raise HTTPBadRequest('Invalid date or time format')
                 else:
                     yield c, value
 
@@ -229,7 +229,7 @@ class BaseModel(object):
         def wrapper(*args, **kwargs):
             result = func(*args, **kwargs)
             if result is None:
-                raise HttpNotFound()
+                raise HTTPNotFound()
             if isinstance(result, Query):
                 return cls.dump_query(result)
             return result

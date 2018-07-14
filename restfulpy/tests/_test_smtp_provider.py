@@ -5,7 +5,7 @@ from os.path import dirname, abspath, join
 
 from nanohttp import settings, configure
 from restfulpy.messaging.providers import SmtpProvider
-from restfulpy.testing import mockup_smtp_server
+from restfulpy.mockup import mockup_smtp_server
 
 HERE = abspath(dirname(__file__))
 

@@ -1,7 +1,7 @@
 import unittest
 from datetime import date, time
 
-from nanohttp import configure, HttpBadRequest
+from nanohttp import configure, HTTPBadRequest
 from nanohttp.contexts import Context
 from sqlalchemy import Integer, Unicode, ForeignKey, Boolean, Table, Date, Time, Float
 from sqlalchemy.orm import synonym
@@ -146,27 +146,27 @@ class ModelTestCase(unittest.TestCase):
             self.assertEqual(post1.id, 1)
 
             # Validation, Type
-            with self.assertRaises(HttpBadRequest):
+            with self.assertRaises(HTTPBadRequest):
                 Author(title=234)
 
             # Validation, Pattern
-            with self.assertRaises(HttpBadRequest):
+            with self.assertRaises(HTTPBadRequest):
                 Author(email='invalidEmailAddress')
 
             # Validation, Min length
-            with self.assertRaises(HttpBadRequest):
+            with self.assertRaises(HTTPBadRequest):
                 Author(title='1')
 
             # Validation, Max length
             # Validation, Max length
-            with self.assertRaises(HttpBadRequest):
+            with self.assertRaises(HTTPBadRequest):
                 Author(phone='12321321321312321312312')
 
             # validate Min/Max
-            with self.assertRaises(HttpBadRequest):
+            with self.assertRaises(HTTPBadRequest):
                 Author(age=17)
 
-            with self.assertRaises(HttpBadRequest):
+            with self.assertRaises(HTTPBadRequest):
                 Author(age=101)
 
 

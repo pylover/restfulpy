@@ -1,7 +1,7 @@
 
 import functools
 
-from nanohttp import context, HttpUnauthorized
+from nanohttp import context, HTTPUnauthorized
 
 
 def authorize(*roles):
@@ -14,7 +14,7 @@ def authorize(*roles):
             identity = context.identity
 
             if not identity:
-                raise HttpUnauthorized()
+                raise HTTPUnauthorized()
 
             identity.assert_roles(*roles)
 

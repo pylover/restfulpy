@@ -1,11 +1,11 @@
 import unittest
 
 from sqlalchemy import Integer, Unicode
-from nanohttp import settings, HttpBadRequest
+from nanohttp import settings, HTTPBadRequest
 from nanohttp.contexts import Context
 
 from restfulpy.tests.helpers import WebAppTestCase
-from restfulpy.testing import MockupApplication
+from restfulpy.mockup import MockupApplication
 from restfulpy.orm import DeclarativeBase, Field, DBSession, PaginationMixin
 
 
@@ -46,11 +46,11 @@ class PaginationMixinTestCase(WebAppTestCase):
             self.assertEqual(context.response_headers['X-Pagination-Count'], '5')
 
         with Context({'QUERY_STRING': 'take=two&skip=one'}, self.application) \
-                , self.assertRaises(HttpBadRequest):
+                , self.assertRaises(HTTPBadRequest):
             self.assertEqual(PagingObject.paginate_by_request().count(), 4)
 
         with Context({'QUERY_STRING': 'take=5'}, self.application):
-            self.assertRaises(HttpBadRequest, PagingObject.paginate_by_request)
+            self.assertRaises(HTTPBadRequest, PagingObject.paginate_by_request)
 
 
 if __name__ == '__main__':  # pragma: no cover

@@ -5,7 +5,7 @@ import re
 from sqlalchemy import Column, Unicode, String
 from sqlalchemy.orm import relationship as sa_relationship, \
     composite as sa_composite, synonym as sa_synonym
-from nanohttp import HttpBadRequest
+from nanohttp import HTTPBadRequest
 
 from ..utils import to_camel_case
 from ..fieldinfo import FieldInfo
@@ -87,37 +87,37 @@ class Field(Column):
 
     def _validate_pattern(self, value):
         if not re.match(self.info['pattern'], value):
-            raise HttpBadRequest('Cannot match field: %s with value "%s" by acceptable pattern' % (self.name, value))
+            raise HTTPBadRequest('Cannot match field: %s with value "%s" by acceptable pattern' % (self.name, value))
         return value
 
     def _validate_length(self, value, min_length, max_length):
         if not isinstance(value, str):
-            raise HttpBadRequest(status_text='Invalid type: %s for field: %s' % (type(value), self.name))
+            raise HTTPBadRequest(status_text='Invalid type: %s for field: %s' % (type(value), self.name))
 
         value_length = len(value)
         if min_length is not None and value_length < min_length:
-            raise HttpBadRequest(
+            raise HTTPBadRequest(
                 status_text=f'Please enter at least {min_length} characters for field: {self.name}.'
             )
 
         if max_length is not None and value_length > max_length:
-            raise HttpBadRequest(
+            raise HTTPBadRequest(
                 status_text=f'Cannot enter more than: {max_length} in field: {self.name}.'
             )
 
     def _validate_min_max(self, value, min_, max_):
         if not isinstance(value, (int, float)):
-            raise HttpBadRequest(status_text='Invalid type: %s for field: %s' % (type(value), self.name))
+            raise HTTPBadRequest(status_text='Invalid type: %s for field: %s' % (type(value), self.name))
 
         if min_ is not None and value < min_:
             import pudb; pudb.set_trace()  # XXX BREAKPOINT
-            raise HttpBadRequest(
+            raise HTTPBadRequest(
                 status_text=f'Minimum allowed value is {min_} for field: {self.name}.'
             )
 
         if max_ is not None and value > max_:
             import pudb; pudb.set_trace()  # XXX BREAKPOINT
-            raise HttpBadRequest(
+            raise HTTPBadRequest(
                 status_text=f'Maximum allowed value is {max_} for field: {self.name}.'
             )
 
@@ -137,14 +137,17 @@ class Field(Column):
         return value
 
 
-def relationship(*args, json=None, protected=None, **kwargs):
+def relationship(*args, json=None, protected=None, readonly=True, **kwargs):
     info = dict()
 
-    if json:
+    if json is not None:
         info['json'] = json
 
-    if protected:
+    if protected is not None:
         info['protected'] = protected
+
+    if readonly is not None:
+        info['readonly'] = readonly
 
     return sa_relationship(*args, info=info, **kwargs)
 

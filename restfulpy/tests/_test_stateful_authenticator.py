@@ -8,7 +8,7 @@ from restfulpy.authentication import StatefulAuthenticator
 from restfulpy.authorization import authorize
 from restfulpy.principal import JwtPrincipal, JwtRefreshToken
 from restfulpy.tests.helpers import WebAppTestCase
-from restfulpy.testing import MockupApplication
+from restfulpy.mockup import MockupApplication
 
 session_info_test_cases = [
     {

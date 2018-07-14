@@ -3,8 +3,8 @@ from os.path import abspath, exists, join, dirname
 from appdirs import user_config_dir
 from sqlalchemy.exc import SQLAlchemyError
 
-from nanohttp import Application as NanohttpApplication, Controller, HttpStatus, \
-    HttpInternalServerError, settings
+from nanohttp import Application as NanohttpApplication, Controller, \
+    HTTPStatus, HTTPInternalServerError, settings
 from .cli.main import MainLauncher
 from ..authentication import Authenticator
 from ..configuration import configure
@@ -14,22 +14,28 @@ from ..orm import init_model, create_engine, DBSession
 
 
 class Application(NanohttpApplication):
-    builtin_configuration = None
+    __configuration__ = None
     __logger__ = get_logger()
     __authenticator__ = None
     __configuration_cipher__ = None
     engine = None
 
-    def __init__(self, name: str, root: Controller, root_path='.', version='0.1.0-dev.0',
-                 process_name=None, authenticator=None):
+    def __init__(self, name: str, root: Controller, root_path='.',
+                 version='0.1.0-dev.0', process_name=None, authenticator=None,
+                 configuration=None):
         super(Application, self).__init__(root=root)
         self.process_name = process_name or name
         self.version = version
         self.root_path = abspath(root_path)
         self.name = name
         self.cli_main = MainLauncher(self)
+
+        if configuration:
+            self.__configuration__ = configuration
+
         if authenticator:
             self.__authenticator__ = authenticator
+
         elif self.__authenticator__ is None:
             self.__authenticator__ = Authenticator()
 
@@ -37,8 +43,8 @@ class Application(NanohttpApplication):
         if isinstance(ex, SQLAlchemyError):
             ex = SqlError(ex)
             self.__logger__.exception(str(ex))
-        if not isinstance(ex, HttpStatus):
-            ex = HttpInternalServerError('Internal server error')
+        if not isinstance(ex, HTTPStatus):
+            ex = HTTPInternalServerError('Internal server error')
             self.__logger__.exception('Internal server error')
         return super()._handle_exception(ex)
 
@@ -52,7 +58,7 @@ class Application(NanohttpApplication):
         if context:
             _context.update(context)
 
-        configure(config=self.builtin_configuration, context=_context, **kwargs)
+        configure(config=self.__configuration__, context=_context, **kwargs)
 
         files = ([files] if isinstance(files, str) else files) or []
         local_config_file = join(user_config_dir(), '%s.yml' % self.name)
@@ -75,9 +81,12 @@ class Application(NanohttpApplication):
         """
         pass
 
-    def initialize_models(self, session=None):
-        self.engine = create_engine()
-        init_model(self.engine, session=session)
+    def initialize_orm(self, engine=None):
+        if engine is None:
+            engine = create_engine()
+
+        self.engine = engine
+        init_model(engine)
 
     # Hooks
     def begin_request(self):

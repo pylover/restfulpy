@@ -1,11 +1,11 @@
 import unittest
 
 from sqlalchemy import Unicode
-from nanohttp import settings, HttpConflict
+from nanohttp import settings, HTTPConflict
 
 from restfulpy.orm import DeclarativeBase, DBSession, Field, SoftDeleteMixin
 from restfulpy.tests.helpers import WebAppTestCase
-from restfulpy.testing import MockupApplication
+from restfulpy.mockup import MockupApplication
 
 
 class SoftDeleteCheckingModel(SoftDeleteMixin, DeclarativeBase):
@@ -55,7 +55,7 @@ class SoftDeleteCheckingModelTestCase(WebAppTestCase):
         self.assertEqual(SoftDeleteCheckingModel.exclude_deleted().count(), 1)
 
         DBSession.delete(instance)
-        self.assertRaises(HttpConflict, DBSession.commit)
+        self.assertRaises(HTTPConflict, DBSession.commit)
 
 
 if __name__ == '__main__':  # pragma: no cover

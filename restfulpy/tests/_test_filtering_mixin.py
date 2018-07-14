@@ -1,11 +1,11 @@
 import unittest
 
 from sqlalchemy import Integer, Unicode
-from nanohttp import settings, HttpBadRequest
+from nanohttp import settings, HTTPBadRequest
 from nanohttp.contexts import Context
 
 from restfulpy.tests.helpers import WebAppTestCase
-from restfulpy.testing import MockupApplication
+from restfulpy.mockup import MockupApplication
 from restfulpy.orm import DeclarativeBase, Field, DBSession, FilteringMixin
 
 
@@ -45,7 +45,7 @@ class FilteringMixinTestCase(WebAppTestCase):
         # Bad Value
         with Context({'QUERY_STRING': 'id=1'}, self.application) as context:
             context.query['id'] = 1
-            self.assertRaises(HttpBadRequest, FilteringObject.filter_by_request)
+            self.assertRaises(HTTPBadRequest, FilteringObject.filter_by_request)
 
         # IN
         with Context({'QUERY_STRING': 'id=IN(1,2,3)'}, self.application):
@@ -57,7 +57,7 @@ class FilteringMixinTestCase(WebAppTestCase):
 
         # IN (error)
         with Context({'QUERY_STRING': 'id=IN()'}, self.application):
-            self.assertRaises(HttpBadRequest, FilteringObject.filter_by_request)
+            self.assertRaises(HTTPBadRequest, FilteringObject.filter_by_request)
 
         # Between
         with Context({'QUERY_STRING': 'id=BETWEEN(1,3)'}, self.application):

@@ -5,7 +5,7 @@ from os.path import dirname, join
 
 from restfulpy.datetimehelpers import parse_datetime, format_datetime
 from restfulpy.configuration import configure, settings
-from restfulpy.testing import mockup_localtimezone
+from restfulpy.mockup import mockup_localtimezone
 
 
 class DateTimeParserFormatterTestCase(unittest.TestCase):

@@ -1,16 +1,22 @@
-import unittest
+import pytest
 
-from nanohttp import json, settings
+from nanohttp import json
 from sqlalchemy import Unicode, Integer
+from bddrest.authoring import response
 
+from restfulpy.testing import ApplicableTestCase
 from restfulpy.controllers import JsonPatchControllerMixin, ModelRestController
-from restfulpy.orm import commit, DeclarativeBase, Field, DBSession, FilteringMixin, PaginationMixin, OrderingMixin, \
-    ModifiedMixin
-from restfulpy.tests.helpers import WebAppTestCase
-from restfulpy.testing import MockupApplication
+from restfulpy.orm import commit, DeclarativeBase, Field, DBSession, \
+    FilteringMixin, PaginationMixin, OrderingMixin, ModifiedMixin
 
 
-class SqlErrorCheckingModel(ModifiedMixin, FilteringMixin, PaginationMixin, OrderingMixin, DeclarativeBase):
+class SqlErrorCheckingModel(
+    ModifiedMixin,
+    FilteringMixin,
+    PaginationMixin,
+    OrderingMixin,
+    DeclarativeBase
+):
     __tablename__ = 'sql_error_checking_model'
 
     id = Field(Integer, primary_key=True)
@@ -33,37 +39,33 @@ class Root(JsonPatchControllerMixin, ModelRestController):
     def get(self, title: str=None):
         query = SqlErrorCheckingModel.query
         if title:
-            return query.filter(SqlErrorCheckingModel.title == title).one_or_none()
+            return query.filter(SqlErrorCheckingModel.title == title)\
+                .one_or_none()
         return query
 
 
-class SqlExceptionsTestCase(WebAppTestCase):
-    application = MockupApplication('MockupApplication', Root())
-    __configuration__ = '''
-    db:
-      url: sqlite://    # In memory DB
-      echo: false
-    '''
-
-    @classmethod
-    def configure_app(cls):
-        cls.application.configure(force=True)
-        settings.merge(cls.__configuration__)
+class TestSqlExceptions(ApplicableTestCase):
+    __controller_factory__ = Root
 
     def test_sql_errors(self):
-        resp, ___ = self.request('ALL', 'POST', '/', params=dict(title='test'))
-        self.assertEqual(resp['title'], 'test')
+        with self.given(
+                'Testing SQL exceptions',
+                '/',
+                'POST',
+                form=dict(title='test')
+            ):
+            assert response.json['title'] == 'test'
 
-        self.max_diff = None
+        return
         # unique_violation
-        self.request(
+        request(
             'ALL',
             'POST',
             '/',
             params=dict(title='test'),
-            expected_status='''409 unique_violation ERROR:  duplicate key value violates unique constraint "sql_error_checking_model_title_key"\nDETAIL:  Key (title)=(test) already exists.\n''',
+            expected_status='''409 unique_violation ERROR:  duplicate\
+            key value violates unique constraint \
+            "sql_error_checking_model_title_key"\nDETAIL:\
+            Key (title)=(test) already exists.\n''',
         )
 
-
-if __name__ == '__main__':  # pragma: no cover
-    unittest.main()

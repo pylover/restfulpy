@@ -5,7 +5,7 @@ from nanohttp import settings
 from restfulpy.orm import DBSession, Field, FakeJson
 from restfulpy.messaging import BaseEmail, create_messenger
 from restfulpy.tests.helpers import WebAppTestCase
-from restfulpy.testing import MockupApplication
+from restfulpy.mockup import MockupApplication
 
 
 class Welcome(BaseEmail):
@@ -35,7 +35,7 @@ class MessagingModelTestCase(WebAppTestCase):
 
     messaging:
       default_sender: test@example.com
-      default_messenger: restfulpy.testing.MockupMessenger
+      default_messenger: restfulpy.mockup.MockupMessenger
     '''
 
     @classmethod

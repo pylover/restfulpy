@@ -96,3 +96,4 @@ class DatabaseManager(AbstractDatabaseManager):
             raise ValueError('Unsupported database url: %s' % url)
 
         return manager_class(*args, **kwargs)
+

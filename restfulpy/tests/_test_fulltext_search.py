@@ -4,7 +4,7 @@ from sqlalchemy import Integer, Unicode
 from nanohttp import settings
 
 from restfulpy.tests.helpers import WebAppTestCase
-from restfulpy.testing import MockupApplication
+from restfulpy.mockup import MockupApplication
 from restfulpy.orm import DeclarativeBase, Field, FullTextSearchMixin, fts_escape, to_tsvector
 
 

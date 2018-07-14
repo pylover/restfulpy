@@ -1,16 +1,10 @@
-
-import unittest
 from os.path import dirname, abspath, join
 
 from nanohttp import action
+from bddrest.authoring import response, when
 
 from restfulpy.controllers import RootController
-from restfulpy.tests.helpers import WebAppTestCase
-from restfulpy.testing import MockupApplication
-
-
-HERE = abspath(dirname(__file__))
-DATA_DIR = join(HERE, 'data')
+from restfulpy.testing import ApplicableTestCase
 
 
 class Root(RootController):
@@ -20,17 +14,15 @@ class Root(RootController):
         return 'Index'
 
 
-class ApplicationTestCase(WebAppTestCase):
-    application = MockupApplication('MockupApplication', Root())
+class TestApplication(ApplicableTestCase):
+    __controller_factory__ = Root
 
     def test_index(self):
-        response, headers = self.request('ALL', 'GET', '/')
-        self.assertEqual(response, b'Index')
+        with self.given('Test application root', '/', 'GET'):
+            assert response.status == '200 OK'
+            assert response.body == b'Index'
 
     def test_options(self):
-        response, headers = self.request('ALL', 'OPTIONS', '/')
-        self.assertEqual(headers['Cache-Control'], 'no-cache,no-store')
+        with self.given('Test OPTIONS verb', '/', 'OPTIONS'):
+            assert response.headers['Cache-Control'] == 'no-cache,no-store'
 
-
-if __name__ == '__main__':  # pragma: no cover
-    unittest.main()

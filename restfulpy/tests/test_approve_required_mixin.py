@@ -1,12 +1,6 @@
-import unittest
-
 from sqlalchemy import Integer, Unicode
-from nanohttp import settings
 
-from restfulpy.tests.helpers import WebAppTestCase
-from restfulpy.testing import MockupApplication
-from restfulpy.orm import DeclarativeBase, Field, DBSession, \
-    ApproveRequiredMixin
+from restfulpy.orm import DeclarativeBase, Field, ApproveRequiredMixin
 
 
 class ApproveRequiredObject(ApproveRequiredMixin, DeclarativeBase):
@@ -16,51 +10,54 @@ class ApproveRequiredObject(ApproveRequiredMixin, DeclarativeBase):
     title = Field(Unicode(50))
 
 
-class ApproveRequiredMixinTestCase(WebAppTestCase):
-    application = MockupApplication('MockupApplication', None)
-    __configuration__ = '''
-    db:
-      url: sqlite://    # In memory DB
-      echo: false
-    '''
+def test_approve_required_mixin(db):
+    session = db(expire_on_commit=True)
 
-    @classmethod
-    def configure_app(cls):
-        cls.application.configure(force=True)
-        settings.merge(cls.__configuration__)
+    object1 = ApproveRequiredObject(
+        title='object 1',
+    )
 
-    def test_approve_required_mixin(self):
-        # noinspection PyArgumentList
-        object1 = ApproveRequiredObject(
-            title='object 1',
-        )
+    session.add(object1)
+    session.commit()
+    assert not object1.is_approved
+    assert session.query(ApproveRequiredObject)\
+        .filter(ApproveRequiredObject.is_approved).count() == 0
 
-        DBSession.add(object1)
-        DBSession.commit()
-        self.assertFalse(object1.is_approved)
-        self.assertEqual(DBSession.query(ApproveRequiredObject).filter(ApproveRequiredObject.is_approved).count(), 0)
+    object1.is_approved = True
+    assert object1.is_approved
+    session.commit()
 
-        object1.is_approved = True
-        self.assertTrue(object1.is_approved)
-        DBSession.commit()
-        object1 = DBSession.query(ApproveRequiredObject).one()
-        self.assertTrue(object1.is_approved)
+    object1 = session.query(ApproveRequiredObject).one()
+    assert  object1.is_approved
 
-        json = object1.to_dict()
-        self.assertIn('isApproved', json)
+    json = object1.to_dict()
+    assert 'isApproved' in json
 
-        self.assertEqual(DBSession.query(ApproveRequiredObject).filter(ApproveRequiredObject.is_approved).count(), 1)
-        self.assertEqual(ApproveRequiredObject.filter_approved().count(), 1)
+    assert  session.query(ApproveRequiredObject)\
+        .filter(ApproveRequiredObject.is_approved).count() == 1
 
-        self.assertFalse(ApproveRequiredObject.import_value(ApproveRequiredObject.is_approved, 'false'))
-        self.assertFalse(ApproveRequiredObject.import_value(ApproveRequiredObject.is_approved, 'FALSE'))
-        self.assertFalse(ApproveRequiredObject.import_value(ApproveRequiredObject.is_approved, 'False'))
-        self.assertTrue(ApproveRequiredObject.import_value(ApproveRequiredObject.is_approved, 'true'))
-        self.assertTrue(ApproveRequiredObject.import_value(ApproveRequiredObject.is_approved, 'TRUE'))
-        self.assertTrue(ApproveRequiredObject.import_value(ApproveRequiredObject.is_approved, 'True'))
+    assert ApproveRequiredObject.filter_approved(session=session).count() == 1
 
-        self.assertEqual(ApproveRequiredObject.import_value(ApproveRequiredObject.title, 'title'), 'title')
+    assert not ApproveRequiredObject.import_value(
+        ApproveRequiredObject.is_approved, 'false'
+    )
+    assert not ApproveRequiredObject.import_value(
+        ApproveRequiredObject.is_approved, 'FALSE'
+    )
+    assert not ApproveRequiredObject.import_value(
+        ApproveRequiredObject.is_approved, 'False'
+    )
+    assert ApproveRequiredObject.import_value(
+        ApproveRequiredObject.is_approved, 'true'
+    )
+    assert ApproveRequiredObject.import_value(
+        ApproveRequiredObject.is_approved, 'TRUE'
+    )
+    assert ApproveRequiredObject.import_value(
+        ApproveRequiredObject.is_approved, 'True'
+    )
 
+    assert ApproveRequiredObject.import_value(
+        ApproveRequiredObject.title, 'title'
+    ) == 'title'
 
-if __name__ == '__main__':  # pragma: no cover
-    unittest.main()

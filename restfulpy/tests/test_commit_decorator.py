@@ -1,13 +1,11 @@
 
-import unittest
-
+from bddrest import response, when
 from nanohttp import json, RestController, context, settings
 from sqlalchemy import Unicode, Integer
 
 from restfulpy.controllers import JsonPatchControllerMixin
 from restfulpy.orm import commit, DeclarativeBase, Field, DBSession
-from restfulpy.tests.helpers import WebAppTestCase
-from restfulpy.testing import MockupApplication
+from restfulpy.testing import ApplicableTestCase
 
 
 class CommitCheckingModel(DeclarativeBase):
@@ -28,7 +26,8 @@ class Root(JsonPatchControllerMixin, RestController):
 
     @json
     def get(self, title: str=None):
-        m = DBSession.query(CommitCheckingModel).filter(CommitCheckingModel.title == title).one()
+        m = DBSession.query(CommitCheckingModel).\
+            filter(CommitCheckingModel.title == title).one()
         return m
 
     @json
@@ -40,37 +39,38 @@ class Root(JsonPatchControllerMixin, RestController):
         raise Exception()
 
 
-class CommitDecoratorTestCase(WebAppTestCase):
-    application = MockupApplication('MockupApplication', Root())
-    __configuration__ = '''
-    db:
-      url: sqlite://    # In memory DB
-      echo: false
-    '''
-
-    @classmethod
-    def configure_app(cls):
-        cls.application.configure(force=True)
-        settings.merge(cls.__configuration__)
+class TestCommitDecorator(ApplicableTestCase):
+    __controller_factory__ = Root
 
     def test_commit_decorator(self):
-        self.request('ALL', 'POST', '/', params=dict(title='first'))
-        resp, ___ = self.request('ALL', 'GET', '/first')
-        self.assertEqual(resp['title'], 'first')
-        self.assertEqual(resp['id'], 1)
+        with self.given(
+            'Testing the operation of commit decorator',
+            verb='POST',
+            url='/',
+            form=dict(title='first')
+        ):
+            when('Geting the result of appling commit decorator',
+                 verb='GET',
+                 url='/first'
+                 )
+            assert response.json['title'] == 'first'
+            assert response.json['id'] == 1
 
     def test_commit_decorator_and_json_patch(self):
-        # The commit decorator should not to do anything if the request is a jsonpatch.
-        self.request('ALL', 'PATCH', '/', json=[
-            dict(op='post', path='', value=dict(title='second')),
-            dict(op='post', path='', value=dict(title='third'))
-        ])
-        resp, ___ = self.request('ALL', 'GET', '/third')
-        self.assertEqual(resp['title'], 'third')
+        with self.given(
+            'The commit decorator should not to do anything if the request\
+            is a jsonpatch.',
+            verb='PATCH',
+            url='/',
+            content_type='application/json',
+            form=[
+                dict(op='post', path='', value=dict(title='second')),
+                dict(op='post', path='', value=dict(title='third'))
+            ]):
+            when('Inset form parameter to body', verb='GET', url='/third')
+            assert response.json['title'] == 'third'
 
     def test_rollback(self):
-        self.request('ALL', 'ERROR', '/', expected_status=500)
+        with self.given('Raise exception', verb='ERROR', url='/'):
+            assert response.status == 500
 
-
-if __name__ == '__main__':  # pragma: no cover
-    unittest.main()

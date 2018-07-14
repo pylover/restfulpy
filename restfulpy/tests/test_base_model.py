@@ -2,15 +2,16 @@ import unittest
 from datetime import date, datetime
 
 from nanohttp import json, settings, context
-from sqlalchemy import Unicode, Integer, Date, Float, ForeignKey, Boolean, DateTime
+from sqlalchemy import Unicode, Integer, Date, Float, ForeignKey, Boolean, \
+    DateTime
 from sqlalchemy.ext.associationproxy import association_proxy
+from bddrest import response, when, Append, Update
 
 from restfulpy.controllers import JsonPatchControllerMixin, ModelRestController
 from restfulpy.orm import commit, DeclarativeBase, Field, DBSession, \
     composite, FilteringMixin, PaginationMixin, OrderingMixin, relationship, \
     ModifiedMixin, ActivationMixin, synonym
-from restfulpy.tests.helpers import WebAppTestCase
-from restfulpy.testing import MockupApplication
+from restfulpy.testing import ApplicableTestCase
 
 
 class FullName(object):  # pragma: no cover
@@ -132,75 +133,71 @@ class Root(JsonPatchControllerMixin, ModelRestController):
         )
 
 
-class BaseModelTestCase(WebAppTestCase):
-    application = MockupApplication('MockupApplication', Root())
-    __configuration__ = '''
-    db:
-      url: sqlite://    # In memory DB
-      echo: false
-    '''
-
-    @classmethod
-    def configure_app(cls):
-        cls.application.configure(force=True)
-        settings.merge(cls.__configuration__)
-        settings.merge('''
-        logging:
-          loggers:
-            default:
-              level: debug
-        ''')
+class TestBaseModel(ApplicableTestCase):
+    __controller_factory__ = Root
 
     def test_update_from_request(self):
-        resp, ___ = self.request(
-            'ALL', 'POST', '/', params=dict(
-                title='test',
-                firstName='test',
-                lastName='test',
-                email='test@example.com',
-                password='123456',
-                birth='2001-01-01',
-                weight=1.1,
-                visible='false',
-                lastLoginTime='2017-10-10T15:44:30.000',
-                isActive=True
-            ),
-        )
-        self.assertEqual(resp['title'], 'test')
-        self.assertNotIn('avatar', resp)
-        self.assertNotIn('_avatar', resp)
-        self.assertIn('avatarImage', resp)
+        with self.given(
+                'Posting a form',
+                verb='POST',
+                form=dict(
+                    title='test',
+                    firstName='test',
+                    lastName='test',
+                    email='test@example.com',
+                    password='123456',
+                    birth='2001-01-01',
+                    weight=1.1,
+                    visible='false',
+                    lastLoginTime='2017-10-10T15:44:30.000',
+                    isActive=True
+                )):
+            assert response.json['title'] == 'test'
+            assert 'avatar' not in response.json
+            assert '_avatar' not in response.json
+            assert 'avatarImage' in response.json
 
-        resp, ___ = self.request('ALL', 'GET', '/', query=dict(take=1))
-        self.assertEqual(len(resp), 1)
-        self.assertEqual(resp[0]['title'], 'test')
-        self.assertEqual(resp[0]['visible'], False)
+            # 400 for sending relationship attribute
+            when(
+                'Sending a relationship attribute',
+                form=Update(email='test2@example.com', books=[])
+            )
+            assert response.status == '200 OK'
+            assert {
+                'Keywords': [{'id': 2, 'keyword': 'Hello'}],
+                'birth': '2001-01-01',
+                'books': [],
+                'email': 'test2@example.com',
+                'firstName': 'test',
+                'fullName': 'test test',
+                'id': 2,
+                'lastName': 'test',
+                'title': 'test',
+                'weight': '1.1000000000'
+            }.items() <= response.json.items()
 
-        # 404
-        self.request('ALL', 'GET', '/non-existence-user', expected_status=404)
 
-        # Plain dictionary
-        resp, ___ = self.request('ALL', 'GET', '/me')
-        self.assertEqual(resp['title'], 'me')
+    def test_pagination(self):
+        with self.given(
+                'Getting a single object using pagination',
+                query=dict(take=1)
+            ):
 
-        # 400 for sending relationship attribute
-        self.request(
-            'ALL', 'POST', '/', json=dict(
-                title='test',
-                firstName='test',
-                lastName='test',
-                email='test@example.com',
-                password='123456',
-                birth='2001-01-01',
-                weight=1.1,
-                visible='false',
-                lastLoginTime='2017-10-10T15:44:30.000',
-                isActive=True,
-                books=[]
-            ),
+            assert len(response.json) == 1
+            assert response.json[0]['title'] == 'test'
+            assert response.json[0]['visible'] == False
 
-            expected_status=400
-        )
+            when(
+                'Trying to get an non-existence db object',
+                '/non-existence-user'
+            )
+            assert response.status == 404
+
+            when('Getting a plain dictionary', '/me')
+            assert response.json == {'title': 'me'}
+
+'''
+
 
     def test_iter_columns(self):
         columns = {c.key: c for c in Member.iter_columns(relationships=False, synonyms=False, composites=False)}
@@ -403,7 +400,4 @@ class BaseModelTestCase(WebAppTestCase):
             ),
         )
         self.assertEqual(resp['birth'], '2017-12-16')
-
-
-if __name__ == '__main__':  # pragma: no cover
-    unittest.main()
+'''

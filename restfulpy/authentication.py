@@ -5,7 +5,7 @@ import ujson
 import itsdangerous
 import redis
 import user_agents
-from nanohttp import context, HttpBadRequest, settings, HttpUnauthorized
+from nanohttp import context, HTTPBadRequest, settings, HTTPUnauthorized
 
 from restfulpy.principal import JwtPrincipal, JwtRefreshToken
 
@@ -95,7 +95,7 @@ class Authenticator:
             return self.bad()
 
         if settings.jwt.refresh_token.secure and context.request_scheme != 'https':
-            raise HttpBadRequest('not allowed')
+            raise HTTPBadRequest('not allowed')
 
         if morsel.value is None or not morsel.value.strip():
             return self.bad()
@@ -112,7 +112,7 @@ class Authenticator:
             self.bad()
         except itsdangerous.BadData:
             self.bad()
-            raise HttpBadRequest()
+            raise HTTPBadRequest()
 
     def setup_identity_response_header(self, principal):
         if self.identity_response_header in context.response_headers:
@@ -157,11 +157,11 @@ class Authenticator:
                 self.try_refresh_token(session_id)
             else:
                 self.bad()
-                raise HttpUnauthorized()
+                raise HTTPUnauthorized()
         except itsdangerous.BadData:
             # The token is Malformed
             self.bad()
-            raise HttpBadRequest()
+            raise HTTPBadRequest()
 
     def login(self, credentials):
         member = self.validate_credentials(credentials)

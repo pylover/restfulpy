@@ -1,23 +1,9 @@
 import pytest
 
-
-# TODO: This line should be uncommented when the TestCase class is moved into
-# the testing sub-package
-#from restfulpy.testing import TestCase
-
-#
-#@pytest.fixture()
-#def setup_teardown():
-#
-#
-#@pytest.mark.usefixtures(setup_teardown)
+from restfulpy.testing import TestCase
 
 
-class TestCase:
-    pass
-
-
-class TestFoo(TestCase):
+class TestCaseFoo(TestCase):
     _setup_call_count = 0
     _teardown_call_count = 0
 
@@ -35,7 +21,7 @@ class TestFoo(TestCase):
 
     @pytest.mark.last
     def test_setup_teardown_second(self):
-        """ The reason of this test case is to ensure the setup and teardown
+        """The reason of this test case is to ensure the setup and teardown
         methods was called exactly once
         """
         assert self._setup_call_count == 1
@@ -43,5 +29,5 @@ class TestFoo(TestCase):
 
 
 def test_last():
-    assert TestFoo._teardown_call_count == 1
+    assert TestCaseFoo._teardown_call_count == 1
 

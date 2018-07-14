@@ -1,11 +1,7 @@
-import unittest
 
 from sqlalchemy import Unicode
-from nanohttp import settings
 
-from restfulpy.orm import DeclarativeBase, DBSession, Field, ModifiedMixin
-from restfulpy.tests.helpers import WebAppTestCase
-from restfulpy.testing import MockupApplication
+from restfulpy.orm import DeclarativeBase, Field, ModifiedMixin
 
 
 class ModificationCheckingModel(ModifiedMixin, DeclarativeBase):
@@ -14,48 +10,34 @@ class ModificationCheckingModel(ModifiedMixin, DeclarativeBase):
     title = Field(Unicode(50), primary_key=True)
 
 
-class ModificationCheckingModelTestCase(WebAppTestCase):
-    application = MockupApplication('MockupApplication', None)
-    __configuration__ = '''
-    db:
-      url: sqlite://    # In memory DB
-      echo: false
-    '''
+def test_modified_mixin(db):
+    session = db()
 
-    @classmethod
-    def configure_app(cls):
-        cls.application.configure(force=True)
-        settings.merge(cls.__configuration__)
+    # noinspection PyArgumentList
+    instance = ModificationCheckingModel(
+        title='test title',
+    )
 
-    def test_modified_mixin(self):
+    session.add(instance)
+    session.commit()
 
-        # noinspection PyArgumentList
-        instance = ModificationCheckingModel(
-            title='test title',
-        )
+    assert instance.modified_at is None
+    assert instance.created_at is not None
+    assert instance.last_modification_time == instance.created_at
 
-        DBSession.add(instance)
-        DBSession.commit()
-        self.assertIsNone(instance.modified_at)
-        self.assertIsNotNone(instance.created_at)
-        self.assertEqual(instance.last_modification_time, instance.created_at)
+    instance = session.query(ModificationCheckingModel).one()
+    assert instance.modified_at is None
+    assert instance.created_at is not None
+    assert instance.last_modification_time == instance.created_at
 
-        instance = DBSession.query(ModificationCheckingModel).one()
-        self.assertIsNone(instance.modified_at)
-        self.assertIsNotNone(instance.created_at)
-        self.assertEqual(instance.last_modification_time, instance.created_at)
+    instance.title = 'Edited title'
+    session.commit()
+    assert instance.modified_at is not None
+    assert instance.created_at is not None
+    assert instance.last_modification_time == instance.modified_at
 
-        instance.title = 'Edited title'
-        DBSession.commit()
-        self.assertIsNotNone(instance.modified_at)
-        self.assertIsNotNone(instance.created_at)
-        self.assertEqual(instance.last_modification_time, instance.modified_at)
+    instance = session.query(ModificationCheckingModel).one()
+    assert instance.modified_at is not None
+    assert instance.created_at is not None
+    assert instance.last_modification_time == instance.modified_at
 
-        instance = DBSession.query(ModificationCheckingModel).one()
-        self.assertIsNotNone(instance.modified_at)
-        self.assertIsNotNone(instance.created_at)
-        self.assertEqual(instance.last_modification_time, instance.modified_at)
-
-
-if __name__ == '__main__':  # pragma: no cover
-    unittest.main()

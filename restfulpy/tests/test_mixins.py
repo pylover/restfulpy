@@ -1,70 +1,58 @@
-import unittest
 from datetime import datetime
 
 from sqlalchemy import Integer, Unicode, not_
 from sqlalchemy.sql.expression import desc, asc
 
-from nanohttp import configure
-
-from restfulpy.orm import DeclarativeBase, ActivationMixin, PaginationMixin, FilteringMixin, \
-    OrderingMixin, Field, create_engine, init_model, setup_schema, DBSession
+from restfulpy.orm import DeclarativeBase, ActivationMixin, PaginationMixin,\
+    FilteringMixin, OrderingMixin, Field
 
 
-class Student(DeclarativeBase, ActivationMixin, PaginationMixin, FilteringMixin, OrderingMixin):
+class Student(
+    DeclarativeBase,
+    ActivationMixin,
+    PaginationMixin,
+    FilteringMixin,
+    OrderingMixin
+):
     __tablename__ = 'student'
     id = Field(Integer, primary_key=True)
     name = Field(Unicode(100), max_length=90)
 
 
-class MixinTestCase(unittest.TestCase):
-    """
-    This unittest is wrote to test the combination of mixins
-    """
+"""
+This unittest is wrote to test the combination of mixins
+"""
 
-    __configuration__ = '''
-        db:
-          url: sqlite://    # In memory DB
-          echo: false
-        '''
+def test_activation_mixin(db):
+    session = db()
 
-    @classmethod
-    def setUpClass(cls):
-        configure(init_value=cls.__configuration__, force=True)
-        cls.engine = create_engine()
-        init_model(cls.engine)
-        setup_schema()
+    activated_student = Student()
+    activated_student.name = 'activated-student'
+    activated_student.activated_at = datetime.utcnow()
+    session.add(activated_student)
 
-    def test_activation_mixin(self):
-        activated_student = Student()
-        activated_student.name = 'activated-student'
-        activated_student.activated_at = datetime.utcnow()
-        DBSession.add(activated_student)
+    deactivated_student = Student()
+    deactivated_student.name = 'deactivated-student'
+    deactivated_student.activated_at = None
+    session.add(deactivated_student)
 
-        deactivated_student = Student()
-        deactivated_student.name = 'deactivated-student'
-        deactivated_student.activated_at = None
-        DBSession.add(deactivated_student)
+    session.commit()
 
-        DBSession.commit()
+    # Test ordering:
+    student_list = Student.query.order_by(desc(Student.is_active)).all()
+    assert student_list[0].activated_at is not None
+    assert student_list[-1].activated_at is None
 
-        # Test ordering:
-        student_list = Student.query.order_by(desc(Student.is_active)).all()
-        self.assertIsNotNone(student_list[0].activated_at)
-        self.assertIsNone(student_list[-1].activated_at)
+    student_list = Student.query.order_by(asc(Student.is_active)).all()
+    assert student_list[-1].activated_at is not None
+    assert student_list[0].activated_at is None
 
-        student_list = Student.query.order_by(asc(Student.is_active)).all()
-        self.assertIsNotNone(student_list[-1].activated_at)
-        self.assertIsNone(student_list[0].activated_at)
+    # Test filtering:
+    student_list = Student.query.filter(Student.is_active).all()
+    for student in student_list:
+       assert student.activated_at is not None
 
-        # Test filtering:
-        student_list = Student.query.filter(Student.is_active).all()
-        for student in student_list:
-            self.assertIsNotNone(student.activated_at)
+    student_list = Student.query.filter(not_(Student.is_active)).all()
+    for student in student_list:
+        assert student.activated_at is None
 
-        student_list = Student.query.filter(not_(Student.is_active)).all()
-        for student in student_list:
-            self.assertIsNone(student.activated_at)
-
-
-if __name__ == '__main__':  # pragma: no cover
-    unittest.main()

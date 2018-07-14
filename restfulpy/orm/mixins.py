@@ -5,11 +5,10 @@ from sqlalchemy import DateTime, Integer, between, desc
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.sql.expression import nullslast, nullsfirst
 from sqlalchemy.events import event
-from nanohttp import context, HttpBadRequest, HttpConflict, settings
+from nanohttp import context, HTTPBadRequest, HTTPConflict, settings
 
 from .field import Field
 from ..utils import to_camel_case
-
 
 
 FILTERING_IN_OPERATOR_REGEX = re.compile('!?IN\((?P<items>.*)\)')
@@ -75,7 +74,7 @@ class SoftDeleteMixin:
 
     @staticmethod
     def before_delete(mapper, connection, target):
-        raise HttpConflict('Cannot remove this object: %s' % target)
+        raise HTTPConflict('Cannot remove this object: %s' % target)
 
     @classmethod
     def __declare_last__(cls):
@@ -110,9 +109,10 @@ class ActivationMixin:
         return self.activated_at.isnot(None)
 
     @classmethod
-    def filter_activated(cls, query=None):
-        # noinspection PyUnresolvedReferences
-        return (query or cls.query).filter(cls.is_active)
+    def filter_activated(cls, query=None, session=None):
+        if query is None:
+            query = session.query(cls) if session else cls.query
+        return query.filter(cls.is_active)
 
     @classmethod
     def import_value(cls, column, v):
@@ -179,10 +179,10 @@ class PaginationMixin:
                 or 0
             )
         except ValueError:
-            raise HttpBadRequest()
+            raise HTTPBadRequest()
 
         if take > cls.__max_take__:
-            raise HttpBadRequest()
+            raise HTTPBadRequest()
 
         context.response_headers.add_header('X-Pagination-Take', str(take))
         context.response_headers.add_header('X-Pagination-Skip', str(skip))
@@ -213,7 +213,7 @@ class FilteringMixin:
 
         import_value = getattr(cls, 'import_value')
         if not isinstance(value, str):
-            raise HttpBadRequest()
+            raise HTTPBadRequest()
 
         in_operator_match = FILTERING_IN_OPERATOR_REGEX.match(value)
         if in_operator_match:
@@ -221,7 +221,7 @@ class FilteringMixin:
             items = in_operator_match.groupdict()['items'].split(',')
             items = [i for i in items if i.strip() != '']
             if not len(items):
-                raise HttpBadRequest('Invalid query string: %s' % value)
+                raise HTTPBadRequest('Invalid query string: %s' % value)
             expression = column.in_([import_value(column, j) for j in items])
             if not_:
                 expression = ~expression
@@ -234,7 +234,7 @@ class FilteringMixin:
             groups = between_operator_match.groupdict()
             start, end = groups['min'].strip(), groups['max'].strip()
             if not (start or end):
-                raise HttpBadRequest('Invalid query string: %s' % value)
+                raise HTTPBadRequest('Invalid query string: %s' % value)
             expression = between(column, start, end)
             if not_:
                 expression = ~expression
@@ -330,9 +330,10 @@ class ApproveRequiredMixin:
         return super().import_value(column, v)
 
     @classmethod
-    def filter_approved(cls, query=None):
-        # noinspection PyUnresolvedReferences
-        return (query or cls.query).filter(cls.is_approved)
+    def filter_approved(cls, query=None, session=None):
+        if query is None:
+            query = session.query(cls) if session else cls.query
+        return query.filter(cls.is_approved)
 
 
 class FullTextSearchMixin:
@@ -345,3 +346,4 @@ class FullTextSearchMixin:
             cls.__ts_vector__.match(expressions)
         )
         return query
+

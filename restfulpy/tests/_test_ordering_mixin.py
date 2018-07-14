@@ -7,7 +7,7 @@ from nanohttp import settings
 from nanohttp.contexts import Context
 
 from restfulpy.tests.helpers import WebAppTestCase
-from restfulpy.testing import MockupApplication
+from restfulpy.mockup import MockupApplication
 from restfulpy.orm import DeclarativeBase, Field, DBSession, OrderingMixin
 
 

@@ -3,9 +3,8 @@ import unittest
 from sqlalchemy import Integer, Unicode
 from nanohttp import settings
 
-from restfulpy.testing import MockupApplication
-from restfulpy.orm import DeclarativeBase, Field, DBSession, ActivationMixin, AutoActivationMixin
-from restfulpy.tests.helpers import WebAppTestCase
+from restfulpy.orm import DeclarativeBase, Field, ActivationMixin, \
+    AutoActivationMixin
 
 
 class ActiveObject(ActivationMixin, DeclarativeBase):
@@ -22,68 +21,63 @@ class AutoActiveObject(AutoActivationMixin, DeclarativeBase):
     title = Field(Unicode(50))
 
 
-class ActivationMixinTestCase(WebAppTestCase):
-    application = MockupApplication('MockupApplication', None)
-    __configuration__ = '''
-    db:
-      url: sqlite://    # In memory DB
-      echo: false
-    '''
+def test_activation_mixin(db):
+    session = db(expire_on_commit=False)
 
-    @classmethod
-    def configure_app(cls):
-        cls.application.configure(force=True)
-        settings.merge(cls.__configuration__)
+    object1 = ActiveObject(
+        title='object 1',
+    )
 
-    def test_activation_mixin(self):
-        # noinspection PyArgumentList
-        object1 = ActiveObject(
-            title='object 1',
-        )
+    session.add(object1)
+    session.commit()
+    assert not object1.is_active
+    assert session.query(ActiveObject)\
+        .filter(ActiveObject.is_active)\
+        .count() == 0
 
-        DBSession.add(object1)
-        DBSession.commit()
-        self.assertFalse(object1.is_active)
-        self.assertEqual(DBSession.query(ActiveObject).filter(ActiveObject.is_active).count(), 0)
+    object1.is_active = True
+    assert object1.is_active
+    session.commit()
 
-        object1.is_active = True
-        self.assertTrue(object1.is_active)
-        DBSession.commit()
-        object1 = DBSession.query(ActiveObject).one()
-        self.assertTrue(object1.is_active)
+    object1 = session.query(ActiveObject).one()
+    assert object1.is_active
 
-        json = object1.to_dict()
-        self.assertIn('isActive', json)
+    assert 'isActive' in object1.to_dict()
 
-        self.assertEqual(DBSession.query(ActiveObject).filter(ActiveObject.is_active).count(), 1)
-        self.assertEqual(ActiveObject.filter_activated().count(), 1)
+    assert session.query(ActiveObject)\
+        .filter(ActiveObject.is_active)\
+        .count() == 1
+    assert ActiveObject.filter_activated(session=session).count() == 1
 
-        self.assertFalse(ActiveObject.import_value(ActiveObject.is_active, 'false'))
-        self.assertFalse(ActiveObject.import_value(ActiveObject.is_active, 'FALSE'))
-        self.assertFalse(ActiveObject.import_value(ActiveObject.is_active, 'False'))
-        self.assertTrue(ActiveObject.import_value(ActiveObject.is_active, 'true'))
-        self.assertTrue(ActiveObject.import_value(ActiveObject.is_active, 'TRUE'))
-        self.assertTrue(ActiveObject.import_value(ActiveObject.is_active, 'True'))
-        self.assertEqual(ActiveObject.import_value(ActiveObject.title, 'title'), 'title')
-
-    def test_auto_activation(self):
-        # noinspection PyArgumentList
-        object1 = AutoActiveObject(
-            title='object 1',
-        )
-
-        DBSession.add(object1)
-        DBSession.commit()
-        self.assertTrue(object1.is_active)
-        self.assertEqual(1, DBSession.query(AutoActiveObject).filter(AutoActiveObject.is_active).count())
-
-    def test_metadata(self):
-        # Metadata
-        object_metadata = ActiveObject.json_metadata()
-        self.assertIn('id', object_metadata['fields'])
-        self.assertIn('title', object_metadata['fields'])
-        self.assertIn('isActive', object_metadata['fields'])
+    assert not ActiveObject.import_value(ActiveObject.is_active, 'false')
+    assert not ActiveObject.import_value(ActiveObject.is_active, 'FALSE')
+    assert not ActiveObject.import_value(ActiveObject.is_active, 'False')
+    assert ActiveObject.import_value(ActiveObject.is_active, 'true')
+    assert ActiveObject.import_value(ActiveObject.is_active, 'TRUE')
+    assert ActiveObject.import_value(ActiveObject.is_active, 'True')
+    assert ActiveObject.import_value(ActiveObject.title, 'title') == 'title'
 
 
-if __name__ == '__main__':  # pragma: no cover
-    unittest.main()
+def test_auto_activation(db):
+    session = db()
+    object1 = AutoActiveObject(
+        title='object 1',
+    )
+
+    session.add(object1)
+    session.commit()
+    assert object1.is_active
+    assert session.query(AutoActiveObject)\
+        .filter(AutoActiveObject.is_active)\
+        .count() == 1
+
+
+def test_metadata():
+    # Metadata
+    object_metadata = ActiveObject.json_metadata()
+    fields = object_metadata['fields']
+
+    assert 'id' in fields
+    assert 'title' in fields
+    assert 'isActive' in fields
+

@@ -1,12 +1,9 @@
 
-import unittest
-
 from nanohttp import configure
 
 from restfulpy.principal import JwtPrincipal
 
-
-class PrincipalTestCase(unittest.TestCase):
+def test_principal():
     __configuration__ = '''
     jwt:
       secret: JWT-SECRET
@@ -17,52 +14,46 @@ class PrincipalTestCase(unittest.TestCase):
         algorithm: HS256
         max_age: 2678400  # 30 Days
     '''
+    configure(init_value=__configuration__, force=True)
 
-    @classmethod
-    def setUpClass(cls):
-        configure(init_value=cls.__configuration__, force=True)
+    principal = JwtPrincipal(dict(
+        email='test@example.com',
+        id=1,
+        sessionId=1,
+        roles=['admin']
+    ))
 
-    def test_principal(self):
-        principal = JwtPrincipal(dict(
-            email='test@example.com',
-            id=1,
-            sessionId=1,
-            roles=['admin']
-        ))
+    assert principal.email == 'test@example.com'
+    assert principal.id == 1
+    assert principal.session_id == 1
+    assert principal.roles == ['admin']
+    assert principal.is_in_roles('admin') is True
+    assert principal.is_in_roles('admin', 'god') is True
 
-        self.assertEqual(principal.email, 'test@example.com')
-        self.assertEqual(principal.id, 1)
-        self.assertEqual(principal.session_id, 1)
-        self.assertEqual(principal.roles, ['admin'])
-        self.assertTrue(principal.is_in_roles('admin'))
-        self.assertTrue(principal.is_in_roles('admin', 'god'))
+    encoded = principal.dump()
 
-        encoded = principal.dump()
+    principal = JwtPrincipal.load(encoded.decode())
+    assert principal.email == 'test@example.com'
+    assert principal.id == 1
+    assert principal.session_id == 1
+    assert principal.roles == ['admin']
+    assert principal.is_in_roles('admin') is True
+    assert principal.is_in_roles('admin', 'god') is True
 
-        principal = JwtPrincipal.load(encoded.decode())
-        self.assertEqual(principal.email, 'test@example.com')
-        self.assertEqual(principal.id, 1)
-        self.assertEqual(principal.session_id, 1)
-        self.assertEqual(principal.roles, ['admin'])
-        self.assertTrue(principal.is_in_roles('admin'))
-        self.assertTrue(principal.is_in_roles('admin', 'god'))
+    principal = JwtPrincipal.load(encoded.decode(), force=True)
+    assert principal.email == 'test@example.com'
+    assert principal.id == 1
+    assert principal.session_id == 1
+    assert principal.roles == ['admin']
+    assert principal.is_in_roles('admin') is True
+    assert principal.is_in_roles('admin', 'god') is True
 
-        principal = JwtPrincipal.load(encoded.decode(), force=True)
-        self.assertEqual(principal.email, 'test@example.com')
-        self.assertEqual(principal.id, 1)
-        self.assertEqual(principal.session_id, 1)
-        self.assertEqual(principal.roles, ['admin'])
-        self.assertTrue(principal.is_in_roles('admin'))
-        self.assertTrue(principal.is_in_roles('admin', 'god'))
+    principal =\
+        JwtPrincipal.load((b'Bearer %s' % encoded).decode(), force=True)
+    assert principal.email == 'test@example.com'
+    assert principal.id == 1
+    assert principal.session_id == 1
+    assert principal.roles == ['admin']
+    assert principal.is_in_roles('admin') is True
+    assert principal.is_in_roles('admin', 'god') is True
 
-        principal = JwtPrincipal.load((b'Bearer %s' % encoded).decode(), force=True)
-        self.assertEqual(principal.email, 'test@example.com')
-        self.assertEqual(principal.id, 1)
-        self.assertEqual(principal.session_id, 1)
-        self.assertEqual(principal.roles, ['admin'])
-        self.assertTrue(principal.is_in_roles('admin'))
-        self.assertTrue(principal.is_in_roles('admin', 'god'))
-
-
-if __name__ == '__main__':  # pragma: no cover
-    unittest.main()

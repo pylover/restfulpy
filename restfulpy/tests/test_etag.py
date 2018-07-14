@@ -1,11 +1,11 @@
-import unittest
 
 from sqlalchemy import Unicode
 from nanohttp import settings, json, etag, context
+from bddrest import response, when, Remove
 
-from restfulpy.orm import DeclarativeBase, DBSession, Field, ModifiedMixin, commit
-from restfulpy.tests.helpers import WebAppTestCase
-from restfulpy.testing import MockupApplication
+from restfulpy.orm import DeclarativeBase, DBSession, Field, ModifiedMixin,\
+    commit
+from restfulpy.testing import ApplicableTestCase
 from restfulpy.controllers import ModelRestController
 
 
@@ -45,77 +45,60 @@ class Root(ModelRestController):
     @EtagCheckingModel.expose
     @commit
     def put(self, title: str=None):
-        m = DBSession.query(EtagCheckingModel).filter(EtagCheckingModel.title == title).one_or_none()
+        m = DBSession.query(EtagCheckingModel)\
+            .filter(EtagCheckingModel.title == title).one_or_none()
         m.update_from_request()
         context.etag_match(m.__etag__)
         return m
 
 
-class EtagCheckingModelTestCase(WebAppTestCase):
-    application = MockupApplication('MockupApplication', Root())
-    __configuration__ = '''
-    db:
-      url: sqlite://    # In memory DB
-      echo: false
-    '''
-
-    @classmethod
-    def configure_app(cls):
-        cls.application.configure(force=True)
-        settings.merge(cls.__configuration__)
+class TestEtagCheckingModel(ApplicableTestCase):
+    __controller_factory__ = Root
 
     def test_etag_match(self):
-        resp, headers = self.request('ALL', 'POST', '/', params={
-            'title': 'etag_test'
-        })
-        self.assertIn('ETag', headers)
-        initial_etag = headers['ETag']
+        with self.given(
+            'Posting a simple form to enusre ETag header',
+            verb='POST',
+            form=dict(title= 'etag_test')
+        ):
+            assert 'ETag' in response.headers
 
-        # Getting the resource with known etag, expected 304
-        self.request(
-            'ALL', 'GET', '/etag_test',
+            initial_etag = response.headers['ETag']
+
+        with self.given(
+            'Getting the resource with known etag, expected 304',
+            url='/etag_test',
             headers={
                 'If-None-Match': initial_etag
-            },
-            expected_status=304
-        )
+            }):
+            assert response.status == 304
 
-        # Putting without the etag header, expected error: Precondition Failed
-        self.request(
-            'ALL', 'PUT', '/etag_test',
-            params={
-                'title': 'etag_test_edit1'
-            },
-            expected_status=412
-        )
+        with self.given(
+                'Putting without the etag header',
+                '/etag_test',
+                'PUT',
+                form=dict(title='etag_test_edit1'),
+            ):
+            assert response.status == 412
 
-        # Putting with the etag header, expected: success
-        resp, headers = self.request(
-            'ALL', 'PUT', '/etag_test',
-            params={
-                'title': 'etag_test_edit1'
-            },
-            headers={
-                'If-Match': initial_etag
-            }
-        )
-        self.assertIn('ETag', headers)
-        etag_after_put = headers['ETag']
-        self.assertNotEqual(initial_etag, etag_after_put)
+            when(
+                'Putting with the etag header, expected: success',
+                headers={'If-Match': initial_etag}
+            )
+            assert 'ETag' in response.headers
+            etag_after_put = response.headers['ETag']
+            assert initial_etag != etag_after_put
 
-        # Getting the resource with known etag, expected 304
-        self.request(
-            'ALL', 'GET', '/etag_test_edit1',
-            headers={
-                'If-None-Match': initial_etag
-            },
-            expected_status=200
-        )
-        self.assertIn('ETag', headers)
-        new_etag = headers['ETag']
-        self.assertNotEqual(new_etag, initial_etag)
-        self.assertEqual(new_etag, etag_after_put)
+        with self.given(
+                'Getting the resource with known etag',
+                '/etag_test_edit1',
+                headers={
+                    'If-None-Match': initial_etag
+                },
+            ):
+            assert response.status == 200
+            assert 'ETag' in response.headers
+            new_etag = response.headers['ETag']
+            assert new_etag != initial_etag
+            assert new_etag == etag_after_put
 
-
-if __name__ == '__main__':  # pragma: no cover
-    unittest.main()
