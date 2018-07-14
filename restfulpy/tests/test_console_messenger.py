@@ -1,6 +1,5 @@
 
 import io
-import unittest
 from os.path import dirname, abspath, join
 
 from nanohttp import configure
@@ -11,19 +10,16 @@ from restfulpy.messaging.providers import ConsoleMessenger
 HERE = abspath(dirname(__file__))
 
 
-class SmtpProviderTestCase(unittest.TestCase):
-    __configuration__ = '''
+class TestSmtpProvider:
+    __configuration__ = f'''
         messaging:
-            mako_modules_directory: %s
+            mako_modules_directory: {join(HERE, '../../data', 'mako_modules')}
             template_dirs:
-              - %s
-        ''' % (
-        join(HERE, '../../data', 'mako_modules'),
-        join(HERE, 'templates'),
-    )
+              - {join(HERE, 'templates')}
+        '''
 
     @classmethod
-    def setUpClass(cls):
+    def setup_class(cls):
         configure(init_value=cls.__configuration__, force=True)
 
     def test_console_messenger(self):
@@ -54,7 +50,4 @@ class SmtpProviderTestCase(unittest.TestCase):
             attachments=[attachment]
         )
 
-
-if __name__ == '__main__':  # pragma: no cover
-    unittest.main()
 
