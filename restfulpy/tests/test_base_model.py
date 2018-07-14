@@ -196,34 +196,45 @@ class TestBaseModel(ApplicableTestCase):
             when('Getting a plain dictionary', '/me')
             assert response.json == {'title': 'me'}
 
-'''
-
-
     def test_iter_columns(self):
-        columns = {c.key: c for c in Member.iter_columns(relationships=False, synonyms=False, composites=False)}
-        self.assertEqual(len(columns), 16)
-        self.assertNotIn('name', columns)
-        self.assertNotIn('password', columns)
-        self.assertIn('_password', columns)
+        columns = {
+            c.key: c for c in Member.iter_columns(
+                relationships=False,
+                synonyms=False,
+                composites=False
+            )
+        }
+        assert len(columns) == 16
+        assert 'name' not in columns
+        assert 'password' not in columns
+        assert '_password' in columns
 
     def test_iter_json_columns(self):
-        columns = {c.key: c for c in Member.iter_json_columns(
-            include_readonly_columns=False, include_protected_columns=False)}
-        self.assertEqual(len(columns), 14)
-        self.assertNotIn('name', columns)
-        self.assertNotIn('password', columns)
-        self.assertNotIn('_password', columns)
-        self.assertNotIn('_avatar', columns)
-        self.assertIn('avatar', columns)
+        columns = {
+            c.key: c for c in Member.iter_json_columns(
+                include_readonly_columns=False,
+                include_protected_columns=False
+            )
+        }
+        assert len(columns) == 12
+        assert 'name' not in columns
+        assert 'password' not in columns
+        assert '_password' not in columns
+        assert '_avatar' not in columns
+        assert 'avatar' in columns
 
     def test_metadata(self):
-        resp, ___ = self.request('ALL', 'METADATA', '/')
+        with self.given(
+            'Fetching the metadata',
+            verb='METADATA'
+        ):
 
-        self.assertIn('fields', resp)
-        self.assertIn('name', resp)
-        self.assertIn('primaryKeys', resp)
-        self.assertIn('id', resp['primaryKeys'])
-        self.assertEqual(resp['name'], 'Member')
+            assert 'fields' in response.json
+            assert 'name' in response.json
+            assert 'primaryKeys' in response.json
+            assert 'id' in response.json['primaryKeys']
+            assert response.json['name'] == 'Member'
+'''
         fields = resp['fields']
         self.assertIn('id', fields)
         self.assertIn('firstName', fields)
