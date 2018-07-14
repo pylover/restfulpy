@@ -277,10 +277,12 @@ class TestBaseModel(ApplicableTestCase):
             when(
                 'Without microseconds',
                 form=Update(
+                    email='test_nomicro@example.com',
                     lastLoginTime='2017-10-10T10:10:00'
                 )
             )
             assert status == 200
+
 '''
         self.request(
             'ALL', 'POST', '/',

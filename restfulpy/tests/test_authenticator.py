@@ -139,6 +139,7 @@ class TestAuthenticator(ApplicableTestCase):
             url='/login',
             verb='POST'
         )
+
         with self.given(
                 'Logging out',
                 '/logout',
