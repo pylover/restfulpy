@@ -243,7 +243,7 @@ def test_model(db):
                 'tags': [],
                 'title': 'First post',
                 'tagTime': '01:01:01',
-            } == post1_dict
+            }.items() < post1_dict.items()
 
         assert 'createdAt' in post1_dict
         assert 'modifiedAt' in post1_dict
