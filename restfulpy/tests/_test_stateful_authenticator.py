@@ -173,18 +173,33 @@ class TestStatefulAuthenticator(ApplicableTestCase):
             assert 'X-New-JWT-Token' in response.headers
             assert response.headers['X-New-JWT-Token'] is not None
             self._authentication_token = response.headers['X-New-JWT-Token']
-'''
-        self.wsgi_application.jwt_token = headers['X-New-JWT-Token']
-        self.request('member', 'GET', '/me', headers={'Cookie': refresh_token})
+
+            when(
+                'Requesting a resource with new token',
+                '/me',
+            )
+            assert status == 200
 
     def test_logout(self):
-        response, headers = self.request('ALL', 'POST', '/login', json=dict(email='test@example.com', password='test'))
-        self.assertIn('token', response)
-        self.assertEqual(headers['X-Identity'], '1')
-        self.wsgi_application.jwt_token = response['token']
-        response, headers = self.request('ALL', 'DELETE', '/logout')
-        self.assertNotIn('X-Identity', headers)
+        with self.given(
+                'Log in to get a token and refresh token cookie',
+                '/login',
+                'POST',
+                form=dict(email='test@example.com', password='test')
+            ):
+            assert status == 200
+            assert 'token' in response.json
+            assert response.headers['X-Identity'] == '1'
+            self._authentication_token = response.json['token']
 
+            when(
+                'Logging out',
+                '/logout',
+                'DELETE'
+            )
+            assert 'X-Identity' not in response.headers
+
+'''
     def test_session_member(self):
         with Context(environ={}, application=self.application):
             principal = self.application.__authenticator__.login(('test@example.com', 'test'))
