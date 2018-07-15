@@ -1,11 +1,9 @@
-import unittest
+import pytest
 
 from sqlalchemy import Integer, Unicode
 from nanohttp import settings, HTTPBadRequest
 from nanohttp.contexts import Context
 
-from restfulpy.tests.helpers import WebAppTestCase
-from restfulpy.mockup import MockupApplication
 from restfulpy.orm import DeclarativeBase, Field, DBSession, FilteringMixin
 
 
@@ -16,111 +14,98 @@ class FilteringObject(FilteringMixin, DeclarativeBase):
     title = Field(Unicode(50))
 
 
-class FilteringMixinTestCase(WebAppTestCase):
-    application = MockupApplication('MockupApplication', None)
-    __configuration__ = '''
-    db:
-      url: sqlite://    # In memory DB
-      echo: false
-    '''
+def test_filtering_mixin(db):
+    session = db()
 
-    @classmethod
-    def configure_app(cls):
-        cls.application.configure(force=True)
-        settings.merge(cls.__configuration__)
-
-    def test_filtering_mixin(self):
-        for i in range(1, 6):
-            # noinspection PyArgumentList
-            DBSession.add(FilteringObject(
-                title='object %s' % i,
-            ))
-
+    for i in range(1, 6):
         # noinspection PyArgumentList
-        DBSession.add(FilteringObject(
-            title='A simple title',
+        session.add(FilteringObject(
+            title='object %s' % i,
         ))
-        DBSession.commit()
 
-        # Bad Value
-        with Context({'QUERY_STRING': 'id=1'}, self.application) as context:
-            context.query['id'] = 1
-            self.assertRaises(HTTPBadRequest, FilteringObject.filter_by_request)
+    # noinspection PyArgumentList
+    session.add(FilteringObject(
+        title='A simple title',
+    ))
+    session.commit()
 
-        # IN
-        with Context({'QUERY_STRING': 'id=IN(1,2,3)'}, self.application):
-            self.assertEqual(FilteringObject.filter_by_request().count(), 3)
+    # Bad Value
+    with Context({'QUERY_STRING': 'id=1'}) as context, \
+            pytest.raises(HTTPBadRequest):
+        context.query['id'] = 1
+        FilteringObject.filter_by_request()
 
-        # NOT IN
-        with Context({'QUERY_STRING': 'id=!IN(1,2,3)'}, self.application):
-            self.assertEqual(FilteringObject.filter_by_request().count(), 3)
+    # IN
+    with Context({'QUERY_STRING': 'id=IN(1,2,3)'}):
+        assert FilteringObject.filter_by_request().count() == 3
 
-        # IN (error)
-        with Context({'QUERY_STRING': 'id=IN()'}, self.application):
-            self.assertRaises(HTTPBadRequest, FilteringObject.filter_by_request)
+    # NOT IN
+    with Context({'QUERY_STRING': 'id=!IN(1,2,3)'}):
+        assert FilteringObject.filter_by_request().count() == 3
 
-        # Between
-        with Context({'QUERY_STRING': 'id=BETWEEN(1,3)'}, self.application):
-            self.assertEqual(FilteringObject.filter_by_request().count(), 3)
+    # IN (error)
+    with Context({'QUERY_STRING': 'id=IN()'}), \
+        pytest.raises(HTTPBadRequest):
+        FilteringObject.filter_by_request()
 
-        # IS NULL
-        with Context({'QUERY_STRING': 'title=null'}, self.application):
-            self.assertEqual(FilteringObject.filter_by_request().count(), 0)
+    # Between
+    with Context({'QUERY_STRING': 'id=BETWEEN(1,3)'}):
+        assert FilteringObject.filter_by_request().count() == 3
 
-        # IS NOT NULL
-        with Context({'QUERY_STRING': 'title=!null'}, self.application):
-            self.assertEqual(FilteringObject.filter_by_request().count(), 6)
+    # IS NULL
+    with Context({'QUERY_STRING': 'title=null'}):
+        assert FilteringObject.filter_by_request().count() == 0
 
-        # ==
-        with Context({'QUERY_STRING': 'id=1'}, self.application):
-            self.assertEqual(FilteringObject.filter_by_request().count(), 1)
+    # IS NOT NULL
+    with Context({'QUERY_STRING': 'title=!null'}):
+        assert FilteringObject.filter_by_request().count() == 6
 
-        # !=
-        with Context({'QUERY_STRING': 'id=!1'}, self.application):
-            self.assertEqual(FilteringObject.filter_by_request().count(), 5)
+    # ==
+    with Context({'QUERY_STRING': 'id=1'}):
+        assert FilteringObject.filter_by_request().count() == 1
 
-        # >=
-        with Context({'QUERY_STRING': 'id=>=2'}, self.application):
-            self.assertEqual(FilteringObject.filter_by_request().count(), 5)
+    # !=
+    with Context({'QUERY_STRING': 'id=!1'}):
+        assert FilteringObject.filter_by_request().count() == 5
 
-        # >
-        with Context({'QUERY_STRING': 'id=>2'}, self.application):
-            self.assertEqual(FilteringObject.filter_by_request().count(), 4)
+    # >=
+    with Context({'QUERY_STRING': 'id=>=2'}):
+        assert FilteringObject.filter_by_request().count() == 5
 
-        # <=
-        with Context({'QUERY_STRING': 'id=<=3'}, self.application):
-            self.assertEqual(FilteringObject.filter_by_request().count(), 3)
+    # >
+    with Context({'QUERY_STRING': 'id=>2'}):
+        assert FilteringObject.filter_by_request().count() == 4
 
-        # <
-        with Context({'QUERY_STRING': 'id=<3'}, self.application):
-            self.assertEqual(FilteringObject.filter_by_request().count(), 2)
+    # <=
+    with Context({'QUERY_STRING': 'id=<=3'}):
+        FilteringObject.filter_by_request().count() == 3
 
-        # LIKE
-        with Context({'QUERY_STRING': 'title=%obj%'}, self.application):
-            self.assertEqual(FilteringObject.filter_by_request().count(), 5)
+    # <
+    with Context({'QUERY_STRING': 'id=<3'}):
+        assert FilteringObject.filter_by_request().count() == 2
 
-        with Context({'QUERY_STRING': 'title=%OBJ%'}, self.application):
-            self.assertEqual(FilteringObject.filter_by_request().count(), 0)
+    # LIKE
+    with Context({'QUERY_STRING': 'title=%obj%'}):
+        assert FilteringObject.filter_by_request().count() == 5
 
-        # ILIKE
-        with Context({'QUERY_STRING': 'title=~%obj%'}, self.application):
-            self.assertEqual(FilteringObject.filter_by_request().count(), 5)
+    with Context({'QUERY_STRING': 'title=%OBJ%'}):
+        assert FilteringObject.filter_by_request().count() == 0
 
-        with Context({'QUERY_STRING': 'title=~%OBJ%'}, self.application):
-            self.assertEqual(FilteringObject.filter_by_request().count(), 5)
+    # ILIKE
+    with Context({'QUERY_STRING': 'title=~%obj%'}):
+        assert FilteringObject.filter_by_request().count() == 5
 
-        with Context({'QUERY_STRING': 'title=A sim%'}, self.application):
-            self.assertEqual(FilteringObject.filter_by_request().count(), 1)
+    with Context({'QUERY_STRING': 'title=~%OBJ%'}):
+        assert FilteringObject.filter_by_request().count() == 5
 
-        with Context({'QUERY_STRING': 'title=%25ect 5'}, self.application):
-            self.assertEqual(FilteringObject.filter_by_request().count(), 1)
+    with Context({'QUERY_STRING': 'title=A sim%'}):
+        assert FilteringObject.filter_by_request().count() == 1
 
-        with Context({'QUERY_STRING': 'title=%imple%'}, self.application):
-            self.assertEqual(FilteringObject.filter_by_request().count(), 1)
+    with Context({'QUERY_STRING': 'title=%25ect 5'}):
+        assert FilteringObject.filter_by_request().count() == 1
 
-        with Context({'QUERY_STRING': 'title=~%IMPLE%'}, self.application):
-            self.assertEqual(FilteringObject.filter_by_request().count(), 1)
+    with Context({'QUERY_STRING': 'title=%imple%'}):
+        assert FilteringObject.filter_by_request().count() == 1
 
-
-if __name__ == '__main__':  # pragma: no cover
-    unittest.main()
+    with Context({'QUERY_STRING': 'title=~%IMPLE%'}):
+        assert FilteringObject.filter_by_request().count() == 1
