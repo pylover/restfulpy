@@ -4,7 +4,7 @@ import pytest
 #from freezegun import freeze_time
 from nanohttp import json, Controller, context, settings
 #from nanohttp.contexts import Context
-from bddrest import status, response
+from bddrest import status, response, when
 
 from restfulpy.authentication import StatefulAuthenticator
 from restfulpy.authorization import authorize
@@ -143,31 +143,37 @@ class TestStatefulAuthenticator(ApplicableTestCase):
             refresh_token = response.headers['Set-Cookie'].split('; ')[0]
             assert refresh_token.startswith('refresh-token=')
 
-            # Login on client
+            # Store token to use it for future requests
             token = response.json['token']
             self._authentication_token = token
 
+        with self.given(
+                'Request a protected resource to ensure authenticator is '
+                'working well',
+                '/me',
+                headers={'Cookie': refresh_token}
+            ):
+            assert status == 200
+            assert response.json['roles'] == roles
+
+            roles.append('god')
+            when(
+                'Invalidating the token by server',
+                '/invalidate_token'
+            )
+            assert response.json['roles'] == roles
+            assert 'X-New-JWT-Token' in response.headers
+
+            when(
+                'Invalidating the token by server after the token has '
+                'been expired, with appropriate cookies.',
+                '/invalidate_token',
+            )
+            time.sleep(1)
+            assert 'X-New-JWT-Token' in response.headers
+            assert response.headers['X-New-JWT-Token'] is not None
+            self._authentication_token = response.headers['X-New-JWT-Token']
 '''
-        # Request a protected resource to ensure authenticator is working well
-        response, ___ = self.request('member', 'GET', '/me', headers={'Cookie': refresh_token})
-        self.assertListEqual(response['roles'], roles)
-
-        # Invalidating the token by server
-        roles.append('god')
-        response, headers = self.request('member', 'GET', '/invalidate_token', headers={'Cookie': refresh_token})
-        self.assertListEqual(response['roles'], roles)
-        self.assertIn('X-New-JWT-Token', headers)
-
-        # Invalidating the token by server after the token has been expired expired, with appropriate cookies.
-        time.sleep(1)
-        response, headers = self.request(
-            'member', 'GET', '/invalidate_token',
-            headers={
-                'Cookie': refresh_token
-            }
-        )
-        self.assertIn('X-New-JWT-Token', headers)
-        self.assertIsNotNone(headers['X-New-JWT-Token'])
         self.wsgi_application.jwt_token = headers['X-New-JWT-Token']
         self.request('member', 'GET', '/me', headers={'Cookie': refresh_token})
 
