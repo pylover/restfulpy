@@ -1,9 +1,10 @@
-import unittest
+import pytest
 from datetime import date, time
 
-from nanohttp import configure, HTTPBadRequest
+from nanohttp import configure, HTTPBadRequest, settings
 from nanohttp.contexts import Context
-from sqlalchemy import Integer, Unicode, ForeignKey, Boolean, Table, Date, Time, Float
+from sqlalchemy import Integer, Unicode, ForeignKey, Boolean, Table, Date,\
+    Time, Float
 from sqlalchemy.orm import synonym
 
 from restfulpy.orm import DeclarativeBase, init_model, create_engine, Field, \
@@ -34,19 +35,55 @@ class Author(DeclarativeBase):
     __tablename__ = 'author'
 
     id = Field(Integer, primary_key=True)
-    email = Field(Unicode(100), unique=True, index=True, json='email',
-                  pattern=r'(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)', watermark='Email',
-                  example="user@example.com")
-    title = Field(Unicode(50), index=True, min_length=2, watermark='First Name')
-    first_name = Field(Unicode(50), index=True, json='firstName', min_length=2, watermark='First Name')
-    last_name = Field(Unicode(100), json='lastName', min_length=2, watermark='Last Name')
+    email = Field(
+        Unicode(100),
+        unique=True,
+        index=True,
+        json='email',
+        pattern=r'(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)',
+        watermark='Email',
+        example="user@example.com"
+    )
+    title = Field(
+        Unicode(50),
+        index=True,
+        min_length=2,
+        watermark='First Name'
+    )
+    first_name = Field(
+        Unicode(50),
+        index=True,
+        json='firstName',
+        min_length=2,
+        watermark='First Name'
+    )
+    last_name = Field(
+        Unicode(100),
+        json='lastName',
+        min_length=2,
+        watermark='Last Name'
+    )
     phone = Field(
         Unicode(10), nullable=True, json='phone', min_length=10,
         pattern=r'\d{3}[-\.\s]??\d{3}[-\.\s]??\d{4}|\(\d{3}\)\s*\d{3}[-\.\s]??\d{4}|\d{3}[-\.\s]??\d{4}',
         watermark='Phone'
     )
-    name = composite(FullName, first_name, last_name, readonly=True, json='fullName', protected=True)
-    _password = Field('password', Unicode(128), index=True, json='password', protected=True, min_length=6)
+    name = composite(
+        FullName,
+        first_name,
+        last_name,
+        readonly=True,
+        json='fullName',
+        protected=True
+    )
+    _password = Field(
+        'password',
+        Unicode(128),
+        index=True,
+        json='password',
+        protected=True,
+        min_length=6
+    )
     birth = Field(Date)
     weight = Field(Float(asdecimal=True))
     age = Field(Integer, default=18, min_=18, max_=100)
@@ -57,7 +94,11 @@ class Author(DeclarativeBase):
     def _get_password(self):  # pragma: no cover
         return self._password
 
-    password = synonym('_password', descriptor=property(_get_password, _set_password), info=dict(protected=True))
+    password = synonym(
+        '_password',
+        descriptor=property(_get_password, _set_password),
+        info=dict(protected=True)
+    )
 
 
 class Memo(DeclarativeBase):
@@ -87,7 +128,11 @@ class Tag(DeclarativeBase):
     __tablename__ = 'tag'
     id = Field(Integer, primary_key=True)
     title = Field(Unicode(50), watermark='title', label='title')
-    posts = relationship('Post', secondary=post_tag_table, back_populates='tags')
+    posts = relationship(
+        'Post',
+        secondary=post_tag_table,
+        back_populates='tags'
+    )
 
 
 class Post(ModifiedMixin, DeclarativeBase):
@@ -103,120 +148,106 @@ class Post(ModifiedMixin, DeclarativeBase):
     tag_time = Field(Time)
 
 
-class ModelTestCase(unittest.TestCase):
+def test_model(db):
+    session = db()
+
     __configuration__ = '''
-    db:
-      url: sqlite://    # In memory DB
-      echo: false
-
     timezone:
-
     '''
 
-    @classmethod
-    def setUpClass(cls):
-        configure(init_value=cls.__configuration__, force=True)
-        cls.engine = create_engine()
-        init_model(cls.engine)
-        setup_schema()
+    settings.merge(__configuration__)
 
-    def test_model(self):
-        with Context({}):
-            # noinspection PyArgumentList
-            author1 = Author(
-                title='author1',
-                email='author1@example.org',
-                first_name='author 1 first name',
-                last_name='author 1 last name',
-                phone=None,
-                password='123456',
-                birth=date(1, 1, 1),
-                weight=1.1
-            )
+    with Context({}):
+        # noinspection PyArgumentList
+        author1 = Author(
+            title='author1',
+            email='author1@example.org',
+            first_name='author 1 first name',
+            last_name='author 1 last name',
+            phone=None,
+            password='123456',
+            birth=date(1, 1, 1),
+            weight=1.1
+        )
 
-            # noinspection PyArgumentList
-            post1 = Post(
-                title='First post',
-                author=author1,
-                tag_time=time(1, 1, 1)
-            )
-            DBSession.add(post1)
-            DBSession.commit()
+        # noinspection PyArgumentList
+        post1 = Post(
+            title='First post',
+            author=author1,
+            tag_time=time(1, 1, 1)
+        )
+        session.add(post1)
+        session.commit()
 
-            self.assertEqual(post1.id, 1)
+        assert post1.id == 1
 
-            # Validation, Type
-            with self.assertRaises(HTTPBadRequest):
-                Author(title=234)
+        # Validation, Type
+        with pytest.raises(HTTPBadRequest):
+            Author(title=234)
 
-            # Validation, Pattern
-            with self.assertRaises(HTTPBadRequest):
-                Author(email='invalidEmailAddress')
+        # Validation, Pattern
+        with pytest.raises(HTTPBadRequest):
+            Author(email='invalidEmailAddress')
 
-            # Validation, Min length
-            with self.assertRaises(HTTPBadRequest):
-                Author(title='1')
+        # Validation, Min length
+        with pytest.raises(HTTPBadRequest):
+            Author(title='1')
 
-            # Validation, Max length
-            # Validation, Max length
-            with self.assertRaises(HTTPBadRequest):
-                Author(phone='12321321321312321312312')
+        # Validation, Max length
+        # Validation, Max length
+        with pytest.raises(HTTPBadRequest):
+            Author(phone='12321321321312321312312')
 
-            # validate Min/Max
-            with self.assertRaises(HTTPBadRequest):
-                Author(age=17)
+        # validate Min/Max
+        with pytest.raises(HTTPBadRequest):
+            Author(age=17)
 
-            with self.assertRaises(HTTPBadRequest):
-                Author(age=101)
+        with pytest.raises(HTTPBadRequest):
+            Author(age=101)
 
+        # Metadata
+        author_metadata = Author.json_metadata()
+        assert 'id' in author_metadata['fields']
+        assert'email' in author_metadata['fields']
+        assert author_metadata['fields']['fullName']['protected'] == True
+        assert author_metadata['fields']['password']['protected'] == True
 
-            # Metadata
-            author_metadata = Author.json_metadata()
-            self.assertIn('id', author_metadata['fields'])
-            self.assertIn('email', author_metadata['fields'])
-            self.assertEqual(author_metadata['fields']['fullName']['protected'], True)
-            self.assertEqual(author_metadata['fields']['password']['protected'], True)
+        post_metadata = Post.json_metadata()
+        assert'author' in post_metadata['fields']
 
-            post_metadata = Post.json_metadata()
-            self.assertIn('author', post_metadata['fields'])
+        comment_metadata = Comment.json_metadata()
+        assert 'post' in comment_metadata['fields']
 
-            comment_metadata = Comment.json_metadata()
-            self.assertIn('post', comment_metadata['fields'])
+        tag_metadata = Tag.json_metadata()
+        assert 'posts' in tag_metadata['fields']
 
-            tag_metadata = Tag.json_metadata()
-            self.assertIn('posts', tag_metadata['fields'])
+        assert Comment.import_value(Comment.__table__.c.special, 'TRUE') ==\
+            True
 
-            self.assertEqual(Comment.import_value(Comment.__table__.c.special, 'TRUE'), True)
-
-            post1_dict = post1.to_dict()
-            self.assertDictContainsSubset(
-                {
-                    'author': {
-                        'email': 'author1@example.org',
-                        'firstName': 'author 1 first name',
-                        'id': 1,
-                        'lastName': 'author 1 last name',
-                        'phone': None,
-                        'title': 'author1',
-                        'birth': '0001-01-01',
-                        'weight': '1.1000000000',
-                        'age': 18
-                    },
-                    'authorId': 1,
-                    'comments': [],
+        post1_dict = post1.to_dict()
+        assert {
+                'author': {
+                    'email': 'author1@example.org',
+                    'firstName': 'author 1 first name',
                     'id': 1,
-                    'tags': [],
-                    'title': 'First post',
-                    'tagTime': '01:01:01',
+                    'lastName': 'author 1 last name',
+                    'phone': None,
+                    'title': 'author1',
+                    'birth': '0001-01-01',
+                    'weight': '1.1000000000',
+                    'age': 18
                 },
-                post1_dict,
-            )
-            self.assertIn('createdAt', post1_dict)
-            self.assertIn('modifiedAt', post1_dict)
+                'authorId': 1,
+                'comments': [],
+                'id': 1,
+                'tags': [],
+                'title': 'First post',
+                'tagTime': '01:01:01',
+            } == post1_dict
 
-            author1_dict = author1.to_dict()
-            self.assertNotIn('fullName', author1_dict)
+        assert 'createdAt' in post1_dict
+        assert 'modifiedAt' in post1_dict
 
+        author1_dict = author1.to_dict()
+        assert 'fullName' not in author1_dict
 
-if __name__ == '__main__':  # pragma: no cover
-    unittest.main()
