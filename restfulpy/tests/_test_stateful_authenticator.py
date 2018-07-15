@@ -3,7 +3,7 @@ import time
 import pytest
 #from freezegun import freeze_time
 from nanohttp import json, Controller, context, settings
-#from nanohttp.contexts import Context
+from nanohttp.contexts import Context
 from bddrest import status, response, when
 
 from restfulpy.authentication import StatefulAuthenticator
@@ -199,12 +199,17 @@ class TestStatefulAuthenticator(ApplicableTestCase):
             )
             assert 'X-Identity' not in response.headers
 
-'''
     def test_session_member(self):
-        with Context(environ={}, application=self.application):
-            principal = self.application.__authenticator__.login(('test@example.com', 'test'))
-            self.assertEqual(self.application.__authenticator__.get_member_id_by_session(principal.session_id), 1)
+        with Context(environ={}, application=self.__application__):
+            authenticator = self.__application__.__authenticator__
+            principal = authenticator.login(
+                ('test@example.com', 'test')
+            )
+            assert authenticator.get_member_id_by_session(
+                principal.session_id
+            ) == 1
 
+'''
     @freeze_time("2017-07-13T13:11:44", tz_offset=-4)
     def test_session_info(self):
         # Login
