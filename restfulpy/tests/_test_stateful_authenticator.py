@@ -1,14 +1,17 @@
-import unittest
 import time
-from freezegun import freeze_time
+
+import pytest
+#from freezegun import freeze_time
 from nanohttp import json, Controller, context, settings
-from nanohttp.contexts import Context
+#from nanohttp.contexts import Context
+from bddrest import status, response
 
 from restfulpy.authentication import StatefulAuthenticator
 from restfulpy.authorization import authorize
 from restfulpy.principal import JwtPrincipal, JwtRefreshToken
-from restfulpy.tests.helpers import WebAppTestCase
-from restfulpy.mockup import MockupApplication
+from restfulpy.testing import ApplicableTestCase
+from restfulpy.application import Application
+
 
 session_info_test_cases = [
     {
@@ -113,30 +116,38 @@ class Root(Controller):
         return {}
 
 
-class StatefulAuthenticatorTestCase(WebAppTestCase):
-    application = MockupApplication('MockupApplication', Root(), authenticator=MockupStatefulAuthenticator())
+class TestStatefulAuthenticator(ApplicableTestCase):
+    __application__ = Application(
+        'Stateful Authenticator Application',
+        Root(),
+        authenticator=MockupStatefulAuthenticator()
+    )
 
-    @classmethod
-    def configure_app(cls):
-        cls.application.configure(force=True)
-        settings.merge("""
-            jwt:
-              max_age: .3
-              refresh_token:
-                max_age: 3
-                secure: false
-        """)
+    __configuration__ = '''
+        jwt:
+          max_age: .3
+          refresh_token:
+            max_age: 3
+            secure: false
+    '''
 
     def test_invalidate_token(self):
-        response, headers = self.request('ALL', 'GET', '/login', json=dict(email='test@example.com', password='test'))
-        refresh_token = headers['Set-Cookie'].split('; ')[0]
-        self.assertIn('token', response)
-        self.assertTrue(refresh_token.startswith('refresh-token='))
+        with self.given(
+                'Log in to get a token and refresh token cookie',
+                '/login',
+                'POST',
+                form=dict(email='test@example.com', password='test')
+            ):
+            assert status == 200
+            assert 'token' in response.json
+            refresh_token = response.headers['Set-Cookie'].split('; ')[0]
+            assert refresh_token.startswith('refresh-token=')
 
-        # Login on client
-        token = response['token']
-        self.wsgi_application.jwt_token = token
+            # Login on client
+            token = response.json['token']
+            self._authentication_token = token
 
+'''
         # Request a protected resource to ensure authenticator is working well
         response, ___ = self.request('member', 'GET', '/me', headers={'Cookie': refresh_token})
         self.assertListEqual(response['roles'], roles)
@@ -195,6 +206,4 @@ class StatefulAuthenticatorTestCase(WebAppTestCase):
                 'lastActivity': test_case['expected_last_activity'],
             })
 
-
-if __name__ == '__main__':  # pragma: no cover
-    unittest.main()
+'''

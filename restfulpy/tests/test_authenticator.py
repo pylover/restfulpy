@@ -86,7 +86,7 @@ class Root(Controller):
 
 class TestAuthenticator(ApplicableTestCase):
     __application__ = Application(
-        'MockupApplication',
+        'Authenticator Application',
         Root(),
         authenticator=MockupStatelessAuthenticator()
     )
