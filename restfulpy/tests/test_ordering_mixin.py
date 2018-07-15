@@ -44,27 +44,29 @@ def test_ordering_mixin(db):
 
     session.commit()
 
+    query = session.query(OrderingObject)
+
     # Ascending
     with Context({'QUERY_STRING': 'sort=id'}):
-        result = OrderingObject.sort_by_request().all()
+        result = OrderingObject.sort_by_request(query).all()
         assert result[0].id == 1
         assert result[-1].id == 5
 
     # Descending
     with Context({'QUERY_STRING': 'sort=-id'}):
-        result = OrderingObject.sort_by_request().all()
+        result = OrderingObject.sort_by_request(query).all()
         assert result[0].id == 5
         assert result[-1].id == 1
 
     # Sort by Synonym Property
     with Context({'QUERY_STRING': 'sort=age'}):
-        result = OrderingObject.sort_by_request().all()
+        result = OrderingObject.sort_by_request(query).all()
         assert result[0].id == 1
         assert result[-1].id == 5
 
     # Mutiple sort criteria
     with Context({'QUERY_STRING': 'sort=title,id'}):
-        result = OrderingObject.sort_by_request().all()
+        result = OrderingObject.sort_by_request(query).all()
         assert result[0].id == 4
         assert result[1].id == 5
 
@@ -75,7 +77,7 @@ def test_ordering_mixin(db):
 
     # Sort by date
     with Context({'QUERY_STRING': 'sort=-createdAt'}):
-        result = OrderingObject.sort_by_request().all()
+        result = OrderingObject.sort_by_request(query).all()
         assert result[0].id == 5
         assert result[1].id == 4
         assert result[2].id == 3

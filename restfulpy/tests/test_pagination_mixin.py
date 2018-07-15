@@ -26,16 +26,18 @@ def test_pagination_mixin(db):
         session.add(obj)
     session.commit()
 
+    query = session.query(PagingObject)
+
     with Context({'QUERY_STRING': 'take=2&skip=1'}) as context:
-        assert PagingObject.paginate_by_request().count() == 2
+        assert PagingObject.paginate_by_request(query).count() == 2
         assert context.response_headers['X-Pagination-Take'] == '2'
         assert context.response_headers['X-Pagination-Skip'] == '1'
         assert context.response_headers['X-Pagination-Count'] == '5'
 
     with Context({'QUERY_STRING': 'take=two&skip=one'}), \
         pytest.raises(HTTPBadRequest):
-        PagingObject.paginate_by_request().count()
+        PagingObject.paginate_by_request(query).count()
 
     with Context({'QUERY_STRING': 'take=5'}), pytest.raises(HTTPBadRequest):
-        PagingObject.paginate_by_request()
+        PagingObject.paginate_by_request(query)
 

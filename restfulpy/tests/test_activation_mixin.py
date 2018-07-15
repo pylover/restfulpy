@@ -47,7 +47,8 @@ def test_activation_mixin(db):
     assert session.query(ActiveObject)\
         .filter(ActiveObject.is_active)\
         .count() == 1
-    assert ActiveObject.filter_activated(session=session).count() == 1
+    assert ActiveObject.filter_activated(session.query(ActiveObject)).count()\
+        == 1
 
     assert not ActiveObject.import_value(ActiveObject.is_active, 'false')
     assert not ActiveObject.import_value(ActiveObject.is_active, 'FALSE')

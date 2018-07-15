@@ -81,14 +81,14 @@ class SoftDeleteMixin:
         event.listen(cls, 'before_delete', cls.before_delete)
 
     @classmethod
-    def filter_deleted(cls, query=None):
+    def filter_deleted(cls, query):
         # noinspection PyUnresolvedReferences
-        return (query or cls.query).filter(cls.removed_at.isnot(None))
+        return query.filter(cls.removed_at.isnot(None))
 
     @classmethod
-    def exclude_deleted(cls, query=None):
+    def exclude_deleted(cls, query):
         # noinspection PyUnresolvedReferences
-        return (query or cls.query).filter(cls.removed_at.is_(None))
+        return query.filter(cls.removed_at.is_(None))
 
 
 class ActivationMixin:
@@ -109,9 +109,7 @@ class ActivationMixin:
         return self.activated_at.isnot(None)
 
     @classmethod
-    def filter_activated(cls, query=None, session=None):
-        if query is None:
-            query = session.query(cls) if session else cls.query
+    def filter_activated(cls, query):
         return query.filter(cls.is_active)
 
     @classmethod
@@ -162,9 +160,7 @@ class PaginationMixin:
     __max_take__ = 100
 
     @classmethod
-    def paginate_by_request(cls, query=None):
-        # noinspection PyUnresolvedReferences
-        query = query or cls.query
+    def paginate_by_request(cls, query):
 
         try:
             take = int(
@@ -192,9 +188,7 @@ class PaginationMixin:
 
 class FilteringMixin:
     @classmethod
-    def filter_by_request(cls, query=None):
-        # noinspection PyUnresolvedReferences
-        query = query or cls.query
+    def filter_by_request(cls, query):
 
         # noinspection PyUnresolvedReferences
         for c in cls.iter_json_columns():
@@ -282,10 +276,7 @@ class OrderingMixin:
         return query.order_by((nullsfirst if descending else nullslast)(expression))
 
     @classmethod
-    def sort_by_request(cls, query=None):
-        # noinspection PyUnresolvedReferences
-        query = query or cls.query
-
+    def sort_by_request(cls, query):
         sort_exp = context.query.get('sort', '').strip()
         if not sort_exp:
             return query

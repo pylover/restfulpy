@@ -53,27 +53,75 @@ class MemberKeywords(DeclarativeBase):
     keyword_id = Field(Integer, ForeignKey("keyword.id"), primary_key=True)
 
 
-class Member(ActivationMixin, ModifiedMixin, FilteringMixin, PaginationMixin, OrderingMixin, DeclarativeBase):
+class Member(
+    ActivationMixin,
+    ModifiedMixin,
+    FilteringMixin,
+    PaginationMixin,
+    OrderingMixin,
+    DeclarativeBase
+):
     __tablename__ = 'member'
 
     id = Field(Integer, primary_key=True)
-    email = Field(Unicode(100), unique=True, index=True, json='email',
-                  pattern=r'(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)', watermark='Email',
-                  example="user@example.com", message='Invalid email address, please be accurate!', icon='email.svg')
-    title = Field(Unicode(50), index=True, min_length=2, watermark='First Name')
-    first_name = Field(Unicode(50), index=True, json='firstName', min_length=2, watermark='First Name')
-    last_name = Field(Unicode(100), json='lastName', min_length=2, watermark='Last Name')
+    email = Field(
+        Unicode(100),
+        unique=True,
+        index=True,
+        json='email',
+        pattern=r'(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)',
+        watermark='Email',
+        example="user@example.com",
+        message='Invalid email address, please be accurate!',
+        icon='email.svg'
+    )
+    title = Field(
+        Unicode(50),
+        index=True,
+        min_length=2,
+        watermark='First Name'
+    )
+    first_name = Field(
+        Unicode(50),
+        index=True,
+        json='firstName',
+        min_length=2,
+        watermark='First Name'
+    )
+    last_name = Field(
+        Unicode(100),
+        json='lastName',
+        min_length=2,
+        watermark='Last Name'
+    )
     phone = Field(
         Unicode(10), nullable=True, json='phone', min_length=10,
         pattern=r'\d{3}[-\.\s]??\d{3}[-\.\s]??\d{4}|\(\d{3}\)\s*\d{3}[-\.\s]??\d{4}|\d{3}[-\.\s]??\d{4}',
         watermark='Phone'
     )
-    name = composite(FullName, first_name, last_name, readonly=True, json='fullName')
-    _password = Field('password', Unicode(128), index=True, json='password', protected=True, min_length=6)
+    name = composite(
+        FullName,
+        first_name,
+        last_name,
+        readonly=True,
+        json='fullName'
+    )
+    _password = Field(
+        'password',
+        Unicode(128),
+        index=True,
+        json='password',
+        protected=True,
+        min_length=6
+    )
     birth = Field(Date)
     weight = Field(Float(asdecimal=True), default=50)
     _keywords = relationship('Keyword', secondary='member_keywords')
-    keywords = association_proxy('_keywords', 'keyword', creator=lambda k: Keyword(keyword=k))
+    keywords = association_proxy(
+        '_keywords',
+        'keyword',
+        creator=lambda k: Keyword(keyword=k)
+    )
     visible = Field(Boolean, nullable=True)
     last_login_time = Field(DateTime, json='lastLoginTime')
     books = relationship('Book')
@@ -120,7 +168,7 @@ class Root(JsonPatchControllerMixin, ModelRestController):
     @json
     @Member.expose
     def get(self, title: str=None):
-        query = Member.query
+        query = DBSession.query(Member)
         if title:
             return query.filter(Member.title == title).one_or_none()
         return query
@@ -242,7 +290,8 @@ class TestBaseModel(ApplicableTestCase):
             assert fields['title']['primaryKey'] == False
             assert fields['title']['minLength'] == 2
             assert fields['title']['maxLength'] == 50
-            assert fields['email']['pattern'] == '(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)'
+            assert fields['email']['pattern'] == \
+                '(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)'
 
             assert fields['firstName']['name'] == 'firstName'
             assert fields['firstName']['key'] == 'first_name'
@@ -250,7 +299,8 @@ class TestBaseModel(ApplicableTestCase):
             assert fields['birth']['type'] == 'date'
             assert fields['weight']['default_'] == 50
             assert fields['visible']['optional'] == True
-            assert fields['email']['message'] == 'Invalid email address, please be accurate!'
+            assert fields['email']['message'] == \
+                'Invalid email address, please be accurate!'
             assert fields['email']['watermark'] == 'Email'
             assert fields['email']['label'] == 'Email'
             assert fields['email']['icon'] == 'email.svg'
@@ -311,7 +361,8 @@ class TestBaseModel(ApplicableTestCase):
             )
 
             assert status == 200
-            assert response.json['lastLoginTime'] == '2017-10-10T10:10:00.454600'
+            assert response.json['lastLoginTime'] == \
+                '2017-10-10T10:10:00.454600'
 
     def test_posix_timestamp_format(self):
         with self.given(

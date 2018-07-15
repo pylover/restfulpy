@@ -39,20 +39,22 @@ def test_activation_mixin(db):
     session.commit()
 
     # Test ordering:
-    student_list = Student.query.order_by(desc(Student.is_active)).all()
+    student_list = session.query(Student).\
+        order_by(desc(Student.is_active)).all()
     assert student_list[0].activated_at is not None
     assert student_list[-1].activated_at is None
 
-    student_list = Student.query.order_by(asc(Student.is_active)).all()
+    student_list = session.query(Student).\
+        order_by(asc(Student.is_active)).all()
     assert student_list[-1].activated_at is not None
     assert student_list[0].activated_at is None
 
     # Test filtering:
-    student_list = Student.query.filter(Student.is_active).all()
+    student_list = session.query(Student).filter(Student.is_active).all()
     for student in student_list:
        assert student.activated_at is not None
 
-    student_list = Student.query.filter(not_(Student.is_active)).all()
+    student_list = session.query(Student).filter(not_(Student.is_active)).all()
     for student in student_list:
         assert student.activated_at is None
 

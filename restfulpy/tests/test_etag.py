@@ -35,7 +35,7 @@ class Root(ModelRestController):
     @etag
     @EtagCheckingModel.expose
     def get(self, title: str=None):
-        query = EtagCheckingModel.query
+        query = DBSession.query(EtagCheckingModel)
         if title:
             return query.filter(EtagCheckingModel.title == title).one_or_none()
         return query

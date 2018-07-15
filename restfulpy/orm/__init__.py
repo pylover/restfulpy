@@ -33,10 +33,6 @@ metadata = MetaData()
 
 DeclarativeBase = declarative_base(cls=BaseModel, metadata=metadata)
 
-# There are two convenient ways for you to spare some typing.
-# You can have a query property on all your model classes by doing this:
-DeclarativeBase.query = DBSession.query_property()
-
 
 def create_engine(url=None, echo=None):
     return sa_create_engine(url or settings.db.url, echo=echo or settings.db.echo)
