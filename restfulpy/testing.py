@@ -1,6 +1,6 @@
 import pytest
 from nanohttp import settings
-from bddrest import Given
+from bddrest import Given, when
 
 from .application import Application
 from .configuration import configure
@@ -171,6 +171,11 @@ class ApplicableTestCase:
         if self._authentication_token is not None:
             kw.setdefault('authorization', self._authentication_token)
         return Given(self.__application__, *a, **kw)
+
+    def when(self, *a, **kw):
+        if self._authentication_token is not None:
+            kw.setdefault('authorization', self._authentication_token)
+        return when(*a, **kw)
 
     def login(self, email, password, url='/apiv1/sessions', verb='POST'):
         with self.given(
