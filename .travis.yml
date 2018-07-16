@@ -18,7 +18,7 @@ before_install:
 - pip install git+https://github.com/Carrene/nanohttp
 
 install: pip install -e .
-script: coverage run --source restfulpy setup.py test
+script: py.test --con=restfultest restfultest/tests
 after_success: travis_retry coveralls
 deploy:
   provider: pypi
