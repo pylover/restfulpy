@@ -2,4 +2,4 @@ coverage
 coveralls
 freezegun
 pytest-pudb
-
+pytest-cov
