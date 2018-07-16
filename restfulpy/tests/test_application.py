@@ -1,7 +1,5 @@
-from os.path import dirname, abspath, join
-
+from bddrest.authoring import response
 from nanohttp import action
-from bddrest.authoring import response, when
 
 from restfulpy.controllers import RootController
 from restfulpy.testing import ApplicableTestCase

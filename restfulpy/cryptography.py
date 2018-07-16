@@ -1,7 +1,8 @@
-import os
 import abc
+import os
 
-from Crypto.Cipher import AES, DES3
+from Crypto.Cipher import AES
+
 
 class Cipher(metaclass=abc.ABCMeta):
     @abc.abstractmethod

@@ -1,7 +1,6 @@
-
-from os import path, makedirs
 import logging
 from logging.handlers import RotatingFileHandler
+from os import path, makedirs
 
 from nanohttp import settings, LazyAttribute
 

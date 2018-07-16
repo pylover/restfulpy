@@ -1,8 +1,7 @@
 import pytest
 import ujson
-
+from nanohttp import context, json, text, RestController
 from nanohttp.contexts import Context
-from nanohttp import context, json, text, RestController, configure
 
 from restfulpy.controllers import JsonPatchControllerMixin
 

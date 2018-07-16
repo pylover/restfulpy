@@ -1,11 +1,8 @@
-import unittest
-from datetime import date, datetime
-
-from nanohttp import json, settings, context
+from bddrest import response, when, Update, status
+from nanohttp import json
 from sqlalchemy import Unicode, Integer, Date, Float, ForeignKey, Boolean, \
     DateTime
 from sqlalchemy.ext.associationproxy import association_proxy
-from bddrest import response, when, Append, Update, status
 
 from restfulpy.controllers import JsonPatchControllerMixin, ModelRestController
 from restfulpy.orm import commit, DeclarativeBase, Field, DBSession, \

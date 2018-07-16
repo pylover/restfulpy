@@ -2,10 +2,10 @@ import time
 
 from bddrest.authoring import response
 
+from restfulpy.application import Application
 from restfulpy.authentication import StatefulAuthenticator
 from restfulpy.principal import JwtPrincipal, JwtRefreshToken
 from restfulpy.testing import ApplicableTestCase
-from restfulpy.application import Application
 
 
 roles = ['admin', 'test']

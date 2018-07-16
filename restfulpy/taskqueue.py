@@ -2,13 +2,14 @@ import time
 import traceback
 from datetime import datetime
 
+from nanohttp import settings
 from sqlalchemy import Integer, Enum, Unicode, DateTime
 from sqlalchemy.sql.expression import text
-from nanohttp import settings
 
-from restfulpy.orm import TimestampMixin, DeclarativeBase, Field, DBSession, create_thread_unsafe_session
 from restfulpy.exceptions import RestfulException
 from restfulpy.logging_ import get_logger
+from restfulpy.orm import TimestampMixin, DeclarativeBase, Field, DBSession, create_thread_unsafe_session
+
 
 logger = get_logger('taskqueue')
 

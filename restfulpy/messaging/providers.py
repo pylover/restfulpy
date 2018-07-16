@@ -1,8 +1,8 @@
-from os.path import basename
 import smtplib
 from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from os.path import basename
 
 from mako.lookup import TemplateLookup
 from nanohttp import settings, LazyAttribute

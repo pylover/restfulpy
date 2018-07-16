@@ -1,11 +1,10 @@
 from datetime import datetime
 
+from nanohttp.contexts import Context
 from sqlalchemy import Integer, Unicode, DateTime
 from sqlalchemy.orm import synonym
-from nanohttp import settings
-from nanohttp.contexts import Context
 
-from restfulpy.orm import DeclarativeBase, Field, DBSession, OrderingMixin
+from restfulpy.orm import DeclarativeBase, Field, OrderingMixin
 
 
 class OrderingObject(OrderingMixin, DeclarativeBase):

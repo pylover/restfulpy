@@ -1,7 +1,7 @@
-
 from nanohttp import configure
 
 from restfulpy.principal import JwtPrincipal
+
 
 def test_principal():
     __configuration__ = '''

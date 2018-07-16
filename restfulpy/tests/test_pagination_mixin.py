@@ -1,8 +1,7 @@
 import pytest
-
-from sqlalchemy import Integer, Unicode
 from nanohttp import HTTPBadRequest
 from nanohttp.contexts import Context
+from sqlalchemy import Integer, Unicode
 
 from restfulpy.orm import DeclarativeBase, Field, PaginationMixin
 

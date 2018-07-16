@@ -1,6 +1,5 @@
-
-from nanohttp import json, Controller, context
 from bddrest.authoring import response
+from nanohttp import json, Controller, context
 
 from restfulpy.testing import ApplicableTestCase
 

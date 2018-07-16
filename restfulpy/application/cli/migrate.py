@@ -1,6 +1,6 @@
+import argparse
 import os
 from os.path import join
-import argparse
 
 from alembic.config import main as alembic_main
 

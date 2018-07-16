@@ -1,7 +1,6 @@
 import importlib.util
 import re
 import sys
-import uuid
 import warnings
 from hashlib import md5
 from os.path import dirname, abspath

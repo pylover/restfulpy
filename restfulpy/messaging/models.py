@@ -1,12 +1,12 @@
-
-from sqlalchemy import Integer, ForeignKey, Unicode, JSON
+from nanohttp import settings
+from sqlalchemy import Integer, ForeignKey, Unicode
 from sqlalchemy.ext.declarative import declared_attr
 
-from nanohttp import settings
-from ..orm import Field, FakeJson
-from ..taskqueue import Task
 from ..logging_ import get_logger
+from ..orm import Field
+from ..taskqueue import Task
 from .providers import create_messenger
+
 
 logger = get_logger('messaging')
 

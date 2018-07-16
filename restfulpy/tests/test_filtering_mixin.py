@@ -1,10 +1,9 @@
 import pytest
-
-from sqlalchemy import Integer, Unicode
-from nanohttp import settings, HTTPBadRequest
+from nanohttp import HTTPBadRequest
 from nanohttp.contexts import Context
+from sqlalchemy import Integer, Unicode
 
-from restfulpy.orm import DeclarativeBase, Field, DBSession, FilteringMixin
+from restfulpy.orm import DeclarativeBase, Field, FilteringMixin
 
 
 class FilteringObject(FilteringMixin, DeclarativeBase):

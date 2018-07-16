@@ -1,6 +1,5 @@
-
 from bddrest import response, when
-from nanohttp import json, RestController, context, settings
+from nanohttp import json, RestController, context
 from sqlalchemy import Unicode, Integer
 
 from restfulpy.controllers import JsonPatchControllerMixin

@@ -1,13 +1,11 @@
-import pytest
-
+from bddrest.authoring import response
 from nanohttp import json
 from sqlalchemy import Unicode, Integer
-from bddrest.authoring import response
 
-from restfulpy.testing import ApplicableTestCase
 from restfulpy.controllers import JsonPatchControllerMixin, ModelRestController
 from restfulpy.orm import commit, DeclarativeBase, Field, DBSession, \
     FilteringMixin, PaginationMixin, OrderingMixin, ModifiedMixin
+from restfulpy.testing import ApplicableTestCase
 
 
 class SqlErrorCheckingModel(

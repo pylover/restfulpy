@@ -1,8 +1,6 @@
-
 import threading
 
 from restfulpy.taskqueue import Task, worker
-from restfulpy.testing import ApplicableTestCase
 
 
 awesome_task_done = threading.Event()

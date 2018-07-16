@@ -1,4 +1,3 @@
-
 import functools
 
 from nanohttp import context, HTTPUnauthorized

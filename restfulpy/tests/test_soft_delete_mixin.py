@@ -1,7 +1,6 @@
 import pytest
-
-from sqlalchemy import Unicode
 from nanohttp import HTTPConflict
+from sqlalchemy import Unicode
 
 from restfulpy.orm import DeclarativeBase, Field, SoftDeleteMixin
 

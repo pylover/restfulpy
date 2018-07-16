@@ -1,6 +1,4 @@
-
 from sqlalchemy import Integer, Unicode
-from nanohttp import settings
 
 from restfulpy.orm import DeclarativeBase, Field, DeactivationMixin
 

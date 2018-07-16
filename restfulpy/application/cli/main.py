@@ -4,14 +4,14 @@ import sys
 import argcomplete
 
 from ...cli import Launcher
+from .autocompletion import AutoCompletionLauncher
+from .configuration import ConfigurationLauncher
 from .database import DatabaseLauncher
+from .dev import DevLauncher
+from .jwttoken import JWTLauncher
 from .migrate import MigrateLauncher
 from .serve import ServeLauncher
 from .worker import WorkerLauncher
-from .dev import DevLauncher
-from .configuration import ConfigurationLauncher
-from .jwttoken import JWTLauncher
-from .autocompletion import AutoCompletionLauncher
 
 
 class MainLauncher(Launcher):

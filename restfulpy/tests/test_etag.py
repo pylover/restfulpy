@@ -1,12 +1,11 @@
-
+from bddrest import response, when
+from nanohttp import json, etag, context
 from sqlalchemy import Unicode
-from nanohttp import settings, json, etag, context
-from bddrest import response, when, Remove
 
+from restfulpy.controllers import ModelRestController
 from restfulpy.orm import DeclarativeBase, DBSession, Field, ModifiedMixin,\
     commit
 from restfulpy.testing import ApplicableTestCase
-from restfulpy.controllers import ModelRestController
 
 
 class EtagCheckingModel(ModifiedMixin, DeclarativeBase):

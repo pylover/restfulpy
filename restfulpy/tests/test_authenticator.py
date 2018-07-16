@@ -1,12 +1,12 @@
 import itsdangerous
-from nanohttp import json, Controller, context, HTTPBadRequest, settings
 from bddrest.authoring import response, when
+from nanohttp import json, Controller, context, HTTPBadRequest, settings
 
+from restfulpy.application import Application
 from restfulpy.authentication import Authenticator
 from restfulpy.authorization import authorize
 from restfulpy.principal import JwtPrincipal, JwtRefreshToken
 from restfulpy.testing import ApplicableTestCase
-from restfulpy.application import Application
 
 
 token_expired = False

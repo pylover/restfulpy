@@ -1,7 +1,7 @@
 from nanohttp import settings
 
-from restfulpy.orm import Field, FakeJson
 from restfulpy.messaging import BaseEmail, create_messenger
+from restfulpy.orm import Field, FakeJson
 
 
 class Welcome(BaseEmail):

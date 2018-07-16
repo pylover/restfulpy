@@ -1,4 +1,3 @@
-
 from restfulpy.cryptography import AESCipher
 
 

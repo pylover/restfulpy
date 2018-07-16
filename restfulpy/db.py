@@ -1,10 +1,9 @@
-
 import os
 from os.path import exists
 from urllib.parse import urlparse
 
-from sqlalchemy import create_engine
 from nanohttp import settings
+from sqlalchemy import create_engine
 
 
 class AbstractDatabaseManager(object):

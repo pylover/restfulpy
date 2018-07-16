@@ -1,5 +1,3 @@
-
-
 class Launcher:
     no_launch = False
     parser = None

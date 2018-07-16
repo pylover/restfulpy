@@ -1,19 +1,15 @@
 import time
 
-import pytest
-from freezegun import freeze_time
-from nanohttp import json, Controller, context, settings
-from nanohttp.contexts import Context
 from bddrest import status, response, when
+from freezegun import freeze_time
+from nanohttp import json, Controller, context
+from nanohttp.contexts import Context
 
+from restfulpy.application import Application
 from restfulpy.authentication import StatefulAuthenticator
 from restfulpy.authorization import authorize
 from restfulpy.principal import JwtPrincipal, JwtRefreshToken
 from restfulpy.testing import ApplicableTestCase
-from restfulpy.application import Application
-
-
-
 
 
 class MockupMember:

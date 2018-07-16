@@ -1,10 +1,11 @@
-import pytest
-from datetime import datetime, timedelta
-from dateutil.tz import tzutc, tzoffset
+from datetime import datetime
 from os.path import dirname, join
 
-from restfulpy.datetimehelpers import parse_datetime, format_datetime
+import pytest
+from dateutil.tz import tzoffset
+
 from restfulpy.configuration import configure, settings
+from restfulpy.datetimehelpers import parse_datetime, format_datetime
 from restfulpy.mockup import mockup_localtimezone
 
 

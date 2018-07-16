@@ -1,6 +1,5 @@
-
-import subprocess
 import fcntl, termios, struct
+import subprocess
 from datetime import datetime
 
 

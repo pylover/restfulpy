@@ -1,4 +1,3 @@
-
 from sqlalchemy import Unicode
 
 from restfulpy.orm import DeclarativeBase, Field, ModifiedMixin

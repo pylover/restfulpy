@@ -1,14 +1,12 @@
-
-
 import re
 
+from nanohttp import HTTPBadRequest
 from sqlalchemy import Column, Unicode, String
 from sqlalchemy.orm import relationship as sa_relationship, \
     composite as sa_composite, synonym as sa_synonym
-from nanohttp import HTTPBadRequest
 
-from ..utils import to_camel_case
 from ..fieldinfo import FieldInfo
+from ..utils import to_camel_case
 
 
 # noinspection PyAbstractClass

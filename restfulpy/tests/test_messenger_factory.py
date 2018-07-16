@@ -1,4 +1,3 @@
-
 from os.path import dirname, abspath
 
 from nanohttp import settings, configure

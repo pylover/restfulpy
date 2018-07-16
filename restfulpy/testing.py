@@ -1,6 +1,6 @@
 import pytest
-from nanohttp import settings
 from bddrest import Given, when
+from nanohttp import settings
 
 from .application import Application
 from .configuration import configure

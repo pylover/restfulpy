@@ -1,21 +1,20 @@
-
 import functools
 from datetime import datetime, date, time
 from decimal import Decimal
 
 from nanohttp import context, HTTPNotFound, HTTPBadRequest
 from sqlalchemy import Column, event
+from sqlalchemy.ext.associationproxy import ASSOCIATION_PROXY
+from sqlalchemy.ext.hybrid import HYBRID_PROPERTY
+from sqlalchemy.inspection import inspect
 from sqlalchemy.orm import validates, Query, CompositeProperty, \
     RelationshipProperty
 from sqlalchemy.orm.attributes import InstrumentedAttribute
-from sqlalchemy.ext.hybrid import HYBRID_PROPERTY
-from sqlalchemy.ext.associationproxy import ASSOCIATION_PROXY
-from sqlalchemy.inspection import inspect
 
+from ..datetimehelpers import parse_datetime, format_datetime
+from ..utils import to_camel_case
 from .field import ModelFieldInfo, Field
 from .mixins import PaginationMixin, FilteringMixin, OrderingMixin
-from ..utils import to_camel_case
-from ..datetimehelpers import parse_datetime, format_datetime
 
 
 class BaseModel(object):

@@ -7,7 +7,6 @@ from http.server import BaseHTTPRequestHandler, HTTPStatus, HTTPServer
 from wsgiref.simple_server import WSGIServer, WSGIRequestHandler
 
 from . import datetimehelpers
-from .application import Application
 from .messaging import Messenger
 from .mimetypes_ import guess_type
 from .utils import copy_stream

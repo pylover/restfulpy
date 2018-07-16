@@ -1,10 +1,6 @@
-
 from sqlalchemy import Integer, Unicode
-from nanohttp import settings
 
-from restfulpy.testing import ApplicableTestCase
 from restfulpy.orm import DeclarativeBase, Field, FullTextSearchMixin, fts_escape, to_tsvector
-from restfulpy.application import Application
 
 
 class FullTextSearchObject(FullTextSearchMixin, DeclarativeBase):

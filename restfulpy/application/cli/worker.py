@@ -1,6 +1,5 @@
-
-import sys
 import signal
+import sys
 import threading
 
 from nanohttp import settings
