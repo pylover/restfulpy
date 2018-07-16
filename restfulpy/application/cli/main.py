@@ -13,6 +13,7 @@ from .migrate import MigrateLauncher
 from .serve import ServeLauncher
 from .worker import WorkerLauncher
 
+from .erd import EntityRelationshipDiagrams
 
 class MainLauncher(Launcher):
 
@@ -51,6 +52,7 @@ class MainLauncher(Launcher):
         WorkerLauncher.register(subparsers)
         DevLauncher.register(subparsers)
         AutoCompletionLauncher.register(subparsers)
+        EntityRelationshipDiagrams.register(subparsers)
 
         if application.__configuration_cipher__ is not None:
             ConfigurationLauncher.register(subparsers)
