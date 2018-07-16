@@ -72,15 +72,16 @@ class EntityRelationshipDiagrams(Launcher):
         db_url = self.args.url if self.args.url else settings.db.url
         try:
             metadata = MetaData(db_url)
-        except ArgumentError:
-            print('No db found, make sure you created db and schema.')
-            return
+            graph = create_schema_graph(
+                metadata=metadata,
+                show_datatypes=self.args.datatype,
+                show_indexes=self.args.index,
+                rankdir=self.args.rankdir,
+                concentrate=self.args.concentrate)
 
-        graph = create_schema_graph(metadata=metadata,
-                                    show_datatypes=self.args.datatype,
-                                    show_indexes=self.args.index,
-                                    rankdir='LR',
-                                    concentrate=self.args.concentrate)
+        except Exception as ex:
+            print(ex)
+            return
 
         output_dir = \
             join(self.args.application.root_path, 'data/class-diagrams/')
@@ -96,3 +97,4 @@ class EntityRelationshipDiagrams(Launcher):
                   "https://www.graphviz.org/download/")
         except Exception as ex:
             print(ex)
+
