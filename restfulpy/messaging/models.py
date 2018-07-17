@@ -3,7 +3,7 @@ from sqlalchemy import Integer, ForeignKey, Unicode
 from sqlalchemy.ext.declarative import declared_attr
 
 from ..logging_ import get_logger
-from ..orm import Field
+from ..orm import Field, FakeJson
 from ..taskqueue import Task
 from .providers import create_messenger
 
@@ -49,3 +49,18 @@ class BaseEmail(Task):
 
         logger.info('%s is sent to %s', self.subject, self.to)
 
+
+# FIXME: merge with the base class
+# FIXME: coverage me
+# noinspection PyAbstractClass
+class Email(BaseEmail):  # pragma: no cover
+    __tablename__ = 'email'
+    __mapper_args__ = {
+        'polymorphic_identity': __tablename__
+    }
+
+    body = Field(FakeJson, json='body')
+
+    @property
+    def email_body(self):
+        return self.body
