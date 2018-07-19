@@ -154,9 +154,13 @@ class ApplicableTestCase:
     @classmethod
     def setup_class(cls):
         if cls.__application__ is None:
+            parameters = {}
+            if cls.__controller_factory__ is not None:
+                parameters['root'] = cls.__controller_factory__()
+
             cls.__application__ = cls.__application_factory__(
-                name='Restfulpy testing application',
-                root=cls.__controller_factory__()
+                'Restfulpy testing application',
+                **parameters,
             )
 
         cls.configure_application()
