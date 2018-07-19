@@ -1,25 +1,6 @@
 from nanohttp import settings
 
-from restfulpy.messaging import BaseEmail, create_messenger
-from restfulpy.orm import Field, FakeJson
-
-
-class Welcome(BaseEmail):
-    __tablename__ = 'welcome'
-
-    __mapper_args__ = {
-        'polymorphic_identity': 'welcome'
-    }
-
-    body = Field(FakeJson, json='body')
-
-    @property
-    def email_body(self):
-        return self.body
-
-    @property
-    def template_filename(self):
-        return None
+from restfulpy.messaging import Email, create_messenger
 
 
 def test_messaging_model(db):
@@ -35,7 +16,7 @@ def test_messaging_model(db):
     mockup_messenger = create_messenger()
 
     # noinspection PyArgumentList
-    message = Welcome(
+    message = Email(
         to='test@example.com',
         subject='Test Subject',
         body={'msg': 'Hello'}
