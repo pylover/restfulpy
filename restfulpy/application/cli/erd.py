@@ -4,7 +4,6 @@ from os.path import join
 from nanohttp import settings
 from sqlalchemy import MetaData
 from sqlalchemy.exc import ArgumentError
-from sqlalchemy_schemadisplay import create_schema_graph
 
 from restfulpy.cli import Launcher
 
@@ -69,6 +68,7 @@ class EntityRelationshipDiagrams(Launcher):
         return parser
 
     def launch(self):
+        from sqlalchemy_schemadisplay import create_schema_graph
         db_url = self.args.url if self.args.url else settings.db.url
         try:
             metadata = MetaData(db_url)
