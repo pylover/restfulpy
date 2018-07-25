@@ -2,7 +2,7 @@ import itsdangerous
 from bddrest.authoring import response, when
 from nanohttp import json, Controller, context, HTTPBadRequest, settings
 
-from restfulpy.application import Application
+from restfulpy.mockup import MockupApplication
 from restfulpy.authentication import Authenticator
 from restfulpy.authorization import authorize
 from restfulpy.principal import JwtPrincipal, JwtRefreshToken
@@ -85,7 +85,7 @@ class Root(Controller):
 
 
 class TestAuthenticator(ApplicableTestCase):
-    __application__ = Application(
+    __application__ = MockupApplication(
         'Authenticator Application',
         Root(),
         authenticator=MockupStatelessAuthenticator()

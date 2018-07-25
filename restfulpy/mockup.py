@@ -10,6 +10,7 @@ from . import datetimehelpers
 from .messaging import Messenger
 from .mimetypes_ import guess_type
 from .utils import copy_stream
+from .application import Application
 
 
 SERVER_LOCK = threading.Event()
@@ -129,4 +130,13 @@ def mockup_localtimezone(timezone):
     yield
 
     datetimehelpers.localtimezone = backup
+
+
+class MockupApplication(Application):
+    __configuration__ = '''
+     db:
+       url: postgresql://postgres:postgres@localhost/restfulpy_dev
+       test_url: postgresql://postgres:postgres@localhost/restfulpy_test
+       administrative_url: postgresql://postgres:postgres@localhost/postgres
+    '''
 
