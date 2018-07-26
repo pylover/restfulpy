@@ -18,8 +18,8 @@ class TaskPopError(RestfulException):
     pass
 
 
-class Task(TimestampMixin, DeclarativeBase):
-    __tablename__ = 'task'
+class RestfulpyTask(TimestampMixin, DeclarativeBase):
+    __tablename__ = 'restfulpy_task'
 
     id = Field(Integer, primary_key=True, json='id')
     priority = Field(Integer, nullable=False, default=50, json='priority')
@@ -54,10 +54,10 @@ class Task(TimestampMixin, DeclarativeBase):
 
         cte = find_query.cte('find_query')
 
-        update_query = Task.__table__.update() \
-            .where(Task.id == cte.c.id) \
+        update_query = RestfulpyTask.__table__.update() \
+            .where(RestfulpyTask.id == cte.c.id) \
             .values(status='in-progress') \
-            .returning(Task.__table__.c.id)
+            .returning(RestfulpyTask.__table__.c.id)
 
         task_id = session.execute(update_query).fetchone()
         session.commit()
@@ -69,7 +69,7 @@ class Task(TimestampMixin, DeclarativeBase):
 
     def execute(self, context, session=DBSession):
         try:
-            isolated_task = session.query(Task).filter(Task.id == self.id).one()
+            isolated_task = session.query(RestfulpyTask).filter(RestfulpyTask.id == self.id).one()
             isolated_task.do_(context)
             session.commit()
         except:
@@ -78,16 +78,16 @@ class Task(TimestampMixin, DeclarativeBase):
 
     @classmethod
     def cleanup(cls, session=DBSession, statuses=['in-progress']):
-        session.query(Task) \
-            .filter(Task.status.in_(statuses)) \
+        session.query(RestfulpyTask) \
+            .filter(RestfulpyTask.status.in_(statuses)) \
             .with_lockmode('update') \
             .update({'status': 'new', 'started_at': None, 'terminated_at': None}, synchronize_session='fetch')
 
     @classmethod
     def reset_status(cls, task_id, session=DBSession, statuses=['in-progress']):
-        session.query(Task) \
-            .filter(Task.status.in_(statuses)) \
-            .filter(Task.id == task_id) \
+        session.query(RestfulpyTask) \
+            .filter(RestfulpyTask.status.in_(statuses)) \
+            .filter(RestfulpyTask.id == task_id) \
             .with_lockmode('update') \
             .update({'status': 'new', 'started_at': None, 'terminated_at': None}, synchronize_session='fetch')
 
@@ -101,7 +101,7 @@ def worker(statuses={'new'}, filters=None, tries=-1):
         context['counter'] += 1
         logger.debug("Trying to pop a task, Counter: %s" % context['counter'])
         try:
-            task = Task.pop(
+            task = RestfulpyTask.pop(
                 statuses=statuses,
                 filters=filters,
                 session=isolated_session

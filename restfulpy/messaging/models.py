@@ -4,7 +4,7 @@ from sqlalchemy.ext.declarative import declared_attr
 
 from ..logging_ import get_logger
 from ..orm import Field, FakeJson,synonym
-from ..taskqueue import Task
+from ..taskqueue import RestfulpyTask
 from .providers import create_messenger
 
 
@@ -12,9 +12,10 @@ logger = get_logger('messaging')
 
 
 # noinspection PyAbstractClass
-class Email(Task):
+class Email(RestfulpyTask):
     __tablename__ = 'email'
 
+    
     template_filename = Field(Unicode(200), nullable=True)
     to = Field(Unicode(100), json='to')
     subject = Field(Unicode(256), json='subject')
@@ -51,7 +52,7 @@ class Email(Task):
     def id(cls):
         return Field(
             Integer,
-            ForeignKey('task.id'),
+            ForeignKey('restfulpy_task.id'),
             primary_key=True, json='id'
         )
 
