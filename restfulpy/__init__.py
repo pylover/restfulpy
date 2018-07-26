@@ -10,5 +10,5 @@ from .application import Application
 warnings.filterwarnings('ignore', message='Unknown REQUEST_METHOD')
 
 
-__version__ = '1.1.1a1'
+__version__ = '1.1.2a1'
 

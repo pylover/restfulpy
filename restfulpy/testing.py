@@ -2,7 +2,7 @@ import pytest
 from bddrest import Given, when
 from nanohttp import settings
 
-from .application import Application
+from .mockup import MockupApplication
 from .configuration import configure
 from .db import DatabaseManager as DBManager
 from .orm import setup_schema, session_factory, create_engine, init_model, \
@@ -73,7 +73,7 @@ class TestCase:
 
 class ApplicableTestCase:
     __application__ = None
-    __application_factory__ = Application
+    __application_factory__ = MockupApplication
     __controller_factory__ = None
     __configuration__ = None
     _engine = None
@@ -84,22 +84,18 @@ class ApplicableTestCase:
     def configure_application(cls):
         cls.__application__.configure(force=True)
         settings.merge('''
-            db:
-              test_url: postgresql://postgres:postgres@localhost/pytest_test
-              administrative_url: >
-                       postgresql://postgres:postgres@localhost/postgres
-            logging:
-              loggers:
-                default:
-                  level: critical
+          logging:
+            loggers:
+              default:
+                level: critical
         ''')
+
+        if cls.__configuration__:
+            settings.merge(cls.__configuration__)
 
         # Overriding the db uri becase this is a test session, so db.test_uri
         # will be used instead of the db.uri
         settings.db.url = settings.db.test_url
-
-        if cls.__configuration__:
-            settings.merge(cls.__configuration__)
 
     @classmethod
     def create_session(cls, *a, **kw):
@@ -154,9 +150,13 @@ class ApplicableTestCase:
     @classmethod
     def setup_class(cls):
         if cls.__application__ is None:
+            parameters = {}
+            if cls.__controller_factory__ is not None:
+                parameters['root'] = cls.__controller_factory__()
+
             cls.__application__ = cls.__application_factory__(
-                name='Restfulpy testing application',
-                root=cls.__controller_factory__()
+                'Restfulpy testing application',
+                **parameters,
             )
 
         cls.configure_application()
