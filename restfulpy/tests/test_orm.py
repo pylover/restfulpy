@@ -233,7 +233,7 @@ def test_model(db):
                     'phone': None,
                     'title': 'author1',
                     'birth': '0001-01-01',
-                    'weight': '1.1000000000',
+                    'weight': 1.100,
                     'age': 18
                 },
                 'authorId': 1,
