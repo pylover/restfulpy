@@ -35,7 +35,7 @@ class RestfulpyTask(TimestampMixin, DeclarativeBase):
         'polymorphic_on': type
     }
 
-    def do_(self, context):  # pragma: no cover
+    def do_(self):  # pragma: no cover
         raise NotImplementedError
 
     @classmethod

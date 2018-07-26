@@ -140,10 +140,10 @@ class Post(ModifiedMixin, DeclarativeBase):
     id = Field(Integer, primary_key=True)
     title = Field(Unicode(50), watermark='title', label='title', icon='star')
     author_id = Field(ForeignKey('author.id'), json='authorId')
-    author = relationship(Author)
+    author = relationship(Author, protected=False)
     memos = relationship(Memo, protected=True, json='privateMemos')
-    comments = relationship(Comment)
-    tags = relationship(Tag, secondary=post_tag_table, back_populates='posts')
+    comments = relationship(Comment, protected=False)
+    tags = relationship(Tag, secondary=post_tag_table, back_populates='posts', protected=False)
     tag_time = Field(Time)
 
 

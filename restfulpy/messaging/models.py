@@ -15,7 +15,7 @@ logger = get_logger('messaging')
 class Email(RestfulpyTask):
     __tablename__ = 'email'
 
-    
+
     template_filename = Field(Unicode(200), nullable=True)
     to = Field(Unicode(100), json='to')
     subject = Field(Unicode(256), json='subject')
@@ -56,11 +56,7 @@ class Email(RestfulpyTask):
             primary_key=True, json='id'
         )
 
-#    @property
-#    def template_filename(self):  # pragma: no cover
-#        raise NotImplementedError()
-
-    def do_(self, context, attachments=None):
+    def do_(self, attachments=None):
         messenger = create_messenger()
         messenger.send(
             self.to,
