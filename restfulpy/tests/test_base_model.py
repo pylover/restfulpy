@@ -113,7 +113,7 @@ class Member(
     )
     birth = Field(Date)
     weight = Field(Float(asdecimal=True), default=50)
-    _keywords = relationship('Keyword', secondary='member_keywords')
+    _keywords = relationship('Keyword', secondary='member_keywords', protected=False)
     keywords = association_proxy(
         '_keywords',
         'keyword',
@@ -121,7 +121,7 @@ class Member(
     )
     visible = Field(Boolean, nullable=True)
     last_login_time = Field(DateTime, json='lastLoginTime')
-    books = relationship('Book')
+    books = relationship('Book', protected=False)
 
     def _set_password(self, password):
         self._password = 'hashed:%s' % password

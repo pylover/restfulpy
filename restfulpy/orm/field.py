@@ -20,24 +20,27 @@ class Field(Column):
             'max' in self.info or \
             'min' in self.info
 
-    def __init__(self,
-                 *args,
-                 json=None,
-                 readonly=None,
-                 max_length=None,
-                 min_length=None,
-                 max_=None,
-                 min_=None,
-                 pattern=None,
-                 protected=None,
-                 watermark=None,
-                 nullable=False,
-                 label=None,
-                 icon=None,
-                 example=None,
-                 message=None,
-                 info=None,
-                 **kwargs):
+    def __init__(
+        self,
+        *args,
+        json=None,
+        readonly=None,
+        max_length=None,
+        min_length=None,
+        max_=None,
+        min_=None,
+        pattern=None,
+        protected=None,
+        watermark=None,
+        nullable=False,
+        label=None,
+        icon=None,
+        example=None,
+        message=None,
+        info=None,
+        **kwargs
+    ):
+
         info = info or dict()
 
         if json is not None:
@@ -135,7 +138,7 @@ class Field(Column):
         return value
 
 
-def relationship(*args, json=None, protected=None, readonly=True, **kwargs):
+def relationship(*args, json=None, protected=True, readonly=True, **kwargs):
     info = dict()
 
     if json is not None:

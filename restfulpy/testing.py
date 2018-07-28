@@ -36,8 +36,13 @@ def db():
 
     # A session factory to create and store session to close it on tear down
     sessions = []
-    def _connect(*a, **kw):
-        new_session = session_factory(bind=engine, *a, **kw)
+    def _connect(*a, expire_on_commit=False, **kw):
+        new_session = session_factory(
+            bind=engine,
+            *a,
+            expire_on_commit=expire_on_commit,
+            **kw
+        )
         sessions.append(new_session)
         return new_session
 
@@ -98,8 +103,13 @@ class ApplicableTestCase:
         settings.db.url = settings.db.test_url
 
     @classmethod
-    def create_session(cls, *a, **kw):
-        new_session = session_factory(bind=cls._engine, *a, **kw)
+    def create_session(cls, *a, expire_on_commit=False, **kw):
+        new_session = session_factory(
+            bind=cls._engine,
+            *a,
+            expire_on_commit=expire_on_commit,
+            **kw
+        )
         cls._sessions.append(new_session)
         return new_session
 

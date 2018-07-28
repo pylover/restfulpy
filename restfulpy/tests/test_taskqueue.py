@@ -1,13 +1,13 @@
 import threading
 
-from restfulpy.taskqueue import Task, worker
+from restfulpy.taskqueue import RestfulpyTask, worker
 
 
 awesome_task_done = threading.Event()
 another_task_done = threading.Event()
 
 
-class AwesomeTask(Task):
+class AwesomeTask(RestfulpyTask):
 
     __mapper_args__ = {
         'polymorphic_identity': 'awesome_task'
@@ -17,7 +17,7 @@ class AwesomeTask(Task):
         awesome_task_done.set()
 
 
-class AnotherTask(Task):
+class AnotherTask(RestfulpyTask):
 
     __mapper_args__ = {
         'polymorphic_identity': 'another_task'
@@ -27,7 +27,7 @@ class AnotherTask(Task):
         another_task_done.set()
 
 
-class BadTask(Task):
+class BadTask(RestfulpyTask):
 
     __mapper_args__ = {
         'polymorphic_identity': 'bad_task'
@@ -51,7 +51,7 @@ def test_worker(db):
 
     session.commit()
 
-    tasks = worker(tries=0, filters=Task.type == 'awesome_task')
+    tasks = worker(tries=0, filters=RestfulpyTask.type == 'awesome_task')
     assert len(tasks) == 1
 
     assert awesome_task_done.is_set() == True
@@ -64,13 +64,13 @@ def test_worker(db):
     session.refresh(awesome_task)
     assert awesome_task.status == 'success'
 
-    tasks = worker(tries=0, filters=Task.type == 'bad_task')
+    tasks = worker(tries=0, filters=RestfulpyTask.type == 'bad_task')
     assert len(tasks) == 1
     bad_task_id = tasks[0][0]
     session.refresh(bad_task)
     assert bad_task.status == 'failed'
 
-    tasks = worker(tries=0, filters=Task.type == 'bad_task')
+    tasks = worker(tries=0, filters=RestfulpyTask.type == 'bad_task')
     assert len(tasks) == 0
 
     # Reset the status of one task
@@ -79,22 +79,22 @@ def test_worker(db):
     session.commit()
     session.refresh(bad_task)
 
-    Task.reset_status(bad_task_id, session)
+    RestfulpyTask.reset_status(bad_task_id, session)
     session.commit()
-    tasks = worker(tries=0, filters=Task.type == 'bad_task')
+    tasks = worker(tries=0, filters=RestfulpyTask.type == 'bad_task')
     assert len(tasks) == 1
 
-    tasks = worker(tries=0, filters=Task.type == 'bad_task')
+    tasks = worker(tries=0, filters=RestfulpyTask.type == 'bad_task')
     assert len(tasks) == 0
 
     # Cleanup all tasks
-    Task.cleanup(session, statuses=('in-progress', 'failed'))
+    RestfulpyTask.cleanup(session, statuses=('in-progress', 'failed'))
     session.commit()
 
-    tasks = worker(tries=0, filters=Task.type == 'bad_task')
+    tasks = worker(tries=0, filters=RestfulpyTask.type == 'bad_task')
     assert len(tasks) == 1
 
-    tasks = worker(tries=0, filters=Task.type == 'bad_task')
+    tasks = worker(tries=0, filters=RestfulpyTask.type == 'bad_task')
     assert len(tasks) == 0
 
     # Doing all remaining tasks
