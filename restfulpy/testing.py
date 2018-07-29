@@ -146,9 +146,12 @@ class ApplicableTestCase:
     @classmethod
     def cleanup_orm(cls):
         # Closing all sessions created by the test writer
-        for s in cls._sessions:
-            s.close()
-            cls._sessions.remove(s)
+        while True:
+            try:
+                s = cls._sessions.pop()
+                s.close()
+            except IndexError:
+                break
 
         DBSession.remove()
         cls._engine.dispose()
