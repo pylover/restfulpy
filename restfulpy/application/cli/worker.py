@@ -80,9 +80,9 @@ class CleanupLauncher(Launcher):
 
     def launch(self):
         from restfulpy.orm import DBSession
-        from restfulpy.taskqueue import Task
+        from restfulpy.taskqueue import RestfulpyTask
 
-        Task.cleanup(DBSession)
+        RestfulpyTask.cleanup(DBSession)
         DBSession.commit()
 
 
