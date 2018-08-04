@@ -199,7 +199,6 @@ class ApplicableTestCase:
             ) as story:
             response = story.response
             assert response.status == '200 OK'
-            assert response.headers['X-Identity'] == '1'
             assert 'token' in response.json
             self._authentication_token = response.json['token']
 
