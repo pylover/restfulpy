@@ -2,7 +2,7 @@ from itsdangerous import TimedJSONWebSignatureSerializer, JSONWebSignatureSerial
 from nanohttp import settings, context, HTTPForbidden
 
 
-class JwtPrincipal:
+class BaseJwtPrincipal:
     def __init__(self, payload):
         self.payload = payload
 
@@ -32,6 +32,12 @@ class JwtPrincipal:
         payload = cls.create_serializer(force=force).loads(encoded)
         return cls(payload)
 
+    @classmethod
+    def get_config(cls):
+        raise NotImplementedError()
+
+
+class JwtPrincipal(BaseJwtPrincipal):
     def is_in_roles(self, *roles):
         if 'roles' in self.payload:
             if set(self.payload['roles']).intersection(roles):
