@@ -22,8 +22,7 @@ class TestJSONPayload(ApplicableTestCase):
 
         with self.given(
             'Testing json pyload',
-            form=payload,
-            content_type='application/json'
+            json=payload,
         ):
             assert response.json ==  payload
 

@@ -61,8 +61,7 @@ class TestCommitDecorator(ApplicableTestCase):
             is a jsonpatch.',
             verb='PATCH',
             url='/',
-            content_type='application/json',
-            form=[
+            json=[
                 dict(op='post', path='', value=dict(title='second')),
                 dict(op='post', path='', value=dict(title='third'))
             ]):
