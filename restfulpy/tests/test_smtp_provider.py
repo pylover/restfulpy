@@ -11,7 +11,8 @@ HERE = abspath(dirname(__file__))
 
 
 def test_smtp_provider():
-    configure(init_value=f'''
+    configure(force=True)
+    settings.merge(f'''
         smtp:
           host: smtp.example.com
           port: 587
@@ -26,7 +27,6 @@ def test_smtp_provider():
           template_dirs:
             - {join(HERE, 'templates')}
         ''',
-        force=True
     )
 
     with mockup_smtp_server() as (server, bind):

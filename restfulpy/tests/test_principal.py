@@ -1,4 +1,4 @@
-from nanohttp import configure
+from nanohttp import configure, settings
 
 from restfulpy.principal import JwtPrincipal
 
@@ -14,7 +14,8 @@ def test_principal():
         algorithm: HS256
         max_age: 2678400  # 30 Days
     '''
-    configure(init_value=__configuration__, force=True)
+    configure(force=True)
+    settings.merge(__configuration__)
 
     principal = JwtPrincipal(dict(
         email='test@example.com',

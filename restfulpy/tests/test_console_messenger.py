@@ -1,7 +1,7 @@
 import io
 from os.path import dirname, abspath, join
 
-from nanohttp import configure
+from nanohttp import configure, settings
 
 from restfulpy.messaging.providers import ConsoleMessenger
 
@@ -19,7 +19,8 @@ class TestSmtpProvider:
 
     @classmethod
     def setup_class(cls):
-        configure(init_value=cls.__configuration__, force=True)
+        configure(force=True)
+        settings.merge(cls.__configuration__)
 
     def test_console_messenger(self):
         # Without templates

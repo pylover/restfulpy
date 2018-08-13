@@ -117,17 +117,15 @@ def configure(config=None, directories=None, files=None, context=None,
     context['restfulpy_root'] = path.dirname(__file__)
 
     nanohttp_configure(
-        init_value=__builtin_config,
         context=context,
         force=force
     )
+    settings.merge(__builtin_config)
 
     if config:
         settings.merge(config)
 
-    if directories:
-        settings.load_dirs(directories)
-
     if files:
-        settings.load_files(files)
+        for f in files:
+            settings.load_files(f)
 

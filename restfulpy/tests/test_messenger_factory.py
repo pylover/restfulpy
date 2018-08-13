@@ -14,7 +14,8 @@ def test_messenger_factory():
         messaging:
           default_messenger: restfulpy.messaging.ConsoleMessenger
         '''
-    configure(init_value=__configuration__, force=True)
+    configure(force=True)
+    settings.merge(__configuration__)
 
     console_messenger = create_messenger()
     assert isinstance(console_messenger, ConsoleMessenger)

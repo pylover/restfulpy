@@ -9,7 +9,7 @@ from restfulpy.datetimehelpers import parse_datetime, format_datetime
 from restfulpy.mockup import mockup_localtimezone
 
 
-class TestDateTimeParserFormatterTestCase():
+class TestDateTimeParserFormatterTestCase:
 
     @classmethod
     def setup_class(cls):

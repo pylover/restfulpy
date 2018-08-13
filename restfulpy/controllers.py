@@ -1,7 +1,7 @@
 import types
 from urllib.parse import parse_qs
 
-from nanohttp import Controller, context, json, RestController, action, etag
+from nanohttp import Controller, context, json, RestController, action
 
 from restfulpy.orm import DBSession
 
@@ -12,7 +12,10 @@ class RootController(Controller):
 
         if context.method == 'options':
             context.response_encoding = 'utf-8'
-            context.response_headers.add_header("Cache-Control", "no-cache,no-store")
+            context.response_headers.add_header(
+                'Cache-Control',
+                'no-cache,no-store'
+            )
             return b''
 
         return super().__call__(*remaining_paths)
@@ -22,7 +25,6 @@ class ModelRestController(RestController):
     __model__ = None
 
     @json
-    @etag(tag=lambda: context.application.version)
     def metadata(self):
         return self.__model__.json_metadata()
 
