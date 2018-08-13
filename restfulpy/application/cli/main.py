@@ -27,18 +27,14 @@ class MainLauncher(Launcher):
             '-p', '--process-name',
             metavar="PREFIX",
             default=application.name,
-            help='A string indicates the logger prefix for this process, it helps to configure '
-                 'separate log files per process.'
+            help= \
+                'A string indicates the logger prefix for this process, it '
+                'helps to configure separate log files per process.'
         )
         parser.add_argument(
             '-c', '--config-file',
             metavar="FILE",
             help='List of configuration files separated by space. Default: ""'
-        )
-        parser.add_argument(
-            '-d', '--config-dir',
-            metavar="DIR",
-            help='List of configuration directories separated by space. Default: ""'
         )
         subparsers = parser.add_subparsers(
             title="sub commands",
@@ -67,7 +63,7 @@ class MainLauncher(Launcher):
         cli_args = self.parser.parse_args(args)
         cli_args.application = self.application
         self.application.process_name = cli_args.process_name
-        self.application.configure(files=cli_args.config_file, directories=cli_args.config_dir)
+        self.application.configure(files=cli_args.config_file)
         self.application.initialize_orm()
         if hasattr(cli_args, 'func'):
             cli_args.func(cli_args)

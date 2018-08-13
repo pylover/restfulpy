@@ -48,7 +48,7 @@ class Application(NanohttpApplication):
             self.__logger__.exception('Internal server error')
         return super()._handle_exception(ex)
 
-    def configure(self, files=None, context=None, **kwargs):
+    def configure(self, files=None, context=None, force=False):
         _context = {
             'process_name': self.process_name,
             'root_path': self.root_path,
@@ -58,7 +58,8 @@ class Application(NanohttpApplication):
         if context:
             _context.update(context)
 
-        configure(config=self.__configuration__, context=_context, **kwargs)
+        configure(context=_context, force=force)
+        settings.merge(self.__configuration__)
 
         files = ([files] if isinstance(files, str) else files) or []
         local_config_file = join(user_config_dir(), '%s.yml' % self.name)
