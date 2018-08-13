@@ -74,7 +74,7 @@ class SoftDeleteMixin:
 
     @staticmethod
     def before_delete(mapper, connection, target):
-        raise HTTPConflict('Cannot remove this object: %s' % target)
+        raise AssertionError(f'Cannot remove {target}')
 
     @classmethod
     def __declare_last__(cls):

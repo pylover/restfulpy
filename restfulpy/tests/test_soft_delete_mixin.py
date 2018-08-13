@@ -45,6 +45,6 @@ def test_soft_delete_mixin(db):
     assert SoftDeleteCheckingModel.exclude_deleted(query).count() == 1
 
     session.delete(instance)
-    with pytest.raises(HTTPConflict):
+    with pytest.raises(AssertionError):
         session.commit()
 
