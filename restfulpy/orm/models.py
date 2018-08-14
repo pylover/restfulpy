@@ -18,7 +18,7 @@ from .mixins import PaginationMixin, FilteringMixin, OrderingMixin
 
 
 class BaseModel(object):
-    _key_serializer = None
+    __enable_validation__ = False
 
     @classmethod
     def get_column(cls, column):
@@ -156,7 +156,6 @@ class BaseModel(object):
                 include_readonly_columns=False
         ):
             param_name = c.info.get('json', to_camel_case(c.key))
-#            import pudb; pudb.set_trace()  # XXX BREAKPOINT
 
             if param_name in context.form:
 
@@ -241,6 +240,8 @@ class BaseModel(object):
 
 @event.listens_for(BaseModel, 'class_instrument')
 def receive_class_instrument(cls):
+    if not cls.__enable_validation__:
+        return
     for field in cls.iter_columns(
             relationships=False,
             synonyms=False,
@@ -254,3 +255,4 @@ def receive_class_instrument(cls):
                 return self.get_column(key).validate(value)
 
             setattr(cls, method_name, validates(field.name)(validator))
+

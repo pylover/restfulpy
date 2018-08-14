@@ -33,6 +33,7 @@ class FullName(object):  # pragma: no cover
 
 class Author(DeclarativeBase):
     __tablename__ = 'author'
+    __enable_validation__ = True
 
     id = Field(Integer, primary_key=True)
     email = Field(
