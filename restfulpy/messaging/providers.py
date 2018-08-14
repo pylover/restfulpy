@@ -18,7 +18,8 @@ class Messenger(object):
     def render_body(self, body, template_filename=None):
         if template_filename:
             mako_template = self.lookup.get_template(template_filename)
-            assert mako_template is not None, 'Cannot find template file: %s.' % template_filename
+            assert mako_template is not None, \
+                'Cannot find template file: {template_filename}.'
             return mako_template.render(**body)
 
         return body
@@ -31,14 +32,16 @@ class Messenger(object):
             input_encoding='utf8'
         )
 
-    def send(self, to, subject, body, cc=None, bcc=None, template_filename=None, from_=None,
+    def send(self, to, subject, body, cc=None, bcc=None,
+             template_filename=None, from_=None,
              attachments=None):  # pragma: no cover
         raise NotImplementedError
 
 
 class SmtpProvider(Messenger):
 
-    def send(self, to, subject, body, cc=None, bcc=None, template_filename=None, from_=None, attachments=None):
+    def send(self, to, subject, body, cc=None, bcc=None,
+             template_filename=None, from_=None, attachments=None):
         """
         Sending messages with SMTP server
         """
@@ -73,8 +76,12 @@ class SmtpProvider(Messenger):
         if attachments:
             for attachment in attachments:
                 assert hasattr(attachment, 'name')
-                attachment_part = MIMEApplication(attachment.read(), Name=basename(attachment.name))
-                attachment_part['Content-Disposition'] = 'attachment; filename="%s"' % basename(attachment.name)
+                attachment_part = MIMEApplication(
+                    attachment.read(),
+                    Name=basename(attachment.name)
+                )
+                attachment_part['Content-Disposition'] = \
+                    f'attachment; filename="{basename(attachment.name)}"'
                 msg.attach(attachment_part)
 
         smtp_server.send_message(msg)
@@ -82,7 +89,8 @@ class SmtpProvider(Messenger):
 
 
 class ConsoleMessenger(Messenger):
-    def send(self, to, subject, body, cc=None, bcc=None, template_filename=None, from_=None, attachments=None):
+    def send(self, to, subject, body, cc=None, bcc=None,
+             template_filename=None, from_=None, attachments=None):
         """
         Sending messages by email
         """

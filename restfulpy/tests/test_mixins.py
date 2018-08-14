@@ -19,11 +19,10 @@ class Student(
     name = Field(Unicode(100), max_length=90)
 
 
-"""
-This unittest is wrote to test the combination of mixins
-"""
-
 def test_activation_mixin(db):
+    """
+    This unittest is wrote to test the combination of mixins
+    """
     session = db()
 
     activated_student = Student()

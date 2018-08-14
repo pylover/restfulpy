@@ -90,7 +90,8 @@ class AutoCompletionInstaller(Launcher):
             if line in content:
                 print(
                     'The autocompletion is already activated.\n'
-                    f'it means the line:\n\n    {line}\nwas found in file {abspath(filename)}',
+                    f'it means the line:\n\n    '
+                    f'{line}\nwas found in file {abspath(filename)}',
                     file=sys.stderr
                 )
                 return 1
@@ -122,7 +123,8 @@ class AutoCompletionUninstaller(Launcher):
         if 'VIRTUAL_ENV' in os.environ:
             if self.args.system_wide:
                 print(
-                    'The -s/--system-wide flag can not be used within virtualenv',
+                    'The -s/--system-wide flag can not be used within ',
+                    'virtualenv',
                     file=sys.stderr
                 )
                 return 1
@@ -144,7 +146,8 @@ class AutoCompletionUninstaller(Launcher):
         return self.uninstall_from_file(sourcefile)
 
     def uninstall_from_file(self, filename):
-        line = 'eval "$(register-python-argcomplete %s)"\n' % basename(sys.argv[0])
+        line = \
+            f'eval "$(register-python-argcomplete {basename(sys.argv[0])})"\n'
         return self.remove_line_from_file(filename, line)
 
     def uninstall_systemwide(self):
@@ -165,11 +168,15 @@ class AutoCompletionUninstaller(Launcher):
                     found = True
 
         if found:
-            print(f'The line:\n\n    {line}\nwas removed from {abspath(filename)}')
+            print(
+                f'The line:\n\n    '
+                f'{line}\nwas removed from {abspath(filename)}'
+            )
         else:
             print(
                 'The autocompletion is already deactivated.\n'
-                f'it means the line:\n\n    {line}\nwas not found in file {abspath(filename)}',
+                f'it means the line:\n\n'
+                '    {line}\nwas not found in file {abspath(filename)}',
                 file=sys.stderr
             )
             return 1

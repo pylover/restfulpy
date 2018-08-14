@@ -43,18 +43,18 @@ def test_jsonpatch_rfc6902():
         controller = SimpleJsonPatchController()
         context.form = [
             {
-                "op": "get",
-                "path": "/"
+                'op': 'get',
+                'path': '/'
             },
             {
-                "op": "put",
-                "path": "biscuits/1",
-                "value": {"name": "Ginger Nut"}
+                'op': 'put',
+                'path': 'biscuits/1',
+                'value': {'name': 'Ginger Nut'}
             },
             {
-                "op": "get",
-                "path": "biscuits/2",
-                "value": {"name": "Ginger Nut"}
+                'op': 'get',
+                'path': 'biscuits/2',
+                'value': {'name': 'Ginger Nut'}
             }
         ]
         result = ujson.loads(controller())
@@ -69,14 +69,14 @@ def test_jsonpatch_error():
         controller = SimpleJsonPatchController()
         context.form = [
             {
-                "op": "put",
-                "path": "biscuits/1",
-                "value": {"name": "Ginger Nut"}
+                'op': 'put',
+                'path': 'biscuits/1',
+                'value': {'name': 'Ginger Nut'}
             },
             {
-                "op": "error",
-                "path": "biscuits",
-                "value": None
+                'op': 'error',
+                'path': 'biscuits',
+                'value': None
             }
         ]
 
@@ -92,18 +92,18 @@ def test_jsonpatch_querystring():
         controller = SimpleJsonPatchController()
         context.form = [
             {
-                "op": "get",
-                "path": "/"
+                'op': 'get',
+                'path': '/'
             },
             {
-                "op": "put",
-                "path": "biscuits/1?a=1",
-                "value": {"name": "Ginger Nut"}
+                'op': 'put',
+                'path': 'biscuits/1?a=1',
+                'value': {'name': 'Ginger Nut'}
             },
             {
-                "op": "get",
-                "path": "biscuits/2",
-                "value": {"name": "Ginger Nut"}
+                'op': 'get',
+                'path': 'biscuits/2',
+                'value': {'name': 'Ginger Nut'}
             }
         ]
         result = ujson.loads(controller())
@@ -121,9 +121,14 @@ def test_jsonpatch_caseinsesitive_verb():
     with Context(environ):
         controller = SimpleJsonPatchController()
         context.form = [
-            {"op": "GET", "path": "/"},
-            {"op": "PUT", "path": "biscuits/1?a=1", "value": {"name": "Ginger Nut"}},
-            {"op": "GET", "path": "biscuits/2", "value": {"name": "Ginger Nut"}},
+            {'op': 'GET', 'path': '/'},
+            {'op': 'PUT', 'path': 'biscuits/1?a=1', 'value': {
+                'name':
+                'Ginger Nut'
+            }},
+            {'op': 'GET', 'path': 'biscuits/2', 'value': {
+                'name': 'Ginger Nut'
+            }},
         ]
         result = ujson.loads(controller())
         assert len(result) == 3

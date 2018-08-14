@@ -12,7 +12,8 @@ from .field import Field
 
 
 FILTERING_IN_OPERATOR_REGEX = re.compile('!?IN\((?P<items>.*)\)')
-FILTERING_BETWEEN_OPERATOR_REGEX = re.compile('!?BETWEEN\((?P<min>.*),(?P<max>.*)\)')
+FILTERING_BETWEEN_OPERATOR_REGEX = \
+    re.compile('!?BETWEEN\((?P<min>.*),(?P<max>.*)\)')
 
 
 class TimestampMixin:
@@ -48,7 +49,12 @@ class ModifiedMixin(TimestampMixin):
 
 
 class SoftDeleteMixin:
-    removed_at = Field(DateTime, nullable=True, json='removedAt', readonly=True)
+    removed_at = Field(
+        DateTime,
+        nullable=True,
+        json='removedAt',
+        readonly=True
+    )
 
     def assert_is_not_deleted(self):
         if self.is_deleted:
@@ -82,18 +88,22 @@ class SoftDeleteMixin:
 
     @classmethod
     def filter_deleted(cls, query):
-        # noinspection PyUnresolvedReferences
         return query.filter(cls.removed_at.isnot(None))
 
     @classmethod
     def exclude_deleted(cls, query):
-        # noinspection PyUnresolvedReferences
         return query.filter(cls.removed_at.is_(None))
 
 
 class ActivationMixin:
 
-    activated_at = Field(DateTime, nullable=True, json='activatedAt', readonly=True, protected=True)
+    activated_at = Field(
+        DateTime,
+        nullable=True,
+        json='activatedAt',
+        readonly=True,
+        protected=True
+    )
 
     @hybrid_property
     def is_active(self):
@@ -105,7 +115,6 @@ class ActivationMixin:
 
     @is_active.expression
     def is_active(self):
-        # noinspection PyUnresolvedReferences
         return self.activated_at.isnot(None)
 
     @classmethod
@@ -114,10 +123,8 @@ class ActivationMixin:
 
     @classmethod
     def import_value(cls, column, v):
-        # noinspection PyUnresolvedReferences
         if column.key == cls.is_active.key and not isinstance(v, bool):
             return str(v).lower() == 'true'
-        # noinspection PyUnresolvedReferences
         return super().import_value(column, v)
 
 
@@ -182,8 +189,11 @@ class PaginationMixin:
 
         context.response_headers.add_header('X-Pagination-Take', str(take))
         context.response_headers.add_header('X-Pagination-Skip', str(skip))
-        context.response_headers.add_header('X-Pagination-Count', str(query.count()))
-        return query.offset(skip).limit(take)  # [skip:skip + take] Commented by vahid
+        context.response_headers.add_header(
+            'X-Pagination-Count',
+            str(query.count())
+        )
+        return query.offset(skip).limit(take)
 
 
 class FilteringMixin:
@@ -252,7 +262,9 @@ class FilteringMixin:
 
         # LIKE
         elif '%' in value:
-            func, actual_value = (column.ilike, value[1:]) if value.startswith('~') else (column.like, value)
+            func, actual_value = \
+                (column.ilike, value[1:]) if value.startswith('~') \
+                else (column.like, value)
             expression = func(import_value(column, actual_value))
 
         # EQUAL
@@ -273,7 +285,9 @@ class OrderingMixin:
         if settings.db.url.startswith('sqlite'):
             return query.order_by(expression)
 
-        return query.order_by((nullsfirst if descending else nullslast)(expression))
+        return query.order_by(
+            (nullsfirst if descending else nullslast)(expression)
+        )
 
     @classmethod
     def sort_by_request(cls, query):
@@ -299,7 +313,12 @@ class OrderingMixin:
 
 
 class ApproveRequiredMixin:
-    approved_at = Field(DateTime, nullable=True, json='approvedAt', readonly=True)
+    approved_at = Field(
+        DateTime,
+        nullable=True,
+        json='approvedAt',
+        readonly=True
+    )
 
     @hybrid_property
     def is_approved(self):

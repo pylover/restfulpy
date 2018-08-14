@@ -8,7 +8,8 @@ from sqlalchemy.sql.expression import text
 
 from restfulpy.exceptions import RestfulException
 from restfulpy.logging_ import get_logger
-from restfulpy.orm import TimestampMixin, DeclarativeBase, Field, DBSession, create_thread_unsafe_session
+from restfulpy.orm import TimestampMixin, DeclarativeBase, Field, DBSession, \
+    create_thread_unsafe_session
 
 
 logger = get_logger('taskqueue')
@@ -23,8 +24,17 @@ class RestfulpyTask(TimestampMixin, DeclarativeBase):
 
     id = Field(Integer, primary_key=True, json='id')
     priority = Field(Integer, nullable=False, default=50, json='priority')
-    status = Field(Enum('new', 'success', 'in-progress', 'failed', name='task_status_enum'), default='new',
-                   nullable=True, json='status')
+    status = Field(
+        Enum(
+            'new',
+            'success',
+            'in-progress',
+            'failed',
+            name='task_status_enum'
+        ),
+        default='new',
+        nullable=True, json='status'
+    )
     fail_reason = Field(Unicode(2048), nullable=True, json='reason')
     started_at = Field(DateTime, nullable=True, json='startedAt')
     terminated_at = Field(DateTime, nullable=True, json='terminatedAt')
@@ -41,9 +51,17 @@ class RestfulpyTask(TimestampMixin, DeclarativeBase):
     @classmethod
     def pop(cls, statuses={'new'}, filters=None, session=DBSession):
 
-        find_query = session.query(cls.id.label('id'), cls.created_at, cls.status, cls.type, cls.priority)
+        find_query = session.query(
+            cls.id.label('id'),
+            cls.created_at,
+            cls.status,
+            cls.type,
+            cls.priority
+        )
         if filters is not None:
-            find_query = find_query.filter(text(filters) if isinstance(filters, str) else filters)
+            find_query = find_query.filter(
+                text(filters) if isinstance(filters, str) else filters
+            )
 
         find_query = find_query \
             .filter(cls.status.in_(statuses)) \
@@ -69,7 +87,10 @@ class RestfulpyTask(TimestampMixin, DeclarativeBase):
 
     def execute(self, context, session=DBSession):
         try:
-            isolated_task = session.query(RestfulpyTask).filter(RestfulpyTask.id == self.id).one()
+            isolated_task = session \
+                .query(RestfulpyTask) \
+                .filter(RestfulpyTask.id == self.id) \
+                .one()
             isolated_task.do_(context)
             session.commit()
         except:
@@ -81,15 +102,24 @@ class RestfulpyTask(TimestampMixin, DeclarativeBase):
         session.query(RestfulpyTask) \
             .filter(RestfulpyTask.status.in_(statuses)) \
             .with_lockmode('update') \
-            .update({'status': 'new', 'started_at': None, 'terminated_at': None}, synchronize_session='fetch')
+            .update({
+                'status': 'new',
+                'started_at': None,
+                'terminated_at': None
+            }, synchronize_session='fetch')
 
     @classmethod
-    def reset_status(cls, task_id, session=DBSession, statuses=['in-progress']):
+    def reset_status(cls, task_id, session=DBSession,
+                     statuses=['in-progress']):
         session.query(RestfulpyTask) \
             .filter(RestfulpyTask.status.in_(statuses)) \
             .filter(RestfulpyTask.id == task_id) \
             .with_lockmode('update') \
-            .update({'status': 'new', 'started_at': None, 'terminated_at': None}, synchronize_session='fetch')
+            .update({
+                'status': 'new',
+                'started_at': None,
+                'terminated_at': None
+            }, synchronize_session='fetch')
 
 
 def worker(statuses={'new'}, filters=None, tries=-1):
@@ -138,3 +168,4 @@ def worker(statuses={'new'}, filters=None, tries=-1):
             if isolated_session.is_active:
                 isolated_session.commit()
             tasks.append((task.id, task.status))
+

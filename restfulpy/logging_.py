@@ -26,7 +26,10 @@ def ensure_formatter(name):
     if name not in _formatters:
         formatter_config = settings.logging.formatters.default.copy()
         formatter_config.update(settings.logging.formatters.get(name, {}))
-        _formatters[name] = logging.Formatter(formatter_config.format, formatter_config.date_format)
+        _formatters[name] = logging.Formatter(
+            formatter_config.format,
+            formatter_config.date_format
+        )
     return _formatters[name]
 
 
@@ -70,7 +73,10 @@ def ensure_root_logger():
     logger_config = settings.logging.loggers.default.copy()
     logger_config.update(settings.logging.loggers.root)
 
-    logging.basicConfig(handlers=logger_config.handlers, level=logger_config.level)
+    logging.basicConfig(
+        handlers=logger_config.handlers,
+        level=logger_config.level
+    )
     root_logger_is_configured = True
 
 

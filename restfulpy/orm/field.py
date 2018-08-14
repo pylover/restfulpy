@@ -84,42 +84,53 @@ class Field(Column):
         if message is not None:
             info['message'] = message
 
-        super(Field, self).__init__(*args, info=info, nullable=nullable, **kwargs)
+        super(Field, self).__init__(
+            *args,
+            info=info,
+            nullable=nullable,
+            **kwargs
+        )
 
     def _validate_pattern(self, value):
         if not re.match(self.info['pattern'], value):
-            raise HTTPBadRequest('Cannot match field: %s with value "%s" by acceptable pattern' % (self.name, value))
+            raise HTTPBadRequest(
+                f'Cannot match field: {self.name} with value "{value}" by '
+                f'acceptable pattern'
+            )
         return value
 
     def _validate_length(self, value, min_length, max_length):
         if not isinstance(value, str):
-            raise HTTPBadRequest(status_text='Invalid type: %s for field: %s' % (type(value), self.name))
+            raise HTTPBadRequest(
+                f'Invalid type: {type(value)} for field: {self.name}'
+            )
 
         value_length = len(value)
         if min_length is not None and value_length < min_length:
             raise HTTPBadRequest(
-                status_text=f'Please enter at least {min_length} characters for field: {self.name}.'
+                f'Please enter at least {min_length} characters for '
+                f'field: {self.name}.'
             )
 
         if max_length is not None and value_length > max_length:
             raise HTTPBadRequest(
-                status_text=f'Cannot enter more than: {max_length} in field: {self.name}.'
+                f'Cannot enter more than: {max_length} in field: {self.name}.'
             )
 
     def _validate_min_max(self, value, min_, max_):
         if not isinstance(value, (int, float)):
-            raise HTTPBadRequest(status_text='Invalid type: %s for field: %s' % (type(value), self.name))
+            raise HTTPBadRequest(
+                f'Invalid type: {type(value)} for field: {self.name}'
+            )
 
         if min_ is not None and value < min_:
-            import pudb; pudb.set_trace()  # XXX BREAKPOINT
             raise HTTPBadRequest(
-                status_text=f'Minimum allowed value is {min_} for field: {self.name}.'
+                f'Minimum allowed value is {min_} for field: {self.name}.'
             )
 
         if max_ is not None and value > max_:
-            import pudb; pudb.set_trace()  # XXX BREAKPOINT
             raise HTTPBadRequest(
-                status_text=f'Maximum allowed value is {max_} for field: {self.name}.'
+                f'Maximum allowed value is {max_} for field: {self.name}.'
             )
 
 
@@ -131,10 +142,18 @@ class Field(Column):
             self._validate_pattern(value)
 
         if 'min_length' in self.info or 'max_length' in self.info:
-            self._validate_length(value, self.info.get('min_length'), self.info.get('max_length'))
+            self._validate_length(
+                value,
+                self.info.get('min_length'),
+                self.info.get('max_length')
+            )
 
         if 'min' in self.info or 'max' in self.info:
-            self._validate_min_max(self, self.info.get('min'), self.info.get('max'))
+            self._validate_min_max(
+                self,
+                self.info.get('min'),
+                self.info.get('max')
+            )
         return value
 
 
@@ -184,8 +203,9 @@ def synonym(*args, json=None, protected=None, readonly=None, **kwargs):
 
 
 class ModelFieldInfo(FieldInfo):
-    def __init__(self, name, key, primary_key=False, label=None, watermark=None, icon=None,
-                 message='Invalid value', example=None, **kwargs):
+    def __init__(self, name, key, primary_key=False, label=None,
+                 watermark=None, icon=None, message='Invalid value',
+                 example=None, **kwargs):
         super().__init__(**kwargs)
         self.name = name
         self.key = key[1:] if key.startswith('_') else key
@@ -226,8 +246,10 @@ class ModelFieldInfo(FieldInfo):
             default=default_,
             optional=c.nullable if hasattr(c, 'nullable') else None,
             pattern=info.get('pattern'),
-            max_length=info.get('max_length') if 'max_length' in info else
-                (c.type.length if hasattr(c, 'type') and hasattr(c.type, 'length') else None),
+            max_length=info.get('max_length') if 'max_length' in info else (
+                c.type.length if hasattr(c, 'type') \
+                and hasattr(c.type, 'length') else None
+            ),
             min_length=info.get('min_length'),
             min_=info.get('min'),
             max_=info.get('max'),
@@ -236,7 +258,8 @@ class ModelFieldInfo(FieldInfo):
             label=info.get('label', None),
             icon=info.get('icon', None),
             example=info.get('example', None),
-            primary_key=hasattr(c.expression, 'primary_key') and c.expression.primary_key,
+            primary_key=hasattr(c.expression, 'primary_key') \
+                and c.expression.primary_key,
             readonly=info.get('readonly', False),
             protected=info.get('protected', False)
         ))

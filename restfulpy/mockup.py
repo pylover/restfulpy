@@ -23,7 +23,11 @@ def mockup_http_server(app=None, handler_class=WSGIRequestHandler,
     if app:
         assert isinstance(server, WSGIServer)
         server.set_app(app)
-    thread = threading.Thread(target=server.serve_forever, name='sa-media test server.', daemon=True)
+    thread = threading.Thread(
+        target=server.serve_forever,
+        name='sa-media test server.',
+        daemon=True
+    )
     thread.start()
     url = 'http://localhost:%s' % server.server_address[1]
     yield server, url
@@ -31,7 +35,8 @@ def mockup_http_server(app=None, handler_class=WSGIRequestHandler,
     thread.join()
 
 
-def mockup_http_static_server(content: bytes = b'Simple file content.', content_type: str = None, **kwargs):
+def mockup_http_static_server(content: bytes = b'Simple file content.',
+                              content_type: str = None, **kwargs):
     class StaticMockupHandler(BaseHTTPRequestHandler):  # pragma: no cover
         def serve_text(self):
             self.send_header('Content-Type', "text/plain")
@@ -47,7 +52,10 @@ def mockup_http_static_server(content: bytes = b'Simple file content.', content_
 
         def serve_stream(self, stream):
             buffer = io.BytesIO()
-            self.send_header('Content-Length', str(copy_stream(stream, buffer)))
+            self.send_header(
+                'Content-Length',
+                str(copy_stream(stream, buffer))
+            )
             self.end_headers()
             buffer.seek(0)
             try:
@@ -67,7 +75,12 @@ def mockup_http_static_server(content: bytes = b'Simple file content.', content_
                 # noinspection PyTypeChecker
                 self.serve_stream(content)
 
-    return simple_http_server(None, handler_class=StaticMockupHandler, server_class=HTTPServer, **kwargs)
+    return simple_http_server(
+        None,
+        handler_class=StaticMockupHandler,
+        server_class=HTTPServer,
+        **kwargs
+    )
 
 
 class MockupSMTPServer(smtpd.SMTPServer):

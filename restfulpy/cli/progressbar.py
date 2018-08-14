@@ -4,7 +4,10 @@ from datetime import datetime
 
 
 def terminal_size():
-    h, w, hp, wp = struct.unpack('HHHH', fcntl.ioctl(0, termios.TIOCGWINSZ, struct.pack('HHHH', 0, 0, 0, 0)))
+    h, w, hp, wp = struct.unpack(
+        'HHHH',
+        fcntl.ioctl(0, termios.TIOCGWINSZ, struct.pack('HHHH', 0, 0, 0, 0))
+    )
     return w, h
 
 
@@ -82,10 +85,21 @@ class ProgressBar:
             return green
 
     def _invalidate(self):
-        detailed = ('%%%dd/%%d' % len(str(self.total))) % (self._value, self.total)
+        detailed = \
+            ('%%%dd/%%d' % len(str(self.total))) % (self._value, self.total)
         percent = '%3d%%' % self.percent
         progress = '|%s|' % self.marks
-        line = ' '.join((detailed, self.get_progressbar_color(), percent, progress, clear, self.time, yellow, self.estimated_time, clear))
+        line = ' '.join((
+            detailed,
+            self.get_progressbar_color(),
+            percent,
+            progress,
+            clear,
+            self.time,
+            yellow,
+            self.estimated_time,
+            clear
+        ))
         print(line, end='', flush=False)
         print(' ' * (self.terminal_width - len(line)), end='\r', flush=True)
 
@@ -111,7 +125,11 @@ class LineReaderProgressBar(ProgressBar):
 
     @staticmethod
     def file_len(filename):
-        p = subprocess.Popen(['wc', '-l', filename], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        p = subprocess.Popen(
+            ['wc', '-l', filename],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
         result, err = p.communicate()
         if p.returncode != 0:
             raise IOError(err)

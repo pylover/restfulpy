@@ -12,16 +12,42 @@ class StartLauncher(Launcher):
 
     @classmethod
     def create_parser(cls, subparsers):
-        parser = subparsers.add_parser(cls.__command__, help='Starts the background worker.')
-
-        parser.add_argument('-g', '--gap', type=int, default=None, help='Gap between run next task.')
-
-        parser.add_argument('-s', '--status', default=[], action='append', help='Task status to process')
-
-        parser.add_argument('-n', '--number-of-threads', type=int, default=None, help='Number of working threads')
+        parser = subparsers.add_parser(
+            cls.__command__,
+            help='Starts the background worker.'
+        )
 
         parser.add_argument(
-            '-f', '--filter', default=None, type=str, action='store', help='Custom SQL filter for tasks'
+            '-g',
+            '--gap',
+            type=int,
+            default=None,
+            help='Gap between run next task.'
+        )
+
+        parser.add_argument(
+            '-s',
+            '--status',
+            default=[],
+            action='append',
+            help='Task status to process'
+        )
+
+        parser.add_argument(
+            '-n',
+            '--number-of-threads',
+            type=int,
+            default=None,
+            help='Number of working threads'
+        )
+
+        parser.add_argument(
+            '-f',
+            '--filter',
+            default=None,
+            type=str,
+            action='store',
+            help='Custom SQL filter for tasks'
         )
         return parser
 
@@ -38,10 +64,14 @@ class StartLauncher(Launcher):
         if self.args.gap is not None:
             settings.worker.merge({'gap': self.args.gap})
 
-        print('The following task types would be processed with gap of %ds:' % settings.worker.gap)
+        print(
+            f'The following task types would be processed with gap of '
+            f'{settings.worker.gap}s:'
+        )
         print('Tracking task status(es): %s' % ','.join(self.args.status))
 
-        number_of_threads = self.args.number_of_threads or settings.worker.number_of_threads
+        number_of_threads = \
+            self.args.number_of_threads or settings.worker.number_of_threads
         for i in range(number_of_threads):
             t = threading.Thread(
                     target=worker,
@@ -76,7 +106,10 @@ class StartLauncher(Launcher):
 class CleanupLauncher(Launcher):
     @classmethod
     def create_parser(cls, subparsers):
-        return subparsers.add_parser('cleanup', help='Clean database before starting worker processes')
+        return subparsers.add_parser(
+            'cleanup',
+            help='Clean database before starting worker processes'
+        )
 
     def launch(self):
         from restfulpy.orm import DBSession
@@ -89,8 +122,14 @@ class CleanupLauncher(Launcher):
 class WorkerLauncher(Launcher, RequireSubCommand):
     @classmethod
     def create_parser(cls, subparsers):
-        parser = subparsers.add_parser('worker', help="Task queue administration")
-        worker_subparsers = parser.add_subparsers(title="worker command", dest="worker_command")
+        parser = subparsers.add_parser(
+            'worker',
+            help="Task queue administration"
+        )
+        worker_subparsers = parser.add_subparsers(
+            title="worker command",
+            dest="worker_command"
+        )
         StartLauncher.register(worker_subparsers)
         CleanupLauncher.register(worker_subparsers)
         return parser

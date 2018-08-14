@@ -12,8 +12,8 @@ from .jwttoken import JWTLauncher
 from .migrate import MigrateLauncher
 from .serve import ServeLauncher
 from .worker import WorkerLauncher
-
 from .erd import EntityRelationshipDiagrams
+
 
 class MainLauncher(Launcher):
 

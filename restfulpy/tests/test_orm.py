@@ -7,7 +7,8 @@ from sqlalchemy import Integer, Unicode, ForeignKey, Boolean, Table, Date,\
     Time, Float
 from sqlalchemy.orm import synonym
 
-from restfulpy.orm import DeclarativeBase, Field, relationship, composite, ModifiedMixin
+from restfulpy.orm import DeclarativeBase, Field, relationship, composite, \
+    ModifiedMixin
 
 
 class FullName(object):  # pragma: no cover
@@ -64,7 +65,9 @@ class Author(DeclarativeBase):
     )
     phone = Field(
         Unicode(10), nullable=True, json='phone', min_length=10,
-        pattern=r'\d{3}[-\.\s]??\d{3}[-\.\s]??\d{4}|\(\d{3}\)\s*\d{3}[-\.\s]??\d{4}|\d{3}[-\.\s]??\d{4}',
+        pattern=\
+            r'\d{3}[-\.\s]??\d{3}[-\.\s]??\d{4}|\(\d{3}\)\s*\d{3}[-\.\s]??'
+            r'\d{4}|\d{3}[-\.\s]??\d{4}',
         watermark='Phone'
     )
     name = composite(
@@ -143,7 +146,12 @@ class Post(ModifiedMixin, DeclarativeBase):
     author = relationship(Author, protected=False)
     memos = relationship(Memo, protected=True, json='privateMemos')
     comments = relationship(Comment, protected=False)
-    tags = relationship(Tag, secondary=post_tag_table, back_populates='posts', protected=False)
+    tags = relationship(
+        Tag,
+        secondary=post_tag_table,
+        back_populates='posts',
+        protected=False
+    )
     tag_time = Field(Time)
 
 

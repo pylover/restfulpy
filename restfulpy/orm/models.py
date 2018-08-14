@@ -25,7 +25,8 @@ class BaseModel(object):
         if isinstance(column, str):
             mapper = inspect(cls)
             return mapper.columns[column]
-        # Commented-out by vahid, because I cannot reach here by tests, I think it's not necessary at all.
+        # Commented-out by vahid, because I cannot reach here by tests,
+        # I think it's not necessary at all.
         # if isinstance(column, SynonymProperty):
         #     return column.parent.columns[column.name]
         return column
@@ -183,7 +184,9 @@ class BaseModel(object):
     def to_dict(self):
         result = {}
         for c in self.iter_json_columns():
-            result.setdefault(*self.prepare_for_export(c, getattr(self, c.key)))
+            result.setdefault(
+                *self.prepare_for_export(c, getattr(self, c.key))
+            )
         return result
 
     @classmethod
@@ -238,7 +241,11 @@ class BaseModel(object):
 
 @event.listens_for(BaseModel, 'class_instrument')
 def receive_class_instrument(cls):
-    for field in cls.iter_columns(relationships=False, synonyms=False, use_inspection=False):
+    for field in cls.iter_columns(
+            relationships=False,
+            synonyms=False,
+            use_inspection=False
+        ):
         if not isinstance(field, Field) or not field.can_validate:
             continue
         method_name = 'validate_%s' % field.name

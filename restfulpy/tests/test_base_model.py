@@ -93,7 +93,9 @@ class Member(
     )
     phone = Field(
         Unicode(10), nullable=True, json='phone', min_length=10,
-        pattern=r'\d{3}[-\.\s]??\d{3}[-\.\s]??\d{4}|\(\d{3}\)\s*\d{3}[-\.\s]??\d{4}|\d{3}[-\.\s]??\d{4}',
+        pattern= \
+            r'\d{3}[-\.\s]??\d{3}[-\.\s]??\d{4}|\(\d{3}\)\s*\d{3}[-\.\s]??'
+            r'\d{4}|\d{3}[-\.\s]??\d{4}',
         watermark='Phone'
     )
     name = composite(
@@ -113,7 +115,11 @@ class Member(
     )
     birth = Field(Date)
     weight = Field(Float(asdecimal=True), default=50)
-    _keywords = relationship('Keyword', secondary='member_keywords', protected=False)
+    _keywords = relationship(
+        'Keyword', 
+        secondary='member_keywords', 
+        protected=False
+    )
     keywords = association_proxy(
         '_keywords',
         'keyword',

@@ -1,6 +1,7 @@
 class FieldInfo:
-    def __init__(self, type_=str, default=None, optional=False, pattern=None, max_length=None, min_length=None,
-                 readonly=False, protected=False, min_=None, max_=None):
+    def __init__(self, type_=str, default=None, optional=False, pattern=None, 
+                 max_length=None, min_length=None, readonly=False, 
+                 protected=False, min_=None, max_=None):
         self.type_ = type_ if isinstance(type_, str) else type_.__name__
         self.default = default
         self.optional = optional

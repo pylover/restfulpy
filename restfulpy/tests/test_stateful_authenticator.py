@@ -32,13 +32,20 @@ class MockupStatefulAuthenticator(StatefulAuthenticator):
         ))
 
     def create_principal(self, member_id=None, session_id=None):
-        return JwtPrincipal(dict(id=1, email='test@example.com', roles=roles, sessionId='1'))
+        return JwtPrincipal(dict(
+            id=1,
+            email='test@example.com',
+            roles=roles,
+            sessionId='1'
+        ))
 
 
 class Root(Controller):
     @json
     def login(self):
-        principal = context.application.__authenticator__.login((context.form['email'], context.form['password']))
+        principal = context.application.__authenticator__.login(
+            (context.form['email'], context.form['password'])
+        )
         return dict(token=principal.dump())
 
     @json
@@ -194,9 +201,11 @@ session_info_test_cases = [
     {
         'environment': {
             'REMOTE_ADDR': '',
-            'HTTP_USER_AGENT': 'Mozilla/5.0 (iPhone; CPU iPhone OS 5_1 like Mac OS X) AppleWebKit/534.46 (KHTML, '
-                               'like Gecko) Version/5.1 Mobile/9B179 Safari/7534.48.3 RestfulpyClient-js/1.2.3 (My '
-                               'App; test-name; 1.4.5-beta78; fa-IR; some; extra; info)'
+            'HTTP_USER_AGENT': \
+                'Mozilla/5.0 (iPhone; CPU iPhone OS 5_1 like Mac OS X) '
+                'AppleWebKit/534.46 (KHTML, like Gecko) Version/5.1 '
+                'Mobile/9B179 Safari/7534.48.3 RestfulpyClient-js/1.2.3 (My '
+                'App; test-name; 1.4.5-beta78; fa-IR; some; extra; info)'
         },
         'expected_remote_address': 'NA',
         'expected_machine': 'iPhone',
@@ -209,8 +218,9 @@ session_info_test_cases = [
     {
         'environment': {
             'REMOTE_ADDR': '185.87.34.23',
-            'HTTP_USER_AGENT': 'Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0) '
-                               'RestfulpyClient-custom/4.5.6 (A; B; C)'
+            'HTTP_USER_AGENT': \
+                'Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; '
+                'Trident/5.0) RestfulpyClient-custom/4.5.6 (A; B; C)'
         },
         'expected_remote_address': '185.87.34.23',
         'expected_machine': 'PC',

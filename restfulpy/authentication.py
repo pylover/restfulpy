@@ -12,7 +12,8 @@ from restfulpy.principal import JwtPrincipal, JwtRefreshToken
 
 class Authenticator:
     """
-    An extendable stateless abstract class for encapsulating all stuff about authentication
+    An extendable stateless abstract class for encapsulating all stuff about
+    authentication
                                                             +
                                                             |
                                               Yes  +--------+-------+  No
@@ -87,14 +88,18 @@ class Authenticator:
     def setup_response_headers(self, new_principal):
         if self.token_response_header in context.response_headers:
             del context.response_headers[self.token_response_header]
-        context.response_headers.add_header(self.token_response_header, new_principal.dump().decode())
+        context.response_headers.add_header(
+            self.token_response_header,
+            new_principal.dump().decode()
+        )
 
     def try_refresh_token(self, session_id):
         morsel = context.cookies.get(self.refresh_token_key)
         if not morsel:
             return self.bad()
 
-        if settings.jwt.refresh_token.secure and context.request_scheme != 'https':
+        if settings.jwt.refresh_token.secure \
+                and context.request_scheme != 'https':
             raise HTTPBadRequest('not allowed')
 
         if morsel.value is None or not morsel.value.strip():
@@ -105,7 +110,10 @@ class Authenticator:
         try:
             refresh_principal = JwtRefreshToken.load(refresh_token_encoded)
             self.ok(
-                self.create_principal(member_id=refresh_principal.id, session_id=session_id),
+                self.create_principal(
+                    member_id=refresh_principal.id,
+                    session_id=session_id
+                ),
                 setup_header=True
             )
         except itsdangerous.SignatureExpired:
@@ -119,7 +127,10 @@ class Authenticator:
             del context.response_headers[self.identity_response_header]
 
         if principal is not None:
-            context.response_headers.add_header(self.identity_response_header, str(principal.id))
+            context.response_headers.add_header(
+                self.identity_response_header,
+                str(principal.id)
+            )
 
         if principal is None and self.refresh_token_key in context.cookies:
             del context.cookies[self.refresh_token_key]
@@ -151,7 +162,8 @@ class Authenticator:
             self.ok(self.verify_token(encoded_token))
 
         except itsdangerous.SignatureExpired as ex:
-            # The token has expired. So we're trying to restore it using refresh-token.
+            # The token has expired. So we're trying to restore it using
+            # refresh-token.
             session_id = ex.payload.get('sessionId')
             if session_id:
                 self.try_refresh_token(session_id)
@@ -172,10 +184,14 @@ class Authenticator:
 
         self.ok(principal)
 
-        context.cookies[self.refresh_token_key] = self.create_refresh_principal(member.id).dump().decode()
-        context.cookies[self.refresh_token_key]['max-age'] = settings.jwt.refresh_token.max_age
-        context.cookies[self.refresh_token_key]['httponly'] = settings.jwt.refresh_token.httponly
-        context.cookies[self.refresh_token_key]['secure'] = settings.jwt.refresh_token.secure
+        context.cookies[self.refresh_token_key] = \
+            self.create_refresh_principal(member.id).dump().decode()
+        context.cookies[self.refresh_token_key]['max-age'] = \
+            settings.jwt.refresh_token.max_age
+        context.cookies[self.refresh_token_key]['httponly'] = \
+            settings.jwt.refresh_token.httponly
+        context.cookies[self.refresh_token_key]['secure'] = \
+            settings.jwt.refresh_token.secure
         if 'path' in settings.jwt.refresh_token:
             context.cookies[self.refresh_token_key]['path'] = \
                 settings.jwt.refresh_token.path
@@ -209,21 +225,23 @@ class StatefulAuthenticator(Authenticator):
 
     User-Agent structure:
 
-        User-Agent can contains customized token and comment in order to describe client and app.
+        User-Agent can contains customized token and comment in order to
+        describe client and app.
 
         User-Agent: TOKEN (COMMENT)
 
         TOKEN: RestfulpyClient-TYPE/VERSION
             exp: RestfulpyClient-js/1.2.3
 
-        COMMENT: (APP-TITLE; APP-NAME; APP-VERSION; APP-LOCALIZATION [; OPTIONAL-OTHER-COMMENTS]*)
+        COMMENT: (APP-TITLE; APP-NAME; APP-VERSION; APP-LOCALIZATION
+                 [; OPTIONAL-OTHER-COMMENTS]*)
             exp: (Mobile Token; shark; 1.2.3-preview2; en-US)
 
         Tips:
             1. TOKEN must not contain any of CLRs or separators
             2. COMMENTS: any TEXT excluding "(" and ")" and ";"
-            3. If you don't use one of standard clients of restfulpy, you can use this format as TOKEN:
-                RestfulpyClient-custom/0.0.0
+            3. If you don't use one of standard clients of restfulpy, you can
+               use this format as TOKEN: RestfulpyClient-custom/0.0.0
 
     """
 
@@ -260,7 +278,10 @@ class StatefulAuthenticator(Authenticator):
     def verify_token(self, encoded_token):
         principal = super().verify_token(encoded_token)
         if not self.validate_session(principal.session_id):
-            raise itsdangerous.SignatureExpired('The token has already invalidated', principal.payload)
+            raise itsdangerous.SignatureExpired(
+                'The token has already invalidated',
+                principal.payload
+            )
         return principal
 
     def login(self, credentials):
@@ -276,7 +297,8 @@ class StatefulAuthenticator(Authenticator):
     def extract_agent_info(self):
         remote_address = machine = os = agent = client = app = None
 
-        if self.remote_address_key in context.environ and context.environ[self.remote_address_key]:
+        if self.remote_address_key in context.environ \
+                and context.environ[self.remote_address_key]:
             remote_address = context.environ[self.remote_address_key]
 
         if self.agent_key in context.environ:
@@ -284,11 +306,18 @@ class StatefulAuthenticator(Authenticator):
             user_agent = user_agents.parse(agent_string)
 
             machine = user_agent.is_pc and 'PC' or user_agent.device.family
-            os = ' '.join([user_agent.os.family, user_agent.os.version_string]).strip()
-            agent = ' '.join([user_agent.browser.family, user_agent.browser.version_string]).strip()
+            os = ' '.join([
+                user_agent.os.family,
+                user_agent.os.version_string
+            ]).strip()
+            agent = ' '.join([
+                user_agent.browser.family,
+                user_agent.browser.version_string
+            ]).strip()
 
             matched_client = re.match(
-                '.*RestfulpyClient-(?P<type>.+)/(?P<version>.+) \((?P<features>.+)\).*',
+                '.*RestfulpyClient-(?P<type>.+)/(?P<version>.+) '
+                '\((?P<features>.+)\).*',
                 agent_string
             )
             if matched_client:
@@ -301,7 +330,9 @@ class StatefulAuthenticator(Authenticator):
                 features = matched_client['features'].split(';')
                 if len(features) >= 3:
                     # exp: "MobileToken (shark) 1.2.3"
-                    app = f'{features[0].strip()} ({features[1].strip()}) {features[2].strip()}'
+                    app = \
+                        f'{features[0].strip()} ({features[1].strip()}) ' \
+                        f'{features[2].strip()}'
 
         return {
             'remoteAddress': remote_address or 'NA',
@@ -316,7 +347,10 @@ class StatefulAuthenticator(Authenticator):
     def register_session(self, member_id, session_id):
         self.redis.hset(self.sessions_key, session_id, member_id)
         self.redis.sadd(self.get_member_sessions_key(member_id), session_id)
-        self.redis.set(self.get_session_info_key(session_id), ujson.dumps(self.extract_agent_info()))
+        self.redis.set(
+            self.get_session_info_key(session_id),
+            ujson.dumps(self.extract_agent_info())
+        )
 
     def unregister_session(self, session_id=None):
         session_id = session_id or context.identity.session_id
@@ -327,9 +361,12 @@ class StatefulAuthenticator(Authenticator):
 
     def invalidate_member(self, member_id=None):
         # store current session id if available
-        current_session_id = None if context.identity is None else context.identity.session_id
+        current_session_id = \
+            None if context.identity is None else context.identity.session_id
         while True:
-            session_id = self.redis.spop(self.get_member_sessions_key(member_id))
+            session_id = self.redis.spop(
+                self.get_member_sessions_key(member_id)
+            )
             if not session_id:
                 break
             self.redis.hdel(self.sessions_key, session_id)
@@ -349,7 +386,10 @@ class StatefulAuthenticator(Authenticator):
         self.update_session_info(principal.session_id)
 
     def update_session_info(self, session_id):
-        self.redis.set(self.get_session_info_key(session_id), ujson.dumps(self.extract_agent_info()))
+        self.redis.set(
+            self.get_session_info_key(session_id),
+            ujson.dumps(self.extract_agent_info())
+        )
 
     def get_session_info(self, session_id):
         info = self.redis.get(self.get_session_info_key(session_id))

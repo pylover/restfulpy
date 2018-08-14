@@ -1,4 +1,5 @@
-from itsdangerous import TimedJSONWebSignatureSerializer, JSONWebSignatureSerializer
+from itsdangerous import TimedJSONWebSignatureSerializer, \
+    JSONWebSignatureSerializer
 from nanohttp import settings, context, HTTPForbidden
 
 
@@ -73,8 +74,9 @@ class JwtPrincipal(BaseJwtPrincipal):
     @classmethod
     def get_config(cls):
         """
-        Warning! Returned value is a dict, so it's mutable. If you modify this value, default config of the whole
-        project will be changed and it may cause unpredictable problems.
+        Warning! Returned value is a dict, so it's mutable. If you modify this
+        value, default config of the whole project will be changed and it may
+        cause unpredictable problems.
         """
         return settings.jwt
 

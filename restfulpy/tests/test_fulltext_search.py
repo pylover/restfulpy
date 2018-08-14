@@ -1,6 +1,7 @@
 from sqlalchemy import Integer, Unicode
 
-from restfulpy.orm import DeclarativeBase, Field, FullTextSearchMixin, fts_escape, to_tsvector
+from restfulpy.orm import DeclarativeBase, Field, FullTextSearchMixin, \
+    fts_escape, to_tsvector
 
 
 class FullTextSearchObject(FullTextSearchMixin, DeclarativeBase):
