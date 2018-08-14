@@ -154,7 +154,8 @@ class ApplicableTestCase:
                 break
 
         DBSession.remove()
-        cls._engine.dispose()
+        if cls._engine is not None:
+            cls._engine.dispose()
 
         # Dropping the previousely created database
         with DBManager() as m:
@@ -173,8 +174,12 @@ class ApplicableTestCase:
             )
 
         cls.configure_application()
-        cls.initialize_orm()
-        cls.mockup()
+        try:
+            cls.initialize_orm()
+            cls.mockup()
+        except:
+            cls.teardown_class()
+            raise
 
     @classmethod
     def teardown_class(cls):
