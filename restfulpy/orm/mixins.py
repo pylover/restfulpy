@@ -1,7 +1,7 @@
 import re
 from datetime import datetime
 
-from nanohttp import context, HTTPBadRequest, HTTPConflict, settings
+from nanohttp import context, HTTPBadRequest, settings
 from sqlalchemy import DateTime, between, desc
 from sqlalchemy.events import event
 from sqlalchemy.ext.hybrid import hybrid_property

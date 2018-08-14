@@ -3,7 +3,6 @@ from os.path import join
 
 from nanohttp import settings
 from sqlalchemy import MetaData
-from sqlalchemy.exc import ArgumentError
 
 from restfulpy.cli import Launcher
 
