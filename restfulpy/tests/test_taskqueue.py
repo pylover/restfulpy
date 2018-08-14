@@ -57,10 +57,6 @@ def test_worker(db):
     assert awesome_task_done.is_set() == True
     assert another_task_done.is_set() == False
 
-    #TODO:remove these lines if tests passed
-    #self.assertTrue(awesome_task_done.is_set())
-    #self.assertFalse(another_task_done.is_set())
-
     session.refresh(awesome_task)
     assert awesome_task.status == 'success'
 
