@@ -25,11 +25,9 @@ dependencies = [
     'user-agents',
     'pycrypto',
     'python-dateutil',
-    'freezegun',
 
     # Testing
     'requests',
-    'webtest',
     'pytest',
     'bddrest >= 1.15.1b'
 ]
