@@ -8,14 +8,6 @@ from sqlalchemy.orm import relationship as sa_relationship, \
 
 class Field(Column):
 
-    @property
-    def can_validate(self):
-        return 'pattern' in self.info or \
-            'min_length' in self.info or \
-            'max_length' in self.info or \
-            'max' in self.info or \
-            'min' in self.info
-
     def __init__(
         self,
         *args,
@@ -30,9 +22,7 @@ class Field(Column):
         watermark=None,
         nullable=False,
         label=None,
-        icon=None,
         example=None,
-        message=None,
         info=None,
         **kwargs
     ):
@@ -71,14 +61,8 @@ class Field(Column):
         if label is not None:
             info['label'] = label
 
-        if icon is not None:
-            info['icon'] = icon
-
         if example is not None:
             info['example'] = example
-
-        if message is not None:
-            info['message'] = message
 
         super(Field, self).__init__(
             *args,

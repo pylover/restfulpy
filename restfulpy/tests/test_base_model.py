@@ -69,8 +69,6 @@ class Member(
         pattern=r'(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)',
         watermark='Email',
         example="user@example.com",
-        message='Invalid email address, please be accurate!',
-        icon='email.svg'
     )
     title = Field(
         Unicode(50),

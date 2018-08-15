@@ -141,7 +141,7 @@ class Post(ModifiedMixin, DeclarativeBase):
     __tablename__ = 'post'
 
     id = Field(Integer, primary_key=True)
-    title = Field(Unicode(50), watermark='title', label='title', icon='star')
+    title = Field(Unicode(50), watermark='title', label='title')
     author_id = Field(ForeignKey('author.id'), json='authorId')
     author = relationship(Author, protected=False)
     memos = relationship(Memo, protected=True, json='privateMemos')
