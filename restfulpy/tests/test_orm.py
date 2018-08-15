@@ -189,30 +189,6 @@ def test_model(db):
 
         assert post1.id == 1
 
-        # Validation, Type
-        with pytest.raises(HTTPBadRequest):
-            Author(title=234)
-
-        # Validation, Pattern
-        with pytest.raises(HTTPBadRequest):
-            Author(email='invalidEmailAddress')
-
-        # Validation, Min length
-        with pytest.raises(HTTPBadRequest):
-            Author(title='1')
-
-        # Validation, Max length
-        # Validation, Max length
-        with pytest.raises(HTTPBadRequest):
-            Author(phone='12321321321312321312312')
-
-        # validate Min/Max
-        with pytest.raises(HTTPBadRequest):
-            Author(age=17)
-
-        with pytest.raises(HTTPBadRequest):
-            Author(age=101)
-
         # Metadata
         author_metadata = Author.json_metadata()
         assert 'id' in author_metadata['fields']

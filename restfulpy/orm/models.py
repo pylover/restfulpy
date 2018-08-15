@@ -237,22 +237,3 @@ class BaseModel(object):
 
         return wrapper
 
-
-@event.listens_for(BaseModel, 'class_instrument')
-def receive_class_instrument(cls):
-    if not cls.__enable_validation__:
-        return
-    for field in cls.iter_columns(
-            relationships=False,
-            synonyms=False,
-            use_inspection=False
-        ):
-        if not isinstance(field, Field) or not field.can_validate:
-            continue
-        method_name = 'validate_%s' % field.name
-        if not hasattr(cls, method_name):
-            def validator(self, key, value):
-                return self.get_column(key).validate(value)
-
-            setattr(cls, method_name, validates(field.name)(validator))
-
