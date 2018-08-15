@@ -2,7 +2,7 @@ import functools
 from datetime import datetime, date, time
 from decimal import Decimal
 
-from nanohttp import context, HTTPNotFound, HTTPBadRequest
+from nanohttp import context, HTTPNotFound, HTTPBadRequest, RequestValidator
 from sqlalchemy import Column, event
 from sqlalchemy.ext.associationproxy import ASSOCIATION_PROXY
 from sqlalchemy.ext.hybrid import HYBRID_PROPERTY
@@ -236,4 +236,18 @@ class BaseModel(object):
             return result
 
         return wrapper
+
+    @classmethod
+    def create_validator(cls, **kwargs):
+        fields = {}
+        for f in cls.iter_metadata_fields():
+            fields[f.name] = field = {}
+
+            if f.optional:
+                field['not_none'] = f.not_none
+
+            if f.name in kwargs:
+                field.update(kwargs[f.name])
+
+        return RequestValidator(fields, **kwargs)
 

@@ -63,6 +63,11 @@ class Field(Column):
         if example is not None:
             info['example'] = example
 
+        if not_none is not None:
+            nullable = False if isinstance(not_none
+        if not nullable:
+            info['not_none'] = True
+
         super(Field, self).__init__(
             *args,
             info=info,
