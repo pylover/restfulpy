@@ -13,12 +13,12 @@ from sqlalchemy.orm.attributes import InstrumentedAttribute
 
 from ..datetimehelpers import parse_datetime, format_datetime
 from ..utils import to_camel_case
-from .field import ModelFieldInfo, Field
+from .field import Field
+from .metadata import MetadataField
 from .mixins import PaginationMixin, FilteringMixin, OrderingMixin
 
 
 class BaseModel(object):
-    __enable_validation__ = False
 
     @classmethod
     def get_column(cls, column):
@@ -88,7 +88,7 @@ class BaseModel(object):
                 include_readonly_columns=True,
                 include_protected_columns=True
             ):
-            yield from ModelFieldInfo.from_column(
+            yield from MetadataField.from_column(
                 cls.get_column(c),
                 info=cls.get_column_info(c)
             )

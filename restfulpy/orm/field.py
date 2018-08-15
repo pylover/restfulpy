@@ -5,11 +5,7 @@ from sqlalchemy import Column, Unicode, String
 from sqlalchemy.orm import relationship as sa_relationship, \
     composite as sa_composite, synonym as sa_synonym
 
-from ..fieldinfo import FieldInfo
-from ..utils import to_camel_case
 
-
-# noinspection PyAbstractClass
 class Field(Column):
 
     @property
@@ -137,81 +133,4 @@ def synonym(*args, json=None, protected=None, readonly=None, **kwargs):
     return sa_synonym(*args, info=info, **kwargs)
 
 
-class ModelFieldInfo(FieldInfo):
-    def __init__(self, name, key, primary_key=False, label=None,
-                 watermark=None, icon=None, message='Invalid value',
-                 example=None, **kwargs):
-        super().__init__(**kwargs)
-        self.name = name
-        self.key = key[1:] if key.startswith('_') else key
-        self.primary_key = primary_key
-        self.label = label or watermark
-        self.watermark = watermark
-        self.icon = icon
-        self.message = message
-        self.example = example
-
-    @classmethod
-    def from_column(cls, c, info=None):
-        if not info:
-            info = c.info
-        json_name = info.get('json', to_camel_case(c.key))
-        result = []
-
-        key = c.key
-
-        if hasattr(c, 'default') and c.default:
-            default_ = c.default.arg if c.default.is_scalar else None
-        else:
-            default_ = None
-
-        if hasattr(c, 'type'):
-            try:
-                type_ = c.type.python_type
-            except NotImplementedError:
-                # As we spoke, hybrid properties have no type
-                type_ = ''
-        else:  # pragma: no cover
-            type_ = 'str'
-
-        result.append(cls(
-            json_name,
-            key,
-            type_=type_,
-            default=default_,
-            optional=c.nullable if hasattr(c, 'nullable') else None,
-            pattern=info.get('pattern'),
-            max_length=info.get('max_length') if 'max_length' in info else (
-                c.type.length if hasattr(c, 'type') \
-                and hasattr(c.type, 'length') else None
-            ),
-            min_length=info.get('min_length'),
-            min_=info.get('min'),
-            max_=info.get('max'),
-            message=info.get('message', 'Invalid Value'),
-            watermark=info.get('watermark', None),
-            label=info.get('label', None),
-            icon=info.get('icon', None),
-            example=info.get('example', None),
-            primary_key=hasattr(c.expression, 'primary_key') \
-                and c.expression.primary_key,
-            readonly=info.get('readonly', False),
-            protected=info.get('protected', False)
-        ))
-
-        return result
-
-    def to_json(self):
-        result = super().to_json()
-        result.update(
-            name=self.name,
-            example=self.example,
-            message=self.message,
-            watermark=self.watermark,
-            label=self.label,
-            icon=self.icon,
-            key=self.key,
-            primaryKey=self.primary_key,
-        )
-        return result
 

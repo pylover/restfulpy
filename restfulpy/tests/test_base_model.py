@@ -116,8 +116,8 @@ class Member(
     birth = Field(Date)
     weight = Field(Float(asdecimal=True), default=50)
     _keywords = relationship(
-        'Keyword', 
-        secondary='member_keywords', 
+        'Keyword',
+        secondary='member_keywords',
         protected=False
     )
     keywords = association_proxy(
@@ -302,11 +302,8 @@ class TestBaseModel(ApplicableTestCase):
             assert fields['birth']['type'] == 'date'
             assert fields['weight']['default_'] == 50
             assert fields['visible']['optional'] == True
-            assert fields['email']['message'] == \
-                'Invalid email address, please be accurate!'
             assert fields['email']['watermark'] == 'Email'
             assert fields['email']['label'] == 'Email'
-            assert fields['email']['icon'] == 'email.svg'
             assert fields['email']['example'] == 'user@example.com'
 
     def test_datetime_format(self):

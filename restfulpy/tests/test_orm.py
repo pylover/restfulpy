@@ -33,7 +33,6 @@ class FullName(object):  # pragma: no cover
 
 class Author(DeclarativeBase):
     __tablename__ = 'author'
-    __enable_validation__ = True
 
     id = Field(Integer, primary_key=True)
     email = Field(
@@ -166,7 +165,6 @@ def test_model(db):
     settings.merge(__configuration__)
 
     with Context({}):
-        # noinspection PyArgumentList
         author1 = Author(
             title='author1',
             email='author1@example.org',
@@ -178,7 +176,6 @@ def test_model(db):
             weight=1.1
         )
 
-        # noinspection PyArgumentList
         post1 = Post(
             title='First post',
             author=author1,
@@ -188,25 +185,6 @@ def test_model(db):
         session.commit()
 
         assert post1.id == 1
-
-        # Metadata
-        author_metadata = Author.json_metadata()
-        assert 'id' in author_metadata['fields']
-        assert'email' in author_metadata['fields']
-        assert author_metadata['fields']['fullName']['protected'] == True
-        assert author_metadata['fields']['password']['protected'] == True
-
-        post_metadata = Post.json_metadata()
-        assert'author' in post_metadata['fields']
-
-        comment_metadata = Comment.json_metadata()
-        assert 'post' in comment_metadata['fields']
-
-        tag_metadata = Tag.json_metadata()
-        assert 'posts' in tag_metadata['fields']
-
-        assert Comment.import_value(Comment.__table__.c.special, 'TRUE') ==\
-            True
 
         post1_dict = post1.to_dict()
         assert {
@@ -234,4 +212,25 @@ def test_model(db):
 
         author1_dict = author1.to_dict()
         assert 'fullName' not in author1_dict
+
+
+def test_metadata(db):
+        # Metadata
+        author_metadata = Author.json_metadata()
+        assert 'id' in author_metadata['fields']
+        assert'email' in author_metadata['fields']
+        assert author_metadata['fields']['fullName']['protected'] == True
+        assert author_metadata['fields']['password']['protected'] == True
+
+        post_metadata = Post.json_metadata()
+        assert'author' in post_metadata['fields']
+
+        comment_metadata = Comment.json_metadata()
+        assert 'post' in comment_metadata['fields']
+
+        tag_metadata = Tag.json_metadata()
+        assert 'posts' in tag_metadata['fields']
+
+        assert Comment.import_value(Comment.__table__.c.special, 'TRUE') ==\
+            True
 
