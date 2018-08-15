@@ -20,6 +20,7 @@ class Field(Column):
         pattern=None,
         protected=None,
         watermark=None,
+        not_none=None,
         nullable=False,
         label=None,
         example=None,
