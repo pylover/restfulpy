@@ -23,11 +23,10 @@ class Field(Column):
         nullable=False,
         label=None,
         example=None,
-        info=None,
         **kwargs
     ):
 
-        info = info or dict()
+        info = {}
 
         if json is not None:
             info['json'] = json
