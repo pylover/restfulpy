@@ -246,6 +246,12 @@ class BaseModel(object):
             if f.not_none:
                 field['not_none'] = f.not_none
 
+            if f.required:
+                field['required'] = f.required
+
+            if f.min_length:
+                field['min_length'] = f.min_length
+
             if f.name in fields:
                 field.update(fields[f.name])
 

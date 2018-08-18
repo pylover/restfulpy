@@ -22,6 +22,7 @@ class Field(Column):
         watermark=None,
         not_none=None,
         nullable=False,
+        required=None,
         label=None,
         example=None,
         **kwargs
@@ -67,6 +68,10 @@ class Field(Column):
         if not_none is not None:
             info['not_none'] = not_none
             nullable = True if not_none else False
+
+        if required is not None:
+            info['required'] = required
+            nullable = False
 
         super(Field, self).__init__(
             *args,
