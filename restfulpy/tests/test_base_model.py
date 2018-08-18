@@ -299,7 +299,7 @@ class TestBaseModel(ApplicableTestCase):
             assert fields['firstName']['type'] == 'str'
             assert fields['birth']['type'] == 'date'
             assert fields['weight']['default_'] == 50
-            assert fields['visible']['optional'] == True
+            assert fields['visible']['not_none'] == None
             assert fields['email']['watermark'] == 'Email'
             assert fields['email']['label'] == 'Email'
             assert fields['email']['example'] == 'user@example.com'

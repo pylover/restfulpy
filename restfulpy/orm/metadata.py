@@ -2,12 +2,11 @@ from ..utils import to_camel_case
 
 
 class FieldInfo:
-    def __init__(self, type_=str, default=None, optional=False, pattern=None,
+    def __init__(self, type_=str, default=None, pattern=None,
                  max_length=None, min_length=None, readonly=False,
-                 protected=False, min_=None, max_=None):
+                 protected=False, min_=None, max_=None, not_none=None):
         self.type_ = type_ if isinstance(type_, str) else type_.__name__
         self.default = default
-        self.optional = optional
         self.pattern = pattern
         self.max_length = max_length
         self.min_length = min_length
@@ -15,12 +14,13 @@ class FieldInfo:
         self.max_ = max_
         self.readonly = readonly
         self.protected = protected
+        self.not_none = not_none
 
     def to_json(self):
         return {
             'type': self.type_,
             'default_': self.default,
-            'optional': self.optional,
+            'not_none': self.not_none,
             'pattern': self.pattern,
             'maxLength': self.max_length,
             'minLength': self.min_length,
@@ -79,7 +79,7 @@ class MetadataField(FieldInfo):
             key,
             type_=type_,
             default=default_,
-            optional=c.nullable if hasattr(c, 'nullable') else None,
+            not_none=info.get('not_none'),
             pattern=info.get('pattern'),
             max_length=info.get('max_length') if 'max_length' in info else (
                 c.type.length if hasattr(c, 'type') \

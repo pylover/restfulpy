@@ -7,7 +7,7 @@ from sqlalchemy import Column, event
 from sqlalchemy.ext.associationproxy import ASSOCIATION_PROXY
 from sqlalchemy.ext.hybrid import HYBRID_PROPERTY
 from sqlalchemy.inspection import inspect
-from sqlalchemy.orm import validates, Query, CompositeProperty, \
+from sqlalchemy.orm import Query, CompositeProperty, \
     RelationshipProperty
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 
@@ -238,16 +238,19 @@ class BaseModel(object):
         return wrapper
 
     @classmethod
-    def create_validator(cls, **kwargs):
+    def create_validator(cls, strict=False, fields=None):
         fields = {}
         for f in cls.iter_metadata_fields():
             fields[f.name] = field = {}
 
-            if f.optional:
+            if f.not_none:
                 field['not_none'] = f.not_none
 
-            if f.name in kwargs:
-                field.update(kwargs[f.name])
+            if f.name in fields:
+                field.update(fields[f.name])
 
-        return RequestValidator(fields, **kwargs)
+            if not strict and 'required' in field:
+                del field['required']
+
+        return RequestValidator(fields, empty_form=True)
 

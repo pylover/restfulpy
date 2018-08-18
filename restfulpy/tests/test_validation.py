@@ -1,7 +1,7 @@
 from datetime import date, time
 
 import pytest
-from nanohttp import HTTPBadRequest, settings
+from nanohttp import HTTPBadRequest, settings, HTTPStatus
 from nanohttp.contexts import Context
 from sqlalchemy import Integer, Unicode, ForeignKey, Boolean, Table, Date,\
     Time, Float
@@ -34,13 +34,15 @@ def test_validation(db):
     session = db()
 
     validate = Actor.create_validator()
-    values = validate(dict(
+    values, querystring = validate(dict(
         email='user@example.com',
     ))
     assert values['email'] == 'user@example.com'
 
     with pytest.raises(HTTPStatus) as ctx:
-        validate(dict=(email=None))
-    assert str(ctx.exception) == ''
+        validate(dict(email=None))
+    assert issubclass(ctx.type, HTTPStatus)
+    assert isinstance(ctx.value, HTTPStatus)
+    assert str(ctx.value) == '701 email cannot be null'
 
 
