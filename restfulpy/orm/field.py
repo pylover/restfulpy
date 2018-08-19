@@ -9,7 +9,7 @@ from sqlalchemy.orm import relationship as sa_relationship, \
 class Field(Column):
 
     def __init__(self, *args, json=None, readonly=None, max_length=None,
-                 min_length=None, max_=None, min_=None, pattern=None,
+                 min_length=None, maximum=None, minimum=None, pattern=None,
                  protected=None, watermark=None, not_none=None, nullable=False,
                  required=None, label=None, example=None, default=None,
                  type_checker=None,
@@ -21,8 +21,8 @@ class Field(Column):
             'protected': protected,
             'watermark': watermark,
             'min_length': min_length,
-            'max': max_,
-            'min': min_,
+            'maximum': maximum,
+            'minimum': minimum,
             'pattern': pattern,
             'example': example,
             'not_none': not_none,

@@ -88,7 +88,7 @@ class Author(DeclarativeBase):
     )
     birth = Field(Date)
     weight = Field(Float(asdecimal=True))
-    age = Field(Integer, default=18, min_=18, max_=100)
+    age = Field(Integer, default=18, minimum=18, maximum=100)
 
     def _set_password(self, password):
         self._password = 'hashed:%s' % password

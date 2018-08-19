@@ -33,7 +33,9 @@ class Actor(DeclarativeBase):
     age = Field(
         Integer,
         nullable=True,
-        type_checker=(int, '705 age must be integer')
+        type_checker=(int, '705 age must be integer'),
+        minimum=(18, '706 age must be greater than 17'),
+        maximum=(99, '706 age must be less than 100')
     )
 
 
@@ -83,4 +85,17 @@ def test_validation(db):
     assert isinstance(ctx.value, HTTPStatus)
     assert str(ctx.value) == '705 age must be integer'
 
+    # Minimum
+    with pytest.raises(HTTPStatus) as ctx:
+        validate(dict(email=email, title='abcd', age=18-1))
+    assert issubclass(ctx.type, HTTPStatus)
+    assert isinstance(ctx.value, HTTPStatus)
+    assert str(ctx.value) == '706 age must be greater than 17'
+
+    # Maximum
+    with pytest.raises(HTTPStatus) as ctx:
+        validate(dict(email=email, title='abcd', age=99+1))
+    assert issubclass(ctx.type, HTTPStatus)
+    assert isinstance(ctx.value, HTTPStatus)
+    assert str(ctx.value) == '706 age must be less than 100'
 
