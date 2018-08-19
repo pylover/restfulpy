@@ -27,6 +27,7 @@ class Actor(DeclarativeBase):
         Unicode(50),
         index=True,
         min_length=(4, '703 title must be at least 4 characters'),
+        max_length=(50, '704 Maximum allowed length for title is 50'),
         watermark='First Name'
     )
 
@@ -61,5 +62,12 @@ def test_validation(db):
     assert issubclass(ctx.type, HTTPStatus)
     assert isinstance(ctx.value, HTTPStatus)
     assert str(ctx.value) == '703 title must be at least 4 characters'
+
+    # Mamimum length
+    with pytest.raises(HTTPStatus) as ctx:
+        validate(dict(email=email, title='a'*(50+1)))
+    assert issubclass(ctx.type, HTTPStatus)
+    assert isinstance(ctx.value, HTTPStatus)
+    assert str(ctx.value) == '704 Maximum allowed length for title is 50'
 
 

@@ -30,7 +30,6 @@ def test_filtering_mixin(db):
 
     query = session.query(FilteringObject)
 
-    # Bad Value
     with Context({'QUERY_STRING': 'id=1'}) as context, \
             pytest.raises(HTTPBadRequest):
         context.query['id'] = 1

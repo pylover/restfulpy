@@ -48,12 +48,15 @@ class BaseModel(object):
         else:
             info = column.info
 
+        if not info.get('json'):
+            info['json'] = to_camel_case(column.key)
+
         return info
 
     @classmethod
     def prepare_for_export(cls, column, v):
         info = cls.get_column_info(column)
-        param_name = info.get('json') or to_camel_case(column.key)
+        param_name = info.get('json')
 
         if hasattr(column, 'property') \
                 and isinstance(column.property, RelationshipProperty) \
@@ -155,7 +158,8 @@ class BaseModel(object):
                 include_protected_columns=True,
                 include_readonly_columns=False
         ):
-            param_name = c.info.get('json', to_camel_case(c.key))
+            info = cls.get_column_info(c)
+            param_name = info.get('json')
 
             if param_name in context.form:
 
@@ -192,7 +196,7 @@ class BaseModel(object):
     def create_sort_criteria(cls, sort_columns):
         criteria = []
         columns = {
-            c.info.get('json', to_camel_case(c.key)): c
+            cls.get_column_info(c).get('json'): c
             for c in cls.iter_json_columns()
         }
         for column_name, option in sort_columns:
@@ -241,19 +245,17 @@ class BaseModel(object):
     def create_validator(cls, strict=False, fields=None):
         fields = {}
         for f in cls.iter_metadata_fields():
-            fields[f.name] = field = {}
-
-            if f.not_none:
-                field['not_none'] = f.not_none
-
-            if f.required:
-                field['required'] = f.required
-
-            if f.min_length:
-                field['min_length'] = f.min_length
-
-            if f.name in fields:
-                field.update(fields[f.name])
+            fields[f.name] = field = dict(
+                required=f.required,
+                type_=f.type_,
+                minimum=f.minimum,
+                maximum=f.maximum,
+                pattern=f.pattern,
+                min_length=f.min_length,
+                max_length=f.max_length,
+                not_none=f.not_none,
+                readonly=f.readonly
+            )
 
             if not strict and 'required' in field:
                 del field['required']

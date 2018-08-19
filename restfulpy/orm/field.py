@@ -8,122 +8,73 @@ from sqlalchemy.orm import relationship as sa_relationship, \
 
 class Field(Column):
 
-    def __init__(
-        self,
-        *args,
-        json=None,
-        readonly=None,
-        max_length=None,
-        min_length=None,
-        max_=None,
-        min_=None,
-        pattern=None,
-        protected=None,
-        watermark=None,
-        not_none=None,
-        nullable=False,
-        required=None,
-        label=None,
-        example=None,
-        **kwargs
-    ):
+    def __init__(self, *args, json=None, readonly=None, max_length=None,
+                 min_length=None, max_=None, min_=None, pattern=None,
+                 protected=None, watermark=None, not_none=None, nullable=False,
+                 required=None, label=None, example=None, default=None,
+                 **kwargs):
 
-        info = {}
+        info = {
+            'json': json,
+            'readonly': readonly,
+            'protected': protected,
+            'watermark': watermark,
+            'min_length': min_length,
+            'max': max_,
+            'min': min_,
+            'pattern': pattern,
+            'example': example,
+            'not_none': not_none,
+            'default': default
+        }
 
-        if json is not None:
-            info['json'] = json
-
-        if readonly is not None:
-            info['readonly'] = readonly
-
-        if protected is not None:
-            info['protected'] = protected
-
-        if watermark is not None:
-            info['watermark'] = watermark
-
-        if max_length is not None:
-            info['max_length'] = max_length
-        elif args and isinstance(args[0], (Unicode, String)):
+        if max_length is None and args \
+                and isinstance(args[0], (Unicode, String)):
             info['max_length'] = args[0].length
-
-        if min_length is not None:
-            info['min_length'] = min_length
-
-        if max_ is not None:
-            info['max'] = max_
-
-        if min_ is not None:
-            info['min'] = min_
-
-        if pattern is not None:
-            info['pattern'] = pattern
-
-        if label is not None:
-            info['label'] = label
-
-        if example is not None:
-            info['example'] = example
-
-        if not_none is not None:
-            info['not_none'] = not_none
-            nullable = True if not_none else False
+        else:
+            info['max_length'] = max_length
 
         if required is not None:
             info['required'] = required
+
+        if not_none is not None:
             nullable = False
 
         super(Field, self).__init__(
             *args,
             info=info,
             nullable=nullable,
+            default=default,
             **kwargs
         )
 
 
 def relationship(*args, json=None, protected=True, readonly=True, **kwargs):
-    info = dict()
-
-    if json is not None:
-        info['json'] = json
-
-    if protected is not None:
-        info['protected'] = protected
-
-    if readonly is not None:
-        info['readonly'] = readonly
+    info = {
+        'json': json,
+        'protected': protected,
+        'readonly': readonly,
+    }
 
     return sa_relationship(*args, info=info, **kwargs)
 
 
 def composite(*args, json=None, protected=None, readonly=None, **kwargs):
-    info = dict()
-
-    if json is not None:
-        info['json'] = json
-
-    if protected is not None:
-        info['protected'] = protected
-
-    if readonly is not None:
-        info['readonly'] = readonly
+    info = {
+        'json': json,
+        'protected': protected,
+        'readonly': readonly,
+    }
 
     return sa_composite(*args, info=info, **kwargs)
 
 
 def synonym(*args, json=None, protected=None, readonly=None, **kwargs):
-    info = dict()
-
-    if json is not None:
-        info['json'] = json
-
-    if protected is not None:
-        info['protected'] = protected
-
-    if readonly is not None:
-        info['readonly'] = readonly
+    info = {
+        'json': json,
+        'protected': protected,
+        'readonly': readonly,
+    }
 
     return sa_synonym(*args, info=info, **kwargs)
-
-
 

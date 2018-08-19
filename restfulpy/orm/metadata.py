@@ -2,25 +2,25 @@ from ..utils import to_camel_case
 
 
 class FieldInfo:
-    def __init__(self, type_=str, default=None, pattern=None, max_length=None,
-                 min_length=None, readonly=False, protected=False, min_=None,
-                 max_=None, not_none=None, required=None):
-        self.type_ = type_ if isinstance(type_, str) else type_.__name__
-        self.default = default
+    def __init__(self, type_=str, pattern=None, max_length=None,
+                 min_length=None, readonly=False, protected=False,
+                 minimum=None, maximum=None, not_none=None, required=None,
+                 default=None):
+        self.type_ = type_
         self.pattern = pattern
         self.max_length = max_length
         self.min_length = min_length
-        self.min_ = min_
-        self.max_ = max_
+        self.minimum = minimum
+        self.maximum = maximum
         self.readonly = readonly
         self.protected = protected
         self.not_none = not_none
         self.required = required
+        self.default = default
 
     def to_json(self):
         return {
-            'type': self.type_,
-            'default_': self.default,
+            'type': self.type_.__name__ if self.type_ else None,
             'not_none': self.not_none,
             'required': self.required,
             'pattern': self.pattern,
@@ -28,8 +28,9 @@ class FieldInfo:
             'minLength': self.min_length,
             'readonly': self.readonly,
             'protected': self.protected,
-            'min': self.min_,
-            'max': self.max_
+            'minimum': self.minimum,
+            'maximum': self.maximum,
+            'default': self.default,
         }
 
     def __copy__(self):
@@ -38,7 +39,9 @@ class FieldInfo:
         return new_one
 
     def to_dict(self):
-        return self.__dict__
+        return {
+            k: v for k, v in self.__dict__.items() if not k.startswith('_')
+        }
 
 
 class MetadataField(FieldInfo):
@@ -57,40 +60,38 @@ class MetadataField(FieldInfo):
     def from_column(cls, c, info=None):
         if not info:
             info = c.info
-        json_name = info.get('json', to_camel_case(c.key))
+        json_name = info.get('json') or to_camel_case(c.key)
         result = []
 
         key = c.key
-
-        if hasattr(c, 'default') and c.default:
-            default_ = c.default.arg if c.default.is_scalar else None
-        else:
-            default_ = None
 
         if hasattr(c, 'type'):
             try:
                 type_ = c.type.python_type
             except NotImplementedError:
-                # As we spoke, hybrid properties have no type
-                type_ = ''
-        else:  # pragma: no cover
-            type_ = 'str'
+                type_ = None
 
+        else:
+            type_ = str
+
+        if hasattr(c, 'default') and c.default:
+            default = c.default.arg if c.default.is_scalar else None
+        else:
+            default = None
+
+        # FIXME: Unpack **info instead of this shalamshoorba
         result.append(cls(
             json_name,
             key,
+            default=default,
             type_=type_,
-            default=default_,
             not_none=info.get('not_none'),
             required=info.get('required'),
             pattern=info.get('pattern'),
-            max_length=info.get('max_length') if 'max_length' in info else (
-                c.type.length if hasattr(c, 'type') \
-                and hasattr(c.type, 'length') else None
-            ),
+            max_length=info.get('max_length'),
             min_length=info.get('min_length'),
-            min_=info.get('min'),
-            max_=info.get('max'),
+            minimum=info.get('minimum'),
+            maximum=info.get('maximum'),
             watermark=info.get('watermark', None),
             label=info.get('label', None),
             example=info.get('example', None),
