@@ -29,6 +29,7 @@ class Actor(DeclarativeBase):
         min_length=(4, '703 title must be at least 4 characters'),
         max_length=(50, '704 Maximum allowed length for title is 50'),
         watermark='First Name',
+        nullable=True,
     )
     age = Field(
         Integer,
