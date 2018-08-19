@@ -28,8 +28,14 @@ class Actor(DeclarativeBase):
         index=True,
         min_length=(4, '703 title must be at least 4 characters'),
         max_length=(50, '704 Maximum allowed length for title is 50'),
-        watermark='First Name'
+        watermark='First Name',
     )
+    age = Field(
+        Integer,
+        nullable=True,
+        type_checker=(int, '705 age must be integer')
+    )
+
 
 
 def test_validation(db):
@@ -69,5 +75,12 @@ def test_validation(db):
     assert issubclass(ctx.type, HTTPStatus)
     assert isinstance(ctx.value, HTTPStatus)
     assert str(ctx.value) == '704 Maximum allowed length for title is 50'
+
+    # Type
+    with pytest.raises(HTTPStatus) as ctx:
+        validate(dict(email=email, title='abcd', age='a'))
+    assert issubclass(ctx.type, HTTPStatus)
+    assert isinstance(ctx.value, HTTPStatus)
+    assert str(ctx.value) == '705 age must be integer'
 
 

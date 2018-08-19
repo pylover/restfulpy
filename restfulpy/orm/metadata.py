@@ -65,15 +65,6 @@ class MetadataField(FieldInfo):
 
         key = c.key
 
-        if hasattr(c, 'type'):
-            try:
-                type_ = c.type.python_type
-            except NotImplementedError:
-                type_ = None
-
-        else:
-            type_ = str
-
         if hasattr(c, 'default') and c.default:
             default = c.default.arg if c.default.is_scalar else None
         else:
@@ -84,7 +75,7 @@ class MetadataField(FieldInfo):
             json_name,
             key,
             default=default,
-            type_=type_,
+            type_=info.get('type'),
             not_none=info.get('not_none'),
             required=info.get('required'),
             pattern=info.get('pattern'),

@@ -295,8 +295,6 @@ class TestBaseModel(ApplicableTestCase):
 
             assert fields['firstName']['name'] == 'firstName'
             assert fields['firstName']['key'] == 'first_name'
-            assert fields['firstName']['type'] == 'str'
-            assert fields['birth']['type'] == 'date'
             assert fields['weight']['default'] == 50
             assert fields['visible']['not_none'] == None
             assert fields['email']['watermark'] == 'Email'
