@@ -1,7 +1,7 @@
 from datetime import date, time
 
 import pytest
-from nanohttp import HTTPBadRequest, settings, HTTPStatus
+from nanohttp import HTTPBadRequest, settings, HTTPStatus, RequestValidator
 from nanohttp.contexts import Context
 from sqlalchemy import Integer, Unicode, ForeignKey, Boolean, Table, Date,\
     Time, Float
@@ -52,7 +52,7 @@ def test_validation(db):
     session = db()
     email = 'user@example.com'
 
-    validate = Actor.create_validator(strict=True)
+    validate = RequestValidator(Actor.create_validation_rules(strict=True))
     values, querystring = validate(dict(
         email=email,
     ))
@@ -120,5 +120,4 @@ def test_validation(db):
     assert issubclass(ctx.type, HTTPStatus)
     assert isinstance(ctx.value, HTTPStatus)
     assert str(ctx.value) == '709 id is readonly'
-
 

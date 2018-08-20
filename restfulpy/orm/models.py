@@ -2,7 +2,7 @@ import functools
 from datetime import datetime, date, time
 from decimal import Decimal
 
-from nanohttp import context, HTTPNotFound, HTTPBadRequest, RequestValidator
+from nanohttp import context, HTTPNotFound, HTTPBadRequest, validate
 from sqlalchemy import Column, event
 from sqlalchemy.ext.associationproxy import ASSOCIATION_PROXY
 from sqlalchemy.ext.hybrid import HYBRID_PROPERTY
@@ -242,7 +242,7 @@ class BaseModel(object):
         return wrapper
 
     @classmethod
-    def create_validator(cls, strict=False, fields=None):
+    def create_validation_rules(cls, strict=False, fields=None):
         fields = {}
         for f in cls.iter_metadata_fields():
             fields[f.name] = field = dict(
@@ -260,5 +260,21 @@ class BaseModel(object):
             if not strict and 'required' in field:
                 del field['required']
 
-        return RequestValidator(fields, empty_form=True)
+        return fields
+
+    @classmethod
+    def validate(cls, strict=False, fields=None):
+        if callable(strict):
+            # Decorator is used without any parameter and call parentesis.
+            func = strict
+            strict = False
+        else:
+            func = None
+
+        decorator = validate(**cls.create_validation_rules(strict, fields))
+
+        if func:
+            return decorator(func)
+
+        return decorator
 
