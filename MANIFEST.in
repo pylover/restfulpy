@@ -1,0 +1,1 @@
+recursive-include restfulpy/scaffolding/templates/ *.template 
