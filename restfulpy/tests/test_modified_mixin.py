@@ -12,7 +12,6 @@ class ModificationCheckingModel(ModifiedMixin, DeclarativeBase):
 def test_modified_mixin(db):
     session = db()
 
-    # noinspection PyArgumentList
     instance = ModificationCheckingModel(
         title='test title',
     )

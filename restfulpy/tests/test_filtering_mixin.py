@@ -17,12 +17,10 @@ def test_filtering_mixin(db):
     session = db()
 
     for i in range(1, 6):
-        # noinspection PyArgumentList
         session.add(FilteringObject(
             title='object %s' % i,
         ))
 
-    # noinspection PyArgumentList
     session.add(FilteringObject(
         title='A simple title',
     ))

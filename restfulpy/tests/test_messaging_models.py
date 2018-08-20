@@ -15,7 +15,6 @@ def test_messaging_model(db):
 
     mockup_messenger = create_messenger()
 
-    # noinspection PyArgumentList
     message = Email(
         to='test@example.com',
         subject='Test Subject',
@@ -26,8 +25,6 @@ def test_messaging_model(db):
     session.commit()
 
     message.do_({})
-
-    # noinspection PyUnresolvedReferences
 
     assert mockup_messenger.last_message == {
         'body': {'msg': 'Hello'},
