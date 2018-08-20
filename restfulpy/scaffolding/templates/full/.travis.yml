@@ -1,0 +1,28 @@
+env:
+  global:
+    - COMMIT_AUTHOR_EMAIL: mohammadsheikhian@carrene.com
+language: python
+dist: trusty
+python: "3.6"
+branches:
+  only:
+  - master
+  - develop
+  - ci
+  - /^v([1-9]\d*!)?(0|[1-9]\d*)(\.(0|[1-9]\d*))*((a|b|rc)(0|[1-9]\d*))?(\.post(0|[1-9]\d*))?(\.dev(0|[1-9]\d*))?$/
+addons:
+  apt:
+    sources:
+      - precise-pgdg-9.5
+    packages:
+      - postgresql-9.5
+      - postgresql-contrib-9.5
+      - libpq-dev
+  postgresql: 9.5
+
+services:
+  - redis-server
+
+install: ./scripts/travis-install.sh
+script: py.test --cov=panda panda/tests
+after_success: travis_retry coveralls

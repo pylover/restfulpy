@@ -17,6 +17,12 @@ class ScaffoldLauncher(Launcher):
             'name',
             help='The project\'s name'
         )
+        parser.add_argument(
+            '-t',
+            '--template',
+            default='full',
+            help='The project\'s template, one of (full, ). default: full.'
+        )
         return parser
 
     def launch(self):

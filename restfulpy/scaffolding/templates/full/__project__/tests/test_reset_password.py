@@ -1,0 +1,141 @@
+from bddrest.authoring import response, Update, Remove, when, status, \
+    given_form
+from nanohttp import settings
+from restfulpy.messaging import create_messenger
+
+from panda.models import ResetPasswordEmail, Member
+from panda.tests.helpers import LocadApplicationTestCase
+
+
+class TestResetPassword(LocadApplicationTestCase):
+    __configuration__ = '''
+      messaging:
+        default_messenger: restfulpy.mockup.MockupMessenger
+    '''
+
+    @classmethod
+    def mockup(cls):
+        member = Member(
+            email='already.added@example.com',
+            title='username',
+            password='123abcABC'
+        )
+        session = cls.create_session()
+        session.add(member)
+        session.commit()
+
+    def test_ask_reset_password_tokens(self):
+        messanger = create_messenger()
+        email = 'already.added@example.com'
+
+        with self.given(
+            'Ask a reset password token',
+            '/apiv1/resetpasswordtokens',
+            'ASK',
+            form=dict(email=email)
+        ):
+            assert status == 200
+            assert response.json['email'] == email
+
+            task = ResetPasswordEmail.pop()
+            task.do_(None)
+
+            assert messanger.last_message['to'] == email
+
+            assert settings.reset_password.callback_url == \
+                messanger.last_message['body']['reset_password_callback_url']
+
+            assert messanger.last_message['subject'] ==\
+                'Reset your CAS account password'
+
+            when('Email not contain @', form=Update(email='userexample.com'))
+            assert status == '701 Invalid Email Format'
+
+            when('Email not contain dot', form=Update(email='user@examplecom'))
+            assert status == '701 Invalid Email Format'
+
+            when('Invalid email format', form=Update(email='@example.com'))
+            assert status == '701 Invalid Email Format'
+
+            when(
+                'Email not contains any domain',
+                form=Update(email='user@.com')
+            )
+            assert status == '701 Invalid Email Format'
+
+            when(
+                'Email address is already registered',
+                form=Update(email='user@example.com')
+            )
+            assert status == 200
+            assert response.json['email'] == 'user@example.com'
+
+            when(
+                'Request without email parametes',
+                form=given_form - 'email' + dict(a='a')
+            )
+            assert status == '701 Invalid Email Format'
+
+            when('Trying to pass with empty form', form={})
+            assert status == '400 Empty Form'
+
+    def test_reset_password(self):
+        session = self.create_session()
+        messanger = create_messenger()
+        email = 'already.added@example.com'
+        password = 'NewPassword123'
+
+        hash_old_password = session.query(Member).one().password
+
+        with self.given(
+            'Ask reset password token',
+            '/apiv1/resetpasswordtokens',
+            'ASK',
+            form=dict(email=email)
+        ):
+            assert status == 200
+
+            task = ResetPasswordEmail.pop()
+            task.do_(None)
+
+            reset_password_token =\
+                messanger.last_message['body']['reset_password_token']
+
+        with self.given(
+            'Reset your CAS account password',
+            '/apiv1/passwords',
+            'RESET',
+            form=dict(
+                password=password,
+                resetPasswordToken=reset_password_token
+            )
+        ):
+            assert status == 200
+
+            hash_new_password = session.query(Member).one().password
+            assert hash_new_password != hash_old_password
+
+            when(
+                'Trying to pass a short password',
+                form=Update(password='1Aa')
+            )
+            assert status == '702 Invalid Password Length'
+
+            when(
+                'Trying to a pass long password',
+                form=Update(password='1Aa123456789abcdeABCDE')
+            )
+            assert status == '702 Invalid Password Length'
+
+            when('Request without password parameter', form=Remove('password'))
+            assert status == '702 Invalid Password Length'
+
+            when(
+                'The token has been damaged',
+                form=Update(resetPasswordToken='token')
+            )
+            assert status == '611 Malformed Token'
+
+            when('Trying to pass with empty form', form={})
+            assert status == '400 Empty Form'
+
