@@ -9,3 +9,4 @@ omit =
     restfulpy/db.py
     restfulpy/testing.py
     restfulpy/application/cli/*
+	restfulpy/scaffolding
