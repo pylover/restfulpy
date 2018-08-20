@@ -1,7 +1,4 @@
-# ${project_name.capitalize()}
-A single sign-on application
-
-![${project_name.capitalize()}](http://tadalafilforsale.net/data/media/1/51830280.jpg)
+# ${project_title}
 
 ## Branches
 
@@ -35,9 +32,9 @@ messaging:
   default_messenger: restfulpy.messaging.SmtpProvider
 
 smtp:
-  host: mail.carrene.com
+  host: <example.com>
   port: 587
-  username: nc@carrene.com
+  username: <smtp-user>
   password: <smtp-password>
   local_hostname: carrene.com
    
@@ -62,4 +59,34 @@ And or
 Or, you can add `--drop` to drop the previously created database: **TAKE CARE ABOUT USING THAT**
 
     $ ${project_name} [-c path/to/config.yml] db create --drop
+
+
+### Running tests
+
+```bash
+pip install -r requirements-dev.txt
+pytests
+```
+
+### Running server
+
+#### Single threaded 
+
+```bash
+${project_name} [-c path/to/config.yml] serve
+```
+
+#### WSGI
+
+wsgi.py
+
+```python
+from ${project_name} import ${project_name}
+${project_name}.configure(files=...)
+app = ${project_name}
+```
+
+```bash
+gunicorn wsgi:app
+```
 

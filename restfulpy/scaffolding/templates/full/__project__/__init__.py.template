@@ -10,7 +10,7 @@ from .controllers.root import Root
 __version__ = '0.1.0-dev'
 
 
-class ${project_name.capitalize()}(Application):
+class ${project_title}(Application):
     __authenticator__ = Authenticator()
     __configuration__ = '''
     db:
@@ -46,5 +46,5 @@ class ${project_name.capitalize()}(Application):
         )
 
 
-${project_name} = ${project_name.capitalize()}()
+${project_name} = ${project_title}()
 

@@ -1,14 +1,12 @@
 env:
   global:
-    - COMMIT_AUTHOR_EMAIL: mohammadsheikhian@carrene.com
+    - COMMIT_AUTHOR_EMAIL: ${project_author} 
 language: python
-dist: trusty
 python: "3.6"
 branches:
   only:
   - master
   - develop
-  - ci
   - /^v([1-9]\d*!)?(0|[1-9]\d*)(\.(0|[1-9]\d*))*((a|b|rc)(0|[1-9]\d*))?(\.post(0|[1-9]\d*))?(\.dev(0|[1-9]\d*))?$/
 addons:
   apt:
@@ -23,6 +21,9 @@ addons:
 services:
   - redis-server
 
-install: ./scripts/travis-install.sh
+install:
+  - pip3 install -U pip setuptools wheel cython
+  - pip3 install -r requirements-dev.txt
+  - pip3 install -e .
 script: py.test --cov=${project_name} ${project_name}/tests
 after_success: travis_retry coveralls

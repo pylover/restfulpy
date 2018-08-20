@@ -10,7 +10,7 @@ USER_TITLE_PATTERN = re.compile('^[a-zA-Z][\w]{5,16}$')
 # Password be to have numbers, uppercase, and lowercase
 USER_PASSWORD_PATTERN = re.compile('(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).+')
 
-
+# FIXME: Use model validators
 email_validator = validate(
     email=dict(
         required='701 Invalid Email Format',

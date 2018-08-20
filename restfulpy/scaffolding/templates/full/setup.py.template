@@ -10,15 +10,13 @@ with open(join(dirname(__file__), '${project_name}', '__init__.py')) as v_file:
 
 
 dependencies = [
-    'restfulpy >= 1.2.1b1',
+    'restfulpy >= ${restfulpy_version}',
 ]
 
 
 setup(
     name='${project_name}',
     version=package_version,
-    author='mohammad sheikhian',
-    author_email='mohammadsheikhian70@gmail.com',
     install_requires=dependencies,
     packages=find_packages(),
     test_suite='${project_name}.tests',
