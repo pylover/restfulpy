@@ -14,7 +14,11 @@ from restfulpy.orm import DeclarativeBase, Field, relationship, composite, \
 class Actor(DeclarativeBase):
     __tablename__ = 'actor'
 
-    id = Field(Integer, primary_key=True)
+    id = Field(
+        Integer,
+        primary_key=True,
+        readonly='709 id is readonly'
+    )
     email = Field(
         Unicode(100),
         not_none='701 email cannot be null',
@@ -109,5 +113,12 @@ def test_validation(db):
     assert issubclass(ctx.type, HTTPStatus)
     assert isinstance(ctx.value, HTTPStatus)
     assert str(ctx.value) == '707 Invalid email address'
+
+    # Readonly
+    with pytest.raises(HTTPStatus) as ctx:
+        validate(dict(email=email, id=22))
+    assert issubclass(ctx.type, HTTPStatus)
+    assert isinstance(ctx.value, HTTPStatus)
+    assert str(ctx.value) == '709 id is readonly'
 
 
