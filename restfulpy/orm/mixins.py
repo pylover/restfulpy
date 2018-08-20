@@ -7,7 +7,6 @@ from sqlalchemy.events import event
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.sql.expression import nullslast, nullsfirst
 
-from ..utils import to_camel_case
 from .field import Field
 
 
@@ -200,9 +199,8 @@ class FilteringMixin:
     @classmethod
     def filter_by_request(cls, query):
 
-        # noinspection PyUnresolvedReferences
         for c in cls.iter_json_columns():
-            json_name = c.info.get('json', to_camel_case(c.key))
+            json_name = cls.get_column_info(c)['json']
             if json_name in context.query:
                 value = context.query[json_name]
                 query = cls._filter_by_column_value(query, c, value)

@@ -33,7 +33,6 @@ class FullName(object):  # pragma: no cover
 
 class Author(DeclarativeBase):
     __tablename__ = 'author'
-    __enable_validation__ = True
 
     id = Field(Integer, primary_key=True)
     email = Field(
@@ -89,7 +88,7 @@ class Author(DeclarativeBase):
     )
     birth = Field(Date)
     weight = Field(Float(asdecimal=True))
-    age = Field(Integer, default=18, min_=18, max_=100)
+    age = Field(Integer, default=18, minimum=18, maximum=100)
 
     def _set_password(self, password):
         self._password = 'hashed:%s' % password
@@ -142,7 +141,7 @@ class Post(ModifiedMixin, DeclarativeBase):
     __tablename__ = 'post'
 
     id = Field(Integer, primary_key=True)
-    title = Field(Unicode(50), watermark='title', label='title', icon='star')
+    title = Field(Unicode(50), watermark='title', label='title')
     author_id = Field(ForeignKey('author.id'), json='authorId')
     author = relationship(Author, protected=False)
     memos = relationship(Memo, protected=True, json='privateMemos')
@@ -166,7 +165,6 @@ def test_model(db):
     settings.merge(__configuration__)
 
     with Context({}):
-        # noinspection PyArgumentList
         author1 = Author(
             title='author1',
             email='author1@example.org',
@@ -178,7 +176,6 @@ def test_model(db):
             weight=1.1
         )
 
-        # noinspection PyArgumentList
         post1 = Post(
             title='First post',
             author=author1,
@@ -188,49 +185,6 @@ def test_model(db):
         session.commit()
 
         assert post1.id == 1
-
-        # Validation, Type
-        with pytest.raises(HTTPBadRequest):
-            Author(title=234)
-
-        # Validation, Pattern
-        with pytest.raises(HTTPBadRequest):
-            Author(email='invalidEmailAddress')
-
-        # Validation, Min length
-        with pytest.raises(HTTPBadRequest):
-            Author(title='1')
-
-        # Validation, Max length
-        # Validation, Max length
-        with pytest.raises(HTTPBadRequest):
-            Author(phone='12321321321312321312312')
-
-        # validate Min/Max
-        with pytest.raises(HTTPBadRequest):
-            Author(age=17)
-
-        with pytest.raises(HTTPBadRequest):
-            Author(age=101)
-
-        # Metadata
-        author_metadata = Author.json_metadata()
-        assert 'id' in author_metadata['fields']
-        assert'email' in author_metadata['fields']
-        assert author_metadata['fields']['fullName']['protected'] == True
-        assert author_metadata['fields']['password']['protected'] == True
-
-        post_metadata = Post.json_metadata()
-        assert'author' in post_metadata['fields']
-
-        comment_metadata = Comment.json_metadata()
-        assert 'post' in comment_metadata['fields']
-
-        tag_metadata = Tag.json_metadata()
-        assert 'posts' in tag_metadata['fields']
-
-        assert Comment.import_value(Comment.__table__.c.special, 'TRUE') ==\
-            True
 
         post1_dict = post1.to_dict()
         assert {
@@ -258,4 +212,25 @@ def test_model(db):
 
         author1_dict = author1.to_dict()
         assert 'fullName' not in author1_dict
+
+
+def test_metadata(db):
+        # Metadata
+        author_metadata = Author.json_metadata()
+        assert 'id' in author_metadata['fields']
+        assert'email' in author_metadata['fields']
+        assert author_metadata['fields']['fullName']['protected'] == True
+        assert author_metadata['fields']['password']['protected'] == True
+
+        post_metadata = Post.json_metadata()
+        assert'author' in post_metadata['fields']
+
+        comment_metadata = Comment.json_metadata()
+        assert 'post' in comment_metadata['fields']
+
+        tag_metadata = Tag.json_metadata()
+        assert 'posts' in tag_metadata['fields']
+
+        assert Comment.import_value(Comment.__table__.c.special, 'TRUE') ==\
+            True
 

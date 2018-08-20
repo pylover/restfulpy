@@ -2,23 +2,23 @@ import functools
 from datetime import datetime, date, time
 from decimal import Decimal
 
-from nanohttp import context, HTTPNotFound, HTTPBadRequest
+from nanohttp import context, HTTPNotFound, HTTPBadRequest, validate
 from sqlalchemy import Column, event
 from sqlalchemy.ext.associationproxy import ASSOCIATION_PROXY
 from sqlalchemy.ext.hybrid import HYBRID_PROPERTY
 from sqlalchemy.inspection import inspect
-from sqlalchemy.orm import validates, Query, CompositeProperty, \
+from sqlalchemy.orm import Query, CompositeProperty, \
     RelationshipProperty
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 
 from ..datetimehelpers import parse_datetime, format_datetime
 from ..utils import to_camel_case
-from .field import ModelFieldInfo, Field
+from .field import Field
+from .metadata import MetadataField
 from .mixins import PaginationMixin, FilteringMixin, OrderingMixin
 
 
 class BaseModel(object):
-    __enable_validation__ = False
 
     @classmethod
     def get_column(cls, column):
@@ -48,12 +48,15 @@ class BaseModel(object):
         else:
             info = column.info
 
+        if not info.get('json'):
+            info['json'] = to_camel_case(column.key)
+
         return info
 
     @classmethod
     def prepare_for_export(cls, column, v):
         info = cls.get_column_info(column)
-        param_name = info.get('json') or to_camel_case(column.key)
+        param_name = info.get('json')
 
         if hasattr(column, 'property') \
                 and isinstance(column.property, RelationshipProperty) \
@@ -88,7 +91,7 @@ class BaseModel(object):
                 include_readonly_columns=True,
                 include_protected_columns=True
             ):
-            yield from ModelFieldInfo.from_column(
+            yield from MetadataField.from_column(
                 cls.get_column(c),
                 info=cls.get_column_info(c)
             )
@@ -155,7 +158,8 @@ class BaseModel(object):
                 include_protected_columns=True,
                 include_readonly_columns=False
         ):
-            param_name = c.info.get('json', to_camel_case(c.key))
+            info = cls.get_column_info(c)
+            param_name = info.get('json')
 
             if param_name in context.form:
 
@@ -192,7 +196,7 @@ class BaseModel(object):
     def create_sort_criteria(cls, sort_columns):
         criteria = []
         columns = {
-            c.info.get('json', to_camel_case(c.key)): c
+            cls.get_column_info(c).get('json'): c
             for c in cls.iter_json_columns()
         }
         for column_name, option in sort_columns:
@@ -237,22 +241,40 @@ class BaseModel(object):
 
         return wrapper
 
+    @classmethod
+    def create_validation_rules(cls, strict=False, fields=None):
+        fields = {}
+        for f in cls.iter_metadata_fields():
+            fields[f.name] = field = dict(
+                required=f.required,
+                type_=f.type_,
+                minimum=f.minimum,
+                maximum=f.maximum,
+                pattern=f.pattern,
+                min_length=f.min_length,
+                max_length=f.max_length,
+                not_none=f.not_none,
+                readonly=f.readonly
+            )
 
-@event.listens_for(BaseModel, 'class_instrument')
-def receive_class_instrument(cls):
-    if not cls.__enable_validation__:
-        return
-    for field in cls.iter_columns(
-            relationships=False,
-            synonyms=False,
-            use_inspection=False
-        ):
-        if not isinstance(field, Field) or not field.can_validate:
-            continue
-        method_name = 'validate_%s' % field.name
-        if not hasattr(cls, method_name):
-            def validator(self, key, value):
-                return self.get_column(key).validate(value)
+            if not strict and 'required' in field:
+                del field['required']
 
-            setattr(cls, method_name, validates(field.name)(validator))
+        return fields
+
+    @classmethod
+    def validate(cls, strict=False, fields=None):
+        if callable(strict):
+            # Decorator is used without any parameter and call parentesis.
+            func = strict
+            strict = False
+        else:
+            func = None
+
+        decorator = validate(**cls.create_validation_rules(strict, fields))
+
+        if func:
+            return decorator(func)
+
+        return decorator
 
