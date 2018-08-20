@@ -7,4 +7,4 @@ from .application import Application
 warnings.filterwarnings('ignore', message='Unknown REQUEST_METHOD')
 
 
-__version__ = '1.3.1'
+__version__ = '1.3.2'
