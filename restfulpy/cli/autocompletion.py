@@ -2,7 +2,7 @@ import os
 import sys
 from os.path import join, basename, abspath
 
-from ...cli import Launcher, RequireSubCommand
+from .launchers import Launcher, RequireSubCommand
 
 
 def print_venv_restart_help():

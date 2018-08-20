@@ -4,7 +4,7 @@ from os import path
 
 import argcomplete
 
-from .cli import Launcher
+from .cli import Launcher, AutoCompletionLauncher
 
 
 class RestfulpyMainLauncher(Launcher):
@@ -18,9 +18,12 @@ class RestfulpyMainLauncher(Launcher):
             prog=path.basename('restfulpy'),
             dest='command'
         )
-        from .scaffolding.launchers import ScaffoldLauncher
 
+        AutoCompletionLauncher.register(subparsers)
+
+        from .scaffolding.launchers import ScaffoldLauncher
         ScaffoldLauncher.register(subparsers)
+
         argcomplete.autocomplete(parser)
 
     def launch(self, args=None):

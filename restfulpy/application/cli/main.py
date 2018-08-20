@@ -3,8 +3,7 @@ import sys
 
 import argcomplete
 
-from ...cli import Launcher
-from .autocompletion import AutoCompletionLauncher
+from ...cli import Launcher, AutoCompletionLauncher
 from .configuration import ConfigurationLauncher
 from .database import DatabaseLauncher
 from .dev import DevLauncher

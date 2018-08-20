@@ -24,5 +24,5 @@ A tool-chain for creating restful web applications.
 - Automatically transform the SqlAlchemy models and queries into JSON with 
 standard naming(camelCase).
 - Http form validation based on SqlAlchemy models.
-
+- Scaffolding: `restfulpy scaffold -h`
 
