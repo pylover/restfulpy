@@ -1,10 +1,10 @@
 from restfulpy.testing import ApplicableTestCase
 
-from panda import Panda, cryptohelpers
+from ${project_name} import ${project_name.capitalize()}, cryptohelpers
 
 
 class LocadApplicationTestCase(ApplicableTestCase):
-    __application_factory__ = Panda
+    __application_factory__ = ${project_name.capitalize()}
 
 
 class RandomMonkeyPatch:

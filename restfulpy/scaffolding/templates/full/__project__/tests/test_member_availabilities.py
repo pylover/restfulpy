@@ -1,7 +1,7 @@
 from bddrest.authoring import response, status, Update, when, Remove
 
-from panda.models import Member
-from panda.tests.helpers import LocadApplicationTestCase
+from ${project_name}.models import Member
+from ${project_name}.tests.helpers import LocadApplicationTestCase
 
 
 class TestAvailabilities(LocadApplicationTestCase):

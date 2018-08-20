@@ -24,5 +24,5 @@ services:
   - redis-server
 
 install: ./scripts/travis-install.sh
-script: py.test --cov=panda panda/tests
+script: py.test --cov=${project_name} ${project_name}/tests
 after_success: travis_retry coveralls

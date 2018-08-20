@@ -3,8 +3,8 @@ from bddrest.authoring import response, Update, Remove, when, status, \
 from nanohttp import settings
 from restfulpy.messaging import create_messenger
 
-from panda.models import ResetPasswordEmail, Member
-from panda.tests.helpers import LocadApplicationTestCase
+from ${project_name}.models import ResetPasswordEmail, Member
+from ${project_name}.tests.helpers import LocadApplicationTestCase
 
 
 class TestResetPassword(LocadApplicationTestCase):

@@ -1,14 +1,11 @@
-# Panda
+# ${project_name.capitalize()}
 A single sign-on application
 
-![Panda](http://tadalafilforsale.net/data/media/1/51830280.jpg)
+![${project_name.capitalize()}](http://tadalafilforsale.net/data/media/1/51830280.jpg)
 
 ## Branches
 
 ### master
-
-[![Build Status](https://travis-ci.com/Carrene/panda.svg?token=QJx4YS88Uw3DGG4mp4z6&branch=master)](https://travis-ci.com/Carrene/panda)
-[![Coverage Status](https://coveralls.io/repos/github/Carrene/panda/badge.svg?branch=master&t=ykm7UM)](https://coveralls.io/github/Carrene/panda?branch=master)
 
 
 Setting up development Environment on Linux
@@ -19,8 +16,8 @@ Setting up development Environment on Linux
 #### Working copy
     
     $ cd /path/to/workspace
-    $ git clone git@github.com:Carrene/panda.git
-    $ cd panda
+    $ git clone git@github.com:Carrene/${project_name}.git
+    $ cd ${project_name}
     $ pip install -e .
  
 ### Setup Database
@@ -30,8 +27,8 @@ Setting up development Environment on Linux
 ```yaml
 
 db:
-  url: postgresql://postgres:postgres@localhost/panda_dev
-  test_url: postgresql://postgres:postgres@localhost/panda_test
+  url: postgresql://postgres:postgres@localhost/${project_name}_dev
+  test_url: postgresql://postgres:postgres@localhost/${project_name}_test
   administrative_url: postgresql://postgres:postgres@localhost/postgres
 
 messaging:
@@ -48,21 +45,21 @@ smtp:
 
 #### Remove old abd create a new database **TAKE CARE ABOUT USING THAT**
 
-    $ panda db create --drop --mockup
+    $ ${project_name} db create --drop --mockup
 
 And or
 
-    $ panda db create --drop --basedata 
+    $ ${project_name} db create --drop --basedata 
 
 #### Drop old database: **TAKE CARE ABOUT USING THAT**
 
-    $ panda [-c path/to/config.yml] db --drop
+    $ ${project_name} [-c path/to/config.yml] db --drop
 
 #### Create database
 
-    $ panda [-c path/to/config.yml] db --create
+    $ ${project_name} [-c path/to/config.yml] db --create
 
 Or, you can add `--drop` to drop the previously created database: **TAKE CARE ABOUT USING THAT**
 
-    $ panda [-c path/to/config.yml] db create --drop
+    $ ${project_name} [-c path/to/config.yml] db create --drop
 

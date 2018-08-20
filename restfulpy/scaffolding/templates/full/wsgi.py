@@ -1,1 +1,1 @@
-from panda import panda as app
+from ${project_name} import ${project_name} as app

@@ -1,8 +1,8 @@
 from bddrest.authoring import response, Update, when, status
 from restfulpy.messaging import create_messenger
 
-from panda.models import RegisterEmail, Member
-from panda.tests.helpers import LocadApplicationTestCase
+from ${project_name}.models import RegisterEmail, Member
+from ${project_name}.tests.helpers import LocadApplicationTestCase
 
 
 class TestRegisteration(LocadApplicationTestCase):

@@ -10,12 +10,12 @@ from .controllers.root import Root
 __version__ = '0.1.0-dev'
 
 
-class Panda(Application):
+class ${project_name.capitalize()}(Application):
     __authenticator__ = Authenticator()
     __configuration__ = '''
     db:
-      url: postgresql://postgres:postgres@localhost/panda_dev
-      test_url: postgresql://postgres:postgres@localhost/panda_test
+      url: postgresql://postgres:postgres@localhost/${project_name}_dev
+      test_url: postgresql://postgres:postgres@localhost/${project_name}_test
       administrative_url: postgresql://postgres:postgres@localhost/postgres
 
     reset_password:
@@ -34,10 +34,10 @@ class Panda(Application):
     messaging:
       default_messenger: restfulpy.messaging.ConsoleMessenger
       template_dirs:
-        - %(root_path)s/panda/email_templates
+        - %(root_path)s/${project_name}/email_templates
     '''
 
-    def __init__(self, application_name='panda', root=Root()):
+    def __init__(self, application_name='${project_name}', root=Root()):
         super().__init__(
             application_name,
             root=root,
@@ -46,5 +46,5 @@ class Panda(Application):
         )
 
 
-panda = Panda()
+${project_name} = ${project_name.capitalize()}()
 

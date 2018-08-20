@@ -1,4 +1,4 @@
-from panda.validators import USER_PASSWORD_PATTERN as pattern
+from ${project_name}.validators import USER_PASSWORD_PATTERN as pattern
 
 
 def test_user_password_pattern():

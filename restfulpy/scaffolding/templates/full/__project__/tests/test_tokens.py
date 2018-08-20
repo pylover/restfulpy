@@ -3,8 +3,8 @@ import time
 import pytest
 from nanohttp import settings, HTTPStatus
 
-from panda.tests.helpers import LocadApplicationTestCase
-from panda.tokens import RegisterationToken, ResetPasswordToken
+from ${project_name}.tests.helpers import LocadApplicationTestCase
+from ${project_name}.tokens import RegisterationToken, ResetPasswordToken
 
 
 class TestTokens(LocadApplicationTestCase):

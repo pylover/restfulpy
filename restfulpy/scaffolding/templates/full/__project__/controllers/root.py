@@ -1,7 +1,7 @@
 from nanohttp import Controller, json
 from restfulpy.controllers import RootController
 
-import panda
+import ${project_name}
 from .availabilities import AvailabilityController
 from .email import EmailController
 from .member import MemberController
@@ -21,7 +21,7 @@ class ApiV1(Controller):
     @json
     def version(self):
         return {
-            'version': panda.__version__
+            'version': ${project_name}.__version__
         }
 
 
