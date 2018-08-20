@@ -12,7 +12,7 @@ class Field(Column):
                  min_length=None, maximum=None, minimum=None, pattern=None,
                  protected=None, watermark=None, not_none=None, nullable=False,
                  required=None, label=None, example=None, default=None,
-                 type_checker=None,
+                 python_type=None,
                  **kwargs):
 
         info = {
@@ -27,7 +27,7 @@ class Field(Column):
             'example': example,
             'not_none': not_none,
             'default': default,
-            'type': type_checker
+            'type': python_type
         }
 
         if max_length is None and args \

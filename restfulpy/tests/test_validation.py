@@ -37,7 +37,7 @@ class Actor(DeclarativeBase):
     age = Field(
         Integer,
         nullable=True,
-        type_checker=(int, '705 age must be integer'),
+        python_type=(int, '705 age must be integer'),
         minimum=(18, '706 age must be greater than 17'),
         maximum=(99, '706 age must be less than 100')
     )
