@@ -1,8 +1,8 @@
 from bddrest.authoring import response, Update, when, status, given_form
 from restfulpy.messaging import create_messenger
 
-from proj1.models import Foo, Member
-from proj1.tests.helpers import LocadApplicationTestCase
+from ${project_name}.models import Foo, Member
+from ${project_name}.tests.helpers import LocadApplicationTestCase
 
 
 class TestFoo(LocadApplicationTestCase):
