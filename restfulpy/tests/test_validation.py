@@ -19,7 +19,10 @@ class Actor(DeclarativeBase):
         Unicode(100),
         not_none='701 email cannot be null',
         required='702 email required',
-        pattern=r'(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)',
+        pattern=(
+            '(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)',
+            '707 Invalid email address'
+        ),
         watermark='Email',
         example="user@example.com"
     )
@@ -99,4 +102,12 @@ def test_validation(db):
     assert issubclass(ctx.type, HTTPStatus)
     assert isinstance(ctx.value, HTTPStatus)
     assert str(ctx.value) == '706 age must be less than 100'
+
+    # Pattern
+    with pytest.raises(HTTPStatus) as ctx:
+        validate(dict(email='invalidemail'))
+    assert issubclass(ctx.type, HTTPStatus)
+    assert isinstance(ctx.value, HTTPStatus)
+    assert str(ctx.value) == '707 Invalid email address'
+
 
