@@ -43,6 +43,7 @@ setup(
     author_email='vahid.mardani@gmail.com',
     install_requires=dependencies,
     packages=find_packages(),
+    include_package_data=True,
     test_suite='restfulpy.tests',
     license='MIT',
     entry_points={
