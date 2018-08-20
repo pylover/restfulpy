@@ -8,6 +8,7 @@ from .member import MemberController
 from .password import PasswordController
 from .reset_password_token import ResetPasswordTokenController
 from .token import TokenController
+from .foo import FooController
 
 
 class ApiV1(Controller):
@@ -17,6 +18,7 @@ class ApiV1(Controller):
     tokens = TokenController()
     resetpasswordtokens = ResetPasswordTokenController()
     passwords = PasswordController()
+    foos = FooController()
 
     @json
     def version(self):

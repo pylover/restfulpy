@@ -90,3 +90,9 @@ app = ${project_name}
 gunicorn wsgi:app
 ```
 
+### How to start
+
+Checkout `${project_name}/controllers/foo.py`, 
+`${project_name}/models/foo.py` and `${project_name}/tests/test_foo.py` to
+learn how to create an entity.
+
