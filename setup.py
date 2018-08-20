@@ -44,5 +44,10 @@ setup(
     install_requires=dependencies,
     packages=find_packages(),
     test_suite='restfulpy.tests',
-    license='MIT'
+    license='MIT',
+    entry_points={
+        'console_scripts': [
+            'restfulpy = restfulpy.launchers:main'
+        ]
+    },
 )
