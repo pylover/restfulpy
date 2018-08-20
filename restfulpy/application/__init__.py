@@ -14,6 +14,13 @@ from ..orm import init_model, create_engine, DBSession
 
 
 class Application(NanohttpApplication):
+    """The main entry point
+
+    A web application project should be started by inheritting this class
+    and overriding some methods if desirable
+
+    """
+
     __configuration__ = None
     __logger__ = get_logger()
     __authenticator__ = None
@@ -104,3 +111,4 @@ class Application(NanohttpApplication):
     def shutdown(self):
         DBSession.close_all()
         self.engine.dispose()
+
