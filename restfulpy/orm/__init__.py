@@ -51,14 +51,12 @@ def init_model(engine):
 
 def drop_all(session=None):  # pragma: no cover
     session = session or DBSession
-    # noinspection PyUnresolvedReferences
     engine = session.bind
     metadata.drop_all(bind=engine)
 
 
 def setup_schema(session=None):  # pragma: no cover
     session = session or DBSession
-    # noinspection PyUnresolvedReferences
     engine = session.bind
     metadata.create_all(bind=engine)
 
@@ -76,7 +74,6 @@ def create_thread_unsafe_session():  # pragma: no cover
 
 def commit(func):
 
-    # noinspection PyUnresolvedReferences
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
 

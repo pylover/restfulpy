@@ -2,7 +2,6 @@ import ujson
 from sqlalchemy import Unicode, TypeDecorator
 
 
-# noinspection PyAbstractClass
 class FakeJson(TypeDecorator):  # pragma: no cover
     impl = Unicode
 

@@ -18,7 +18,6 @@ def test_pagination_mixin(db):
     session = db()
 
     for i in range(1, 6):
-        # noinspection PyArgumentList
         obj = PagingObject(
             title='object %s' % i,
         )

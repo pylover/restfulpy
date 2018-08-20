@@ -85,7 +85,6 @@ class SqliteManager(AbstractDatabaseManager):
         os.remove(self.filename)
 
 
-# noinspection PyAbstractClass
 class DatabaseManager(AbstractDatabaseManager):
 
     def __new__(cls, *args, **kwargs):

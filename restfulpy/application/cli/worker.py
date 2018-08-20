@@ -88,7 +88,6 @@ class StartLauncher(Launcher):
         print('Press Ctrl+C to terminate worker')
         signal.pause()
 
-    # noinspection PyUnusedLocal
     @staticmethod
     def kill_signal_handler(signal_number, frame):
 

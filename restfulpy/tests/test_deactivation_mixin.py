@@ -13,7 +13,6 @@ class DeactiveObject(DeactivationMixin, DeclarativeBase):
 def test_deactivation_mixin(db):
     session = db()
 
-    # noinspection PyArgumentList
     object1 = DeactiveObject(
         title='object 1',
     )

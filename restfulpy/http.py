@@ -40,7 +40,6 @@ def encode_multipart_data(fields: dict = None, files: dict = None):  # pragma: n
     body = io.BytesIO()
     length = 0
     for l in lines:
-        # noinspection PyTypeChecker
         line = (l if isinstance(l, bytes) else l.encode()) + crlf
         length += len(line)
         body.write(line)

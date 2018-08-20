@@ -34,7 +34,6 @@ def test_ordering_mixin(db):
     session =db()
 
     for i in range(1, 6):
-        # noinspection PyArgumentList
         obj = OrderingObject(
             title=f'object {6-i//2}',
             age=i * 10,

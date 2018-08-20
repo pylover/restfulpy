@@ -75,7 +75,6 @@ class Application(NanohttpApplication):
                     content = header + f.read()
                 settings.merge(content.decode())
 
-    # noinspection PyMethodMayBeStatic
     def register_cli_launchers(self, subparsers):
         """
         This is a template method
@@ -93,7 +92,6 @@ class Application(NanohttpApplication):
     def begin_request(self):
         self.__authenticator__.authenticate_request()
 
-    # noinspection PyMethodMayBeStatic
     def end_response(self):
         DBSession.remove()
 

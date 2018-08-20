@@ -63,7 +63,6 @@ def mockup_http_static_server(content: bytes = b'Simple file content.',
             except ConnectionResetError:
                 pass
 
-        # noinspection PyPep8Naming
         def do_GET(self):
             self.send_response(HTTPStatus.OK)
             if isinstance(content, bytes):
@@ -72,7 +71,6 @@ def mockup_http_static_server(content: bytes = b'Simple file content.',
                 self.serve_static_file(content)
             else:
                 self.send_header('Content-Type', content_type)
-                # noinspection PyTypeChecker
                 self.serve_stream(content)
 
     return simple_http_server(

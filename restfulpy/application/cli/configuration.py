@@ -3,7 +3,6 @@ import sys
 from restfulpy.cli import RequireSubCommand, Launcher
 
 
-# noinspection PyAbstractClass
 class ConfigurationLauncher(Launcher, RequireSubCommand):
 
     @classmethod

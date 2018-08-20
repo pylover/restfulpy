@@ -11,7 +11,6 @@ from .providers import create_messenger
 logger = get_logger('messaging')
 
 
-# noinspection PyAbstractClass
 class Email(RestfulpyTask):
     __tablename__ = 'email'
 
@@ -32,8 +31,6 @@ class Email(RestfulpyTask):
     __mapper_args__ = {
         'polymorphic_identity': __tablename__
     }
-
-    # noinspection PyDefaultArgument,PyMethodParameters
 
     def _set_body(self, body):
         self._body = body

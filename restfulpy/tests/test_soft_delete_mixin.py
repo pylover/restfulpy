@@ -13,7 +13,6 @@ class SoftDeleteCheckingModel(SoftDeleteMixin, DeclarativeBase):
 def test_soft_delete_mixin(db):
     session = db()
 
-    # noinspection PyArgumentList
     instance = SoftDeleteCheckingModel(
         title='test title'
     )

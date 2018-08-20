@@ -26,7 +26,6 @@ def test_to_tsvector(db):
 
 
 def test_activation_mixin(db):
-    # noinspection PyArgumentList
     session = db()
     query = session.query(FullTextSearchObject)
     query = FullTextSearchObject.search('a', query)

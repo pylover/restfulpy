@@ -136,7 +136,6 @@ class BaseModel(object):
                 yield getattr(cls, k)
 
         else:
-            # noinspection PyUnresolvedReferences
             for c in cls.__table__.c:
                 yield c
 
@@ -204,7 +203,6 @@ class BaseModel(object):
                 criteria.append((columns[column_name], option == 'desc'))
         return criteria
 
-    # noinspection PyUnresolvedReferences
     @classmethod
     def filter_paginate_sort_query_by_request(cls, query=None):
         query = query or cls.query

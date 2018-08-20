@@ -37,7 +37,6 @@ class ModifiedMixin(TimestampMixin):
     def last_modification_time(self):
         return self.modified_at or self.created_at
 
-    # noinspection PyUnusedLocal
     @staticmethod
     def before_update(mapper, connection, target):
         target.modified_at = datetime.utcnow()
@@ -301,7 +300,6 @@ class OrderingMixin:
             for c in sort_exp.split(',')
         ]
 
-        # noinspection PyUnresolvedReferences
         criteria = cls.create_sort_criteria(sort_columns)
 
         for criterion in criteria:
@@ -328,7 +326,6 @@ class ApproveRequiredMixin:
 
     @is_approved.expression
     def is_approved(self):
-        # noinspection PyUnresolvedReferences
         return self.approved_at.isnot(None)
 
     @classmethod

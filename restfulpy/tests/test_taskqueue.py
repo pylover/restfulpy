@@ -39,7 +39,6 @@ class BadTask(RestfulpyTask):
 
 def test_worker(db):
     session = db()
-    # noinspection PyArgumentList
     awesome_task = AwesomeTask()
     session.add(awesome_task)
 

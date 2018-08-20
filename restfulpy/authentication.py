@@ -202,7 +202,6 @@ class Authenticator:
         self.bad()
 
 
-# noinspection PyAbstractClass
 class StatefulAuthenticator(Authenticator):
     """
 

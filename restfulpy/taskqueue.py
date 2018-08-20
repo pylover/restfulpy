@@ -151,7 +151,6 @@ def worker(statuses={'new'}, filters=None, tries=-1):
             logger.exception('Error when popping task.')
             raise
 
-        # noinspection PyBroadException
         try:
             task.execute(context)
 
