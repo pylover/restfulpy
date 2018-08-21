@@ -12,6 +12,10 @@ import restfulpy
 DEFAULT_ADDRESS = '8080'
 HERE = path.dirname(__file__)
 TEMPLATES_PATH = path.abspath(path.join(HERE, 'templates'))
+TEMPLATES = [
+    d for d in os.listdir(TEMPLATES_PATH)
+    if path.isdir(path.join(TEMPLATES_PATH, d)) and d[0] not in ('.', '_')
+]
 
 
 class ScaffoldLauncher(Launcher):
@@ -38,8 +42,8 @@ class ScaffoldLauncher(Launcher):
             '--template',
             default='full',
             help= \
-                'The project\'s template, one of (full, simple, singlefile). '
-                'default: full.'
+                f'The project\'s template, one of {", ".join(TEMPLATES)}. '
+                f'default: full.'
         )
         parser.add_argument(
             '-o',
@@ -55,8 +59,8 @@ class ScaffoldLauncher(Launcher):
             '--directory',
             default='.',
             help= \
-                'Change to this directory before generating new files. '
-                'default: "."'
+                'Change to this directory before generating new files. It '
+                'will make it if does not exists. default: "."'
         )
 
         return parser
@@ -71,8 +75,7 @@ class ScaffoldLauncher(Launcher):
             return 1
 
         if not path.exists(target_path):
-            print(f'Invalid target path: {target_path}', file=sys.stderr)
-            return 1
+            os.makedirs(target_path)
 
         for top, subdirectories, subfiles in os.walk(template_path):
             current_directory = path.relpath(top, template_path) \
