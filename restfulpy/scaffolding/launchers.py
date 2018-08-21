@@ -32,7 +32,7 @@ class ScaffoldLauncher(Launcher):
             '--template',
             default='full',
             help= \
-                'The project\'s template, one of (full, singlefile). '
+                'The project\'s template, one of (full, simple, singlefile). '
                 'default: full.'
         )
         parser.add_argument(

@@ -1,0 +1,20 @@
+from nanohttp import Controller, json
+from restfulpy.controllers import RootController
+
+import ${project_name}
+from .foo import FooController
+
+
+class ApiV1(Controller):
+    foos = FooController()
+
+    @json
+    def version(self):
+        return {
+            'version': ${project_name}.__version__
+        }
+
+
+class Root(RootController):
+    apiv1 = ApiV1()
+
