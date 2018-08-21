@@ -16,8 +16,9 @@ dependencies = [
 
 setup(
     name='${project_name}',
-	author='${project_author}',
-	version=package_version,
+    author='${project_author}',
+    author_email='${project_author_email}',
+    version=package_version,
     install_requires=dependencies,
     packages=find_packages(),
     test_suite='${project_name}.tests',

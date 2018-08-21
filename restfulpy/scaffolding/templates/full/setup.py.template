@@ -1,6 +1,6 @@
 import re
-
 from os.path import join, dirname
+
 from setuptools import setup, find_packages
 
 
@@ -16,6 +16,8 @@ dependencies = [
 
 setup(
     name='${project_name}',
+    author='${project_author}',
+    author_email='${project_author_email}',
     version=package_version,
     install_requires=dependencies,
     packages=find_packages(),

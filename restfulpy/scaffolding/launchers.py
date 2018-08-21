@@ -28,6 +28,10 @@ class ScaffoldLauncher(Launcher):
             help='The project\'s author'
         )
         parser.add_argument(
+            'email',
+            help='The project\'s author\'s email'
+        )
+        parser.add_argument(
             '-t',
             '--template',
             default='full',
@@ -99,6 +103,10 @@ class ScaffoldLauncher(Launcher):
             content = s.read()
             content = content.replace('${project_name}', self.args.name)
             content = content.replace('${project_author}', self.args.author)
+            content = content.replace(
+                '${project_author_email}',
+                self.args.email
+            )
             content = content.replace(
                 '${project_title}',
                 self.args.name.capitalize()
