@@ -119,10 +119,6 @@ ENV/
 .mypy_cache/
 
 
-# Rope project settings
-.idea
-data
-
 # ctags
 .ctags
 
@@ -131,8 +127,6 @@ data
 
 # pytest
 .pytest_cache
-
-=======
 
 # pycharm 
 .idea
@@ -144,6 +138,3 @@ data
 .ropeproject
 .*.sw[po]
 
-# pytest
-.pytest_cache
->>>>>>> Stashed changes
