@@ -99,6 +99,8 @@ class ScaffoldLauncher(Launcher):
 
                 os.makedirs(path.dirname(target), exist_ok=True)
                 self.install_file(source, target)
+                if self.args.template == 'singlefile':
+                    os.chmod(target, 0o774)
 
     def install_file(self, source, target):
         print(f'Installing  {target}')
