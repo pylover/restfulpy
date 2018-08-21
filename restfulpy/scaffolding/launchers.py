@@ -42,7 +42,7 @@ class ScaffoldLauncher(Launcher):
             action='store_true',
             help= \
                 'Continue and overwrite files when the target '
-                'directories(-d/--directory) is not empty.'
+                'directory(-d/--directory) is not empty.'
         )
         parser.add_argument(
             '-d',
