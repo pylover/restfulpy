@@ -5,11 +5,13 @@ from os import path
 from nanohttp import quickstart
 
 from restfulpy.cli import Launcher
+from restfulpy.utils import to_pascal_case
 import restfulpy
 
 
 DEFAULT_ADDRESS = '8080'
 HERE = path.dirname(__file__)
+TEMPLATES_PATH = path.abspath(path.join(HERE, 'templates'))
 
 
 class ScaffoldLauncher(Launcher):
@@ -21,7 +23,7 @@ class ScaffoldLauncher(Launcher):
         )
         parser.add_argument(
             'name',
-            help='The project\'s name'
+            help='The snake_case project\'s name'
         )
         parser.add_argument(
             'author',
@@ -29,7 +31,7 @@ class ScaffoldLauncher(Launcher):
         )
         parser.add_argument(
             'email',
-            help='The project\'s author\'s email'
+            help='The projects author\'s email'
         )
         parser.add_argument(
             '-t',
@@ -60,10 +62,9 @@ class ScaffoldLauncher(Launcher):
         return parser
 
     def launch(self):
-        template_path = path.abspath(
-            path.join(HERE, 'templates', self.args.template)
-        )
+        template_path = path.join(TEMPLATES_PATH, self.args.template)
         target_path = path.abspath(self.args.directory)
+        title_snakecase = self.args.name.lower()
 
         if not path.exists(template_path):
             print(f'Invalid template: {template_path}', file=sys.stderr)
@@ -75,7 +76,7 @@ class ScaffoldLauncher(Launcher):
 
         for top, subdirectories, subfiles in os.walk(template_path):
             current_directory = path.relpath(top, template_path) \
-                .replace('__project__', self.args.name)
+                .replace('__project__', title_snakecase)
             for filename in subfiles:
                 if not filename.endswith('.template'):
                     continue
@@ -84,7 +85,7 @@ class ScaffoldLauncher(Launcher):
                 target = path.abspath(path.join(
                     target_path,
                     current_directory,
-                    filename[:-9].replace('__project__', self.args.name)
+                    filename[:-9].replace('__project__', title_snakecase)
                 ))
                 if not self.args.overwrite and path.exists(target):
                     print(
@@ -98,18 +99,20 @@ class ScaffoldLauncher(Launcher):
 
     def install_file(self, source, target):
         print(f'Installing  {target}')
+        title_snakecase = self.args.name.lower()
+        title_camelcase = to_pascal_case(title_snakecase)
 
         with open(source) as s, open(target, 'w') as t:
             content = s.read()
-            content = content.replace('${project_name}', self.args.name)
+            content = content.replace('${project_snakecase}', title_snakecase)
             content = content.replace('${project_author}', self.args.author)
             content = content.replace(
                 '${project_author_email}',
                 self.args.email
             )
             content = content.replace(
-                '${project_title}',
-                self.args.name.capitalize()
+                '${project_camelcase}',
+                title_camelcase,
             )
             content = content.replace(
                 '${restfulpy_version}',

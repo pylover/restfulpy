@@ -1,10 +1,10 @@
 from restfulpy.testing import ApplicableTestCase
 
-from ${project_name} import ${project_title}, cryptohelpers
+from ${project_snakecase} import ${project_camelcase}, cryptohelpers
 
 
 class LocalApplicationTestCase(ApplicableTestCase):
-    __application_factory__ = ${project_title}
+    __application_factory__ = ${project_camelcase}
 
 
 class RandomMonkeyPatch:

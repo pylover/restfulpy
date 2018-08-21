@@ -3,8 +3,8 @@ import time
 import pytest
 from nanohttp import settings, HTTPStatus
 
-from ${project_name}.tests.helpers import LocalApplicationTestCase
-from ${project_name}.tokens import RegisterationToken, ResetPasswordToken
+from ${project_snakecase}.tests.helpers import LocalApplicationTestCase
+from ${project_snakecase}.tokens import RegisterationToken, ResetPasswordToken
 
 
 class TestTokens(LocalApplicationTestCase):

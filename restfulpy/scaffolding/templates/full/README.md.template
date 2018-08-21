@@ -1,4 +1,4 @@
-# ${project_title}
+# ${project_camelcase}
 
 ## Branches
 
@@ -13,8 +13,8 @@ Setting up development Environment on Linux
 #### Working copy
     
     $ cd /path/to/workspace
-    $ git clone git@github.com:Carrene/${project_name}.git
-    $ cd ${project_name}
+    $ git clone git@github.com:Carrene/${project_snakecase}.git
+    $ cd ${project_snakecase}
     $ pip install -e .
  
 ### Setup Database
@@ -24,8 +24,8 @@ Setting up development Environment on Linux
 ```yaml
 
 db:
-  url: postgresql://postgres:postgres@localhost/${project_name}_dev
-  test_url: postgresql://postgres:postgres@localhost/${project_name}_test
+  url: postgresql://postgres:postgres@localhost/${project_snakecase}_dev
+  test_url: postgresql://postgres:postgres@localhost/${project_snakecase}_test
   administrative_url: postgresql://postgres:postgres@localhost/postgres
 
 messaging:
@@ -42,23 +42,23 @@ smtp:
 
 #### Remove old abd create a new database **TAKE CARE ABOUT USING THAT**
 
-    $ ${project_name} db create --drop --mockup
+    $ ${project_snakecase} db create --drop --mockup
 
 And or
 
-    $ ${project_name} db create --drop --basedata 
+    $ ${project_snakecase} db create --drop --basedata 
 
 #### Drop old database: **TAKE CARE ABOUT USING THAT**
 
-    $ ${project_name} [-c path/to/config.yml] db --drop
+    $ ${project_snakecase} [-c path/to/config.yml] db --drop
 
 #### Create database
 
-    $ ${project_name} [-c path/to/config.yml] db --create
+    $ ${project_snakecase} [-c path/to/config.yml] db --create
 
 Or, you can add `--drop` to drop the previously created database: **TAKE CARE ABOUT USING THAT**
 
-    $ ${project_name} [-c path/to/config.yml] db create --drop
+    $ ${project_snakecase} [-c path/to/config.yml] db create --drop
 
 
 ### Running tests
@@ -73,7 +73,7 @@ pytests
 #### Single threaded 
 
 ```bash
-${project_name} [-c path/to/config.yml] serve
+${project_snakecase} [-c path/to/config.yml] serve
 ```
 
 #### WSGI
@@ -81,9 +81,9 @@ ${project_name} [-c path/to/config.yml] serve
 wsgi.py
 
 ```python
-from ${project_name} import ${project_name}
-${project_name}.configure(files=...)
-app = ${project_name}
+from ${project_snakecase} import ${project_snakecase}
+${project_snakecase}.configure(files=...)
+app = ${project_snakecase}
 ```
 
 ```bash
@@ -92,7 +92,7 @@ gunicorn wsgi:app
 
 ### How to start
 
-Checkout `${project_name}/controllers/foo.py`, 
-`${project_name}/models/foo.py` and `${project_name}/tests/test_foo.py` to
+Checkout `${project_snakecase}/controllers/foo.py`, 
+`${project_snakecase}/models/foo.py` and `${project_snakecase}/tests/test_foo.py` to
 learn how to create an entity.
 

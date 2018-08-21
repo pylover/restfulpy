@@ -1,7 +1,7 @@
 from bddrest.authoring import when, status
 
-from ${project_name}.models import Member
-from ${project_name}.tests.helpers import LocalApplicationTestCase
+from ${project_snakecase}.models import Member
+from ${project_snakecase}.tests.helpers import LocalApplicationTestCase
 
 
 class TestLogout(LocalApplicationTestCase):

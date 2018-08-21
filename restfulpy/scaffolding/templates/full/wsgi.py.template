@@ -1,4 +1,4 @@
-from ${project_name} import ${project_name} as app
+from ${project_snakecase} import ${project_snakecase} as app
 
 
 app.configure()

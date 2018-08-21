@@ -111,15 +111,15 @@ class Root(RootController):
         }
 
 
-class ${project_title}(Application):
+class ${project_camelcase}(Application):
     __configuration__ = '''
     db:
-      url: postgresql://postgres:postgres@localhost/${project_name}_dev
-      test_url: postgresql://postgres:postgres@localhost/${project_name}_test
+      url: postgresql://postgres:postgres@localhost/${project_snakecase}_dev
+      test_url: postgresql://postgres:postgres@localhost/${project_snakecase}_test
       administrative_url: postgresql://postgres:postgres@localhost/postgres
     '''
 
-    def __init__(self, application_name='${project_name}', root=Root()):
+    def __init__(self, application_name='${project_snakecase}', root=Root()):
         super().__init__(
             application_name,
             root=root,
@@ -128,11 +128,11 @@ class ${project_title}(Application):
         )
 
 
-${project_name} = ${project_title}()
+${project_snakecase} = ${project_camelcase}()
 
 
 class TestFoo(ApplicableTestCase):
-    __application_factory__ = ${project_title}
+    __application_factory__ = ${project_camelcase}
 
     @classmethod
     def mockup(cls):
@@ -221,5 +221,5 @@ class TestFoo(ApplicableTestCase):
 
 
 if __name__ == '__main__':
-    ${project_name}.cli_main()
+    ${project_snakecase}.cli_main()
 

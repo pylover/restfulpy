@@ -4,7 +4,7 @@ from os.path import join, dirname
 from setuptools import setup, find_packages
 
 
-with open(join(dirname(__file__), '${project_name}', '__init__.py')) as v_file:
+with open(join(dirname(__file__), '${project_snakecase}', '__init__.py')) as v_file:
     package_version = re.compile('.*__version__ = \'(.*?)\'', re.S)\
         .match(v_file.read()).group(1)
 
@@ -15,16 +15,16 @@ dependencies = [
 
 
 setup(
-    name='${project_name}',
+    name='${project_snakecase}',
     author='${project_author}',
     author_email='${project_author_email}',
     version=package_version,
     install_requires=dependencies,
     packages=find_packages(),
-    test_suite='${project_name}.tests',
+    test_suite='${project_snakecase}.tests',
     entry_points={
         'console_scripts': [
-            '${project_name} = ${project_name}:${project_name}.cli_main'
+            '${project_snakecase} = ${project_snakecase}:${project_snakecase}.cli_main'
         ]
     }
 )
