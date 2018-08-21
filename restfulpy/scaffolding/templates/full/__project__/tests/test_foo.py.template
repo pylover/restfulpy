@@ -2,10 +2,10 @@ from bddrest.authoring import response, Update, when, status, given_form
 from restfulpy.messaging import create_messenger
 
 from ${project_name}.models import Foo, Member
-from ${project_name}.tests.helpers import LocadApplicationTestCase
+from ${project_name}.tests.helpers import LocalApplicationTestCase
 
 
-class TestFoo(LocadApplicationTestCase):
+class TestFoo(LocalApplicationTestCase):
     __configuration__ = '''
     messaging:
       default_messenger: restfulpy.mockup.MockupMessenger

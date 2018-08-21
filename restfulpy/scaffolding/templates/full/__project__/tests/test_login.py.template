@@ -1,10 +1,10 @@
 from bddrest.authoring import response, status, when, Update
 
 from ${project_name}.models import Member
-from ${project_name}.tests.helpers import LocadApplicationTestCase
+from ${project_name}.tests.helpers import LocalApplicationTestCase
 
 
-class TestLogin(LocadApplicationTestCase):
+class TestLogin(LocalApplicationTestCase):
 
     @classmethod
     def mockup(cls):

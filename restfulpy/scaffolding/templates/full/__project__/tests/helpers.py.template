@@ -3,7 +3,7 @@ from restfulpy.testing import ApplicableTestCase
 from ${project_name} import ${project_title}, cryptohelpers
 
 
-class LocadApplicationTestCase(ApplicableTestCase):
+class LocalApplicationTestCase(ApplicableTestCase):
     __application_factory__ = ${project_title}
 
 
