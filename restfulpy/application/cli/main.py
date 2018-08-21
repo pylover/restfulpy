@@ -33,7 +33,7 @@ class MainLauncher(Launcher):
         parser.add_argument(
             '-c', '--config-file',
             metavar="FILE",
-            help='List of configuration files separated by space. Default: ""'
+            help='Configuration file, Default: none'
         )
         subparsers = parser.add_subparsers(
             title="sub commands",
