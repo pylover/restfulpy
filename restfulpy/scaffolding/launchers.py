@@ -31,14 +31,18 @@ class ScaffoldLauncher(Launcher):
             '-t',
             '--template',
             default='full',
-            help='The project\'s template, one of (full, ). default: full.'
+            help= \
+                'The project\'s template, one of (full, singlefile). '
+                'default: full.'
         )
         parser.add_argument(
             '-o',
             '--overwrite',
             default=False,
             action='store_true',
-            help='The project\'s template, one of (full, ). default: full.'
+            help= \
+                'Continue and overwrite files when the target '
+                'directories(-d/--directory) is not empty.'
         )
         parser.add_argument(
             '-d',
@@ -76,7 +80,7 @@ class ScaffoldLauncher(Launcher):
                 target = path.abspath(path.join(
                     target_path,
                     current_directory,
-                    filename[:-9]
+                    filename[:-9].replace('__project__', self.args.name)
                 ))
                 if not self.args.overwrite and path.exists(target):
                     print(
