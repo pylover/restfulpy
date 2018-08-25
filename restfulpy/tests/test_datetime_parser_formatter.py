@@ -14,7 +14,6 @@ class TestDateTimeParserFormatterTestCase:
     @classmethod
     def setup_class(cls):
         root_path = dirname(__file__)
-
         context = {
             'process_name': 'DateTimeParserTestCase',
             'root_path': root_path,

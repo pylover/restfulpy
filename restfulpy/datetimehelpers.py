@@ -39,7 +39,7 @@ def now():
 def parse_datetime(value) -> datetime:
     """Parses a string a a datetime object
 
-    The reason of wrapping this functionality is to preserve compatibillity
+    The reason of wrapping this functionality is to preserve compatibility
     and future exceptions handling.
 
     Another reason is to behave depend to the configuration when parsing date
