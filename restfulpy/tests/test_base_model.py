@@ -301,7 +301,6 @@ class TestBaseModel(ApplicableTestCase):
             assert fields['email']['label'] == 'Email'
             assert fields['email']['example'] == 'user@example.com'
 
-"""
     def test_datetime_format(self):
         with self.given(
             'Datetime allows contain microseconds',
@@ -347,7 +346,6 @@ class TestBaseModel(ApplicableTestCase):
             )
             assert status == '400 Invalid date or time format'
 
-
             when(
                 'Microsecond is not zero padded',
                 form=Update(
@@ -378,5 +376,4 @@ class TestBaseModel(ApplicableTestCase):
             ):
             assert status == 200
             assert response.json['birth'] == '2017-12-16'
-"""
 
