@@ -336,7 +336,7 @@ class TestBaseModel(ApplicableTestCase):
                     lastLoginTime='2017-13-10T10:10:00'
                 )
             )
-            assert status == '400 Invalid date or time format'
+            assert status == '400 Invalid date or time: 2017-13-10T10:10:00'
 
             when(
                 'Malformed date and or time',
@@ -345,7 +345,7 @@ class TestBaseModel(ApplicableTestCase):
                     lastLoginTime='malformed'
                 )
             )
-            assert status == '400 Invalid date or time format'
+            assert status == '400 Invalid date or time: malformed'
 
             when(
                 'Microsecond is not zero padded',
