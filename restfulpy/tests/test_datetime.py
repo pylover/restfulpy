@@ -63,7 +63,7 @@ class TestDateTime(ApplicableTestCase):
                 )
             )
 
-            assert status == '400 Invalid date or time format'
+            assert status == '400 Invalid date or time: 2001-00-01'
 
     def test_naive_datetime_parsing(self):
         # The application is configured to use system's local date and time.

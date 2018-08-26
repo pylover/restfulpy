@@ -8,7 +8,8 @@ from sqlalchemy import Integer, Date
 
 from restfulpy.configuration import settings
 from restfulpy.controllers import JsonPatchControllerMixin, ModelRestController
-from restfulpy.datetimehelpers import parse_datetime, format_datetime
+from restfulpy.datetimehelpers import parse_datetime, format_datetime, \
+    parse_date
 from restfulpy.mockup import mockup_localtimezone
 from restfulpy.orm import commit, DeclarativeBase, Field, DBSession
 from restfulpy.testing import ApplicableTestCase
@@ -46,16 +47,15 @@ class TestDate(ApplicableTestCase):
             assert status == 200
             assert response.json == '2001-01-01'
 
-"""
             when(
-                'Posting a date instead of datetime',
+                'Posting a datetime instead of date',
                 form=dict(
-                    when='2001-01-01'
+                    when='2001-01-01T00:01:00.123456'
                 )
             )
 
             assert status == 200
-            assert response.json == '2001-01-01T00:00:00'
+            assert response.json == '2001-01-01'
 
             when(
                 'Posting an invalid datetime',
@@ -63,16 +63,13 @@ class TestDate(ApplicableTestCase):
                     when='2001-00-01'
                 )
             )
+            assert status == '400 Invalid date or time: 2001-00-01'
 
-            assert status == '400 Invalid date or time format'
     def test_naive_datetime_parsing(self):
-        # The application is configured to use system's local date and time.
-        settings.timezone = None
-
         # Submit without timezone: accept and assume the local date and time.
-        assert datetime(1970, 1, 1) == parse_datetime('1970-01-01T00:00:00')
-        assert datetime(1970, 1, 1, microsecond=1000) == \
-            parse_datetime('1970-01-01T00:00:00.001')
+        assert date(1970, 1, 1) == parse_date('1970-01-01')
+        assert date(1970, 1, 1) == parse_date('1970-01-01T00:00:00.001')
+"""
         assert datetime(1970, 1, 1, microsecond=1000) == \
             parse_datetime('1970-01-01T00:00:00.001000')
 
