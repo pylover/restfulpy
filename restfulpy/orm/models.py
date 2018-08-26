@@ -185,14 +185,14 @@ class BaseModel(object):
                 # Parsing date and or time if required.
                 if type_ in (datetime, date, time):
                     try:
-                        if type_ == datetime:
-                                yield c, parse_datetime(value)
+                        if type_ == time:
+                            yield c, parse_time(value)
+
+                        elif type_ == datetime:
+                            yield c, parse_datetime(value)
 
                         elif type_ == date:
-                                yield c, parse_date(value)
-
-                        elif type_ == time:
-                                yield c, parse_time(value)
+                            yield c, parse_date(value)
 
                     except ValueError:
                         raise HTTPBadRequest(f'Invalid date or time: {value}')
