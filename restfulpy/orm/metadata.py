@@ -70,7 +70,6 @@ class MetadataField(FieldInfo):
         else:
             default = None
 
-        # FIXME: Unpack **info instead of this shalamshoorba
         result.append(cls(
             json_name,
             key,
