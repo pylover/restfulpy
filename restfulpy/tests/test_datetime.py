@@ -54,3 +54,12 @@ class TestBaseModel(ApplicableTestCase):
             assert status == 200
             assert response.json == '2001-01-01T00:00:00'
 
+            when(
+                'Posting an invalid datetime',
+                form=dict(
+                    when='2001-00-01'
+                )
+            )
+
+            assert status == '400 Invalid date or time format'
+
