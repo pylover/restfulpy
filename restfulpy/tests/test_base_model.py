@@ -359,23 +359,3 @@ class TestBaseModel(ApplicableTestCase):
             assert response.json['lastLoginTime'] == \
                 '2017-10-10T10:10:00.454600'
 
-    # TODO: Move it into datetime tests
-    def test_posix_timestamp_format(self):
-        with self.given(
-                'Datetime allows contain microseconds',
-                 verb='POST',
-                 form=dict(
-                    title='test',
-                    firstName='test',
-                    lastName='test',
-                    email='testposix@example.com',
-                    password='123456',
-                    birth='1513434403',
-                    weight=1.1,
-                    visible='false',
-                    lastLoginTime='2017-10-10T10:10:00.12313'
-                )
-            ):
-            assert status == 200
-            assert response.json['birth'] == '2017-12-16'
-

@@ -48,12 +48,20 @@ class TestDate(ApplicableTestCase):
             assert response.json == '2001-01-01'
 
             when(
+                'Posix time format',
+                form=dict(
+                    when='1513434403'
+                )
+            )
+            assert status == 200
+            assert response.json == '2017-12-16'
+
+            when(
                 'Posting a datetime instead of date',
                 form=dict(
                     when='2001-01-01T00:01:00.123456'
                 )
             )
-
             assert status == 200
             assert response.json == '2001-01-01'
 
