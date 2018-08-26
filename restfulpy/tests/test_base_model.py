@@ -301,6 +301,7 @@ class TestBaseModel(ApplicableTestCase):
             assert fields['email']['label'] == 'Email'
             assert fields['email']['example'] == 'user@example.com'
 
+    # TODO: Move it into datetime tests
     def test_datetime_format(self):
         with self.given(
             'Datetime allows contain microseconds',
@@ -358,6 +359,7 @@ class TestBaseModel(ApplicableTestCase):
             assert response.json['lastLoginTime'] == \
                 '2017-10-10T10:10:00.454600'
 
+    # TODO: Move it into datetime tests
     def test_posix_timestamp_format(self):
         with self.given(
                 'Datetime allows contain microseconds',
