@@ -1,10 +1,10 @@
-from datetime import datetime
+from datetime import date
 
 import pytest
 from bddrest import response, when, status
 from dateutil.tz import tzoffset
 from nanohttp import json
-from sqlalchemy import Integer, DateTime
+from sqlalchemy import Integer, Date
 
 from restfulpy.configuration import settings
 from restfulpy.controllers import JsonPatchControllerMixin, ModelRestController
@@ -14,38 +14,39 @@ from restfulpy.orm import commit, DeclarativeBase, Field, DBSession
 from restfulpy.testing import ApplicableTestCase
 
 
-class Metting(DeclarativeBase):
-    __tablename__ = 'metting'
+class Party(DeclarativeBase):
+    __tablename__ = 'party'
     id = Field(Integer, primary_key=True)
-    when = Field(DateTime)
+    when = Field(Date)
 
 
 class Root(JsonPatchControllerMixin, ModelRestController):
-    __model__ = 'metting'
+    __model__ = 'party'
 
     @json
     @commit
     def post(self):
-        m = Metting()
+        m = Party()
         m.update_from_request()
         DBSession.add(m)
         return m.when.isoformat()
 
 
-class TestDateTime(ApplicableTestCase):
+class TestDate(ApplicableTestCase):
     __controller_factory__ = Root
 
     def test_update_from_request(self):
         with self.given(
-            'Posting a datetime in form',
+            'Posting a date in form',
             verb='POST',
             form=dict(
-                when='2001-01-01T00:01',
+                when='2001-01-01',
             )
         ):
             assert status == 200
-            assert response.json == '2001-01-01T00:01:00'
+            assert response.json == '2001-01-01'
 
+"""
             when(
                 'Posting a date instead of datetime',
                 form=dict(
@@ -64,7 +65,6 @@ class TestDateTime(ApplicableTestCase):
             )
 
             assert status == '400 Invalid date or time format'
-
     def test_naive_datetime_parsing(self):
         # The application is configured to use system's local date and time.
         settings.timezone = None
@@ -138,4 +138,4 @@ class TestDateTime(ApplicableTestCase):
         assert datetime(
             1970, 1, 1, 3, 30, 1, 334300, tzinfo=tzoffset('Tehran', 12600)
         ) == parse_datetime('1.3343')
-
+"""

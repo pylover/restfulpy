@@ -11,7 +11,8 @@ from sqlalchemy.orm import Query, CompositeProperty, \
     RelationshipProperty
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 
-from ..datetimehelpers import parse_datetime, format_datetime
+from ..datetimehelpers import parse_datetime, parse_date, parse_time, \
+    format_date, format_time, format_datetime
 from ..utils import to_camel_case
 from .field import Field
 from .metadata import MetadataField
@@ -70,8 +71,14 @@ class BaseModel(object):
         elif v is None:
             result = v
 
-        elif isinstance(v, (datetime, date, time)):
+        elif isinstance(v, datetime):
             result = format_datetime(v)
+
+        elif isinstance(v, date):
+            result = format_date(v)
+
+        elif isinstance(v, time):
+            result = format_time(v)
 
         elif hasattr(v, 'to_dict'):
             result = v.to_dict()
@@ -166,20 +173,30 @@ class BaseModel(object):
                     raise HTTPBadRequest('Invalid attribute')
 
                 value = context.form[param_name]
+
                 # Ensuring the python type, and ignoring silently if the
                 # python type is not specified
                 try:
-                    c.type.python_type
+                    type_ = c.type.python_type
                 except NotImplementedError:
                     yield c, value
                     continue
 
                 # Parsing date and or time if required.
-                if c.type.python_type in (datetime, date, time):
+                if type_ in (datetime, date, time):
                     try:
-                        yield c, parse_datetime(value)
+                        if type_ == datetime:
+                                yield c, parse_datetime(value)
+
+                        elif type_ == date:
+                                yield c, parse_date(value)
+
+                        elif type_ == time:
+                                yield c, parse_time(value)
+
                     except ValueError:
-                        raise HTTPBadRequest('Invalid date or time format')
+                        raise HTTPBadRequest(f'Invalid date or time: {value}')
+
                 else:
                     yield c, value
 
