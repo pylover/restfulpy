@@ -1,4 +1,4 @@
-from bddrest.authoring import response
+from bddrest import response
 from restfulpy.testing import ApplicableTestCase
 
 from ..controllers.root import Root

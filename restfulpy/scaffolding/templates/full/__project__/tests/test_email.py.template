@@ -1,4 +1,4 @@
-from bddrest.authoring import response, Update, when, status, given_form
+from bddrest import response, Update, when, status, given_form
 from nanohttp import settings
 from restfulpy.messaging import create_messenger
 
