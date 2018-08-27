@@ -2,4 +2,4 @@ from ${project_snakecase} import ${project_snakecase} as app
 
 
 app.configure()
-
+app.initialize_orm()
