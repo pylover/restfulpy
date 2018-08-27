@@ -134,8 +134,10 @@ class TestAuthenticator(ApplicableTestCase):
 
     def test_logout(self):
         self.login(
-            email='test@example.com',
-            password='test',
+            dict(
+                email='test@example.com',
+                password='test'
+            ),
             url='/login',
             verb='POST'
         )
@@ -233,8 +235,10 @@ class TestAuthenticator(ApplicableTestCase):
     def test_authorization(self):
         global token_expired
         self.login(
-            email='test@example.com',
-            password='test',
+            dict(
+                email='test@example.com',
+                password='test'
+            ),
             url='/login'
         )
         token_expired = False

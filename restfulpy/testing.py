@@ -195,12 +195,12 @@ class ApplicableTestCase:
             kw.setdefault('authorization', self._authentication_token)
         return when(*a, **kw)
 
-    def login(self, email, password, url='/apiv1/sessions', verb='POST'):
+    def login(self, form, url='/apiv1/sessions', verb='POST'):
         with self.given(
                 None,
                 url,
                 verb,
-                form=dict(email=email, password=password)
+                form=form
             ) as story:
             response = story.response
             assert response.status == '200 OK'
