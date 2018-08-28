@@ -257,7 +257,7 @@ class BaseModel(object):
         return wrapper
 
     @classmethod
-    def create_validation_rules(cls, strict=False, fields=None):
+    def create_validation_rules(cls, strict=False):
         fields = {}
         for f in cls.iter_metadata_fields():
             fields[f.name] = field = dict(
@@ -274,7 +274,6 @@ class BaseModel(object):
 
             if not strict and 'required' in field:
                 del field['required']
-
         return fields
 
     @classmethod
@@ -286,7 +285,11 @@ class BaseModel(object):
         else:
             func = None
 
-        decorator = validate(**cls.create_validation_rules(strict, fields))
+        rules = cls.create_validation_rules(strict)
+        if fields:
+            rules.update(fields)
+
+        decorator = validate(**rules)
 
         if func:
             return decorator(func)
