@@ -31,7 +31,7 @@ dependencies = [
     # Testing
     'requests',
     'pytest',
-    'bddrest >= 1.16'
+    'bddrest >= 1.17'
 ]
 
 
