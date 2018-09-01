@@ -1,3 +1,5 @@
+import os
+from os import path
 import pytest
 from bddrest import Given, when
 from nanohttp import settings
@@ -81,6 +83,8 @@ class ApplicableTestCase:
     __application_factory__ = MockupApplication
     __controller_factory__ = None
     __configuration__ = None
+    __story_directory__ = None
+    __api_documentation_directory__ = None
     _engine = None
     _sessions = []
     _authentication_token = None
@@ -185,9 +189,43 @@ class ApplicableTestCase:
     def teardown_class(cls):
         cls.cleanup_orm()
 
-    def given(self, *a, **kw):
+    @classmethod
+    def _ensure_directory(cls, d):
+        if not path.exists(d):
+            os.makedirs(d, exist_ok=True)
+
+    @classmethod
+    def _get_story_filename(cls, story):
+        cls._ensure_directory(cls.__story_directory__)
+        title = story.title.lower().replace(' ', '-')
+        entity = story.base_call.url.split('/')[2]
+        filename = path.join(
+            cls.__story_directory__,
+            f'{story.base_call.verb}-{entity}--{title}.yml'
+        )
+        return filename
+
+    @classmethod
+    def _get_markdown_filename(cls, story):
+        cls._ensure_directory(cls.__api_documentation_directory__)
+        title = story.title.lower().replace(' ', '-')
+        entity = story.base_call.url.split('/')[2]
+        filename = path.join(
+            cls.__api_documentation_directory__,
+            f'{story.base_call.verb}-{entity}--{title}.md'
+        )
+        return filename
+
+    def given(self, *a, autodoc=True, **kw):
         if self._authentication_token is not None:
             kw.setdefault('authorization', self._authentication_token)
+
+        if self.__story_directory__:
+            kw['autodump'] = self._get_story_filename
+
+        if autodoc and self.__api_documentation_directory__:
+            kw['autodoc'] = self._get_markdown_filename
+
         return Given(self.__application__, *a, **kw)
 
     def when(self, *a, **kw):
