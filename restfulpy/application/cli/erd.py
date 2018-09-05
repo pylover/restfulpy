@@ -1,3 +1,4 @@
+import sys
 from os import makedirs, path
 from os.path import join
 
@@ -67,7 +68,16 @@ class EntityRelationshipDiagrams(Launcher):
         return parser
 
     def launch(self):
-        from sqlalchemy_schemadisplay import create_schema_graph
+        try:
+            from sqlalchemy_schemadisplay import create_schema_graph
+        except ImportError:
+            print(
+                'You have to install sqlalchemy_schemadisplay to use this '
+                'feature',
+                file=sys.stderr
+            )
+            sys.exit(1)
+
         db_url = self.args.url if self.args.url else settings.db.url
         try:
             metadata = MetaData(db_url)
