@@ -249,5 +249,4 @@ class TestAuthenticator(ApplicableTestCase):
             verb='GET'
         ):
             assert response.status == 403
-            assert response.headers['X-Identity'] == '1'
 

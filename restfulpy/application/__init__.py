@@ -46,14 +46,14 @@ class Application(NanohttpApplication):
         elif self.__authenticator__ is None:
             self.__authenticator__ = Authenticator()
 
-    def _handle_exception(self, ex):
+    def _handle_exception(self, ex, start_response):
         if isinstance(ex, SQLAlchemyError):
             ex = SqlError(ex)
             self.__logger__.exception(str(ex))
         if not isinstance(ex, HTTPStatus):
             ex = HTTPInternalServerError('Internal server error')
             self.__logger__.exception('Internal server error')
-        return super()._handle_exception(ex)
+        return super()._handle_exception(ex, start_response)
 
     def configure(self, files=None, context=None, force=False):
         _context = {
