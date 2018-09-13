@@ -73,4 +73,23 @@ restfulpy scaffold \
 Follow the `path/to/target/README.md` to know how to use the newly created 
 project.
 
+#### Single file template
+
+If you have generated your application by `--template singlefile` option, you can run it by:
+
+```bash
+nanohttp path/to/application/project1.py
+```
+
+Or you can make your application executable by following command:
+
+```bash
+chmod +x path/to/application/project1.py
+```
+
+Now run your application by:
+
+```bash
+path/to/application/project1.py
+```
 

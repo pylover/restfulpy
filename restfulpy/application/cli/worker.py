@@ -40,15 +40,6 @@ class StartLauncher(Launcher):
             default=None,
             help='Number of working threads'
         )
-
-        parser.add_argument(
-            '-f',
-            '--filter',
-            default=None,
-            type=str,
-            action='store',
-            help='Custom SQL filter for tasks'
-        )
         return parser
 
     def launch(self):
@@ -114,7 +105,7 @@ class CleanupLauncher(Launcher):
         from restfulpy.orm import DBSession
         from restfulpy.taskqueue import RestfulpyTask
 
-        RestfulpyTask.cleanup(DBSession)
+        RestfulpyTask.cleanup(DBSession, filters=self.args.filter)
         DBSession.commit()
 
 
@@ -125,6 +116,15 @@ class WorkerLauncher(Launcher, RequireSubCommand):
             'worker',
             help="Task queue administration"
         )
+        parser.add_argument(
+            '-f',
+            '--filter',
+            default=None,
+            type=str,
+            action='store',
+            help='Custom SQL filter for tasks'
+        )
+
         worker_subparsers = parser.add_subparsers(
             title="worker command",
             dest="worker_command"

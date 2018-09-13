@@ -98,10 +98,16 @@ class RestfulpyTask(TimestampMixin, DeclarativeBase):
             raise
 
     @classmethod
-    def cleanup(cls, session=DBSession, statuses=['in-progress']):
-        session.query(RestfulpyTask) \
-            .filter(RestfulpyTask.status.in_(statuses)) \
-            .with_lockmode('update') \
+    def cleanup(cls, session=DBSession, filters=None, statuses=['in-progress']):
+        cleanup_query = session.query(RestfulpyTask) \
+            .filter(RestfulpyTask.status.in_(statuses))
+
+        if filters is not None:
+            cleanup_query = cleanup_query.filter(
+                text(filters) if isinstance(filters, str) else filters
+            )
+
+        cleanup_query.with_lockmode('update') \
             .update({
                 'status': 'new',
                 'started_at': None,
