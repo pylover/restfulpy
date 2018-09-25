@@ -198,6 +198,7 @@ class ApplicableTestCase:
     def _get_story_filename(cls, story):
         cls._ensure_directory(cls.__story_directory__)
         title = story.title.lower().replace(' ', '-')
+        title = title.replace('/', ' or ')
         entity = story.base_call.url.split('/')[2]
         filename = path.join(
             cls.__story_directory__,
