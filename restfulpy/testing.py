@@ -195,26 +195,38 @@ class ApplicableTestCase:
             os.makedirs(d, exist_ok=True)
 
     @classmethod
-    def _get_story_filename(cls, story):
-        cls._ensure_directory(cls.__story_directory__)
+    def _get_document_filename(cls, directory, story):
+        cls._ensure_directory(directory)
         title = story.title.lower().replace(' ', '-')
-        entity = story.base_call.url.split('/')[2]
+        title = title.replace('/', '-or-')
+        url_parts = story.base_call.url.split('/')
+        if len(url_parts) >= 3:
+            entity = url_parts[2]
+        elif len(url_parts) == 2:
+            entity = 'root'
+        else:
+            raise ValueError(
+                'Url should be started with /apiv1/ following entity name'
+            )
+
         filename = path.join(
-            cls.__story_directory__,
-            f'{story.base_call.verb}-{entity}--{title}.yml'
+            directory,
+            f'{story.base_call.verb}-{entity}--{title}'
         )
         return filename
 
     @classmethod
+    def _get_story_filename(cls, story):
+        filename = cls._get_document_filename(cls.__story_directory__, story)
+        return f'{filename}.yml'
+
+    @classmethod
     def _get_markdown_filename(cls, story):
-        cls._ensure_directory(cls.__api_documentation_directory__)
-        title = story.title.lower().replace(' ', '-')
-        entity = story.base_call.url.split('/')[2]
-        filename = path.join(
+        filename = cls._get_document_filename(
             cls.__api_documentation_directory__,
-            f'{story.base_call.verb}-{entity}--{title}.md'
+            story
         )
-        return filename
+        return f'{filename}.md'
 
     def given(self, *a, autodoc=True, **kw):
         if self._authentication_token is not None:
