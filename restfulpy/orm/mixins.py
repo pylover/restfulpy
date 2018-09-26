@@ -133,7 +133,6 @@ class AutoActivationMixin(ActivationMixin):
         nullable=True,
         json='activatedAt',
         readonly=True,
-        protected=True,
         default=datetime.utcnow
     )
 
@@ -145,7 +144,6 @@ class DeactivationMixin(ActivationMixin):
         nullable=True,
         json='deactivatedAt',
         readonly=True,
-        protected=True
     )
 
     @ActivationMixin.is_active.setter
