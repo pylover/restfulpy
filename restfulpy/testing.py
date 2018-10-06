@@ -3,12 +3,63 @@ from os import path
 import pytest
 from bddrest import Given, when
 from nanohttp import settings
+import shutil
 
+import restfulpy
 from .mockup import MockupApplication
 from .configuration import configure
 from .db import DatabaseManager as DBManager
 from .orm import setup_schema, session_factory, create_engine, init_model, \
     DBSession
+
+
+LEGEND = '''
+
+### Legend
+
+#### Pagination
+
+| Param  | Meaning            |
+| ------ | ------------------ |
+| take   | Rows per page      |
+| skip   | Skip N rows        |
+
+#### Search & Filtering
+
+You can search and filter the result via query-string:
+
+```
+/path/to/resotrce?field=[op]value1[,value2]
+```
+
+| Operator  | Meaning | Example         |
+| --------- | ------- | --------------- |
+|           | =       | id=2            |
+| !         | !=      | id=!2           |
+| >         | >       | id=>2           |
+| >=        | >=      | id=>=2          |
+| <         | <       | id=<2           |
+| <=        | <=      | id=<=2          |
+| %         | LIKE    | title=u%s       |
+| ~,%       | ILIKE   | title=~u%s      |
+| IN()      | IN      | id=IN(2,3,4)    |
+| !IN()     | NOT IN  | id=!IN(2,3,4)   |
+| BETWEEN() | BETWEEN | id=BETWEEN(2,9) |
+
+#### Sorting
+
+You can sort like this:
+
+```
+/path/to/resource?sort=[op]value
+```
+
+| Operator  | Meaning |
+| --------- | ------- |
+|           | ASC     |
+| \\-        | DESC    |
+
+'''
 
 
 @pytest.fixture(scope='module')
@@ -188,6 +239,22 @@ class ApplicableTestCase:
     @classmethod
     def teardown_class(cls):
         cls.cleanup_orm()
+        cls.copy_legend()
+
+    @classmethod
+    def copy_legend(cls):
+        if cls.__api_documentation_directory__ is None:
+            return
+
+        target_filename = path.join(
+            cls.__api_documentation_directory__,
+            f'LEGEND-restfulpy--{restfulpy.__version__}.md',
+        )
+        if path.exists(target_filename):
+            return
+
+        with open(target_filename, 'w') as f:
+            f.write(LEGEND)
 
     @classmethod
     def _ensure_directory(cls, d):
