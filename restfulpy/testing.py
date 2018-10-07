@@ -248,7 +248,7 @@ class ApplicableTestCase:
 
         target_filename = path.join(
             cls.__api_documentation_directory__,
-            f'LEGEND-restfulpy--{restfulpy.__version__}.md',
+            f'LEGEND-restfulpy--v{restfulpy.__version__}.md',
         )
         if path.exists(target_filename):
             return
