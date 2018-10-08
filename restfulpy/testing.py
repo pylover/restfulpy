@@ -139,6 +139,7 @@ class ApplicableTestCase:
     _engine = None
     _sessions = []
     _authentication_token = None
+    __metadata__ = None
 
     @classmethod
     def configure_application(cls):
@@ -295,6 +296,11 @@ class ApplicableTestCase:
         )
         return f'{filename}.md'
 
+    @classmethod
+    def _get_field_info(cls, resource, verb, name):
+        metadata = cls.__metadata__.get(resource, {})
+        return metadata.get(name)
+
     def given(self, *a, autodoc=True, **kw):
         if self._authentication_token is not None:
             kw.setdefault('authorization', self._authentication_token)
@@ -304,6 +310,9 @@ class ApplicableTestCase:
 
         if autodoc and self.__api_documentation_directory__:
             kw['autodoc'] = self._get_markdown_filename
+
+        if self.__metadata__:
+            kw['fieldinfo'] = self._get_field_info
 
         return Given(self.__application__, *a, **kw)
 

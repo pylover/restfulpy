@@ -30,6 +30,10 @@ class Root(RegexRouteController):
 class TestApplication(ApplicableTestCase):
     __controller_factory__ = Root
     __story_directory__ = path.join(DATA_DIRECTORY, 'stories')
+    __api_documentation_directory__ = path.join(DATA_DIRECTORY, 'markdown')
+    __metadata__ = {
+        '/': dict(a=dict(not_none=True, required=True))
+    }
 
     def test_index(self):
         with self.given(
@@ -45,6 +49,7 @@ class TestApplication(ApplicableTestCase):
             'Requesting on the root controller',
             '/',
             'INDEX',
+            form=dict(a=1)
         ):
             assert status == 200
 

@@ -87,7 +87,8 @@ class Member(
         Unicode(100),
         json='lastName',
         min_length=2,
-        watermark='Last Name'
+        watermark='Last Name',
+        not_none=True
     )
     phone = Field(
         Unicode(10), nullable=True, json='phone', min_length=10,
@@ -295,6 +296,7 @@ class TestBaseModel(ApplicableTestCase):
 
             assert fields['firstName']['name'] == 'firstName'
             assert fields['firstName']['key'] == 'first_name'
+            assert fields['lastName']['not_none'] == True
             assert fields['weight']['default'] == 50
             assert fields['visible']['not_none'] == None
             assert fields['email']['watermark'] == 'Email'
