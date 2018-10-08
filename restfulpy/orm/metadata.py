@@ -19,8 +19,11 @@ class FieldInfo:
         self.default = default
 
     def to_json(self):
+        type_ = self.type_[0] \
+            if self.type_ and isinstance(self.type_, tuple) else self.type_
+
         return {
-            'type': self.type_.__name__ if self.type_ else None,
+            'type': type_.__name__ if self.type_ else None,
             'not_none': self.not_none,
             'required': self.required,
             'pattern': self.pattern,

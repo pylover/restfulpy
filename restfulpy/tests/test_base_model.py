@@ -113,7 +113,11 @@ class Member(
         min_length=6
     )
     birth = Field(Date)
-    weight = Field(Float(asdecimal=True), default=50)
+    weight = Field(
+        Float(asdecimal=True),
+        default=50,
+        python_type=(float, '999 Float required')
+    )
     _keywords = relationship(
         'Keyword',
         secondary='member_keywords',
@@ -302,4 +306,5 @@ class TestBaseModel(ApplicableTestCase):
             assert fields['email']['watermark'] == 'Email'
             assert fields['email']['label'] == 'Email'
             assert fields['email']['example'] == 'user@example.com'
+            assert fields['weight']['type'] == 'float'
 

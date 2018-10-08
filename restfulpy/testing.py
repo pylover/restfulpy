@@ -1,4 +1,5 @@
 import os
+import re
 from os import path
 import pytest
 from bddrest import Given, when
@@ -298,8 +299,10 @@ class ApplicableTestCase:
 
     @classmethod
     def _get_field_info(cls, resource, verb, name):
-        metadata = cls.__metadata__.get(resource, {})
-        return metadata.get(name)
+        for k in cls.__metadata__:
+            if re.match(k, resource):
+                return cls.__metadata__[k].get(name)
+        return None
 
     def given(self, *a, autodoc=True, **kw):
         if self._authentication_token is not None:
