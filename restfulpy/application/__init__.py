@@ -1,10 +1,11 @@
+import time
 from os.path import abspath, exists, join, dirname
 
 from appdirs import user_config_dir
 from sqlalchemy.exc import SQLAlchemyError
 
 from nanohttp import Application as NanohttpApplication, Controller, \
-    HTTPStatus, HTTPInternalServerError, settings
+    HTTPStatus, HTTPInternalServerError, settings, context as nanohttp_context
 from .cli.main import MainLauncher
 from ..authentication import Authenticator
 from ..configuration import configure
@@ -98,6 +99,13 @@ class Application(NanohttpApplication):
     # Hooks
     def begin_request(self):
         self.__authenticator__.authenticate_request()
+
+    def begin_response(self):
+        if settings.timestamp:
+            nanohttp_context.response_headers.add_header(
+                'X-Server-Timestamp',
+                str(time.time())
+            )
 
     def end_response(self):
         DBSession.remove()

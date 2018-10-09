@@ -21,7 +21,7 @@ class SqlErrorCheckingModel(
     title = Field(Unicode(50), unique=True, nullable=False)
 
 
-class Root(JsonPatchControllerMixin, ModelRestController):
+class Root(ModelRestController):
     __model__ = SqlErrorCheckingModel
 
     @json

@@ -6,7 +6,7 @@ from nanohttp import configure as nanohttp_configure, settings
 __builtin_config = """
 
 debug: true
-
+timestamp: false
 # Default timezone.
 # empty for local time
 # 0, utc, UTC, z or Z for the UTC,

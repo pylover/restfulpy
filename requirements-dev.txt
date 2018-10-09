@@ -1,6 +1,4 @@
-coverage
-coveralls
-freezegun
+-r requirements-ci.txt
 pytest-pudb
-pytest-cov
-sqlalchemy_schemadisplay
+ipython
+
