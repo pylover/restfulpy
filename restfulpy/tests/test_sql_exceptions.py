@@ -1,4 +1,4 @@
-from bddrest.authoring import response
+from bddrest import response, when, status
 from nanohttp import json
 from sqlalchemy import Unicode, Integer
 
@@ -54,16 +54,7 @@ class TestSqlExceptions(ApplicableTestCase):
             ):
             assert response.json['title'] == 'test'
 
-        return
-        # unique_violation
-        request(
-            'ALL',
-            'POST',
-            '/',
-            params=dict(title='test'),
-            expected_status='''409 unique_violation ERROR:  duplicate\
-            key value violates unique constraint \
-            "sql_error_checking_model_title_key"\nDETAIL:\
-            Key (title)=(test) already exists.\n''',
-        )
+            when('Posting gain to raise a unique_violation sql error')
+            assert status == 409
+
 
