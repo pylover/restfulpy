@@ -29,8 +29,8 @@ title_validator = validate(
 password_validator = validate(
     password=dict(
         required='702 Invalid Password Length',
-        min_length=(6,'702 Invalid Password Length'),
-        max_length=(20,'702 Invalid Password Length'),
+        min_length=(6, '702 Invalid Password Length'),
+        max_length=(20, '702 Invalid Password Length'),
         pattern=(USER_PASSWORD_PATTERN, '703 Password Not Complex Enough')
     )
 )
@@ -39,8 +39,8 @@ password_validator = validate(
 new_password_validator = validate(
     newPassword=dict(
         required='702 Invalid Password Length',
-        min_length=(6,'702 Invalid Password Length'),
-        max_length=(20,'702 Invalid Password Length'),
+        min_length=(6, '702 Invalid Password Length'),
+        max_length=(20, '702 Invalid Password Length'),
         pattern=(USER_PASSWORD_PATTERN, '703 Password Not Complex Enough')
     )
 )

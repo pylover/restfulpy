@@ -65,7 +65,7 @@ Or, you can add `--drop` to drop the previously created database: **TAKE CARE AB
 
 ```bash
 pip install -r requirements-dev.txt
-pytests
+pytest
 ```
 
 ### Running server

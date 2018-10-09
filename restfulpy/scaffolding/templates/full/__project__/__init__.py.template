@@ -2,7 +2,7 @@ from os.path import join, dirname
 
 from restfulpy.application import Application
 
-from .tokens import RegisterationToken, ResetPasswordToken
+from .tokens import RegistrationToken, ResetPasswordToken
 from .authentication import Authenticator
 from .controllers.root import Root
 
@@ -25,7 +25,7 @@ class ${project_camelcase}(Application):
       callback_url: http://nc.carrene.com/reset_password
       # url: http://localhost:8080/reset_password
 
-    registeration:
+    registration:
       secret: !!binary xxSN/uarj5SpcEphAHhmsab8Ql2Og/2IcieNfQ3PysI=
       max_age: 86400  # seconds
       algorithm: HS256

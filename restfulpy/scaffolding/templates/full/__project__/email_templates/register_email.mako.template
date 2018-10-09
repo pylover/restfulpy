@@ -1,5 +1,5 @@
 <%
-    url = '%s?t_=%s' % (registeration_callback_url, registeration_token)
+    url = '%s?t_=%s' % (registration_callback_url, registration_token)
 %>
 
 <html>

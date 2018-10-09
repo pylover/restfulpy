@@ -3,7 +3,7 @@ from nanohttp import settings, HTTPStatus
 from restfulpy.principal import BaseJwtPrincipal
 
 
-class RegisterationToken(BaseJwtPrincipal):
+class RegistrationToken(BaseJwtPrincipal):
 
     @classmethod
     def load(cls, token):
@@ -16,7 +16,7 @@ class RegisterationToken(BaseJwtPrincipal):
 
     @classmethod
     def get_config(cls):
-        return settings.registeration
+        return settings.registration
 
 
 class ResetPasswordToken(BaseJwtPrincipal):

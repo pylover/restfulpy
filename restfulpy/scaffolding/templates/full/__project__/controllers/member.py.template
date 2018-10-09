@@ -3,7 +3,7 @@ from restfulpy.controllers import ModelRestController
 from restfulpy.orm import DBSession, commit
 
 from ..models import Member
-from ..tokens import RegisterationToken
+from ..tokens import RegistrationToken
 from ..validators import title_validator, password_validator
 
 
@@ -23,8 +23,8 @@ class MemberController(ModelRestController):
         if DBSession.query(Member.title).filter(Member.title == title).count():
             raise HTTPStatus('604 Title Is Already Registered')
 
-        regiteration_token_payload = RegisterationToken.load(ownership_token)
-        email = regiteration_token_payload['email']
+        registration_token_payload = RegistrationToken.load(ownership_token)
+        email = registration_token_payload['email']
 
         if DBSession.query(Member.email).filter(Member.email == email).count():
             raise HTTPStatus('601 Email Address Is Already Registered')

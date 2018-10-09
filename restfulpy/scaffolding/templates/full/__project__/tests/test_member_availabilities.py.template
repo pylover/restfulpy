@@ -46,7 +46,7 @@ class TestAvailabilities(LocalApplicationTestCase):
             )
             assert status == '601 Email Address Is Already Registered'
 
-            when('Request without email parametes', form=Remove('email'))
+            when('Request without email parameters', form=Remove('email'))
             assert status == '701 Invalid Email Format'
 
     def test_title_availabilities(self):
@@ -66,6 +66,6 @@ class TestAvailabilities(LocalApplicationTestCase):
             when('Title is already registered', form=Update(title='username'))
             assert status == '604 Title Is Already Registered'
 
-            when('Request without title parametes', form=Remove('title'))
+            when('Request without title parameters', form=Remove('title'))
             assert status == '705 Invalid Title Format'
 

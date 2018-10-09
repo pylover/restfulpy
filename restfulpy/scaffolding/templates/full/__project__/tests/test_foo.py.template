@@ -1,4 +1,4 @@
-from bddrest import response, Update, when, status, given_form
+from bddrest import response, Update, when, status, given
 from restfulpy.messaging import create_messenger
 
 from ${project_snakecase}.models import Foo, Member
@@ -29,8 +29,10 @@ class TestFoo(LocalApplicationTestCase):
 
     def test_foo_crud(self):
         self.login(
-            'user@example.com',
-            '123abcABC',
+            form=dict(
+                email='user@example.com',
+                password='123abcABC'
+            ),
             url='/apiv1/tokens',
             verb='CREATE'
         )
@@ -54,7 +56,7 @@ class TestFoo(LocalApplicationTestCase):
                 'Updating the title',
                 f'/apiv1/foos/id: {foo_id}',
                 'EDIT',
-                form=given_form | dict(title='First foo(edited)')
+                form=given | dict(title='First foo(edited)')
             )
             assert status == 200
             assert response.json['title'] == 'First foo(edited)'
@@ -94,8 +96,10 @@ class TestFoo(LocalApplicationTestCase):
 
     def test_foo_list(self):
         self.login(
-            'user@example.com',
-            '123abcABC',
+            form=dict(
+                email='user@example.com',
+                password='123abcABC'
+            ),
             url='/apiv1/tokens',
             verb='CREATE'
         )

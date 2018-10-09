@@ -3,7 +3,7 @@ from restfulpy.controllers import RestController
 from restfulpy.orm import DBSession, commit
 
 from ..models import Member, RegisterEmail
-from ..tokens import RegisterationToken
+from ..tokens import RegistrationToken
 from ..validators import email_validator
 
 
@@ -18,15 +18,15 @@ class EmailController(RestController):
         if DBSession.query(Member.email).filter(Member.email == email).count():
             raise HTTPStatus('601 Email Address Is Already Registered')
 
-        token = RegisterationToken(dict(email=email))
+        token = RegistrationToken(dict(email=email))
         DBSession.add(
             RegisterEmail(
                 to=email,
                 subject='Register your CAS account',
                 body={
-                    'registeration_token': token.dump(),
-                    'registeration_callback_url':
-                    settings.registeration.callback_url
+                    'registration_token': token.dump(),
+                    'registration_callback_url':
+                    settings.registration.callback_url
                 }
             )
         )

@@ -19,8 +19,10 @@ class TestLogout(LocalApplicationTestCase):
 
     def test_logout(self):
         self.login(
-            email='already.added@example.com',
-            password='123abcABC',
+            form=dict(
+                email='already.added@example.com',
+                password='123abcABC'
+            ),
             url='/apiv1/tokens',
             verb='CREATE'
         )
@@ -32,6 +34,6 @@ class TestLogout(LocalApplicationTestCase):
         ):
             assert status == 200
 
-            when('Trying to pass unathorized member')
+            when('Trying to pass unauthorized member')
             assert status == 401
 

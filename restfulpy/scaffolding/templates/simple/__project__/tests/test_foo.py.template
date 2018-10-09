@@ -1,4 +1,4 @@
-from bddrest import response, when, status, given_form
+from bddrest import response, when, status, given
 
 from ${project_snakecase}.models import Foo
 from ${project_snakecase}.tests.helpers import LocalApplicationTestCase
@@ -37,7 +37,7 @@ class TestFoo(LocalApplicationTestCase):
                 'Updating the title',
                 f'/apiv1/foos/id: {foo_id}',
                 'EDIT',
-                form=given_form | dict(title='First foo(edited)')
+                form=given | dict(title='First foo(edited)')
             )
             assert status == 200
             assert response.json['title'] == 'First foo(edited)'
