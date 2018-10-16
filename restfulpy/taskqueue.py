@@ -167,7 +167,7 @@ def worker(statuses={'new'}, filters=None, tries=-1):
         except:
             logger.exception('Error when executing task: %s' % task.id)
             task.status = 'failed'
-            task.fail_reason = traceback.format_exc()[-4096:1]
+            task.fail_reason = traceback.format_exc()[-4096:]
 
         finally:
             if isolated_session.is_active:
