@@ -50,14 +50,8 @@ class MemberKeywords(DeclarativeBase):
     keyword_id = Field(Integer, ForeignKey("keyword.id"), primary_key=True)
 
 
-class Member(
-    ActivationMixin,
-    ModifiedMixin,
-    FilteringMixin,
-    PaginationMixin,
-    OrderingMixin,
-    DeclarativeBase
-):
+class Member(ActivationMixin, ModifiedMixin, FilteringMixin, PaginationMixin,
+    OrderingMixin, DeclarativeBase):
     __tablename__ = 'member'
 
     id = Field(Integer, primary_key=True)
@@ -67,42 +61,49 @@ class Member(
         index=True,
         json='email',
         pattern=r'(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)',
-        watermark='Email',
+        message='Should be a valid email',
         example="user@example.com",
+        label='Email',
+        watermark='Please enter your email',
     )
     title = Field(
         Unicode(50),
         index=True,
         min_length=2,
-        watermark='First Name'
+        watermark='Title',
+        label='Title'
     )
     first_name = Field(
         Unicode(50),
         index=True,
         json='firstName',
         min_length=2,
-        watermark='First Name'
+        watermark='First Name',
+        label='First Name'
     )
     last_name = Field(
         Unicode(100),
         json='lastName',
         min_length=2,
         watermark='Last Name',
-        not_none=True
+        not_none=True,
+        label='Last Name'
     )
     phone = Field(
         Unicode(10), nullable=True, json='phone', min_length=10,
         pattern= \
             r'\d{3}[-\.\s]??\d{3}[-\.\s]??\d{4}|\(\d{3}\)\s*\d{3}[-\.\s]??'
             r'\d{4}|\d{3}[-\.\s]??\d{4}',
-        watermark='Phone'
+        watermark='Phone',
+        label='Phone'
     )
     name = composite(
         FullName,
         first_name,
         last_name,
         readonly=True,
-        json='fullName'
+        json='fullName',
+        label='Name'
     )
     _password = Field(
         'password',
@@ -110,13 +111,15 @@ class Member(
         index=True,
         json='password',
         protected=True,
-        min_length=6
+        min_length=6,
+        label='Password'
     )
     birth = Field(Date)
     weight = Field(
         Float(asdecimal=True),
         default=50,
-        python_type=(float, '999 Float required')
+        python_type=(float, '999 Float required'),
+        label='Weight'
     )
     _keywords = relationship(
         'Keyword',
@@ -291,20 +294,27 @@ class TestBaseModel(ApplicableTestCase):
             assert 'id' in fields
             assert 'firstName' in fields
             assert fields['id']['primaryKey'] == True
-            assert fields['email']['primaryKey'] == False
             assert fields['title']['primaryKey'] == False
+            assert fields['title']['label'] == 'Title'
             assert fields['title']['minLength'] == 2
             assert fields['title']['maxLength'] == 50
-            assert fields['email']['pattern'] == \
-                '(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)'
-
-            assert fields['firstName']['name'] == 'firstName'
-            assert fields['firstName']['key'] == 'first_name'
-            assert fields['lastName']['not_none'] == True
-            assert fields['weight']['default'] == 50
-            assert fields['visible']['not_none'] == None
-            assert fields['email']['watermark'] == 'Email'
+            assert fields['title']['watermark'] == 'Title'
+            assert fields['email']['primaryKey'] == False
+            assert fields['email']['message'] == 'Should be a valid email'
             assert fields['email']['label'] == 'Email'
             assert fields['email']['example'] == 'user@example.com'
+            assert fields['email']['watermark'] == 'Please enter your email'
+            assert fields['email']['pattern'] == \
+                '(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)'
+            assert fields['firstName']['name'] == 'firstName'
+            assert fields['firstName']['label'] == 'First Name'
+            assert fields['firstName']['key'] == 'first_name'
+            assert fields['lastName']['not_none'] == True
+            assert fields['lastName']['label'] == 'Last Name'
+            assert fields['weight']['default'] == 50
             assert fields['weight']['type'] == 'float'
+            assert fields['weight']['label'] == 'Weight'
+            assert fields['visible']['not_none'] == None
+            assert fields['phone']['label'] == 'Phone'
+            assert fields['password']['label'] == 'Password'
 

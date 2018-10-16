@@ -91,7 +91,8 @@ class MetadataField(FieldInfo):
             primary_key=hasattr(c.expression, 'primary_key') \
                 and c.expression.primary_key,
             readonly=info.get('readonly', False),
-            protected=info.get('protected', False)
+            protected=info.get('protected', False),
+            message=info.get('message')
         ))
 
         return result
