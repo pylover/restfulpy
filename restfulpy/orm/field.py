@@ -12,14 +12,15 @@ class Field(Column):
                  min_length=None, maximum=None, minimum=None, pattern=None,
                  protected=None, watermark=None, not_none=None, nullable=False,
                  required=None, label=None, example=None, default=None,
-                 python_type=None,
-                 **kwargs):
+                 python_type=None, message=None, **kwargs):
 
         info = {
             'json': json,
             'readonly': readonly,
             'protected': protected,
             'watermark': watermark,
+            'message': message,
+            'label': label,
             'min_length': min_length,
             'maximum': maximum,
             'minimum': minimum,

@@ -49,15 +49,15 @@ class FieldInfo:
 
 class MetadataField(FieldInfo):
     def __init__(self, name, key, primary_key=False, label=None,
-                 watermark=None, icon=None, message='Invalid value',
-                 example=None, **kwargs):
+                 watermark=None, message=None, example=None, **kwargs):
         super().__init__(**kwargs)
         self.name = name
         self.key = key[1:] if key.startswith('_') else key
         self.primary_key = primary_key
-        self.label = label or watermark
+        self.label = label
         self.watermark = watermark
         self.example = example
+        self.message = message
 
     @classmethod
     def from_column(cls, c, info=None):
@@ -103,6 +103,7 @@ class MetadataField(FieldInfo):
             example=self.example,
             watermark=self.watermark,
             label=self.label,
+            message=self.message,
             key=self.key,
             primaryKey=self.primary_key,
         )
