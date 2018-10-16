@@ -53,7 +53,7 @@ class Email(RestfulpyTask):
             primary_key=True, json='id'
         )
 
-    def do_(self, attachments=None):
+    def do_(self, context, attachments=None):
         messenger = create_messenger()
         messenger.send(
             self.to,

@@ -24,7 +24,7 @@ def test_messaging_model(db):
     session.add(message)
     session.commit()
 
-    message.do_({})
+    message.do_({'counter': 1}, {})
 
     assert mockup_messenger.last_message == {
         'body': {'msg': 'Hello'},

@@ -123,6 +123,9 @@ class MockupMessenger(Messenger):
             from_=None,
             attachments=None
     ):
+        if attachments:
+            for attachment in attachments:
+                assert hasattr(attachment, 'name')
         self.last_message = {
             'to': to,
             'body': body,
