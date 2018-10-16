@@ -35,7 +35,7 @@ class RestfulpyTask(TimestampMixin, DeclarativeBase):
         default='new',
         nullable=True, json='status'
     )
-    fail_reason = Field(Unicode(2048), nullable=True, json='reason')
+    fail_reason = Field(Unicode(4096), nullable=True, json='reason')
     started_at = Field(DateTime, nullable=True, json='startedAt')
     terminated_at = Field(DateTime, nullable=True, json='terminatedAt')
     type = Field(Unicode(50))
@@ -167,7 +167,7 @@ def worker(statuses={'new'}, filters=None, tries=-1):
         except:
             logger.exception('Error when executing task: %s' % task.id)
             task.status = 'failed'
-            task.fail_reason = traceback.format_exc()
+            task.fail_reason = traceback.format_exc()[-4096:1]
 
         finally:
             if isolated_session.is_active:
