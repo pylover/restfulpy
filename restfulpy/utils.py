@@ -65,7 +65,7 @@ def deprecated(func):  # pragma: no cover
 
 
 def to_camel_case(text):
-    return re.sub("(_\w)", lambda x: x.group(1)[1:].upper(), text)
+    return re.sub(r'(_\w)', lambda x: x.group(1)[1:].upper(), text)
 
 
 def to_pascal_case(text):

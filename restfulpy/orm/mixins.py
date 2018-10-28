@@ -10,9 +10,9 @@ from sqlalchemy.sql.expression import nullslast, nullsfirst
 from .field import Field
 
 
-FILTERING_IN_OPERATOR_REGEX = re.compile('!?IN\((?P<items>.*)\)')
+FILTERING_IN_OPERATOR_REGEX = re.compile(r'!?IN\((?P<items>.*)\)')
 FILTERING_BETWEEN_OPERATOR_REGEX = \
-    re.compile('!?BETWEEN\((?P<min>.*),(?P<max>.*)\)')
+    re.compile(r'!?BETWEEN\((?P<min>.*),(?P<max>.*)\)')
 
 
 class TimestampMixin:
