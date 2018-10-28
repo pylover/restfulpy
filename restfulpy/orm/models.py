@@ -257,9 +257,12 @@ class BaseModel(object):
         return wrapper
 
     @classmethod
-    def create_validation_rules(cls, strict=False):
+    def create_validation_rules(cls, strict=False, ignore=None):
         fields = {}
         for f in cls.iter_metadata_fields():
+            if ignore and f.name in ignore:
+                continue
+
             fields[f.name] = field = dict(
                 required=f.required,
                 type_=f.type_,
@@ -277,7 +280,7 @@ class BaseModel(object):
         return fields
 
     @classmethod
-    def validate(cls, strict=False, fields=None):
+    def validate(cls, strict=False, fields=None, ignore=None):
         if callable(strict):
             # Decorator is used without any parameter and call parentesis.
             func = strict
@@ -285,7 +288,7 @@ class BaseModel(object):
         else:
             func = None
 
-        rules = cls.create_validation_rules(strict)
+        rules = cls.create_validation_rules(strict, ignore)
         if fields:
             rules.update(fields)
 
