@@ -44,9 +44,6 @@ class Application(NanohttpApplication):
         if authenticator:
             self.__authenticator__ = authenticator
 
-        elif self.__authenticator__ is None:
-            self.__authenticator__ = Authenticator()
-
     def _handle_exception(self, ex, start_response):
         if isinstance(ex, SQLAlchemyError):
             ex = SqlError(ex)
@@ -98,7 +95,8 @@ class Application(NanohttpApplication):
 
     # Hooks
     def begin_request(self):
-        self.__authenticator__.authenticate_request()
+        if self.__authenticator__:
+            self.__authenticator__.authenticate_request()
 
     def begin_response(self):
         if settings.timestamp:
