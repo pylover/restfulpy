@@ -40,7 +40,7 @@ class Field(Column):
         if required is not None:
             info['required'] = required
 
-        if not_none is not None:
+        if not_none:
             nullable = False
 
         super(Field, self).__init__(
