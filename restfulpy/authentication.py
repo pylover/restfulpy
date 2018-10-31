@@ -208,21 +208,18 @@ class StatefulAuthenticator(Authenticator):
     Redis data-model:
 
         sessions: HashMap { session_id: member_id }
-        member_id: Set { session_id }
-        agents: HashMap {
-          session_id: {
-            remoteAddress: 127.0.0.1,
-            machine: pc,
-            os: android 4.2.2,
-            agent: chrome 55,
-            client: RestfulpyClient-js 3.4.5-alpha14,
-            app: Mobile Token (shark) 1.5.4,
-            lastActivity: 2015-10-26T07:46:36.615661
-          }
-        }
+        member:{member_id}: Set { session_id }
+        sessions:{session_id}:info:  String { user-agent }
 
-
-    User-Agent structure:
+    User-Agent structure: {
+        remoteAddress: 127.0.0.1,
+        machine: pc,
+        os: android 4.2.2,
+        agent: chrome 55,
+        client: RestfulpyClient-js 3.4.5-alpha14,
+        app: Mobile Token (shark) 1.5.4,
+        lastActivity: 2015-10-26T07:46:36.615661
+    }
 
         User-Agent can contains customized token and comment in order to
         describe client and app.
