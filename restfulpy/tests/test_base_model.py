@@ -94,6 +94,7 @@ class Member(ActivationMixin, ModifiedMixin, FilteringMixin, PaginationMixin,
         pattern= \
             r'\d{3}[-\.\s]??\d{3}[-\.\s]??\d{4}|\(\d{3}\)\s*\d{3}[-\.\s]??'
             r'\d{4}|\d{3}[-\.\s]??\d{4}',
+        pattern_description='The phone number cannot contain alphabet',
         watermark='Phone',
         label='Phone'
     )
@@ -305,7 +306,7 @@ class TestBaseModel(ApplicableTestCase):
             assert fields['email']['example'] == 'user@example.com'
             assert fields['email']['watermark'] == 'Please enter your email'
             assert fields['email']['pattern'] == \
-                '(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)'
+                r'(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)'
             assert fields['firstName']['name'] == 'firstName'
             assert fields['firstName']['label'] == 'First Name'
             assert fields['firstName']['key'] == 'first_name'
@@ -316,5 +317,7 @@ class TestBaseModel(ApplicableTestCase):
             assert fields['weight']['label'] == 'Weight'
             assert fields['visible']['not_none'] == None
             assert fields['phone']['label'] == 'Phone'
+            assert fields['phone']['pattern_description'] == \
+                'The phone number cannot contain alphabet'
             assert fields['password']['label'] == 'Password'
 

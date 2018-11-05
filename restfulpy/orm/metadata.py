@@ -2,12 +2,13 @@ from ..utils import to_camel_case
 
 
 class FieldInfo:
-    def __init__(self, type_=str, pattern=None, max_length=None,
-                 min_length=None, readonly=False, protected=False,
-                 minimum=None, maximum=None, not_none=None, required=None,
-                 default=None):
+    def __init__(self, type_=str, max_length=None, min_length=None,
+                  minimum=None, maximum=None, default=None, readonly=False,
+                  pattern=None, pattern_description=None, protected=False,
+                  not_none=None, required=None):
         self.type_ = type_
         self.pattern = pattern
+        self.pattern_description = pattern_description
         self.max_length = max_length
         self.min_length = min_length
         self.minimum = minimum
@@ -27,6 +28,7 @@ class FieldInfo:
             'not_none': self.not_none,
             'required': self.required,
             'pattern': self.pattern,
+            'pattern_description': self.pattern_description,
             'maxLength': self.max_length,
             'minLength': self.min_length,
             'readonly': self.readonly,
@@ -81,6 +83,7 @@ class MetadataField(FieldInfo):
             not_none=info.get('not_none'),
             required=info.get('required'),
             pattern=info.get('pattern'),
+            pattern_description=info.get('pattern_description'),
             max_length=info.get('max_length'),
             min_length=info.get('min_length'),
             minimum=info.get('minimum'),

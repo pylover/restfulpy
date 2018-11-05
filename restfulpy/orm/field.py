@@ -9,10 +9,11 @@ from sqlalchemy.orm import relationship as sa_relationship, \
 class Field(Column):
 
     def __init__(self, *args, json=None, readonly=None, max_length=None,
-                 min_length=None, maximum=None, minimum=None, pattern=None,
-                 protected=None, watermark=None, not_none=None, nullable=False,
-                 required=None, label=None, example=None, default=None,
-                 python_type=None, message=None, **kwargs):
+                 min_length=None, maximum=None, minimum=None, protected=None,
+                 pattern=None, pattern_description=None, watermark=None,
+                 not_none=None, nullable=False, required=None, label=None,
+                 example=None, default=None, python_type=None, message=None,
+                 **kwargs):
 
         info = {
             'json': json,
@@ -25,10 +26,11 @@ class Field(Column):
             'maximum': maximum,
             'minimum': minimum,
             'pattern': pattern,
+            'pattern_description': pattern_description,
             'example': example,
             'not_none': not_none,
             'default': default,
-            'type': python_type
+            'type': python_type,
         }
 
         if max_length is None and args \
