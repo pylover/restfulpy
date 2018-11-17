@@ -191,8 +191,6 @@ class TestStatefulAuthenticator(ApplicableTestCase):
                     'machine': test_case['expected_machine'],
                     'os': test_case['expected_os'],
                     'agent': test_case['expected_agent'],
-                    'client': test_case['expected_client'],
-                    'app': test_case['expected_app'],
                     'lastActivity': test_case['expected_last_activity'],
                 }.items()
 
@@ -211,8 +209,6 @@ session_info_test_cases = [
         'expected_machine': 'iPhone',
         'expected_os': 'iOS 5.1',
         'expected_agent': 'Mobile Safari 5.1',
-        'expected_client': 'RestfulpyClient-js 1.2.3',
-        'expected_app': 'My App (test-name) 1.4.5-beta78',
         'expected_last_activity': '2017-07-13T13:11:44',
     },
     {
@@ -226,8 +222,6 @@ session_info_test_cases = [
         'expected_machine': 'PC',
         'expected_os': 'Windows 7',
         'expected_agent': 'IE 9.0',
-        'expected_client': 'RestfulpyClient-custom 4.5.6',
-        'expected_app': 'A (B) C',
         'expected_last_activity': '2017-07-13T13:11:44',
     },
     {
@@ -239,8 +233,6 @@ session_info_test_cases = [
         'expected_machine': 'Other',
         'expected_os': 'Other',
         'expected_agent': 'Other',
-        'expected_client': 'Unknown',
-        'expected_app': 'Unknown',
         'expected_last_activity': '2017-07-13T13:11:44',
     },
     {
@@ -249,8 +241,6 @@ session_info_test_cases = [
         'expected_machine': 'Other',
         'expected_os': 'Other',
         'expected_agent': 'Other',
-        'expected_client': 'Unknown',
-        'expected_app': 'Unknown',
         'expected_last_activity': '2017-07-13T13:11:44',
     }
 ]

@@ -291,7 +291,10 @@ class StatefulAuthenticator(Authenticator):
         super().logout()
 
     def extract_agent_info(self):
-        remote_address = machine = os = agent = client = app = None
+        remote_address = None
+        machine = None
+        os = None
+        agent = None
 
         if self.remote_address_key in context.environ \
                 and context.environ[self.remote_address_key]:
@@ -311,32 +314,11 @@ class StatefulAuthenticator(Authenticator):
                 user_agent.browser.version_string
             ]).strip()
 
-            matched_client = re.match(
-                '.*RestfulpyClient-(?P<type>.+)/(?P<version>.+) '
-                '\((?P<features>.+)\).*',
-                agent_string
-            )
-            if matched_client:
-                matched_client = matched_client.groupdict()
-                client_type = matched_client['type']
-                client_version = matched_client['version']
-                # exp: "RestfulpyClient-js 1.2.3-rc10"
-                client = f'RestfulpyClient-{client_type} {client_version}'
-
-                features = matched_client['features'].split(';')
-                if len(features) >= 3:
-                    # exp: "MobileToken (shark) 1.2.3"
-                    app = \
-                        f'{features[0].strip()} ({features[1].strip()}) ' \
-                        f'{features[2].strip()}'
-
         return {
             'remoteAddress': remote_address or 'NA',
             'machine': machine or 'Other',
             'os': os or 'Other',
             'agent': agent or 'Other',
-            'client': client or 'Unknown',
-            'app': app or 'Unknown',
             'lastActivity': datetime.utcnow().isoformat()
         }
 
