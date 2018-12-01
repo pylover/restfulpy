@@ -22,6 +22,7 @@ class TimestampMixin:
         json='createdAt',
         readonly=True,
         default=datetime.utcnow,
+        label='Created At'
     )
 
 
@@ -30,7 +31,8 @@ class ModifiedMixin(TimestampMixin):
         DateTime,
         nullable=True,
         json='modifiedAt',
-        readonly=True
+        readonly=True,
+        label='Modified At'
     )
 
     @property
@@ -51,7 +53,8 @@ class SoftDeleteMixin:
         DateTime,
         nullable=True,
         json='removedAt',
-        readonly=True
+        readonly=True,
+        label='Removed At'
     )
 
     def assert_is_not_deleted(self):
@@ -100,7 +103,8 @@ class ActivationMixin:
         nullable=True,
         json='activatedAt',
         readonly=True,
-        protected=True
+        protected=True,
+        label='Activated At'
     )
 
     @hybrid_property
@@ -133,7 +137,8 @@ class AutoActivationMixin(ActivationMixin):
         nullable=True,
         json='activatedAt',
         readonly=True,
-        default=datetime.utcnow
+        default=datetime.utcnow,
+        label='Activated At'
     )
 
 
@@ -144,6 +149,7 @@ class DeactivationMixin(ActivationMixin):
         nullable=True,
         json='deactivatedAt',
         readonly=True,
+        label='Deactivated At'
     )
 
     @ActivationMixin.is_active.setter
