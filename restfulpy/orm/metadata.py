@@ -25,10 +25,10 @@ class FieldInfo:
 
         return {
             'type': type_.__name__ if self.type_ else None,
-            'not_none': self.not_none,
+            'notNone': self.not_none,
             'required': self.required,
             'pattern': self.pattern,
-            'pattern_description': self.pattern_description,
+            'patternDescription': self.pattern_description,
             'maxLength': self.max_length,
             'minLength': self.min_length,
             'readonly': self.readonly,

@@ -310,14 +310,14 @@ class TestBaseModel(ApplicableTestCase):
             assert fields['firstName']['name'] == 'firstName'
             assert fields['firstName']['label'] == 'First Name'
             assert fields['firstName']['key'] == 'first_name'
-            assert fields['lastName']['not_none'] == True
+            assert fields['lastName']['notNone'] == True
             assert fields['lastName']['label'] == 'Last Name'
             assert fields['weight']['default'] == 50
             assert fields['weight']['type'] == 'float'
             assert fields['weight']['label'] == 'Weight'
-            assert fields['visible']['not_none'] == None
+            assert fields['visible']['notNone'] == None
             assert fields['phone']['label'] == 'Phone'
-            assert fields['phone']['pattern_description'] == \
+            assert fields['phone']['patternDescription'] == \
                 'The phone number cannot contain alphabet'
             assert fields['password']['label'] == 'Password'
 
