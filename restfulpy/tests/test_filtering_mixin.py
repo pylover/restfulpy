@@ -2,6 +2,7 @@ import pytest
 from nanohttp import HTTPBadRequest
 from nanohttp.contexts import Context
 from sqlalchemy import Integer, Unicode
+from sqlalchemy.ext.hybrid import hybrid_property
 
 from restfulpy.orm import DeclarativeBase, Field, FilteringMixin
 
@@ -11,6 +12,22 @@ class FilteringObject(FilteringMixin, DeclarativeBase):
 
     id = Field(Integer, primary_key=True)
     title = Field(Unicode(50))
+
+
+class Interval(FilteringMixin, DeclarativeBase):
+    __tablename__ = 'interval'
+
+    id = Field(Integer, primary_key=True)
+    start = Field(Integer)
+    end = Field(Integer)
+
+    @hybrid_property
+    def length(self):
+        return self.end - self.start
+
+    @length.expression
+    def length(cls):
+        return cls.end - cls.start
 
 
 def test_filtering_mixin(db):
@@ -107,3 +124,17 @@ def test_filtering_mixin(db):
 
     with Context({'QUERY_STRING': 'title=~%IMPLE%'}):
         assert FilteringObject.filter_by_request(query).count() == 1
+
+    session.add(Interval(start=1, end=4))
+    session.commit()
+
+    query = session.query(Interval)
+
+    # Filtering on hybrid property
+    with Context({'QUERY_STRING': 'length=3'}):
+        assert Interval.filter_by_request(query).count() == 1
+
+    # Get sure filtering on hybrid property works correctly
+    with Context({'QUERY_STRING': 'length=2'}):
+        assert Interval.filter_by_request(query).count() == 0
+
