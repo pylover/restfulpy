@@ -65,10 +65,10 @@ class MainLauncher(Launcher):
         self.application.configure(files=cli_args.config_file)
         self.application.initialize_orm()
         if hasattr(cli_args, 'func'):
-            cli_args.func(cli_args)
+            exitcode = cli_args.func(cli_args)
         else:
             self.parser.print_help()
-        sys.exit(0)
+        sys.exit(exitcode or 0)
 
     @classmethod
     def create_parser(cls, subparsers):

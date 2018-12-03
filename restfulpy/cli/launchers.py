@@ -17,7 +17,7 @@ class Launcher:
 
     def __call__(self, *args):
         self.args = args[0] if len(args) else None
-        self.launch()
+        return self.launch()
 
     def launch(self):
         if self.parser:
