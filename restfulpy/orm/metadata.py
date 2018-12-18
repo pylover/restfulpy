@@ -70,7 +70,9 @@ class MetadataField(FieldInfo):
 
         key = c.key
 
-        if hasattr(c, 'default') and c.default:
+        if hasattr(c, 'default')
+                and c.default
+                and hasattr(c.default, 'is_scalar'):
             default = c.default.arg if c.default.is_scalar else None
         else:
             default = None
