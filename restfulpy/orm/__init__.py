@@ -77,16 +77,20 @@ def commit(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
 
-        if hasattr(context, 'jsonpatch'):
-            return func(*args, **kwargs)
-
         try:
+            if hasattr(context, 'jsonpatch'):
+                result = func(*args, **kwargs)
+                DBSession.flush()
+                return result
+
             result = func(*args, **kwargs)
             DBSession.commit()
             return result
+
         except:
             if DBSession.is_active:
                 DBSession.rollback()
             raise
 
     return wrapper
+
