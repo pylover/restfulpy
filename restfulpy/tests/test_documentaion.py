@@ -27,7 +27,7 @@ class Root(RegexRouteController):
         return 'Index'
 
 
-class TestApplication(ApplicableTestCase):
+class TestAutoDocumentation(ApplicableTestCase):
     __controller_factory__ = Root
     __story_directory__ = path.join(DATA_DIRECTORY, 'stories')
     __api_documentation_directory__ = path.join(DATA_DIRECTORY, 'markdown')
@@ -35,7 +35,7 @@ class TestApplication(ApplicableTestCase):
         '/': dict(a=dict(not_none=True, required=True))
     }
 
-    def test_index(self):
+    def test_nested_url(self):
         with self.given(
             'There is a / in the title',
             '/apiv1/documents',
@@ -52,4 +52,22 @@ class TestApplication(ApplicableTestCase):
             form=dict(a=1)
         ):
             assert status == 200
+
+    def test_with_url_parameters(self):
+        with self.given(
+            'There is a url parameter',
+            '/apiv1/documents/id: 2',
+            'GET'
+        ):
+            assert status == 200
+            assert response.body == b'Index'
+
+        with self.given(
+            'There is a url parameter and nested resource',
+            '/apiv1/documents/id: 2/authors',
+            'GET'
+        ):
+            assert status == 200
+            assert response.body == b'Index'
+
 

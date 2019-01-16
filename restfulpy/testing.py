@@ -268,9 +268,12 @@ class ApplicableTestCase:
         cls._ensure_directory(directory)
         title = story.title.lower().replace(' ', '-')
         title = title.replace('/', '-or-')
+
         url_parts = story.base_call.url.split('/')
         if len(url_parts) >= 3:
-            entity = url_parts[2]
+            entity = '_'.join(
+                p for p in url_parts[2:] if p and not p.startswith(':')
+            )
         elif len(url_parts) == 2:
             entity = 'root'
         else:
