@@ -81,7 +81,7 @@ def db():
     settings.db.url = settings.db.test_url
 
     # Drop the previosely created db if exists.
-    with DBManager() as m:
+    with DBManager(url=settings.db.test_url) as m:
         m.drop_database()
         m.create_database()
 
@@ -122,7 +122,7 @@ def db():
     engine.dispose()
 
     # Dropping the previously created database
-    with DBManager() as m:
+    with DBManager(url=settings.db.test_url) as m:
         m.drop_database()
 
 
@@ -173,7 +173,7 @@ class ApplicableTestCase:
     @classmethod
     def initialize_orm(cls):
         # Drop the previosely created db if exists.
-        with DBManager() as m:
+        with DBManager(url=settings.db.test_url) as m:
             m.drop_database()
             m.create_database()
 
@@ -215,7 +215,7 @@ class ApplicableTestCase:
             cls._engine.dispose()
 
         # Dropping the previousely created database
-        with DBManager() as m:
+        with DBManager(url=settings.db.test_url) as m:
             m.drop_database()
 
     @classmethod

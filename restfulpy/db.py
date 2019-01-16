@@ -8,8 +8,8 @@ from sqlalchemy import create_engine
 
 class AbstractDatabaseManager(object):
 
-    def __init__(self):
-        self.db_url = settings.db.url
+    def __init__(self, url=None):
+        self.db_url = url or settings.db.url
         self.db_name = urlparse(self.db_url).path.lstrip('/')
         self.admin_url = settings.db.administrative_url
         self.admin_db_name = \
@@ -87,8 +87,8 @@ class SqliteManager(AbstractDatabaseManager):
 
 class DatabaseManager(AbstractDatabaseManager):
 
-    def __new__(cls, *args, **kwargs):
-        url = settings.db.url
+    def __new__(cls, *args, url=None, **kwargs):
+        url = url or settings.db.url
         if url.startswith('sqlite'):
             manager_class = SqliteManager
         elif url.startswith('postgres'):
@@ -96,5 +96,5 @@ class DatabaseManager(AbstractDatabaseManager):
         else:
             raise ValueError(f'Unsupported database url: {url}')
 
-        return manager_class(*args, **kwargs)
+        return manager_class(*args, url=url, **kwargs)
 
