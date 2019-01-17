@@ -248,6 +248,7 @@ class ApplicableTestCase:
         if cls.__api_documentation_directory__ is None:
             return
 
+        os.makedirs(cls.__api_documentation_directory__, exist_ok=True)
         target_filename = path.join(
             cls.__api_documentation_directory__,
             f'LEGEND-restfulpy--v{restfulpy.__version__}.md',
