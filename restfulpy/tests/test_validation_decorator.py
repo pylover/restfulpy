@@ -20,7 +20,7 @@ class Supervisor(DeclarativeBase):
         not_none='701 email cannot be null',
         required='702 email required',
         pattern=(
-            '(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)',
+           r'(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)',
             '707 Invalid email address'
         ),
         watermark='Email',

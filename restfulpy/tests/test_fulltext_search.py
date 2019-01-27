@@ -17,7 +17,7 @@ class FullTextSearchObject(FullTextSearchMixin, DeclarativeBase):
 
 def test_fts_escape(db):
      result = fts_escape('&%!^$*[](){}\\')
-     assert result == '\&\%\!\^\$\*\[\]\(\)\{\}\\\\'
+     assert result == r'\&\%\!\^\$\*\[\]\(\)\{\}\\'
 
 
 def test_to_tsvector(db):
