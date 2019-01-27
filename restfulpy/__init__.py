@@ -1,6 +1,5 @@
 import warnings
 
-
 from .application import Application
 
 
