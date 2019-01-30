@@ -1,4 +1,4 @@
-from bddrest import response, status, when
+from bddrest import response, status, when, given
 from nanohttp import json
 from sqlalchemy import Unicode, Integer
 
@@ -72,6 +72,20 @@ class Root(ModelRestController):
     def get(self):
         return DBSession.query(Supervisor).first()
 
+    @json
+    @commit
+    @Supervisor.validate(strict=True, fields=dict(
+        email=dict(
+            not_none=False,
+            required=False
+        )
+    ))
+    def extra(self):
+        m = Supervisor()
+        m.update_from_request()
+        DBSession.add(m)
+        return m
+
 
 class TestModelValidationDecorator(ApplicableTestCase):
     __controller_factory__ = Root
@@ -116,4 +130,11 @@ class TestModelValidationDecorator(ApplicableTestCase):
                 )
             )
             assert status == 709
+
+            when(
+                'Testing extra validation rules',
+                verb='EXTRA',
+                form=given | dict(email='InvalidEmail')
+            )
+            assert status == 707
 

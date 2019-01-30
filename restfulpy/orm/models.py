@@ -290,7 +290,9 @@ class BaseModel(object):
 
         rules = cls.create_validation_rules(strict, ignore)
         if fields:
-            rules.update(fields)
+            for k, v in fields.items():
+                if k in rules:
+                    rules[k].update(v)
 
         decorator = validate(**rules)
 
