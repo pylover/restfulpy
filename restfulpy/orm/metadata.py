@@ -20,23 +20,18 @@ class FieldInfo:
         self.default = default
 
     def to_json(self):
-        type_ = self.type_[0] \
-            if self.type_ and isinstance(self.type_, tuple) else self.type_
+        result = {}
 
-        return {
-            'type': type_.__name__ if self.type_ else None,
-            'notNone': self.not_none,
-            'required': self.required,
-            'pattern': self.pattern,
-            'patternDescription': self.pattern_description,
-            'maxLength': self.max_length,
-            'minLength': self.min_length,
-            'readonly': self.readonly,
-            'protected': self.protected,
-            'minimum': self.minimum,
-            'maximum': self.maximum,
-            'default': self.default,
-        }
+        for k,v in vars(self).items():
+            json_key = to_camel_case(k)
+            json_value = v[0] if isinstance(v, tuple) else v
+            if isinstance(json_value, type):
+                json_value = json_value.__name__
+
+            result[json_key] = json_value
+
+        result['type'] = result.pop('type_')
+        return result
 
     def __copy__(self):
         new_one = type(self)()
