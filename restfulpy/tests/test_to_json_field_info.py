@@ -17,7 +17,7 @@ def test_to_json_fieldinfo():
     age_json_field_info = age.to_json()
 
     assert age_json_field_info['type'] == 'str'
-    assert age_json_field_info['pattern'] == '\d+'
+    assert age_json_field_info['pattern'] == '\\d+'
     assert age_json_field_info['maxLength'] == 2
     assert age_json_field_info['minLength'] == 1
     assert age_json_field_info['minimum'] == 1
