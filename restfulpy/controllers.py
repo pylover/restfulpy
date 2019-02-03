@@ -44,7 +44,7 @@ def split_path(url):
 
 class JsonPatchControllerMixin:
 
-    @action(content_type='application/json')
+    @action(content_type='application/json', prevent_empty_form=True)
     def patch(self: Controller):
         """
         Set context.method
@@ -84,3 +84,4 @@ class JsonPatchControllerMixin:
             raise
         finally:
             del context.jsonpatch
+
