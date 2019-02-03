@@ -98,6 +98,9 @@ class TestJsonPatchMixin(ApplicableTestCase):
             )
             assert status == 400
 
+            when('Trying to pass with empty form', json={})
+            assert status == '400 Empty Form'
+
     def test_jsonpatch_rollback(self):
         with self.given(
             'Testing rollback scenario',
