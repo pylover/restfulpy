@@ -1,3 +1,4 @@
+import uuid
 import os
 from hashlib import sha256
 
@@ -43,11 +44,15 @@ class Member(DeclarativeBase):
         info=dict(protected=True)
     )
 
-    def create_jwt_principal(self):
+    def create_jwt_principal(self, session_id=None):
+        if session_id is None:
+            session_id = str(uuid.uuid4())
+
         return JwtPrincipal(dict(
             id=self.id,
             email=self.email,
-            name=self.title
+            name=self.title,
+            sessionId=session_id
         ))
 
     def create_refresh_principal(self):

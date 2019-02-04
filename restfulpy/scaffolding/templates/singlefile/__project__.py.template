@@ -173,7 +173,8 @@ class TestFoo(ApplicableTestCase):
             when(
                 'Retrieve the first foo',
                 f'/foos/id: {foo_id}',
-                'GET'
+                'GET',
+                form=None,
             )
 
             assert status == 200
@@ -196,7 +197,8 @@ class TestFoo(ApplicableTestCase):
             when(
                 'Retrieve the first foo',
                 f'/foos/id: {foo_id}',
-                'GET'
+                'GET',
+                form=None,
             )
 
             assert status == 404
