@@ -47,7 +47,8 @@ class TestFoo(LocalApplicationTestCase):
             when(
                 'Retrieve the first foo',
                 f'/apiv1/foos/id: {foo_id}',
-                'GET'
+                'GET',
+                form=None,
             )
             assert status == 200
             assert response.json['title'] == 'First foo(edited)'
@@ -68,7 +69,8 @@ class TestFoo(LocalApplicationTestCase):
             when(
                 'Retrieve the first foo',
                 f'/apiv1/foos/id: {foo_id}',
-                'GET'
+                'GET',
+                form=None,
             )
             assert status == 404
 
