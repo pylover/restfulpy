@@ -27,6 +27,15 @@ class TimestampMixin:
 
 
 class ModifiedMixin(TimestampMixin):
+    """The __exclude__ type must be `set` type.
+
+    Example:
+        __exclude__ = {'title'}
+
+    """
+
+    __exclude__ = None
+
     modified_at = Field(
         DateTime,
         nullable=True,
@@ -41,11 +50,12 @@ class ModifiedMixin(TimestampMixin):
 
     @staticmethod
     def before_update(mapper, connection, target):
-        target.modified_at = datetime.utcnow()
+        if target.object.__exclude__.issubset(target.unmodified):
+            target.object.modified_at = datetime.utcnow()
 
     @classmethod
     def __declare_last__(cls):
-        event.listen(cls, 'before_update', cls.before_update)
+        event.listen(cls, 'before_update', cls.before_update, raw=True)
 
 
 class SoftDeleteMixin:
