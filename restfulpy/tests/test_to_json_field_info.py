@@ -4,7 +4,7 @@ from restfulpy.orm.metadata import FieldInfo
 def test_to_json_fieldinfo():
     age = FieldInfo(
         type_=(str, 400),
-        pattern=('\d+', 400),
+        pattern=('\\d+', 400),
         max_length=(2, 400),
         min_length=(1, 400),
         minimum=(1, 400),

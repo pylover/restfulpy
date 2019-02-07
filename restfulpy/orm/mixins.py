@@ -34,7 +34,7 @@ class ModifiedMixin(TimestampMixin):
 
     """
 
-    __exclude__ = None
+    __exclude__ = set()
 
     modified_at = Field(
         DateTime,
@@ -50,8 +50,10 @@ class ModifiedMixin(TimestampMixin):
 
     @staticmethod
     def before_update(mapper, connection, target):
-        if target.object.__exclude__.issubset(target.unmodified):
-            target.object.modified_at = datetime.utcnow()
+        if not target.object.__exclude__.issubset(target.unmodified):
+            return
+
+        target.object.modified_at = datetime.utcnow()
 
     @classmethod
     def __declare_last__(cls):
