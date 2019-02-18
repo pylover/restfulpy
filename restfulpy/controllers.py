@@ -61,6 +61,8 @@ class JsonPatchControllerMixin:
                 context.form = patch.get('value', {})
                 path, context.query = split_path(patch['path'])
                 context.method = patch['op'].lower()
+                context.request_content_length = \
+                    len(context.form) if context.form else 0
 
                 remaining_paths = path.split('/')
                 if remaining_paths and not remaining_paths[0]:
@@ -84,4 +86,3 @@ class JsonPatchControllerMixin:
             raise
         finally:
             del context.jsonpatch
-

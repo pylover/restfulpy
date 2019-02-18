@@ -24,7 +24,7 @@ class Person(DeclarativeBase):
 class Root(JsonPatchControllerMixin, RestController):
     __model__ = Person
 
-    @json
+    @json(prevent_empty_form=True)
     @commit
     def create(self):
         title = context.form.get('title')
@@ -38,7 +38,7 @@ class Root(JsonPatchControllerMixin, RestController):
         DBSession.add(person)
         return person
 
-    @json
+    @json(prevent_form=True)
     def get(self, title: str):
         person = DBSession.query(Person) \
             .filter(Person.title == title) \
@@ -101,6 +101,17 @@ class TestJsonPatchMixin(ApplicableTestCase):
             when('Trying to pass with empty form', json={})
             assert status == '400 Empty Form'
 
+            id = self.person.id
+            when(
+                'Prevent Form',
+                json=[
+                    dict(op='GET', path=f'{id}', value=dict(form='form1')),
+                    dict(op='GET', path=f'{id}')
+                ]
+            )
+            assert status == '400 Form Not Allowed'
+
+
     def test_jsonpatch_rollback(self):
         with self.given(
             'Testing rollback scenario',
@@ -116,7 +127,8 @@ class TestJsonPatchMixin(ApplicableTestCase):
             when(
                 'Trying to get the person that not exist',
                 verb='GET',
-                url='/third'
+                url='/third',
+                json=None,
             )
             assert status == 404
 
