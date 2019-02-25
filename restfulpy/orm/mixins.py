@@ -258,11 +258,7 @@ class FilteringMixin:
 
             return return_(expression)
 
-        if value == 'null':
-            expression = column.is_(None)
-        elif value == '!null':
-            expression = column.isnot(None)
-        elif value.startswith('!'):
+        if value.startswith('!'):
             expression = column != import_value(column, value[1:])
         elif value.startswith('>='):
             expression = column >= import_value(column, value[2:])

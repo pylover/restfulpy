@@ -67,14 +67,6 @@ def test_filtering_mixin(db):
     with Context({'QUERY_STRING': 'id=BETWEEN(1,3)'}):
         assert FilteringObject.filter_by_request(query).count() == 3
 
-    # IS NULL
-    with Context({'QUERY_STRING': 'title=null'}):
-        assert FilteringObject.filter_by_request(query).count() == 0
-
-    # IS NOT NULL
-    with Context({'QUERY_STRING': 'title=!null'}):
-        assert FilteringObject.filter_by_request(query).count() == 6
-
     # ==
     with Context({'QUERY_STRING': 'id=1'}):
         assert FilteringObject.filter_by_request(query).count() == 1
