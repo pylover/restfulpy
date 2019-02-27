@@ -9,7 +9,6 @@ from .database import DatabaseLauncher
 from .dev import DevLauncher
 from .jwttoken import JWTLauncher
 from .migrate import MigrateLauncher
-from .serve import ServeLauncher
 from .worker import WorkerLauncher
 from .erd import EntityRelationshipDiagrams
 
@@ -42,7 +41,6 @@ class MainLauncher(Launcher):
         )
 
         DatabaseLauncher.register(subparsers)
-        ServeLauncher.register(subparsers)
         MigrateLauncher.register(subparsers)
         WorkerLauncher.register(subparsers)
         DevLauncher.register(subparsers)
