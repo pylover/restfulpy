@@ -87,7 +87,12 @@ def commit(func):
             DBSession.commit()
             return result
 
-        except:
+        except Exception as ex:
+            # Actualy 200 <= status <= 399 is not an exception and commit must
+            # be occure.
+            if hasattr(ex, 'status') and '200' <= ex.status < '400':
+                DBSession.commit()
+                raise
             if DBSession.is_active:
                 DBSession.rollback()
             raise

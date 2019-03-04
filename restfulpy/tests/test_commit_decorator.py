@@ -1,5 +1,5 @@
 from bddrest import response, when
-from nanohttp import json, RestController, context
+from nanohttp import json, RestController, context, HTTPStatus
 from sqlalchemy import Unicode, Integer
 
 from restfulpy.controllers import JsonPatchControllerMixin
@@ -22,6 +22,22 @@ class Root(JsonPatchControllerMixin, RestController):
         m.title = context.form['title']
         DBSession.add(m)
         return m
+
+    @json
+    @commit
+    def success(self):
+        m = CommitCheckingModel()
+        m.title = context.form['title']
+        DBSession.add(m)
+        raise HTTPStatus('200 OK')
+
+    @json
+    @commit
+    def redirect(self):
+        m = CommitCheckingModel()
+        m.title = context.form['title']
+        DBSession.add(m)
+        raise HTTPStatus('300 Redirect')
 
     @json
     def get(self, title: str=None):
@@ -71,4 +87,32 @@ class TestCommitDecorator(ApplicableTestCase):
     def test_rollback(self):
         with self.given('Raise exception', verb='ERROR', url='/'):
             assert response.status == 500
+
+    def test_commit_on_raise_http_success(self):
+        with self.given(
+            'Testing the operation of commit decorator on raise 2xx',
+            verb='SUCCESS',
+            url='/',
+            form=dict(title='HTTPSuccess')
+        ):
+            when(
+                'Geting the result of appling commit decorator',
+                 verb='GET',
+                 url='/HTTPSuccess'
+            )
+            assert response.json['title'] == 'HTTPSuccess'
+
+    def test_commit_on_raise_http_redirect(self):
+        with self.given(
+            'Testing the operation of commit decorator on raise 3xx',
+            verb='REDIRECT',
+            url='/',
+            form=dict(title='HTTPRedirect')
+        ):
+            when(
+                'Geting the result of appling commit decorator',
+                 verb='GET',
+                 url='/HTTPRedirect'
+            )
+            assert response.json['title'] == 'HTTPRedirect'
 
