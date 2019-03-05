@@ -1,128 +1,110 @@
 import argparse
 
-from restfulpy.cli import RequireSubCommand, Launcher
+from easycli import SubCommand, Argument
+
 from restfulpy.db import DatabaseManager
 from restfulpy.orm import setup_schema
 
 
-class BasedataLauncher(Launcher):
+class BasedataSubSubCommand(SubCommand):
+    __command__ = 'basedata'
+    __help__ = 'Setup the server\'s database.'
 
-    @classmethod
-    def create_parser(cls, subparsers):
-        return subparsers.add_parser(
-            'basedata',
-            help='Setup the server\'s database.'
-        )
-
-    def launch(self):
-        self.args.application.insert_basedata()
+    def __call__(self, args):
+        args.application.insert_basedata()
 
 
-class MockupDataLauncher(Launcher):
+class MockupDataSubSubCommand(SubCommand):
+    __command__ = 'mockup'
+    __help__ = 'Insert mockup data.'
+    __arguments__ = [
+        Argument(
+            'mockup_args',
+            nargs=argparse.REMAINDER,
+        ),
+    ]
 
-    @classmethod
-    def create_parser(cls, subparsers):
-        parser = subparsers.add_parser('mockup', help='Insert mockup data.')
-        parser.add_argument('mockup_args', nargs=argparse.REMAINDER)
-        return parser
-
-    def launch(self):
-        self.args.application.insert_mockup(self.args.mockup_args)
+    def __call__(self, args):
+        args.application.insert_mockup(args.mockup_args)
 
 
-class CreateDatabaseLauncher(Launcher):
-    @classmethod
-    def create_parser(cls, subparsers):
-        parser = subparsers.add_parser(
-            'create',
-            help='Create the server\'s database.'
-        )
-        parser.add_argument(
+class CreateDatabaseSubSubCommand(SubCommand):
+    __command__ = 'create'
+    __help__ = 'Create the server\'s database.'
+    __arguments__ = [
+        Argument(
             '-d',
             '--drop',
             dest='drop_db',
             action='store_true',
             default=False,
-            help='Drop existing database before create another one.'
-        )
-        parser.add_argument(
+            help='Drop existing database before create another one.',
+        ),
+        Argument(
             '-s',
             '--schema',
             dest='schema',
             action='store_true',
             default=False,
-            help='Creates database schema after creating the database.'
-        )
-        parser.add_argument(
+            help='Creates database schema after creating the database.',
+        ),
+        Argument(
             '-b',
             '--basedata',
             action='store_true',
             default=False,
-            help= \
-                'Implies `(-s|--schema)`, Inserts basedata after schema '
-                'generation.'
-        )
-        parser.add_argument(
+            help='Implies `(-s|--schema)`, Inserts basedata after schema' \
+                'generation.',
+        ),
+        Argument(
             '-m',
             '--mockup',
             action='store_true',
             default=False,
-            help='Implies `(-s|--schema)`, Inserts mockup data.'
-        )
-        return parser
+            help='Implies `(-s|--schema)`, Inserts mockup data.',
+        ),
+    ]
 
-    def launch(self):
+    def __call__(self, args):
         with DatabaseManager() as db_admin:
-            if self.args.drop_db:
+            if args.drop_db:
                 db_admin.drop_database()
+
             db_admin.create_database()
-            if self.args.schema or self.args.basedata or self.args.mockup:
+            if args.schema or args.basedata or args.mockup:
                 setup_schema()
-                if self.args.basedata:
-                    self.args.application.insert_basedata()
-                if self.args.mockup:
-                    self.args.application.insert_mockup()
+                if args.basedata:
+                    args.application.insert_basedata()
+
+                if args.mockup:
+                    args.application.insert_mockup()
 
 
-class DropDatabaseLauncher(Launcher):
+class DropDatabaseSubSubCommand(SubCommand):
+    __command__ = 'drop'
+    __help__ = 'Drop the server\'s database.'
 
-    @classmethod
-    def create_parser(cls, subparsers):
-        return subparsers.add_parser(
-            'drop',
-            help='Drop the server\'s database.'
-        )
-
-    def launch(self):
+    def __call__(self, args):
         with DatabaseManager() as db_admin:
             db_admin.drop_database()
 
 
-class CreateDatabaseSchemaLauncher(Launcher):
+class CreateDatabaseSchemaSubSubCommand(SubCommand):
+    __command__ = 'schema'
+    __help__ = 'Creates the database objects.'
 
-    @classmethod
-    def create_parser(cls, subparsers):
-        return subparsers.add_parser(
-            'schema',
-            help='Creates the database objects.'
-        )
-
-    def launch(self):
+    def __call__(self, args):
         setup_schema()
 
 
-class DatabaseLauncher(Launcher, RequireSubCommand):
-    @classmethod
-    def create_parser(cls, subparsers):
-        parser = subparsers.add_parser('db', help='Database administrationn')
-        admin_subparsers = parser.add_subparsers(
-            title='admin command',
-            dest='admin_command'
-        )
-        CreateDatabaseSchemaLauncher.register(admin_subparsers)
-        BasedataLauncher.register(admin_subparsers)
-        MockupDataLauncher.register(admin_subparsers)
-        DropDatabaseLauncher.register(admin_subparsers)
-        CreateDatabaseLauncher.register(admin_subparsers)
-        return parser
+class DatabaseSubCommand(SubCommand):
+    __command__ = 'db'
+    __help__ = 'Database administrationn'
+    __arguments__ = [
+        CreateDatabaseSchemaSubSubCommand,
+        BasedataSubSubCommand,
+        MockupDataSubSubCommand,
+        DropDatabaseSubSubCommand,
+        CreateDatabaseSubSubCommand,
+    ]
 

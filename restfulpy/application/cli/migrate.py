@@ -3,33 +3,27 @@ import os
 from os.path import join
 
 from alembic.config import main as alembic_main
+from easycli import SubCommand, Argument
 
-from restfulpy.cli import Launcher
 
-
-class MigrateLauncher(Launcher):
-
-    @classmethod
-    def create_parser(cls, subparsers):
-        migrate_parser = subparsers.add_parser(
-            'migrate',
-            help="Executes the alembic command"
-        )
-        migrate_parser.add_argument(
+class MigrateSubCommand(SubCommand):
+    __command__ = 'migrate'
+    __help__ = 'Executes the alembic command'
+    __arguments__ = [
+        Argument(
             'alembic_args',
             nargs=argparse.REMAINDER,
-            help="For more information, please see `alembic --help`"
+            help='For more information, please see `alembic --help`',
         )
-        return migrate_parser
+    ]
 
-    def launch(self):
+    def __call__(self, args):
         current_directory = os.curdir
         try:
-            os.chdir(self.args.application.root_path)
-            alembic_ini = join(self.args.application.root_path, 'alembic.ini')
-            alembic_main(
-                argv=['--config', alembic_ini] + self.args.alembic_args
-            )
+            os.chdir(args.application.root_path)
+            alembic_ini = join(args.application.root_path, 'alembic.ini')
+            alembic_main(argv=['--config', alembic_ini] + args.alembic_args)
+
         finally:
             os.chdir(current_directory)
 

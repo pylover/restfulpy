@@ -12,7 +12,8 @@ with open(join(dirname(__file__), 'restfulpy', '__init__.py')) as v_file:
 
 
 dependencies = [
-    'nanohttp >= 1.10.5',
+    'nanohttp >= 1.10.5, < 2',
+    'easycli >= 1.1, < 2',
     'argcomplete',
     'ujson',
     'appdirs',
@@ -31,7 +32,8 @@ dependencies = [
     # Testing
     'requests',
     'pytest',
-    'bddrest >= 2.2.1'
+    'bddrest >= 2.2.1, < 3',
+    'bddcli >= 2, < 3',
 ]
 
 
@@ -48,7 +50,7 @@ setup(
     license='MIT',
     entry_points={
         'console_scripts': [
-            'restfulpy = restfulpy.launchers:main'
+            'restfulpy = restfulpy.cli:Main'
         ]
     },
 )

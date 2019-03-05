@@ -1,76 +1,61 @@
-import argparse
 import sys
+from os.path import basename
 
-import argcomplete
+from easycli import Root, Argument
 
-from ...cli import Launcher, AutoCompletionLauncher
-from .configuration import ConfigurationLauncher
-from .database import DatabaseLauncher
-from .dev import DevLauncher
-from .jwttoken import JWTLauncher
-from .migrate import MigrateLauncher
-from .worker import WorkerLauncher
-from .erd import EntityRelationshipDiagrams
+from .configuration import ConfigurationSubCommand
+from .database import DatabaseSubCommand
+from .erd import EntityRelationshipDiagramsSubCommand
+from .jwttoken import JWTSubCommand
+from .migrate import MigrateSubCommand
+from .worker import WorkerSubCommand
 
 
-class MainLauncher(Launcher):
+class EntryPoint(Root):
+    __completion__ = True
+    __arguments__ = [
+        Argument(
+            '-V', '--version',
+            action='store_true',
+            help='Show application version',
+        ),
+        Argument(
+            '-p', '--process-name',
+            metavar="PREFIX",
+            default=basename(sys.argv[0]),
+            help='A string indicates the logger prefix for this process, it ' \
+                'helps to configure separate log files per process.',
+        ),
+        Argument(
+            '-c', '--config-file',
+            metavar="FILE",
+            help='Configuration file, Default: none',
+        ),
+        ConfigurationSubCommand,
+        DatabaseSubCommand,
+        EntityRelationshipDiagramsSubCommand,
+        JWTSubCommand,
+        MigrateSubCommand,
+        WorkerSubCommand,
+    ]
 
     def __init__(self, application):
         self.application = application
-        self.parser = parser = argparse.ArgumentParser(
-            prog=application.name,
-            description='%s command line interface.' % application.name
-        )
-        parser.add_argument(
-            '-p', '--process-name',
-            metavar="PREFIX",
-            default=application.name,
-            help= \
-                'A string indicates the logger prefix for this process, it '
-                'helps to configure separate log files per process.'
-        )
-        parser.add_argument(
-            '-c', '--config-file',
-            metavar="FILE",
-            help='Configuration file, Default: none'
-        )
-        subparsers = parser.add_subparsers(
-            title="sub commands",
-            prog=application.name,
-            dest="command"
-        )
+        self.__command__ = application.name
+        self.__help__ = '%s command line interface.' % application.name
+        super().__init__()
 
-        DatabaseLauncher.register(subparsers)
-        MigrateLauncher.register(subparsers)
-        WorkerLauncher.register(subparsers)
-        DevLauncher.register(subparsers)
-        AutoCompletionLauncher.register(subparsers)
-        EntityRelationshipDiagrams.register(subparsers)
-
-        if application.__configuration_cipher__ is not None:
-            ConfigurationLauncher.register(subparsers)
-
-        if application.__authenticator__ is not None:
-            JWTLauncher.register(subparsers)
-
-        application.register_cli_launchers(subparsers)
-        argcomplete.autocomplete(parser)
-
-    def launch(self, args=None):
-        cli_args = self.parser.parse_args(args)
-        cli_args.application = self.application
-        self.application.process_name = cli_args.process_name
-        self.application.configure(files=cli_args.config_file)
+    def _execute_subcommand(self, args):
+        args.application = self.application
+        self.application.process_name = args.process_name
+        self.application.configure(files=args.config_file)
         self.application.initialize_orm()
-        if hasattr(cli_args, 'func'):
-            exitcode = cli_args.func(cli_args)
-        else:
-            self.parser.print_help()
-        sys.exit(exitcode or 0)
+        return super()._execute_subcommand(args)
 
-    @classmethod
-    def create_parser(cls, subparsers):
-        """
-        Do nothing here
-        """
-        pass
+    def __call__(self, args):
+        if args.version:
+            print(self.application.version)
+            return
+
+        return super().__call__(args)
+

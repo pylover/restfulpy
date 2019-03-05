@@ -6,7 +6,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from nanohttp import Application as NanohttpApplication, Controller, \
     HTTPStatus, HTTPInternalServerError, settings, context as nanohttp_context
-from .cli.main import MainLauncher
+from .cli.main import EntryPoint
 from ..authentication import Authenticator
 from ..configuration import configure
 from ..exceptions import SqlError
@@ -36,7 +36,7 @@ class Application(NanohttpApplication):
         self.version = version
         self.root_path = abspath(root_path)
         self.name = name
-        self.cli_main = MainLauncher(self)
+        self.cli_main = EntryPoint(self).main
 
         if configuration:
             self.__configuration__ = configuration

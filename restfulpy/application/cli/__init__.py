@@ -1,2 +1,2 @@
+from .main import EntryPoint
 
-from .main import MainLauncher

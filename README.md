@@ -13,27 +13,7 @@ A tool-chain for creating restful web applications.
 standard naming(camelCase).
 - Http form validation based on SqlAlchemy models.
 - Scaffolding: `restfulpy scaffold -h`
-
-
-
-### Branching
-
-A new branching model is applied to this repository, which consists of a 
-master branch and release branches.
-
-#### Master branch
-
-The master branch is an integration branch where bug fixes/features are 
-gathered for compiling and functional testing.
-
-#### Release branch
-
-The release branch is where releases are maintained and hot fixes 
-(with names like release/v2.x.x) are added. Please ensure that all your 
-production-related work are tracked with the release branches.
-
-With this new model, we can push out bug fixes more quickly and achieve 
-simpler maintenance.
+- Task Queue system
 
 
 ### Install
@@ -66,7 +46,7 @@ restfulpy -h
 #### Autocompletion
 
 ```bash
-restfulpy autocompletion install
+restfulpy completion install
 ```
 
 ### Scaffolding

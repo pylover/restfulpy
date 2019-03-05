@@ -2,75 +2,65 @@ import signal
 import sys
 import threading
 
+from easycli import SubCommand, Argument
 from nanohttp import settings
 
-from restfulpy.cli import Launcher, RequireSubCommand
 
-
-class StartLauncher(Launcher):
+class StartSubSubCommand(SubCommand):
     __command__ = 'start'
-
-    @classmethod
-    def create_parser(cls, subparsers):
-        parser = subparsers.add_parser(
-            cls.__command__,
-            help='Starts the background worker.'
-        )
-
-        parser.add_argument(
+    __help__ = 'Starts the background worker.'
+    __arguments__ = [
+        Argument(
             '-g',
             '--gap',
             type=int,
             default=None,
-            help='Gap between run next task.'
-        )
-
-        parser.add_argument(
+            help='Gap between run next task.',
+        ),
+        Argument(
             '-s',
             '--status',
             default=[],
             action='append',
-            help='Task status to process'
-        )
-
-        parser.add_argument(
+            help='Task status to process',
+        ),
+        Argument(
             '-n',
             '--number-of-threads',
             type=int,
             default=None,
-            help='Number of working threads'
-        )
-        return parser
+            help='Number of working threads',
+        ),
+    ]
 
-    def launch(self):
-
+    def __call__(self, args):
         from restfulpy.taskqueue import worker
 
         signal.signal(signal.SIGINT, self.kill_signal_handler)
         signal.signal(signal.SIGTERM, self.kill_signal_handler)
 
-        if not self.args.status:
-            self.args.status = {'new'}
+        if not args.status:
+            args.status = {'new'}
 
-        if self.args.gap is not None:
-            settings.worker.merge({'gap': self.args.gap})
+        if args.gap is not None:
+            settings.worker.merge({'gap': args.gap})
 
         print(
             f'The following task types would be processed with gap of '
             f'{settings.worker.gap}s:'
         )
-        print('Tracking task status(es): %s' % ','.join(self.args.status))
+        print('Tracking task status(es): %s' % ','.join(args.status))
 
         number_of_threads = \
-            self.args.number_of_threads or settings.worker.number_of_threads
+            args.number_of_threads or settings.worker.number_of_threads
         for i in range(number_of_threads):
             t = threading.Thread(
                     target=worker,
                     name='restfulpy-worker-thread-%s' % i,
                     daemon=True,
                     kwargs=dict(
-                        statuses=self.args.status,
-                        filters=self.args.filter
+                        statuses=args.status,
+                        filters=args.filter
                     )
                 )
             t.start()
@@ -84,6 +74,7 @@ class StartLauncher(Launcher):
 
         if signal_number == signal.SIGINT:
             print('You pressed Ctrl+C!')
+
         elif signal_number in (signal.SIGTERM, signal.SIGKILL):
             print('OS Killed Me!')
 
@@ -93,42 +84,31 @@ class StartLauncher(Launcher):
         sys.exit(1)
 
 
-class CleanupLauncher(Launcher):
-    @classmethod
-    def create_parser(cls, subparsers):
-        return subparsers.add_parser(
-            'cleanup',
-            help='Clean database before starting worker processes'
-        )
+class CleanupSubSubCommand(SubCommand):
+    __command__ = 'cleanup'
+    __help__ = 'Clean database before starting worker processes'
 
-    def launch(self):
+    def __call__(self, args):
         from restfulpy.orm import DBSession
         from restfulpy.taskqueue import RestfulpyTask
 
-        RestfulpyTask.cleanup(DBSession, filters=self.args.filter)
+        RestfulpyTask.cleanup(DBSession, filters=args.filter)
         DBSession.commit()
 
 
-class WorkerLauncher(Launcher, RequireSubCommand):
-    @classmethod
-    def create_parser(cls, subparsers):
-        parser = subparsers.add_parser(
-            'worker',
-            help="Task queue administration"
-        )
-        parser.add_argument(
+class WorkerSubCommand(SubCommand):
+    __command__ = 'worker'
+    __help__ = 'Task queue administration'
+    __arguments__ = [
+        Argument(
             '-f',
             '--filter',
             default=None,
             type=str,
             action='store',
-            help='Custom SQL filter for tasks'
-        )
+            help='Custom SQL filter for tasks',
+        ),
+        StartSubSubCommand,
+        CleanupSubSubCommand,
+    ]
 
-        worker_subparsers = parser.add_subparsers(
-            title="worker command",
-            dest="worker_command"
-        )
-        StartLauncher.register(worker_subparsers)
-        CleanupLauncher.register(worker_subparsers)
-        return parser
