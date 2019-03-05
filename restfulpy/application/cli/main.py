@@ -5,7 +5,6 @@ from easycli import Root, Argument
 
 from .configuration import ConfigurationSubCommand
 from .database import DatabaseSubCommand
-from .erd import EntityRelationshipDiagramsSubCommand
 from .jwttoken import JWTSubCommand
 from .migrate import MigrateSubCommand
 from .worker import WorkerSubCommand
@@ -33,7 +32,6 @@ class EntryPoint(Root):
         ),
         ConfigurationSubCommand,
         DatabaseSubCommand,
-        EntityRelationshipDiagramsSubCommand,
         JWTSubCommand,
         MigrateSubCommand,
         WorkerSubCommand,
