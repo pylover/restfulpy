@@ -3,6 +3,7 @@ import functools
 from os.path import exists
 
 from nanohttp import settings, context
+from nanohttp.exceptions import HTTPSuccess, HTTPRedirect
 from sqlalchemy import create_engine as sa_create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.sql.schema import MetaData
@@ -87,9 +88,14 @@ def commit(func):
             DBSession.commit()
             return result
 
-        except:
+        except Exception as ex:
+            if isinstance(ex, HTTPSuccess) or isinstance(ex, HTTPRedirect):
+                DBSession.commit()
+                raise
+
             if DBSession.is_active:
                 DBSession.rollback()
+
             raise
 
     return wrapper
