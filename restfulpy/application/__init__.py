@@ -28,7 +28,7 @@ class Application(NanohttpApplication):
     __configuration_cipher__ = None
     engine = None
 
-    def __init__(self, name: str, root: Controller, root_path='.',
+    def __init__(self, name: str, root: Controller = None, root_path='.',
                  version='0.1.0-dev.0', process_name=None, authenticator=None,
                  configuration=None):
         super(Application, self).__init__(root=root)
