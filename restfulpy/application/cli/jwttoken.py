@@ -4,7 +4,7 @@ from easycli import SubCommand, Argument
 from restfulpy.principal import JwtPrincipal
 
 
-class CreateJWTTokenSubSubCommand(SubCommand):  # pragma: no cover
+class CreateJWTTokenSubSubCommand(SubCommand):
     __command__ = 'create'
     __help__ = 'Create a new initial jwt'
     __arguments__ = [
@@ -29,7 +29,7 @@ class CreateJWTTokenSubSubCommand(SubCommand):  # pragma: no cover
         print(JwtPrincipal(payload).dump(args.expire_in).decode())
 
 
-class JWTSubCommand(SubCommand):  # pragma: no cover
+class JWTSubCommand(SubCommand):
     __command__ = 'jwt'
     __help__ = 'JWT management'
     __arguments__ = [
