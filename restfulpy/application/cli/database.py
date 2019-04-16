@@ -9,13 +9,15 @@ class BasedataLauncher(Launcher):
 
     @classmethod
     def create_parser(cls, subparsers):
-        return subparsers.add_parser(
+        parser = subparsers.add_parser(
             'basedata',
             help='Setup the server\'s database.'
         )
+        parser.add_argument('basedata_args', nargs=argparse.REMAINDER)
+        return parser
 
     def launch(self):
-        self.args.application.insert_basedata()
+        self.args.application.insert_basedata(self.args.basedata_args)
 
 
 class MockupDataLauncher(Launcher):
