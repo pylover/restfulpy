@@ -1,4 +1,5 @@
 import functools
+import uuid
 from datetime import datetime, date, time
 from decimal import Decimal
 
@@ -10,6 +11,7 @@ from sqlalchemy.inspection import inspect
 from sqlalchemy.orm import Query, CompositeProperty, \
     RelationshipProperty
 from sqlalchemy.orm.attributes import InstrumentedAttribute
+from sqlalchemy.dialects.postgresql import UUID
 
 from ..datetimehelpers import parse_datetime, parse_date, parse_time, \
     format_date, format_time, format_datetime
@@ -85,6 +87,9 @@ class BaseModel(object):
 
         elif isinstance(v, Decimal):
             result = str(v)
+
+        elif isinstance(v, uuid.UUID):
+            result = v.hex
 
         else:
             result = v

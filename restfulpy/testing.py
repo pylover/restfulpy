@@ -1,6 +1,7 @@
 import os
 import re
 from os import path
+import uuid
 import pytest
 from bddrest import Given, when
 from nanohttp import settings
@@ -342,4 +343,19 @@ class ApplicableTestCase:
 
     def logout(self):
         self._authentication_token = None
+
+
+class Uuid1Freeze:
+    _original = None
+
+    def __init__(self, uuid_):
+        self.uuid = uuid_
+
+    def __enter__(self):
+        self._original = uuid.uuid1
+        uuid.uuid1 = lambda: self.uuid
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        uuid.uuid1 = self._original
+        self._original = None
 
