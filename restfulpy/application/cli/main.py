@@ -67,7 +67,9 @@ class MainLauncher(Launcher):
         if hasattr(cli_args, 'func'):
             exitcode = cli_args.func(cli_args)
         else:
+            exitcode = 0
             self.parser.print_help()
+
         sys.exit(exitcode or 0)
 
     @classmethod
