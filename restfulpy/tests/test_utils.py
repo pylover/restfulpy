@@ -3,11 +3,12 @@ from os import mkdir
 from os.path import dirname, abspath, join, exists
 
 from restfulpy.utils import import_python_module_by_filename, \
-    construct_class_by_name, copy_stream, md5sum
+    construct_class_by_name, copy_stream, md5sum, to_camel_case
 
 
 HERE = abspath(dirname(__file__))
 DATA_DIR = join(HERE, 'data')
+
 
 if not exists(DATA_DIR):
     mkdir(DATA_DIR)
@@ -26,6 +27,7 @@ def test_import_python_module_by_filename():
     module_ = import_python_module_by_filename('a', filename)
     assert module_.b == 123
 
+
 def test_construct_class_by_name():
     obj = construct_class_by_name(
         'restfulpy.tests.test_utils.MyClassToConstructByName',
@@ -33,6 +35,7 @@ def test_construct_class_by_name():
     )
     assert obj.a ==  1
     assert obj is not None
+
 
 def test_copy_stream():
     content = b'This is the initial source file'
@@ -42,6 +45,7 @@ def test_copy_stream():
     target.seek(0)
     assert target.read() == content
 
+
 def test_md5sum():
     content = b'This is the initial source file'
     source = io.BytesIO(content)
@@ -50,4 +54,11 @@ def test_md5sum():
         f.write(content)
 
     assert md5sum(source) == md5sum(filename)
+
+
+def test_to_camel_case():
+    assert to_camel_case('camel_case_content') == 'camelCaseContent'
+    assert to_camel_case('_camel_case_content') == 'camelCaseContent'
+    assert to_camel_case('camel_case_content_') == 'camelCaseContent'
+    assert to_camel_case('camel__case_content_') == 'camelCaseContent'
 
