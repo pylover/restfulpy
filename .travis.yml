@@ -7,8 +7,11 @@ branches:
   - master
   - develop
   - /^(release\/)?v([1-9]!)?(0|[1-9]\d*)(\.(0|[1-9]\d*))*((a|b|rc)(0|[1-9]\d*))?(\.post(0|[1-9]\d*))?(\.dev(0|[1-9]\d*))?$/
+addons:
+  postgresql: 9.5
 services:
 - redis-server
+- postgresql
 language: python
 python:
 - 3.6
