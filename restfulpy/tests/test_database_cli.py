@@ -71,12 +71,15 @@ class TestDatabaseAdministrationCommandLine:
             assert self.db.database_exists()
             assert not self.db.table_exists(FooModel.__tablename__)
 
-            when(given + '--drop --schema --mockup --basedata')
+            when(given + '--drop --schema')
             assert stderr == ''
             assert self.db.database_exists()
             assert self.db.table_exists(FooModel.__tablename__)
 
 """
+            when(given + '--drop --mockup')
+            assert stderr == ''
+
             assert session.query(FooModel) \
                 .filter(FooModel.title == BASEDATA_TITLE) \
                 .one()

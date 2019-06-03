@@ -51,18 +51,19 @@ class PostgreSQLManager:
         self.connection.execute(f'COMMIT')
 
     @contextlib.contextmanager
-    def cursor(self):
+    def cursor(self, query=None, args=None):
         connection = psycopg2.connect(self.db_url)
         cursor = connection.cursor()
+        if query:
+            cursor.execute(query, args)
+
         yield cursor
         cursor.close()
         connection.close()
 
     def table_exists(self, name):
-        with self.cursor() as c:
-            c.execute(
-                f'select to_regclass(\'public.{name}\')'
-            )
-            ret, = c.fetchone()
-            return ret is not None
-
+        with self.cursor(
+            f'select to_regclass(%s)',
+            (f'public.{name}',)
+        ) as c:
+            return c.fetchone()[0] is not None
