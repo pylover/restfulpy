@@ -2,7 +2,7 @@ import argparse
 
 from easycli import SubCommand, Argument
 
-from restfulpy.db import DatabaseManager
+from restfulpy.db import PostgreSQLManager as DBManager
 from restfulpy.orm import setup_schema
 
 
@@ -66,7 +66,7 @@ class CreateDatabaseSubSubCommand(SubCommand):
     ]
 
     def __call__(self, args):
-        with DatabaseManager() as db_admin:
+        with DBManager() as db_admin:
             if args.drop_db:
                 db_admin.drop_database()
 
@@ -85,7 +85,7 @@ class DropDatabaseSubSubCommand(SubCommand):
     __help__ = 'Drop the server\'s database.'
 
     def __call__(self, args):
-        with DatabaseManager() as db_admin:
+        with DBManager() as db_admin:
             db_admin.drop_database()
 
 

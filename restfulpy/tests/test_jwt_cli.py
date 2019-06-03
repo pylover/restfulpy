@@ -2,8 +2,7 @@ import json
 
 import pytest
 from bddcli import Given, given, when, stdout, stderr, Application
-from itsdangerous import TimedJSONWebSignatureSerializer
-from itsdangerous.exc import SignatureExpired
+from itsdangerous import TimedJSONWebSignatureSerializer, SignatureExpired
 from nanohttp import settings
 
 from restfulpy import Application as RestfulpyApplication

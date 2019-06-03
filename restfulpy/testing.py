@@ -10,7 +10,7 @@ import shutil
 import restfulpy
 from .mockup import MockupApplication
 from .configuration import configure
-from .db import DatabaseManager as DBManager
+from .db import PostgreSQLManager as DBManager
 from .orm import setup_schema, session_factory, create_engine, init_model, \
     DBSession
 

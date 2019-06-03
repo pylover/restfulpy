@@ -20,12 +20,15 @@ timezone:
 
 db:
   # The main uri
-  url: sqlite:///devdata.db
-  # url: postgresql://postgres:postgres@localhost/restfulpy_demo_dev
+  url: postgresql://postgres:postgres@localhost/restfulpy_demo
 
   # Will be used to create and drop database(s).
-  # administrative_url: postgresql://postgres:postgres@localhost/postgres
-  # test_url: postgresql://postgres:postgres@localhost/restfulpy_test
+  administrative_url: postgresql://postgres:postgres@localhost/postgres
+
+  # Will be used to run tests
+  test_url: postgresql://postgres:postgres@localhost/restfulpy_test
+
+  # Redirect all SQL Queries to std-out
   echo: false
 
 migration:

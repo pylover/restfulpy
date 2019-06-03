@@ -7,6 +7,7 @@ from sqlalchemy import create_engine
 
 
 class AbstractDatabaseManager(object):
+    connection = None
 
     def __init__(self, url=None):
         self.db_url = url or settings.db.url
@@ -39,7 +40,7 @@ class AbstractDatabaseManager(object):
         raise NotImplementedError()
 
 
-class PostgresManager(AbstractDatabaseManager):
+class PostgreSQLManager(AbstractDatabaseManager):
 
     def __enter__(self):
         super().__enter__()
@@ -63,38 +64,4 @@ class PostgresManager(AbstractDatabaseManager):
     def drop_database(self):
         self.connection.execute(f'DROP DATABASE IF EXISTS {self.db_name}')
         self.connection.execute(f'COMMIT')
-
-
-class SqliteManager(AbstractDatabaseManager):
-
-    def __init__(self):
-        super().__init__()
-        self.filename = self.db_url.replace('sqlite:///', '')
-
-    def database_exists(self):
-        return exists(self.filename)
-
-    def create_database(self):
-        if self.database_exists():
-            raise RuntimeError(f'The file is already exists: {self.filename}')
-        print(f'Creating: {self.filename}')
-        open(self.filename, 'a').close()
-
-    def drop_database(self):
-        print('Removing: %s' % self.filename)
-        os.remove(self.filename)
-
-
-class DatabaseManager(AbstractDatabaseManager):
-
-    def __new__(cls, *args, url=None, **kwargs):
-        url = url or settings.db.url
-        if url.startswith('sqlite'):
-            manager_class = SqliteManager
-        elif url.startswith('postgres'):
-            manager_class = PostgresManager
-        else:
-            raise ValueError(f'Unsupported database url: {url}')
-
-        return manager_class(*args, url=url, **kwargs)
 
