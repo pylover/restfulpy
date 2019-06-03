@@ -5,7 +5,7 @@ from sqlalchemy import Integer, Unicode
 from restfulpy import Application as RestfulpyApplication
 from restfulpy.db import PostgreSQLManager as DBManager
 from restfulpy.orm import DeclarativeBase, Field, session_factory, \
-    create_engine, metadata
+    create_engine, metadata, DBSession
 
 
 DBURL = 'postgresql://postgres:postgres@localhost/foo_test'
@@ -69,13 +69,14 @@ class TestDatabaseAdministrationCommandLine:
         with Given(app, ['db', 'create']):
             assert stderr == ''
             assert self.db.database_exists()
+            assert not self.db.table_exists(FooModel.__tablename__)
 
-"""
             when(given + '--drop --schema --mockup --basedata')
             assert stderr == ''
-            assert self.is_database_exists == True
-            assert self.table_exists('foo')
+            assert self.db.database_exists()
+            assert self.db.table_exists(FooModel.__tablename__)
 
+"""
             assert session.query(FooModel) \
                 .filter(FooModel.title == BASEDATA_TITLE) \
                 .one()
