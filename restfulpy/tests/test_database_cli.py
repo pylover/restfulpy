@@ -76,17 +76,23 @@ class TestDatabaseAdministrationCommandLine:
             assert self.db.database_exists()
             assert self.db.table_exists(FooModel.__tablename__)
 
-"""
             when(given + '--drop --mockup')
             assert stderr == ''
+            with self.db.cursor(
+                f'SELECT count(*) FROM foo_model WHERE title = %s',
+                ('FooMock', )
+            ) as c:
+                assert c.fetchone()[0] == 1
 
-            assert session.query(FooModel) \
-                .filter(FooModel.title == BASEDATA_TITLE) \
-                .one()
-            assert session.query(FooModel) \
-                .filter(FooModel.title == MOCKUP_TITLE) \
-                .one()
+            when(given + '--drop --basedata')
+            assert stderr == ''
+            with self.db.cursor(
+                f'SELECT count(*) FROM foo_model WHERE title = %s',
+                ('FooBase', )
+            ) as c:
+                assert c.fetchone()[0] == 1
 
+"""
 class TestDatabaseDrop(DBTestCase):
 
     def test_database_drop(self):
