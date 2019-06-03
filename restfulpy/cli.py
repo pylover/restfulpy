@@ -1,7 +1,5 @@
 from easycli import Root, Argument
 
-from .scaffolding.launchers import ScaffoldSubCommand
-
 
 class Restfulpy(Root):
     __help__ = 'Restfylpy command line interface'
@@ -13,7 +11,6 @@ class Restfulpy(Root):
             action='store_true',
             help='Show version'
         ),
-        ScaffoldSubCommand,
     ]
 
     def __call__(self, args):

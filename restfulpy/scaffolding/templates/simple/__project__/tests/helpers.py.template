@@ -1,8 +1,0 @@
-from restfulpy.testing import ApplicableTestCase
-
-from ${project_snakecase} import ${project_camelcase}
-
-
-class LocalApplicationTestCase(ApplicableTestCase):
-    __application_factory__ = ${project_camelcase}
-
