@@ -1,4 +1,4 @@
-from bddcli import Given, stderr, Application, when, given
+from bddcli import Given, stderr, Application, when, given, status
 from nanohttp import settings
 from sqlalchemy import Integer, Unicode
 
@@ -68,16 +68,19 @@ class TestDatabaseAdministrationCommandLine:
 
         with Given(app, ['db', 'create']):
             assert stderr == ''
+            assert status == 0
             assert self.db.database_exists()
             assert not self.db.table_exists(FooModel.__tablename__)
 
             when(given + '--drop --schema')
             assert stderr == ''
+            assert status == 0
             assert self.db.database_exists()
             assert self.db.table_exists(FooModel.__tablename__)
 
             when(given + '--drop --mockup')
             assert stderr == ''
+            assert status == 0
             with self.db.cursor(
                 f'SELECT count(*) FROM foo_model WHERE title = %s',
                 ('FooMock', )
@@ -86,32 +89,35 @@ class TestDatabaseAdministrationCommandLine:
 
             when(given + '--drop --basedata')
             assert stderr == ''
+            assert status == 0
             with self.db.cursor(
                 f'SELECT count(*) FROM foo_model WHERE title = %s',
                 ('FooBase', )
             ) as c:
                 assert c.fetchone()[0] == 1
 
-"""
-class TestDatabaseDrop(DBTestCase):
-
     def test_database_drop(self):
+
+        self.db.create_database(exist_ok=True)
+        assert self.db.database_exists()
 
         with Given(app, ['db', 'drop']):
             assert stderr == ''
-            assert self.is_database_exists == False
-
-
-class TestDatabaseSchema(DBTestCase):
+            assert status == 0
+            assert not self.db.database_exists()
 
     def test_database_schema(self):
 
+        self.db.drop_database()
+        self.db.create_database()
+        assert self.db.database_exists()
+
         with Given(app, ['db', 'schema']):
             assert stderr == ''
-            assert self.is_database_exists == True
-            assert self.is_table_exists == True
+            assert self.db.table_exists(FooModel.__tablename__)
 
 
+"""
 class TestDatabaseBasedata(DBTestCase):
 
     @classmethod

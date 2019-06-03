@@ -42,7 +42,9 @@ class PostgreSQLManager:
         finally:
             r.cursor.close()
 
-    def create_database(self):
+    def create_database(self, exist_ok=False):
+        if exist_ok and self.database_exists():
+            return
         self.connection.execute(f'CREATE DATABASE {self.db_name}')
         self.connection.execute(f'COMMIT')
 
