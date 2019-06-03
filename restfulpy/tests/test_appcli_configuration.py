@@ -4,19 +4,9 @@ from os import path
 from bddcli import Given, stderr, Application, status, stdout, when, given
 
 from restfulpy import Application as RestfulpyApplication
-from restfulpy.cryptography import AESCipher
 
 
-class FooApplication(RestfulpyApplication):
-    _configuration_cipher = AESCipher(b'abcdefghijklmnop')
-    @property
-    def __configuration_cipher__(self):
-        return self._configuration_cipher
-
-    __configuration__ = f'''
-    '''
-
-foo = FooApplication(name='Foo')
+foo = RestfulpyApplication(name='Foo')
 
 
 def foo_main():

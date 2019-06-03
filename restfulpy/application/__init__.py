@@ -25,7 +25,7 @@ class Application(NanohttpApplication):
     __configuration__ = None
     __logger__ = get_logger()
     __authenticator__ = None
-    __configuration_cipher__ = AESCipher(b'default')
+    __configuration_cipher__ = AESCipher(b'abcdefghijklmnop')
     engine = None
 
     def __init__(self, name: str, root: Controller = None, root_path='.',
@@ -60,7 +60,9 @@ class Application(NanohttpApplication):
             _context.update(context)
 
         configure(context=_context, force=force)
-        settings.merge(self.__configuration__)
+
+        if self.__configuration__:
+            settings.merge(self.__configuration__)
 
         if filename is not None:
             with open(filename, 'rb') as f:
@@ -71,7 +73,7 @@ class Application(NanohttpApplication):
                     content = header + f.read()
                 settings.merge(content.decode())
 
-    def register_cli_launchers(self, subparsers):
+    def register_cli_launchers(self, subparsers):  # pragma: no cover
         """
         This is a template method
         """
@@ -104,8 +106,4 @@ class Application(NanohttpApplication):
 
     def insert_mockup(self, args):  # pragma: no cover
         raise NotImplementedError()
-
-    def shutdown(self):
-        DBSession.close_all()
-        self.engine.dispose()
 
