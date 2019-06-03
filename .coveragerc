@@ -1,12 +1,3 @@
 [run]
 omit =
-    examples/*
-    practice/*
-    restfulpy/logging_.py
-    restfulpy/cli/*
-    restfulpy/testing/*
     restfulpy/mimetypes_.py
-    restfulpy/db.py
-    restfulpy/testing.py
-    restfulpy/application/cli/*
-	restfulpy/scaffolding
