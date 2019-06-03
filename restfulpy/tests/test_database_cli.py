@@ -106,7 +106,7 @@ class TestDatabaseAdministrationCommandLine:
             assert status == 0
             assert not self.db.database_exists()
 
-    def test_database_schema(self):
+    def test_database_schema_basedata_mockup(self):
 
         self.db.drop_database()
         self.db.create_database()
@@ -114,48 +114,28 @@ class TestDatabaseAdministrationCommandLine:
 
         with Given(app, ['db', 'schema']):
             assert stderr == ''
+            assert status == 0
             assert self.db.table_exists(FooModel.__tablename__)
 
-
-"""
-class TestDatabaseBasedata(DBTestCase):
-
-    @classmethod
-    def setup_class(cls):
-        super().setup_class()
-        cls.map_tables()
-
-    def test_database_basedata(self):
-
-        with Given(app, ['db', 'basedata']), SessionManager() as session:
+            when(['db', 'basedata'])
             assert stderr == ''
-            assert self.is_database_exists == True
-            assert self.is_table_exists == True
+            assert status == 0
+            with self.db.cursor(
+                f'SELECT count(*) FROM foo_model WHERE title = %s',
+                ('FooBase', )
+            ) as c:
+                assert c.fetchone()[0] == 1
 
-            assert session.query(FooModel) \
-                .filter(FooModel.title == BASEDATA_TITLE) \
-                .one()
-
-
-class TestDatabaseMockup(DBTestCase):
-
-    @classmethod
-    def setup_class(cls):
-        super().setup_class()
-        cls.map_tables()
-
-    def test_database_mockup(self):
-
-        with Given(app, ['db', 'mockup']), SessionManager() as session:
+            when(['db', 'mockup'])
             assert stderr == ''
-            assert self.is_database_exists == True
-            assert self.is_table_exists == True
+            assert status == 0
+            with self.db.cursor(
+                f'SELECT count(*) FROM foo_model WHERE title = %s',
+                ('FooMock', )
+            ) as c:
+                assert c.fetchone()[0] == 1
 
-            assert session.query(FooModel) \
-                .filter(FooModel.title == MOCKUP_TITLE) \
-                .one()
-
-"""
 
 if __name__ == '__main__': # pragma: no cover
+    # Use for debugging
     foo.cli_main(['db', 'create'])
