@@ -7,6 +7,7 @@ from bddrest import Given, when
 from nanohttp import settings
 import shutil
 
+from sqlalchemy.orm.session import close_all_sessions
 import restfulpy
 from .mockup import MockupApplication
 from .configuration import configure
@@ -119,7 +120,8 @@ def db():
     # Closing all sessions created by the test writer
     for s in sessions:
         s.close()
-    DBSession.close_all()
+
+    close_all_sessions()
     engine.dispose()
 
     # Dropping the previously created database

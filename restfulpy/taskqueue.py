@@ -107,7 +107,7 @@ class RestfulpyTask(TimestampMixin, DeclarativeBase):
                 text(filters) if isinstance(filters, str) else filters
             )
 
-        cleanup_query.with_lockmode('update') \
+        cleanup_query.with_for_update() \
             .update({
                 'status': 'new',
                 'started_at': None,
@@ -120,7 +120,7 @@ class RestfulpyTask(TimestampMixin, DeclarativeBase):
         session.query(RestfulpyTask) \
             .filter(RestfulpyTask.status.in_(statuses)) \
             .filter(RestfulpyTask.id == task_id) \
-            .with_lockmode('update') \
+            .with_for_update() \
             .update({
                 'status': 'new',
                 'started_at': None,
