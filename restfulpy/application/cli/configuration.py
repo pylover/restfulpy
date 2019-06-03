@@ -1,6 +1,8 @@
 import sys
 
+import yaml
 from easycli import SubCommand, Argument
+from nanohttp import settings
 
 
 class ConfigurationDumperSubSubCommand(SubCommand):
@@ -9,16 +11,18 @@ class ConfigurationDumperSubSubCommand(SubCommand):
     __arguments__ = [
         Argument(
             'path',
-            help='The config path, for example: db',
+            nargs='?',
+            help='The config path, for example: db, stdout if omitted',
         ),
     ]
 
     def __call__(self, args):
-        dump = yaml.dump(
-            getattr(settings, args.path),
-            default_flow_style=False
-        )
-        print(dump)
+        dump = settings.dumps()
+        if args.path:
+            with open(args.path, 'w') as f:
+                f.write(dump)
+        else:
+            print(dump)
 
 
 class ConfigurationEncrptorSubSubCommand(SubCommand):
@@ -26,16 +30,12 @@ class ConfigurationEncrptorSubSubCommand(SubCommand):
     __help__ = 'Encrypt configu file'
 
     def __call__(self, args):
-        if args.application.__configuration_cipher__ is not None:
-            sys.stdout.buffer.write(b'#enc')
-            sys.stdout.buffer.write(
-                args.application.__configuration_cipher__.encrypt(
-                    sys.stdin.buffer.read()
-                )
+        sys.stdout.buffer.write(b'#enc')
+        sys.stdout.buffer.write(
+            args.application.__configuration_cipher__.encrypt(
+                sys.stdin.buffer.read()
             )
-
-        else:
-            sys.stdout.buffer.write(b'The configuration cipher not set.\n')
+        )
 
 
 class ConfigurationDecryptorSubSubCommand(SubCommand):
@@ -43,15 +43,11 @@ class ConfigurationDecryptorSubSubCommand(SubCommand):
     __help__ = 'Decrypt the config file'
 
     def __call__(self, args):
-        if args.application.__configuration_cipher__ is not None:
-            sys.stdout.buffer.write(
-                args.application.__configuration_cipher__.decrypt(
-                    sys.stdin.buffer.read().lstrip(b'#enc')
-                )
+        sys.stdout.buffer.write(
+            args.application.__configuration_cipher__.decrypt(
+                sys.stdin.buffer.read().lstrip(b'#enc')
             )
-
-        else:
-            sys.stdout.buffer.write(b'The configuration cipher not set.\n')
+        )
 
 
 class ConfigurationSubCommand(SubCommand):

@@ -46,7 +46,7 @@ class EntryPoint(Root):
     def _execute_subcommand(self, args):
         args.application = self.application
         self.application.process_name = args.process_name
-        self.application.configure(files=args.config_file)
+        self.application.configure(filename=args.config_file)
         self.application.initialize_orm()
         return super()._execute_subcommand(args)
 

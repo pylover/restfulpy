@@ -1,7 +1,6 @@
 import time
 from os.path import abspath, exists, join, dirname
 
-from appdirs import user_config_dir
 from sqlalchemy.exc import SQLAlchemyError
 
 from nanohttp import Application as NanohttpApplication, Controller, \
@@ -12,6 +11,7 @@ from ..configuration import configure
 from ..exceptions import SqlError
 from ..logging_ import get_logger
 from ..orm import init_model, create_engine, DBSession
+from ..cryptography import AESCipher
 
 
 class Application(NanohttpApplication):
@@ -25,21 +25,17 @@ class Application(NanohttpApplication):
     __configuration__ = None
     __logger__ = get_logger()
     __authenticator__ = None
-    __configuration_cipher__ = None
+    __configuration_cipher__ = AESCipher(b'default')
     engine = None
 
     def __init__(self, name: str, root: Controller = None, root_path='.',
-                 version='0.1.0-dev.0', process_name=None, authenticator=None,
-                 configuration=None):
+                 version='0.1.0-dev.0', process_name=None, authenticator=None):
         super(Application, self).__init__(root=root)
         self.process_name = process_name or name
         self.version = version
         self.root_path = abspath(root_path)
         self.name = name
         self.cli_main = EntryPoint(self).main
-
-        if configuration:
-            self.__configuration__ = configuration
 
         if authenticator:
             self.__authenticator__ = authenticator
@@ -53,7 +49,7 @@ class Application(NanohttpApplication):
             self.__logger__.exception('Internal server error')
         return super()._handle_exception(ex, start_response)
 
-    def configure(self, files=None, context=None, force=False):
+    def configure(self, filename=None, context=None, force=False):
         _context = {
             'process_name': self.process_name,
             'root_path': self.root_path,
@@ -66,12 +62,7 @@ class Application(NanohttpApplication):
         configure(context=_context, force=force)
         settings.merge(self.__configuration__)
 
-        files = ([files] if isinstance(files, str) else files) or []
-        local_config_file = join(user_config_dir(), '%s.yml' % self.name)
-        if exists(local_config_file):  # pragma: no cover
-            files.insert(0, local_config_file)
-
-        for filename in files:
+        if filename is not None:
             with open(filename, 'rb') as f:
                 header = f.read(4)
                 if header == b'#enc':
