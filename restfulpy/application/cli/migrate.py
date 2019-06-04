@@ -14,7 +14,7 @@ class MigrateSubCommand(SubCommand):
             'alembic_args',
             nargs=argparse.REMAINDER,
             help='For more information, please see `alembic --help`',
-        )
+        ),
     ]
 
     def __call__(self, args):
