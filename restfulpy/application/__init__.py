@@ -9,9 +9,9 @@ from .cli.main import EntryPoint
 from ..authentication import Authenticator
 from ..configuration import configure
 from ..exceptions import SqlError
-from ..logging_ import get_logger
 from ..orm import init_model, create_engine, DBSession
 from ..cryptography import AESCipher
+from .. import logger
 
 
 class Application(NanohttpApplication):
@@ -23,7 +23,6 @@ class Application(NanohttpApplication):
     """
 
     __configuration__ = None
-    __logger__ = get_logger()
     __authenticator__ = None
     __configuration_cipher__ = AESCipher(b'abcdefghijklmnop')
     engine = None
@@ -43,10 +42,10 @@ class Application(NanohttpApplication):
     def _handle_exception(self, ex, start_response):
         if isinstance(ex, SQLAlchemyError):
             ex = SqlError(ex)
-            self.__logger__.exception(str(ex))
+            logger.error(ex)
         if not isinstance(ex, HTTPStatus):
             ex = HTTPInternalServerError('Internal server error')
-            self.__logger__.exception('Internal server error')
+            logger.error(ex)
         return super()._handle_exception(ex, start_response)
 
     def configure(self, filename=None, context=None, force=False):

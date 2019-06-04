@@ -71,10 +71,6 @@ def db():
     db:
       test_url: postgresql://postgres:postgres@localhost/pytest_test
       administrative_url: postgresql://postgres:postgres@localhost/postgres
-    logging:
-      loggers:
-        default:
-          level: warning
     '''
     configure(builtin_configuration, force=True)
 
@@ -148,12 +144,6 @@ class ApplicableTestCase:
     @classmethod
     def configure_application(cls):
         cls.__application__.configure(force=True)
-        settings.merge('''
-          logging:
-            loggers:
-              default:
-                level: critical
-        ''')
 
         if cls.__configuration__:
             settings.merge(cls.__configuration__)

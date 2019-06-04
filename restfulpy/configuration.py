@@ -80,36 +80,6 @@ smtp:
   auth: true
   ssl: false
 
-# Logging stuff
-logging:
-  loggers:
-
-    default:
-      handlers:
-        - console
-      level: debug
-      formatter: default
-      propagate: true
-
-    root:
-      level: debug
-      formatter: default
-
-  handlers:
-
-    default:
-      level: notset
-      max_bytes: 52428800
-      formatter: default
-
-    console:
-      type: console
-
-  formatters:
-    default:
-      format: "%%(asctime)s - %%(name)s - %%(levelname)s - %%(message)s"
-      date_format: "%%Y-%%m-%%d %%H:%%M:%%S"
-
 """
 
 

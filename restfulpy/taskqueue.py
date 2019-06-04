@@ -6,13 +6,11 @@ from nanohttp import settings
 from sqlalchemy import Integer, Enum, Unicode, DateTime
 from sqlalchemy.sql.expression import text
 
-from restfulpy.exceptions import RestfulException
-from restfulpy.logging_ import get_logger
-from restfulpy.orm import TimestampMixin, DeclarativeBase, Field, DBSession, \
+from .exceptions import RestfulException
+from .orm import TimestampMixin, DeclarativeBase, Field, DBSession, \
     create_thread_unsafe_session
+from . import logger
 
-
-logger = get_logger('taskqueue')
 
 
 class TaskPopError(RestfulException):
@@ -135,7 +133,7 @@ def worker(statuses={'new'}, filters=None, tries=-1):
 
     while True:
         context['counter'] += 1
-        logger.debug("Trying to pop a task, Counter: %s" % context['counter'])
+        logger.debug('Trying to pop a task, Counter: %s' % context['counter'])
         try:
             task = RestfulpyTask.pop(
                 statuses=statuses,
@@ -154,7 +152,7 @@ def worker(statuses={'new'}, filters=None, tries=-1):
             time.sleep(settings.worker.gap)
             continue
         except:
-            logger.exception('Error when popping task.')
+            logger.error('Error when popping task.')
             raise
 
         try:
@@ -165,7 +163,7 @@ def worker(statuses={'new'}, filters=None, tries=-1):
             task.terminated_at = datetime.utcnow()
 
         except:
-            logger.exception('Error when executing task: %s' % task.id)
+            logger.error('Error when executing task: %s' % task.id)
             task.status = 'failed'
             task.fail_reason = traceback.format_exc()[-4096:]
 

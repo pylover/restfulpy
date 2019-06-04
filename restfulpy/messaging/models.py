@@ -2,13 +2,9 @@ from nanohttp import settings
 from sqlalchemy import Integer, ForeignKey, Unicode
 from sqlalchemy.ext.declarative import declared_attr
 
-from ..logging_ import get_logger
 from ..orm import Field, FakeJson,synonym
 from ..taskqueue import RestfulpyTask
 from .providers import create_messenger
-
-
-logger = get_logger('messaging')
 
 
 class Email(RestfulpyTask):
@@ -66,5 +62,5 @@ class Email(RestfulpyTask):
             attachments=attachments
         )
 
-        logger.info('%s is sent to %s', self.subject, self.to)
+        print('%s is sent to %s', self.subject, self.to)
 

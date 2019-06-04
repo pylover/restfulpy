@@ -22,8 +22,7 @@ class EntryPoint(Root):
             '-p', '--process-name',
             metavar="PREFIX",
             default=basename(sys.argv[0]),
-            help='A string indicates the logger prefix for this process, it ' \
-                'helps to configure separate log files per process.',
+            help='A string indicates the name for this process.',
         ),
         Argument(
             '-c', '--config-file',
