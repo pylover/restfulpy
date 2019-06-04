@@ -4,8 +4,7 @@ from sqlalchemy import Integer, Unicode
 
 from restfulpy import Application as RestfulpyApplication
 from restfulpy.db import PostgreSQLManager as DBManager
-from restfulpy.orm import DeclarativeBase, Field, session_factory, \
-    create_engine, metadata, DBSession
+from restfulpy.orm import DeclarativeBase, Field, DBSession
 
 
 DBURL = 'postgresql://postgres:postgres@localhost/foo_test'

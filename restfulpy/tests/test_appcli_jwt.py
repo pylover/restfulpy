@@ -1,9 +1,7 @@
-import json
 import base64
+import json
 
-import pytest
 from bddcli import Given, given, when, stdout, stderr, Application, status
-from nanohttp import settings
 
 from restfulpy import Application as RestfulpyApplication
 

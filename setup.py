@@ -34,7 +34,7 @@ dependencies = [
     'requests',
     'pytest',
     'bddrest >= 2.4.1, < 3',
-    'bddcli >= 2.3, < 3',
+    'bddcli >= 2.3.1, < 3',
 ]
 
 
