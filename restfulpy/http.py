@@ -2,8 +2,7 @@ import base64
 import io
 import os
 from os.path import split
-
-from .mimetypes_ import guess_type
+from mimetypes import guess_type
 
 
 def encode_multipart_data(fields: dict = None, files: dict = None):  # pragma: no cover
