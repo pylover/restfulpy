@@ -1,5 +1,4 @@
 from bddcli import Given, stderr, Application, status
-
 from restfulpy import Application as RestfulpyApplication
 
 
@@ -13,7 +12,7 @@ def foo_main():
 app = Application('foo', 'restfulpy.tests.test_appcli_migrate:foo_main')
 
 
-def test_jwt():
+def test_migrate():
     with Given(app, 'migrate'):
         assert stderr.startswith('usage: foo')
         assert status == 2
