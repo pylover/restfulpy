@@ -37,7 +37,8 @@ def mockup_http_server(app=None, handler_class=WSGIRequestHandler,
 
 def mockup_http_static_server(content: bytes = b'Simple file content.',
                               content_type: str = None, **kwargs):
-    class StaticMockupHandler(BaseHTTPRequestHandler):  # pragma: no cover
+
+    class StaticMockupHandler(BaseHTTPRequestHandler):
         def serve_text(self):
             self.send_header('Content-Type', "text/plain")
             self.send_header('Content-Length', str(len(content)))

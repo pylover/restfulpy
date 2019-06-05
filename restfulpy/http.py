@@ -5,7 +5,7 @@ from os.path import split
 from mimetypes import guess_type
 
 
-def encode_multipart_data(fields: dict = None, files: dict = None):  # pragma: no cover
+def encode_multipart_data(fields: dict = None, files: dict = None):
     boundary = ''.join([
         '-----',
         base64.urlsafe_b64encode(os.urandom(27)).decode()

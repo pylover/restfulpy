@@ -33,8 +33,7 @@ class Messenger(object):
         )
 
     def send(self, to, subject, body, cc=None, bcc=None,
-             template_filename=None, from_=None,
-             attachments=None):  # pragma: no cover
+             template_filename=None, from_=None, attachments=None):
         raise NotImplementedError
 
 

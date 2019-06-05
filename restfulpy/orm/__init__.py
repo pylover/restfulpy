@@ -49,13 +49,13 @@ def init_model(engine):
     DBSession.configure(bind=engine)
 
 
-def drop_all(session=None):  # pragma: no cover
+def drop_all(session=None):
     session = session or DBSession
     engine = session.bind
     metadata.drop_all(bind=engine)
 
 
-def setup_schema(session=None):  # pragma: no cover
+def setup_schema(session=None):
     session = session or DBSession
     engine = session.bind
     metadata.create_all(bind=engine)
@@ -68,7 +68,7 @@ def setup_schema(session=None):  # pragma: no cover
         command.stamp(alembic_cfg, "head")
 
 
-def create_thread_unsafe_session():  # pragma: no cover
+def create_thread_unsafe_session():
     return session_factory()
 
 

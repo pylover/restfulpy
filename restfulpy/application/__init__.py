@@ -72,7 +72,7 @@ class Application(NanohttpApplication):
                     content = header + f.read()
                 settings.merge(content.decode())
 
-    def register_cli_launchers(self, subparsers):  # pragma: no cover
+    def register_cli_launchers(self, subparsers):
         """
         This is a template method
         """
@@ -100,9 +100,9 @@ class Application(NanohttpApplication):
     def end_response(self):
         DBSession.remove()
 
-    def insert_basedata(self, args):  # pragma: no cover
+    def insert_basedata(self, args):
         raise NotImplementedError()
 
-    def insert_mockup(self, args):  # pragma: no cover
+    def insert_mockup(self, args):
         raise NotImplementedError()
 

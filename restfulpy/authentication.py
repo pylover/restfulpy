@@ -76,13 +76,13 @@ class Authenticator:
     token_response_header = 'X-New-JWT-Token'
     identity_response_header = 'X-Identity'
 
-    def create_principal(self, member_id=None, session_id=None, **kwargs):  # pragma: no cover
+    def create_principal(self, member_id=None, session_id=None, **kwargs):
         raise NotImplementedError()
 
-    def create_refresh_principal(self, member_id=None):  # pragma: no cover
+    def create_refresh_principal(self, member_id=None):
         raise NotImplementedError()
 
-    def validate_credentials(self, credentials):  # pragma: no cover
+    def validate_credentials(self, credentials):
         raise NotImplementedError()
 
     def setup_response_headers(self, new_principal):
