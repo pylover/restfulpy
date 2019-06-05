@@ -33,15 +33,16 @@ class FieldInfo:
         result['type'] = result.pop('type_')
         return result
 
-    def __copy__(self):
-        new_one = type(self)()
-        new_one.__dict__.update(self.__dict__)
-        return new_one
-
-    def to_dict(self):
-        return {
-            k: v for k, v in self.__dict__.items() if not k.startswith('_')
-        }
+# Commented because not used
+#    def __copy__(self):
+#        new_one = type(self)()
+#        new_one.__dict__.update(self.__dict__)
+#        return new_one
+#
+#    def to_dict(self):
+#        return {
+#            k: v for k, v in self.__dict__.items() if not k.startswith('_')
+#        }
 
 
 class MetadataField(FieldInfo):
@@ -58,8 +59,8 @@ class MetadataField(FieldInfo):
 
     @classmethod
     def from_column(cls, c, info=None):
-        if not info:
-            info = c.info
+        info = info or c.info
+
         json_name = info.get('json') or to_camel_case(c.key)
         result = []
 
