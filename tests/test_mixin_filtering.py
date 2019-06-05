@@ -67,6 +67,15 @@ def test_filtering_mixin(db):
     with Context({'QUERY_STRING': 'id=BETWEEN(1,3)'}):
         assert FilteringObject.filter_by_request(query).count() == 3
 
+    # Not Between
+    with Context({'QUERY_STRING': 'id=!BETWEEN(1,5)'}):
+        assert FilteringObject.filter_by_request(query).count() == 1
+
+    # Bad Between
+    with pytest.raises(HTTPBadRequest), \
+            Context({'QUERY_STRING': 'id=BETWEEN(1,)'}):
+        FilteringObject.filter_by_request(query)
+
     # ==
     with Context({'QUERY_STRING': 'id=1'}):
         assert FilteringObject.filter_by_request(query).count() == 1

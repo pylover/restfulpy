@@ -250,8 +250,9 @@ class FilteringMixin:
             not_ = value.startswith('!')
             groups = between_operator_match.groupdict()
             start, end = groups['min'].strip(), groups['max'].strip()
-            if not (start or end):
+            if not (start and end):
                 raise HTTPBadRequest('Invalid query string: %s' % value)
+
             expression = between(column, start, end)
             if not_:
                 expression = ~expression
