@@ -18,7 +18,7 @@ SERVER_LOCK = threading.Event()
 
 @contextlib.contextmanager
 def mockup_http_server(app=None, handler_class=WSGIRequestHandler,
-                server_class=WSGIServer, bind=('', 0)):
+        server_class=WSGIServer, bind=('', 0)):
     server = server_class(bind, handler_class)
     if app:
         assert isinstance(server, WSGIServer)
@@ -36,7 +36,7 @@ def mockup_http_server(app=None, handler_class=WSGIRequestHandler,
 
 
 def mockup_http_static_server(content: bytes = b'Simple file content.',
-                              content_type: str = None, **kwargs):
+        content_type: str = None, **kwargs):
 
     class StaticMockupHandler(BaseHTTPRequestHandler):
         def serve_text(self):
