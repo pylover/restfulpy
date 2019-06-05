@@ -12,14 +12,14 @@ class Email(RestfulpyTask):
 
 
     template_filename = Field(Unicode(200), nullable=True)
-    to = Field(Unicode(100), json='to')
-    subject = Field(Unicode(256), json='subject')
-    cc = Field(Unicode(100), nullable=True, json='cc')
-    bcc = Field(Unicode(100), nullable=True, json='bcc')
+    to = Field(Unicode(254), json='to')
+    subject = Field(Unicode(254), json='subject')
+    cc = Field(Unicode(254), nullable=True, json='cc')
+    bcc = Field(Unicode(254), nullable=True, json='bcc')
     _body = Field('body', FakeJson)
 
     from_ = Field(
-        Unicode(100),
+        Unicode(254),
         json='from',
         default=lambda: settings.messaging.default_sender
     )
