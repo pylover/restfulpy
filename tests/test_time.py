@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, time
 
 import pytest
 from bddrest import response, when, status
@@ -8,7 +8,8 @@ from sqlalchemy import Integer, Time
 
 from restfulpy.configuration import settings
 from restfulpy.controllers import JsonPatchControllerMixin, ModelRestController
-from restfulpy.datetimehelpers import parse_datetime, format_datetime
+from restfulpy.datetimehelpers import parse_datetime, format_datetime, \
+    format_time
 from restfulpy.mockup import mockup_localtimezone
 from restfulpy.orm import commit, DeclarativeBase, Field, DBSession
 from restfulpy.testing import ApplicableTestCase
@@ -79,4 +80,8 @@ class TestTime(ApplicableTestCase):
                 )
             )
             assert status == '400 Invalid date or time: invalid'
+
+    def test_format_time(self):
+        assert '01:02:03' == format_time(time(1, 2, 3))
+        assert '01:02:03' == format_time(datetime(1970, 1, 1, 1, 2, 3))
 

@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 
 import pytest
 from bddrest import response, when, status
@@ -80,6 +80,7 @@ class TestDate(ApplicableTestCase):
 
     def test_date_formatting(self):
         assert '1970-01-01' == format_date(date(1970, 1, 1))
+        assert '1970-01-01' == format_date(datetime(1970, 1, 1))
 
     def test_unix_timestamp(self):
         assert date(1970, 1, 1) == parse_date('1.3343')

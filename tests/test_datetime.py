@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, time
+from datetime import datetime, timedelta, time, date
 
 import pytest
 from bddrest import response, when, status
@@ -10,7 +10,7 @@ from freezegun import freeze_time
 from restfulpy.configuration import settings
 from restfulpy.controllers import JsonPatchControllerMixin, ModelRestController
 from restfulpy.datetimehelpers import parse_datetime, format_datetime, \
-    localnow, parse_time
+    localnow, parse_time, localtimezone
 from restfulpy.mockup import mockup_localtimezone
 from restfulpy.orm import commit, DeclarativeBase, Field, DBSession
 from restfulpy.testing import ApplicableTestCase
@@ -112,6 +112,8 @@ class TestDateTime(ApplicableTestCase):
                 datetime(1970, 1, 1, tzinfo=tzoffset(None, 3600))
             )
 
+        assert '1970-01-01T00:00:00' == format_datetime(date(1970, 1, 1))
+
     def test_timezone_aware_datetime_formatting(self):
         # The application is configured to use a specific timezone as the
         # default
@@ -122,6 +124,13 @@ class TestDateTime(ApplicableTestCase):
 
         assert '1970-01-01T00:00:00+03:30' == \
             format_datetime(datetime(1970, 1, 1, tzinfo=tzoffset(None, 12600)))
+
+        assert '1970-01-01T00:00:00+03:30' == format_datetime(date(1970, 1, 1))
+
+    def test_different_timezone_formatting(self):
+        settings.timezone = tzoffset('Tehran', 12600)
+        assert '1970-01-01T06:31:00+03:30' == \
+            format_datetime(datetime(1970, 1, 1, 1, 1, tzinfo=tzstr('GMT-2')))
 
     def test_naive_unix_timestamp(self):
         # The application is configured to use system's local date and time.
@@ -171,6 +180,7 @@ class TestDateTime(ApplicableTestCase):
     def test_parse_time_posix_timestamp(self):
         assert parse_time(1000000.11) == time(17, 16, 40, 110000)
         assert parse_time('1000000.11') == time(17, 16, 40, 110000)
-    
 
+    def test_localtimezone(self):
+        assert localtimezone() is not None
 

@@ -25,10 +25,7 @@ def configuredtimezone():
     if timezone in (0, 'utc', 'UTC', 'Z', 'z'):
         return tzutc()
 
-    if isinstance(timezone, str):
-        return tzstr(timezone)
-
-    raise ValueError(f'Invalid timezone in configuration: {timezone}')
+    return tzstr(timezone)
 
 
 def localnow():
@@ -125,7 +122,7 @@ def parse_time(value) -> date:
 def format_datetime(value):
     timezone = configuredtimezone()
     if not isinstance(value, datetime) and isinstance(value, date):
-        return value.isoformat()
+        value = datetime(value.year, value.month, value.day, tzinfo=timezone)
 
     if timezone is None and value.tzinfo is not None:
         # The output shoudn't have a timezone specifier.
@@ -140,22 +137,20 @@ def format_datetime(value):
             value = value.astimezone(timezone)
 
     result = value.isoformat()
-    if result.endswith('+00:00'):
-        result = f'{value[:-6]}Z'
 
     return result
 
 
 def format_date(value):
     if isinstance(value, datetime):
-        value = datetime.date()
+        value = value.date()
 
     return value.isoformat()
 
 
 def format_time(value):
     if isinstance(value, datetime):
-        value = datetime.time()
+        value = value.time()
 
     return value.isoformat()
 
