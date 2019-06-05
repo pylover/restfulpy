@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import pytest
 from bddrest import response, when, status
@@ -134,8 +134,27 @@ class TestDateTime(ApplicableTestCase):
         # The application is configured to use a specific timezone as the
         # default
         settings.timezone = tzoffset('Tehran', 12600)
-
-        assert datetime(
+        dt = parse_datetime('1.3343')
+        assert dt == datetime(
             1970, 1, 1, 3, 30, 1, 334300, tzinfo=tzoffset('Tehran', 12600)
-        ) == parse_datetime('1.3343')
+        )
+        assert dt.utcoffset() == timedelta(0, 12600)
+
+    def test_timezone_named(self):
+        # The application is configured to use a named timzone
+        settings.timezone = 'utc'
+        dt = parse_datetime('1.3343')
+        assert dt == datetime(
+            1970, 1, 1, 3, 30, 1, 334300, tzinfo=tzoffset('Tehran', 12600)
+        )
+        assert dt.utcoffset() == timedelta(0)
+
+    def test_timezone_string(self):
+        # The application is configured to use a named timzone
+        settings.timezone = 'GMT+3'
+        dt = parse_datetime('1.3343')
+        assert dt == datetime(
+            1970, 1, 1, 3, 30, 1, 334300, tzinfo=tzoffset('Tehran', 12600)
+        )
+        assert dt.utcoffset() == timedelta(0, 10800)
 

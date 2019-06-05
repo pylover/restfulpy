@@ -31,8 +31,6 @@ class AESCipher(Cipher):
         iv = enc[:AES.block_size]
         cipher = AES.new(self.key, AES.MODE_CBC, iv)
         result = self._unpad(cipher.decrypt(enc[AES.block_size:]))
-        if not result.strip():
-            raise ValueError()
         return result
 
     def _pad(self, s):
