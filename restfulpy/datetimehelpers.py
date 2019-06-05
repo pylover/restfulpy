@@ -31,7 +31,7 @@ def configuredtimezone():
     raise ValueError(f'Invalid timezone in configuration: {timezone}')
 
 
-def now():
+def localnow():
     timezone = configuredtimezone()
     return datetime.now(timezone)
 
@@ -110,10 +110,14 @@ def parse_time(value) -> date:
     and future exceptions handling.
     """
 
+
+    if isinstance(value, float):
+        return datetime.fromtimestamp(value).time()
+
     # Parse and return if value is unix timestamp
-    if isinstance(value, float) or POSIX_TIME_PATTERN.match(value):
+    if POSIX_TIME_PATTERN.match(value):
         value = float(value)
-        return date.fromtimestamp(value)
+        return datetime.fromtimestamp(value).time()
 
     return dateutil_parse(value).time()
 

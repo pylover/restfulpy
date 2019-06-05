@@ -1,14 +1,16 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
 
 import pytest
 from bddrest import response, when, status
-from dateutil.tz import tzoffset
+from dateutil.tz import tzoffset, tzstr
 from nanohttp import json
 from sqlalchemy import Integer, DateTime
 
+from freezegun import freeze_time
 from restfulpy.configuration import settings
 from restfulpy.controllers import JsonPatchControllerMixin, ModelRestController
-from restfulpy.datetimehelpers import parse_datetime, format_datetime
+from restfulpy.datetimehelpers import parse_datetime, format_datetime, \
+    localnow, parse_time
 from restfulpy.mockup import mockup_localtimezone
 from restfulpy.orm import commit, DeclarativeBase, Field, DBSession
 from restfulpy.testing import ApplicableTestCase
@@ -157,4 +159,18 @@ class TestDateTime(ApplicableTestCase):
             1970, 1, 1, 3, 30, 1, 334300, tzinfo=tzoffset('Tehran', 12600)
         )
         assert dt.utcoffset() == timedelta(0, 10800)
+
+    def test_local_datetime(self):
+        # The application is configured to use a named timzone
+        settings.timezone = 'GMT+3'
+        with freeze_time('2000-01-01T01:01:00'):
+            now = localnow()
+            assert now == datetime(2000, 1, 1, 4, 1, tzinfo=tzstr('GMT+3'))
+            assert now.utcoffset() == timedelta(0, 10800)
+
+    def test_parse_time_posix_timestamp(self):
+        assert parse_time(1000000.11) == time(17, 16, 40, 110000)
+        assert parse_time('1000000.11') == time(17, 16, 40, 110000)
+    
+
 
