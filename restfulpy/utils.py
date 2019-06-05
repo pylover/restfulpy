@@ -4,6 +4,9 @@ import sys
 import warnings
 from hashlib import md5
 from os.path import dirname, abspath
+from urllib.parse import parse_qs
+
+# TODO: Rename this module to helpers
 
 
 def import_python_module_by_filename(name, module_filename):
@@ -96,4 +99,17 @@ def md5sum(f):
     finally:
         if file_obj is not f:
             file_obj.close()
+
+
+def split_url(url):
+    if '?' in url:
+        path, query = url.split('?')
+    else:
+        path, query = url, ''
+
+    return path, {k: v[0] if len(v) == 1 else v for k, v in parse_qs(
+        query,
+        keep_blank_values=True,
+        strict_parsing=False
+    ).items()}
 

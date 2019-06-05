@@ -1,9 +1,9 @@
 import types
-from urllib.parse import parse_qs
 
 from nanohttp import Controller, context, json, RestController, action
 
 from restfulpy.orm import DBSession
+from restfulpy.utils import split_url
 
 
 class RootController(Controller):
@@ -29,18 +29,6 @@ class ModelRestController(RestController):
         return self.__model__.json_metadata()
 
 
-def split_path(url):
-    if '?' in url:
-        path, query = url.split('?')
-    else:
-        path, query = url, ''
-
-    return path, {k: v[0] if len(v) == 1 else v for k, v in parse_qs(
-        query,
-        keep_blank_values=True,
-        strict_parsing=False
-    ).items()}
-
 
 class JsonPatchControllerMixin:
 
@@ -59,7 +47,7 @@ class JsonPatchControllerMixin:
         try:
             for patch in patches:
                 context.form = patch.get('value', {})
-                path, context.query = split_path(patch['path'])
+                path, context.query = split_url(patch['path'])
                 context.method = patch['op'].lower()
                 context.request_content_length = \
                     len(context.form) if context.form else 0
@@ -70,10 +58,7 @@ class JsonPatchControllerMixin:
                 else:
                     return_data = self(*remaining_paths)
 
-                if isinstance(return_data, types.GeneratorType):
-                    results.append('"%s"' % ''.join(list(return_data)))
-                else:
-                    results.append(return_data)
+                results.append(return_data)
 
                 DBSession.flush()
                 context.query = {}
