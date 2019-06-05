@@ -128,28 +128,23 @@ class BaseModel(object):
 
     @classmethod
     def iter_columns(cls, relationships=True, synonyms=True, composites=True,
-                     use_inspection=True, hybrids=True):
-        if use_inspection:
-            mapper = inspect(cls)
-            for k, c in mapper.all_orm_descriptors.items():
+                     hybrids=True):
+        mapper = inspect(cls)
+        for k, c in mapper.all_orm_descriptors.items():
 
-                if k == '__mapper__':
-                    continue
+            if k == '__mapper__':
+                continue
 
-                if c.extension_type == ASSOCIATION_PROXY:
-                    continue
+            if c.extension_type == ASSOCIATION_PROXY:
+                continue
 
-                if (not hybrids and c.extension_type == HYBRID_PROPERTY) \
-                        or (not relationships and k in mapper.relationships) \
-                        or (not synonyms and k in mapper.synonyms) \
-                        or (not composites and k in mapper.composites):
-                    continue
+            if (not hybrids and c.extension_type == HYBRID_PROPERTY) \
+                    or (not relationships and k in mapper.relationships) \
+                    or (not synonyms and k in mapper.synonyms) \
+                    or (not composites and k in mapper.composites):
+                continue
 
-                yield getattr(cls, k)
-
-        else:
-            for c in cls.__table__.c:
-                yield c
+            yield getattr(cls, k)
 
     @classmethod
     def iter_json_columns(cls, include_readonly_columns=True,
