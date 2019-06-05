@@ -6,6 +6,7 @@ from restfulpy.controllers import JsonPatchControllerMixin, ModelRestController
 from restfulpy.orm import commit, DeclarativeBase, Field, DBSession, \
     FilteringMixin, PaginationMixin, OrderingMixin, ModifiedMixin
 from restfulpy.testing import ApplicableTestCase
+from restfulpy.exceptions import SqlError
 
 
 class SqlErrorCheckingModel(
@@ -57,4 +58,6 @@ class TestSqlExceptions(ApplicableTestCase):
             when('Posting gain to raise a unique_violation sql error')
             assert status == 409
 
+    def test_invalid_sql_error(self):
+        assert '500 Internal server error' == SqlError.map_exception(ValueError())
 

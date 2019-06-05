@@ -28,10 +28,6 @@ class PostgreSQLManager:
         self.connection.close()
         self.admin_engine.dispose()
 
-    def create_database_if_not_exists(self):
-        if not self.database_exists():
-            self.create_database()
-
     def database_exists(self):
         r = self.connection.execute(
             f'SELECT 1 FROM pg_database WHERE datname = \'{self.db_name}\''

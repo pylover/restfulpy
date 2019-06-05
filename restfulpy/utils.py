@@ -1,10 +1,15 @@
 import importlib.util
 import re
+import io
+import os
 import sys
+import base64
 import warnings
+from mimetypes import guess_type
 from hashlib import md5
-from os.path import dirname, abspath
+from os.path import dirname, abspath, split
 from urllib.parse import parse_qs
+
 
 # TODO: Rename this module to helpers
 
@@ -112,4 +117,47 @@ def split_url(url):
         keep_blank_values=True,
         strict_parsing=False
     ).items()}
+
+
+def encode_multipart_data(fields, files, boundary=None):
+    boundary = boundary or ''.join([
+        '-----',
+        base64.urlsafe_b64encode(os.urandom(27)).decode()
+    ])
+    crlf = b'\r\n'
+    lines = []
+
+    if fields:
+        for key, value in fields.items():
+            lines.append('--' + boundary)
+            lines.append('Content-Disposition: form-data; name="%s"' % key)
+            lines.append('')
+            lines.append(value)
+
+    if files:
+        for key, file_path in files.items():
+            filename = split(file_path)[1]
+            lines.append('--' + boundary)
+            lines.append(
+                'Content-Disposition: form-data; name="%s"; filename="%s"' %
+                (key, filename))
+            lines.append(
+                'Content-Type: %s' %
+                (guess_type(filename)[0] or 'application/octet-stream'))
+            lines.append('')
+            lines.append(open(file_path, 'rb').read())
+
+    lines.append('--' + boundary + '--')
+    lines.append('')
+
+    body = io.BytesIO()
+    length = 0
+    for l in lines:
+        line = (l if isinstance(l, bytes) else l.encode()) + crlf
+        length += len(line)
+        body.write(line)
+    body.seek(0)
+    content_type = 'multipart/form-data; boundary=%s' % boundary
+    return content_type, body, length
+
 

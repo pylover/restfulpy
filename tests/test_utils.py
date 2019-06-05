@@ -1,9 +1,11 @@
 import io
+from tempfile import mktemp
 from os import mkdir
 from os.path import dirname, abspath, join, exists
 
 from restfulpy.utils import import_python_module_by_filename, \
-    construct_class_by_name, copy_stream, md5sum, to_camel_case
+    construct_class_by_name, copy_stream, md5sum, to_camel_case, \
+    encode_multipart_data
 
 
 HERE = abspath(dirname(__file__))
@@ -58,4 +60,23 @@ def test_md5sum():
 
 def test_to_camel_case():
     assert to_camel_case('foo_bar_baz') == 'fooBarBaz'
+
+
+def test_encode_multipart():
+    filename = f'{mktemp()}.txt'
+    with open(filename, 'w') as f:
+        f.write('abcdefgh\n')
+
+    contenttype, body, length = encode_multipart_data(
+        dict(foo='bar'),
+        files=dict(bar=filename),
+        boundary='MAGIC'
+    )
+    assert contenttype.startswith('multipart/form')
+    assert body.read().decode() == \
+        f'--MAGIC\r\nContent-Disposition: form-data; ' \
+        f'name="foo"\r\n\r\nbar\r\n--MAGIC\r\nContent-Disposition: ' \
+        f'form-data; name="bar"; filename="{filename.split("/")[-1]}"' \
+        f'\r\nContent-Type: text/plain\r\n\r\nabcdefgh\n\r\n--MAGIC--\r\n\r\n'
+    assert length == 193
 
