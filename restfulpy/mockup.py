@@ -66,7 +66,7 @@ class MockupMessenger(Messenger):
 def mockup_localtimezone(timezone):
     backup = datetimehelpers.localtimezone
     datetimehelpers.localtimezone = timezone if callable(timezone) \
-        else datetimehelpers.localtimezone = lambda: timezone
+        else lambda: timezone
 
     yield
 

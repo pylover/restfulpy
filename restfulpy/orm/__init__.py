@@ -49,18 +49,12 @@ def init_model(engine):
     DBSession.configure(bind=engine)
 
 
-def drop_all(session=None):
-    session = session or DBSession
-    engine = session.bind
-    metadata.drop_all(bind=engine)
-
-
 def setup_schema(session=None):
     session = session or DBSession
     engine = session.bind
     metadata.create_all(bind=engine)
 
-    if hasattr(settings, 'migration') and exists(settings.migration.directory):
+    if hasattr(settings, 'migration') and exists(settings.migration.directory):  # pragma: no cover
         alembic_cfg = config.Config()
         alembic_cfg.set_main_option("script_location", settings.migration.directory)
         alembic_cfg.set_main_option("sqlalchemy.url", str(engine.url))
