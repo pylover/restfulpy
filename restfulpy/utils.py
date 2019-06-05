@@ -68,10 +68,6 @@ def to_camel_case(text):
     return re.sub(r'(_\w)', lambda x: x.group(1)[1:].upper(), text)
 
 
-def to_pascal_case(text):
-    return to_camel_case(text).capitalize()
-
-
 def copy_stream(source, target, *, chunk_size: int= 16 * 1024) -> int:
     length = 0
     while 1:

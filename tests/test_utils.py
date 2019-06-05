@@ -3,7 +3,7 @@ from os import mkdir
 from os.path import dirname, abspath, join, exists
 
 from restfulpy.utils import import_python_module_by_filename, \
-    construct_class_by_name, copy_stream, md5sum
+    construct_class_by_name, copy_stream, md5sum, to_camel_case
 
 
 HERE = abspath(dirname(__file__))
@@ -54,4 +54,8 @@ def test_md5sum():
         f.write(content)
 
     assert md5sum(source) == md5sum(filename)
+
+
+def test_to_camel_case():
+    assert to_camel_case('foo_bar_baz') == 'fooBarBaz'
 
