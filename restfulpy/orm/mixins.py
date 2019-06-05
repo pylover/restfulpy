@@ -291,9 +291,6 @@ class OrderingMixin:
         if descending:
             expression = desc(expression)
 
-        if settings.db.url.startswith('sqlite'):
-            return query.order_by(expression)
-
         return query.order_by(
             (nullsfirst if descending else nullslast)(expression)
         )
