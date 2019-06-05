@@ -71,17 +71,11 @@ class StartSubSubCommand(SubCommand):
 
     @staticmethod
     def kill_signal_handler(signal_number, frame):
-
-        if signal_number == signal.SIGINT:
-            print('You pressed Ctrl+C!')
-
-        elif signal_number in (signal.SIGTERM, signal.SIGKILL):
-            print('OS Killed Me!')
-
+        print('Terminating')
         sys.stdin.close()
         sys.stderr.close()
         sys.stdout.close()
-        sys.exit(1)
+        sys.exit(signal_number)
 
 
 class CleanupSubSubCommand(SubCommand):

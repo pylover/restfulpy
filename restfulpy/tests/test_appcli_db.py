@@ -7,7 +7,7 @@ from restfulpy.db import PostgreSQLManager as DBManager
 from restfulpy.orm import DeclarativeBase, Field, DBSession
 
 
-DBURL = 'postgresql://postgres:postgres@localhost/foo_test'
+DBURL = 'postgresql://postgres:postgres@localhost/restfulpy_test'
 
 
 class FooModel(DeclarativeBase):
@@ -52,7 +52,6 @@ class TestDatabaseAdministrationCommandLine:
     @classmethod
     def setup_class(cls):
         foo.configure(force=True)
-        settings.db.url = settings.db.test_url
         cls.db = DBManager(DBURL)
         cls.db.__enter__()
 

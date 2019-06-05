@@ -69,7 +69,7 @@ You can sort like this:
 def db():
     builtin_configuration = '''
     db:
-      test_url: postgresql://postgres:postgres@localhost/pytest_test
+      test_url: postgresql://postgres:postgres@localhost/restfulpy_test
       administrative_url: postgresql://postgres:postgres@localhost/postgres
     '''
     configure(builtin_configuration, force=True)

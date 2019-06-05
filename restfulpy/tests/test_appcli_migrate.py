@@ -2,7 +2,7 @@ from bddcli import Given, stderr, Application, status
 from restfulpy import Application as RestfulpyApplication
 
 
-foo = RestfulpyApplication(name='jwt')
+foo = RestfulpyApplication(name='migration')
 
 
 def foo_main():
