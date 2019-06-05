@@ -83,7 +83,7 @@ smtp:
 """
 
 
-def configure(config=None, files=None, context=None, force=False):
+def configure(context=None, force=False):
 
     context = context or {}
     context['restfulpy_root'] = path.dirname(__file__)
@@ -93,11 +93,4 @@ def configure(config=None, files=None, context=None, force=False):
         force=force
     )
     settings.merge(__builtin_config)
-
-    if config:
-        settings.merge(config)
-
-    if files:
-        for f in files:
-            settings.load_files(f)
 

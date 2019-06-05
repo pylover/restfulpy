@@ -67,12 +67,13 @@ You can sort like this:
 
 @pytest.fixture(scope='module')
 def db():
-    builtin_configuration = '''
+    _configuration = '''
     db:
       test_url: postgresql://postgres:postgres@localhost/restfulpy_test
       administrative_url: postgresql://postgres:postgres@localhost/postgres
     '''
-    configure(builtin_configuration, force=True)
+    configure(force=True)
+    settings.merge(_configuration)
 
     # Overriding the db uri becase this is a test session, so db.test_uri will
     # be used instead of the db.uri
