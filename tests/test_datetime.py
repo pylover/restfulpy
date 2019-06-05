@@ -178,8 +178,8 @@ class TestDateTime(ApplicableTestCase):
             assert now.utcoffset() == timedelta(0, 10800)
 
     def test_parse_time_posix_timestamp(self):
-        assert parse_time(1000000.11) == time(17, 16, 40, 110000)
-        assert parse_time('1000000.11') == time(17, 16, 40, 110000)
+        assert parse_time(1000000.11) == time(13, 46, 40, 110000)
+        assert parse_time('1000000.11') == time(13, 46, 40, 110000)
 
     def test_localtimezone(self):
         assert localtimezone() is not None

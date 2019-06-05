@@ -107,14 +107,13 @@ def parse_time(value) -> date:
     and future exceptions handling.
     """
 
-
     if isinstance(value, float):
-        return datetime.fromtimestamp(value).time()
+        return datetime.utcfromtimestamp(value).time()
 
     # Parse and return if value is unix timestamp
     if POSIX_TIME_PATTERN.match(value):
         value = float(value)
-        return datetime.fromtimestamp(value).time()
+        return datetime.utcfromtimestamp(value).time()
 
     return dateutil_parse(value).time()
 
