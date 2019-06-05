@@ -1,5 +1,6 @@
 import itsdangerous
-from bddrest.authoring import response, when
+from freezegun import freeze_time
+from bddrest.authoring import response, when, status
 from nanohttp import json, Controller, context, HTTPBadRequest, settings
 
 from restfulpy.mockup import MockupApplication
@@ -10,7 +11,6 @@ from restfulpy.testing import ApplicableTestCase
 
 
 token_expired = False
-refresh_token_expired = False
 
 
 class MockupMember:
@@ -36,20 +36,6 @@ class MockupStatelessAuthenticator(Authenticator):
             roles=['admin', 'test'],
             sessionId='1')
         )
-
-    def verify_token(self, encoded_token):
-        principal = super().verify_token(encoded_token)
-        if token_expired:
-            raise itsdangerous.SignatureExpired(
-                'Simulating',
-                payload=principal.payload
-            )
-        return principal
-
-    def try_refresh_token(self, session_id):
-        if refresh_token_expired:
-            self.bad()
-        return super().try_refresh_token(session_id)
 
 
 class Root(Controller):
@@ -93,20 +79,23 @@ class TestAuthenticator(ApplicableTestCase):
 
     __configuration__ = ('''
         jwt:
-          max_age: .3
+          max_age: 10
           refresh_token:
-            max_age: 3
-            secure: true
+            max_age: 20
+            secure: false
+            path: /
     ''')
 
     def test_login(self):
-        with self.given(
+        logintime = freeze_time("2000-01-01T01:01:00")
+        latetime = freeze_time("2000-01-01T01:01:12")
+        with logintime, self.given(
                 'Loggin in to get a token',
                 '/login',
                 'POST',
                 form=dict(email='test@example.com', password='test')
             ):
-            assert response.status == '200 OK'
+            assert status == '200 OK'
             assert response.headers['X-Identity'] == '1'
             assert 'token' in response.json
             token = response.json['token']
@@ -115,22 +104,32 @@ class TestAuthenticator(ApplicableTestCase):
                 'Password is incorrect',
                 form=dict(email='test@example.com', password='invalid')
             )
-            assert response.status == '400 Bad Request'
+            assert status == '400 Bad Request'
 
-        with self.given(
+        with logintime, self.given(
                 'Trying to access a protected resource with the token',
-                '/',
-                'GET',
-                form=dict(a='a', b='b'),
+                '/me',
                 authorization=token
             ):
             assert response.headers['X-Identity'] == '1'
 
             when('Token is broken', authorization='bad')
-            assert response.status == 400
+            assert status == 400
 
             when('Token is empty', url='/me', authorization='')
-            assert response.status == 401
+            assert status == 401
+
+            when('Token is blank', url='/me', authorization='  ')
+            assert status == 401
+
+        with latetime, self.given(
+                'Try to access a protected resource when session is expired',
+                '/me',
+                form=dict(a='a', b='b'),
+                authorization=token
+        ):
+            assert status == 401
+
 
     def test_logout(self):
         self.login(
@@ -146,13 +145,15 @@ class TestAuthenticator(ApplicableTestCase):
                 'Logging out',
                 '/logout',
             ):
-            assert response.status == '200 OK'
+            assert status == '200 OK'
             assert 'X-Identity' not in response.headers
 
     def test_refresh_token(self):
-        global token_expired, refresh_token_expired
+        logintime = freeze_time("2000-01-01T01:01:00")
+        latetime = freeze_time("2000-01-01T01:01:12")
+        verylatetime = freeze_time("2000-01-01T01:02:00")
         self.logout()
-        with self.given(
+        with logintime, self.given(
                 'Loggin in to get a token',
                 '/login',
                 'POST',
@@ -163,23 +164,18 @@ class TestAuthenticator(ApplicableTestCase):
             assert refresh_token.startswith('refresh-token=')
             token = response.json['token']
 
-            # Login on client
-            token_expired = True
-            settings.jwt.refresh_token.secure = False
-
 
         # Request a protected resource after the token has been expired,
         # with broken cookies
-        with self.given(
-                    'Refresh token is broken',
-                    url='/me',
-                    verb='GET',
-                    authorization=token,
-                    headers={
-                        'Cookie': 'refresh-token=broken-data'
-                    }
-            ):
-            assert response.status == 400
+        with latetime, self.given(
+                'Refresh token is broken',
+                '/me',
+                authorization=token,
+                headers={
+                    'Cookie': 'refresh-token=broken-data'
+                }
+        ):
+            assert status == 400
 
             # Request a protected resource after the token has been expired,
             # with empty cookies
@@ -189,7 +185,7 @@ class TestAuthenticator(ApplicableTestCase):
                     'Cookie': 'refresh-token'
                 }
             )
-            assert response.status == 401
+            assert status == 401
 
             # Request a protected resource after the token has been expired,
             # without the cookies
@@ -197,7 +193,7 @@ class TestAuthenticator(ApplicableTestCase):
                 'Without the cookies',
                 headers=None
             )
-            assert response.status == 401
+            assert status == 401
 
             # Request a protected resource after the token has been expired,
             # with appropriate cookies.
@@ -210,30 +206,34 @@ class TestAuthenticator(ApplicableTestCase):
             assert 'X-New-JWT-Token' in response.headers
             assert response.headers['X-New-JWT-Token'] is not None
 
-            # Test with invalid refresh token
             when(
                 'With invalid refresh token',
                 headers={
                     'Cookie': 'refresh-token=InvalidToken'
                 }
             )
-            assert response.status == 400
+            assert status == 400
 
-            # Waiting until expire refresh token
-            refresh_token_expired = True
-
-            # Request a protected resource after
-            # the refresh-token has been expired.
             when(
-                'The refresh token has been expired.',
-                 headers={
-                    'Cookie': 'refresh-token'
-                 }
+                'With empty refresh token',
+                headers={
+                    'Cookie': 'refresh-token='
+                }
             )
-            assert response.status == 401
+            assert status == 401
+
+        with verylatetime, self.given(
+            'When refresh token is expired',
+            '/me',
+            authorization=token,
+            headers={
+                'Cookie': refresh_token
+            }
+        ):
+
+            assert status == 401
 
     def test_authorization(self):
-        global token_expired
         self.login(
             dict(
                 email='test@example.com',
@@ -241,12 +241,11 @@ class TestAuthenticator(ApplicableTestCase):
             ),
             url='/login'
         )
-        token_expired = False
 
         with self.given(
             'Access forbidden',
             url='/kill',
             verb='GET'
         ):
-            assert response.status == 403
+            assert status == 403
 

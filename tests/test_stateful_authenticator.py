@@ -75,9 +75,9 @@ class TestStatefulAuthenticator(ApplicableTestCase):
 
     __configuration__ = '''
         jwt:
-          max_age: .3
+          max_age: 10
           refresh_token:
-            max_age: 3
+            max_age: 20
             secure: false
     '''
 
@@ -142,11 +142,12 @@ class TestStatefulAuthenticator(ApplicableTestCase):
             assert response.headers['X-Identity'] == '1'
             self._authentication_token = response.json['token']
 
-            when(
+        with self.given(
                 'Logging out',
                 '/logout',
                 'DELETE'
-            )
+        ):
+            assert status == 200
             assert 'X-Identity' not in response.headers
 
     def test_session_member(self):

@@ -167,9 +167,6 @@ class Authenticator:
             session_id = ex.payload.get('sessionId')
             if session_id:
                 self.try_refresh_token(session_id)
-            else:
-                self.bad()
-                raise HTTPUnauthorized()
         except itsdangerous.BadData:
             # The token is Malformed
             self.bad()
@@ -192,6 +189,7 @@ class Authenticator:
             settings.jwt.refresh_token.httponly
         context.cookies[self.refresh_token_key]['secure'] = \
             settings.jwt.refresh_token.secure
+
         if 'path' in settings.jwt.refresh_token:
             context.cookies[self.refresh_token_key]['path'] = \
                 settings.jwt.refresh_token.path
@@ -373,5 +371,4 @@ class StatefulAuthenticator(Authenticator):
         info = self.redis.get(self.get_session_info_key(session_id))
         if info:
             return ujson.loads(info)
-        return None
 
