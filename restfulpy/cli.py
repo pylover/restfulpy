@@ -22,6 +22,6 @@ class Restfulpy(Root):
         return super().__call__(args)
 
 
-def Main():
+def main():
     return Restfulpy().main()
 

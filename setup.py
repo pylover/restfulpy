@@ -51,7 +51,7 @@ setup(
     license='MIT',
     entry_points={
         'console_scripts': [
-            'restfulpy = restfulpy.cli:Main'
+            'restfulpy = restfulpy.cli:main'
         ]
     },
 )
