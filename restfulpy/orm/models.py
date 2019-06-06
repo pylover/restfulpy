@@ -25,11 +25,11 @@ class BaseModel(object):
 
     @classmethod
     def get_column(cls, column):
-        if isinstance(column, str):
-            mapper = inspect(cls)
-            return mapper.columns[column]
         # Commented-out by vahid, because I cannot reach here by tests,
         # I think it's not necessary at all.
+        #if isinstance(column, str):
+        #    mapper = inspect(cls)
+        #    return mapper.columns[column]
         # if isinstance(column, SynonymProperty):
         #     return column.parent.columns[column.name]
         return column
