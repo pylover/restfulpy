@@ -72,6 +72,7 @@ class TestDateTime(ApplicableTestCase):
         settings.timezone = None
 
         # Submit without timezone: accept and assume the local date and time.
+        assert datetime(1970, 1, 1) == parse_datetime('1970-01-01')
         assert datetime(1970, 1, 1) == parse_datetime('1970-01-01T00:00:00')
         assert datetime(1970, 1, 1, microsecond=1000) == \
             parse_datetime('1970-01-01T00:00:00.001')
