@@ -64,7 +64,7 @@ You can sort like this:
 '''
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope='function')
 def db():
     builtin_configuration = '''
     db:
