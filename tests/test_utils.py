@@ -5,7 +5,7 @@ from os.path import dirname, abspath, join, exists
 
 from restfulpy.utils import import_python_module_by_filename, \
     construct_class_by_name, copy_stream, md5sum, to_camel_case, \
-    encode_multipart_data
+    encode_multipart_data, split_url
 
 
 HERE = abspath(dirname(__file__))
@@ -79,4 +79,12 @@ def test_encode_multipart():
         f'form-data; name="bar"; filename="{filename.split("/")[-1]}"' \
         f'\r\nContent-Type: text/plain\r\n\r\nabcdefgh\n\r\n--MAGIC--\r\n\r\n'
     assert length == 193
+
+
+def test_split_url():
+    url = 'https://www.example.com/id/1?a=1&b=2'
+    path, query = split_url(url)
+
+    assert path == 'https://www.example.com/id/1'
+    assert query == dict(a='1', b='2')
 
