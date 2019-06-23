@@ -72,7 +72,7 @@ class Application(NanohttpApplication):
                     content = header + f.read()
                 settings.merge(content.decode())
 
-    def register_cli_launchers(self, subparsers):
+    def get_cli_arguments(self):
         """
         This is a template method
         """
