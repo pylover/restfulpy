@@ -259,7 +259,11 @@ class FilteringMixin:
 
             return return_(expression)
 
-        if value.startswith('!'):
+        if value == '\x00':
+            expression = column.is_(None)
+        elif value == '!\x00':
+            expression = column.isnot(None)
+        elif value.startswith('!'):
             expression = column != import_value(column, value[1:])
         elif value.startswith('>='):
             expression = column >= import_value(column, value[2:])
