@@ -27,7 +27,7 @@ def test_appcli_root():
 
 EXPECTED_HELP = '''\
 usage: foo [-h] [-V] [-p PREFIX] [-c FILE]
-           {configuration,db,jwt,migrate,worker,completion} ...
+           {configuration,db,jwt,migrate,worker,mule,completion} ...
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -38,12 +38,13 @@ optional arguments:
                         Configuration file, Default: none
 
 Sub commands:
-  {configuration,db,jwt,migrate,worker,completion}
+  {configuration,db,jwt,migrate,worker,mule,completion}
     configuration       Configuration tools
     db                  Database administrationn
     jwt                 JWT management
     migrate             Executes the alembic command
     worker              Task queue administration
+    mule                Jobs queue administration
     completion          Bash auto completion using argcomplete python package.
 '''
 

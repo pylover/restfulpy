@@ -70,6 +70,10 @@ worker:
   gap: .5
   number_of_threads: 1
 
+jobs:
+  interval: .5 # Seconds
+  number_of_threads: 1
+
 smtp:
   host: smtp.example.com
   port: 587

@@ -8,6 +8,7 @@ from .database import DatabaseSubCommand
 from .jwttoken import JWTSubCommand
 from .migrate import MigrateSubCommand
 from .worker import WorkerSubCommand
+from .mule import MuleSubCommand
 
 
 class EntryPoint(Root):
@@ -34,6 +35,7 @@ class EntryPoint(Root):
         JWTSubCommand,
         MigrateSubCommand,
         WorkerSubCommand,
+        MuleSubCommand,
     ]
 
     def __init__(self, application):
