@@ -28,7 +28,7 @@ class MuleTask(TimestampMixin, DeclarativeBase):
             'success',
             'failed',
 
-            name='task_status_enum'
+            name='mule_status_enum'
         ),
         default='new',
         nullable=True, json='status'
