@@ -141,6 +141,7 @@ class ApplicableTestCase:
     _sessions = []
     _authentication_token = None
     __metadata__ = None
+    __session = None
 
     @classmethod
     def configure_application(cls):
@@ -163,6 +164,13 @@ class ApplicableTestCase:
         )
         cls._sessions.append(new_session)
         return new_session
+
+    @property
+    def _session(self):
+        if self.__session is None:
+            self.__session == self.create_session()
+
+        return self.__session
 
     @classmethod
     def initialize_orm(cls):
