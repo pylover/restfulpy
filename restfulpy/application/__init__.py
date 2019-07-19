@@ -100,9 +100,9 @@ class Application(NanohttpApplication):
     def end_response(self):
         DBSession.remove()
 
-    def insert_basedata(self, args):
+    def insert_basedata(self, args=None):
         raise NotImplementedError()
 
-    def insert_mockup(self, args):
+    def insert_mockup(self, args=None):
         raise NotImplementedError()
 
