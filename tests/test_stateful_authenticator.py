@@ -8,7 +8,7 @@ from nanohttp.contexts import Context
 from restfulpy.mockup import MockupApplication
 from restfulpy.authentication import StatefulAuthenticator
 from restfulpy.authorization import authorize
-from restfulpy.principal import JwtPrincipal, JwtRefreshToken
+from restfulpy.principal import JWTPrincipal, JWTRefreshToken
 from restfulpy.testing import ApplicableTestCase
 
 
@@ -27,12 +27,12 @@ class MockupStatefulAuthenticator(StatefulAuthenticator):
             return MockupMember(id=1, email=email, roles=['admin', 'test'])
 
     def create_refresh_principal(self, member_id=None):
-        return JwtRefreshToken(dict(
+        return JWTRefreshToken(dict(
             id=member_id
         ))
 
     def create_principal(self, member_id=None, session_id=None):
-        return JwtPrincipal(dict(
+        return JWTPrincipal(dict(
             id=1,
             email='test@example.com',
             roles=roles,

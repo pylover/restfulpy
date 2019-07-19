@@ -4,7 +4,7 @@ from bddrest.authoring import response
 
 from restfulpy.mockup import MockupApplication
 from restfulpy.authentication import StatefulAuthenticator
-from restfulpy.principal import JwtPrincipal, JwtRefreshToken
+from restfulpy.principal import JWTPrincipal, JWTRefreshToken
 from restfulpy.testing import ApplicableTestCase
 
 
@@ -16,12 +16,12 @@ class MockupAuthenticator(StatefulAuthenticator):
         raise NotImplementedError()
 
     def create_refresh_principal(self, member_id=None):
-        return JwtRefreshToken(dict(
+        return JWTRefreshToken(dict(
             id=member_id
         ))
 
     def create_principal(self, member_id=None, session_id=None, **kwargs):
-        return JwtPrincipal(
+        return JWTPrincipal(
             dict(id=1, email='test@example.com', roles=roles, sessionId='1')
         )
 

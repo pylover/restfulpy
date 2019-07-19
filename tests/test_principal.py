@@ -1,6 +1,6 @@
 from nanohttp import configure, settings
 
-from restfulpy.principal import JwtPrincipal
+from restfulpy.principal import JWTPrincipal
 
 
 def test_principal():
@@ -17,7 +17,7 @@ def test_principal():
     configure(force=True)
     settings.merge(__configuration__)
 
-    principal = JwtPrincipal(dict(
+    principal = JWTPrincipal(dict(
         email='test@example.com',
         id=1,
         sessionId=1,
@@ -33,7 +33,7 @@ def test_principal():
 
     encoded = principal.dump()
 
-    principal = JwtPrincipal.load(encoded.decode())
+    principal = JWTPrincipal.load(encoded.decode())
     assert principal.email == 'test@example.com'
     assert principal.id == 1
     assert principal.session_id == 1
@@ -41,7 +41,7 @@ def test_principal():
     assert principal.is_in_roles('admin') is True
     assert principal.is_in_roles('admin', 'god') is True
 
-    principal = JwtPrincipal.load(encoded.decode(), force=True)
+    principal = JWTPrincipal.load(encoded.decode(), force=True)
     assert principal.email == 'test@example.com'
     assert principal.id == 1
     assert principal.session_id == 1
@@ -50,7 +50,7 @@ def test_principal():
     assert principal.is_in_roles('admin', 'god') is True
 
     principal =\
-        JwtPrincipal.load((b'Bearer %s' % encoded).decode(), force=True)
+        JWTPrincipal.load((b'Bearer %s' % encoded).decode(), force=True)
     assert principal.email == 'test@example.com'
     assert principal.id == 1
     assert principal.session_id == 1

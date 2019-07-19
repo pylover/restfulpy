@@ -3,7 +3,7 @@ from itsdangerous import TimedJSONWebSignatureSerializer, \
 from nanohttp import settings, context, HTTPForbidden
 
 
-class BaseJwtPrincipal:
+class BaseJWTPrincipal:
     def __init__(self, payload):
         self.payload = payload
 
@@ -38,7 +38,7 @@ class BaseJwtPrincipal:
         raise NotImplementedError()
 
 
-class JwtPrincipal(BaseJwtPrincipal):
+class JWTPrincipal(BaseJWTPrincipal):
     def is_in_roles(self, *roles):
         if 'roles' in self.payload:
             if set(self.payload['roles']).intersection(roles):
@@ -81,7 +81,7 @@ class JwtPrincipal(BaseJwtPrincipal):
         return settings.jwt
 
 
-class JwtRefreshToken:
+class JWTRefreshToken:
     def __init__(self, payload):
         self.payload = payload
 
@@ -106,7 +106,7 @@ class JwtRefreshToken:
         return self.payload.get('id')
 
 
-class DummyIdentity(JwtPrincipal):
+class DummyIdentity(JWTPrincipal):
     def __init__(self, *roles):
         super().__init__({'roles': list(roles)})
 

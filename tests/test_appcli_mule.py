@@ -13,7 +13,7 @@ DBURL = 'postgresql://postgres:postgres@localhost/restfulpy_test'
 class WorkerTask(MuleTask):
 
     __mapper_args__ = {
-        'polymorphic_identity': 'mule_task'
+        'polymorphic_identity': 'worker_task'
     }
 
     def do_(self, context):

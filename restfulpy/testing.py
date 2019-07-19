@@ -168,7 +168,7 @@ class ApplicableTestCase:
     @property
     def _session(self):
         if self.__session is None:
-            self.__session == self.create_session()
+            self.__session = self.create_session()
 
         return self.__session
 

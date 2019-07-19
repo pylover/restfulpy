@@ -7,7 +7,7 @@ import ujson
 import user_agents
 from nanohttp import context, HTTPBadRequest, settings, HTTPUnauthorized
 
-from restfulpy.principal import JwtPrincipal, JwtRefreshToken
+from restfulpy.principal import JWTPrincipal, JWTRefreshToken
 
 
 class Authenticator:
@@ -108,7 +108,7 @@ class Authenticator:
         refresh_token_encoded = morsel.value
         # Decoding the refresh token
         try:
-            refresh_principal = JwtRefreshToken.load(refresh_token_encoded)
+            refresh_principal = JWTRefreshToken.load(refresh_token_encoded)
             self.ok(
                 self.create_principal(
                     member_id=refresh_principal.id,
@@ -146,7 +146,7 @@ class Authenticator:
             self.setup_response_headers(principal)
 
     def verify_token(self, encoded_token):
-        return JwtPrincipal.load(encoded_token)
+        return JWTPrincipal.load(encoded_token)
 
     def authenticate_request(self):
         if self.token_key not in context.environ:

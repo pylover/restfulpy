@@ -1,7 +1,7 @@
 import ujson
 from easycli import SubCommand, Argument
 
-from restfulpy.principal import JwtPrincipal
+from restfulpy.principal import JWTPrincipal
 
 
 class CreateJWTTokenSubSubCommand(SubCommand):
@@ -26,7 +26,7 @@ class CreateJWTTokenSubSubCommand(SubCommand):
 
     def __call__(self, args):
         payload = ujson.loads(args.payload)
-        print(JwtPrincipal(payload).dump(args.expire_in).decode())
+        print(JWTPrincipal(payload).dump(args.expire_in).decode())
 
 
 class JWTSubCommand(SubCommand):
