@@ -1,9 +1,7 @@
-import types
-
 from nanohttp import Controller, context, json, RestController, action
 
-from restfulpy.orm import DBSession
 from restfulpy.helpers import split_url
+from restfulpy.orm import DBSession
 
 
 class RootController(Controller):

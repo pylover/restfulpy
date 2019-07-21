@@ -1,17 +1,17 @@
 import os
 import re
-from os import path
 import uuid
+from os import path
+
 import pytest
 from bddrest import Given, when
 from nanohttp import settings
-import shutil
-
 from sqlalchemy.orm.session import close_all_sessions
+
 import restfulpy
-from .mockup import MockupApplication
 from .configuration import configure
 from .db import PostgreSQLManager as DBManager
+from .mockup import MockupApplication
 from .orm import setup_schema, session_factory, create_engine, init_model, \
     DBSession
 

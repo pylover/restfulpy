@@ -1,12 +1,11 @@
+import base64
 import importlib.util
-import re
 import io
 import os
+import re
 import sys
-import base64
-import warnings
-from mimetypes import guess_type
 from hashlib import md5
+from mimetypes import guess_type
 from os.path import dirname, abspath, split
 from urllib.parse import parse_qs
 

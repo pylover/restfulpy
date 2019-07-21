@@ -1,6 +1,4 @@
-import os
 import contextlib
-from os.path import exists
 from urllib.parse import urlparse
 
 import psycopg2

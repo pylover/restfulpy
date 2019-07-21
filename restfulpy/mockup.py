@@ -1,16 +1,11 @@
 import asyncore
 import contextlib
-import io
 import smtpd
 import threading
-from mimetypes import guess_type
-from http.server import BaseHTTPRequestHandler, HTTPStatus, HTTPServer
-from wsgiref.simple_server import WSGIServer, WSGIRequestHandler
 
 from . import datetimehelpers
-from .messaging import Messenger
-from .helpers import copy_stream
 from .application import Application
+from .messaging import Messenger
 
 
 @contextlib.contextmanager

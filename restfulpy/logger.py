@@ -1,6 +1,7 @@
+import functools
 import sys
 import traceback
-import functools
+
 
 DEBUG = 1
 INFO = 2
