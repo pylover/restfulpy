@@ -7,7 +7,7 @@ from os.path import basename
 from mako.lookup import TemplateLookup
 from nanohttp import settings, LazyAttribute
 
-from restfulpy.utils import construct_class_by_name
+from restfulpy.helpers import construct_class_by_name
 
 
 class Messenger(object):

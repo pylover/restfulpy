@@ -3,7 +3,7 @@ from tempfile import mktemp
 from os import mkdir
 from os.path import dirname, abspath, join, exists
 
-from restfulpy.utils import import_python_module_by_filename, \
+from restfulpy.helpers import import_python_module_by_filename, \
     construct_class_by_name, copy_stream, md5sum, to_camel_case, \
     encode_multipart_data, split_url
 
@@ -32,7 +32,7 @@ def test_import_python_module_by_filename():
 
 def test_construct_class_by_name():
     obj = construct_class_by_name(
-        'tests.test_utils.MyClassToConstructByName',
+        'tests.test_helpers.MyClassToConstructByName',
         1
     )
     assert obj.a ==  1

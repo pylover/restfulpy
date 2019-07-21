@@ -1,4 +1,4 @@
-from ..utils import to_camel_case
+from ..helpers import to_camel_case
 
 
 class FieldInfo:

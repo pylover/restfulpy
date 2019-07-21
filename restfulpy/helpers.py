@@ -11,9 +11,6 @@ from os.path import dirname, abspath, split
 from urllib.parse import parse_qs
 
 
-# TODO: Rename this module to helpers
-
-
 def import_python_module_by_filename(name, module_filename):
     """
     Import's a file as a python module, with specified name.

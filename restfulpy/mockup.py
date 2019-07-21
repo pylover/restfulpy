@@ -9,7 +9,7 @@ from wsgiref.simple_server import WSGIServer, WSGIRequestHandler
 
 from . import datetimehelpers
 from .messaging import Messenger
-from .utils import copy_stream
+from .helpers import copy_stream
 from .application import Application
 
 

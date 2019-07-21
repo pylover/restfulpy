@@ -15,7 +15,7 @@ from sqlalchemy.dialects.postgresql import UUID
 
 from ..datetimehelpers import parse_datetime, parse_date, parse_time, \
     format_date, format_time, format_datetime
-from ..utils import to_camel_case
+from ..helpers import to_camel_case
 from .field import Field
 from .metadata import MetadataField
 from .mixins import PaginationMixin, FilteringMixin, OrderingMixin
