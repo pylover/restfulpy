@@ -2,14 +2,14 @@ from bddrest import response, when, status
 from nanohttp import json
 from sqlalchemy import Unicode, Integer
 
-from restfulpy.controllers import JsonPatchControllerMixin, ModelRestController
+from restfulpy.controllers import JSONPatchControllerMixin, ModelRestController
 from restfulpy.orm import commit, DeclarativeBase, Field, DBSession, \
     FilteringMixin, PaginationMixin, OrderingMixin, ModifiedMixin
 from restfulpy.testing import ApplicableTestCase
-from restfulpy.exceptions import SqlError
+from restfulpy.exceptions import SQLError
 
 
-class SqlErrorCheckingModel(
+class SQLErrorCheckingModel(
     ModifiedMixin,
     FilteringMixin,
     PaginationMixin,
@@ -23,22 +23,22 @@ class SqlErrorCheckingModel(
 
 
 class Root(ModelRestController):
-    __model__ = SqlErrorCheckingModel
+    __model__ = SQLErrorCheckingModel
 
     @json
     @commit
     def post(self):
-        m = SqlErrorCheckingModel()
+        m = SQLErrorCheckingModel()
         m.update_from_request()
         DBSession.add(m)
         return m
 
     @json
-    @SqlErrorCheckingModel.expose
+    @SQLErrorCheckingModel.expose
     def get(self, title: str=None):
-        query = SqlErrorCheckingModel.query
+        query = SQLErrorCheckingModel.query
         if title:
-            return query.filter(SqlErrorCheckingModel.title == title)\
+            return query.filter(SQLErrorCheckingModel.title == title)\
                 .one_or_none()
         return query
 
@@ -59,5 +59,5 @@ class TestSqlExceptions(ApplicableTestCase):
             assert status == 409
 
     def test_invalid_sql_error(self):
-        assert '500 Internal server error' == SqlError.map_exception(ValueError())
+        assert '500 Internal server error' == SQLError.map_exception(ValueError())
 

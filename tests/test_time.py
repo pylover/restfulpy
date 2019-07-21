@@ -7,7 +7,7 @@ from nanohttp import json
 from sqlalchemy import Integer, Time
 
 from restfulpy.configuration import settings
-from restfulpy.controllers import JsonPatchControllerMixin, ModelRestController
+from restfulpy.controllers import JSONPatchControllerMixin, ModelRestController
 from restfulpy.datetimehelpers import parse_datetime, format_datetime, \
     format_time
 from restfulpy.mockup import mockup_localtimezone
@@ -21,7 +21,7 @@ class Azan(DeclarativeBase):
     when = Field(Time)
 
 
-class Root(JsonPatchControllerMixin, ModelRestController):
+class Root(JSONPatchControllerMixin, ModelRestController):
     __model__ = 'azan'
 
     @json

@@ -2,7 +2,7 @@ import ujson
 from sqlalchemy import Unicode, TypeDecorator
 
 
-class FakeJson(TypeDecorator):
+class FakeJSON(TypeDecorator):
     impl = Unicode
 
     def process_bind_param(self, value, engine):

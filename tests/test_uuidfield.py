@@ -4,9 +4,9 @@ from bddrest import response
 from nanohttp import json
 from sqlalchemy.dialects.postgresql import UUID
 
-from restfulpy.controllers import JsonPatchControllerMixin, ModelRestController
+from restfulpy.controllers import JSONPatchControllerMixin, ModelRestController
 from restfulpy.orm import commit, DeclarativeBase, Field, DBSession
-from restfulpy.testing import ApplicableTestCase, Uuid1Freeze
+from restfulpy.testing import ApplicableTestCase, UUID1Freeze
 
 
 def new_uuid():
@@ -20,7 +20,7 @@ class Uuid1Model(DeclarativeBase):
     id = Field(UUID(as_uuid=True), primary_key=True, default=new_uuid)
 
 
-class Root(JsonPatchControllerMixin, ModelRestController):
+class Root(JSONPatchControllerMixin, ModelRestController):
     __model__ = Uuid1Model
 
     @json
@@ -37,6 +37,6 @@ class TestUuidField(ApplicableTestCase):
     def test_uuid1(self):
         frozen_uuid_str = 'ce52b1ee602a11e9a721b06ebfbfaee7'
         frozen_uuid = uuid.UUID(frozen_uuid_str)
-        with Uuid1Freeze(frozen_uuid), self.given('testing uuid'):
+        with UUID1Freeze(frozen_uuid), self.given('testing uuid'):
             assert response.json['id'] == frozen_uuid_str
 

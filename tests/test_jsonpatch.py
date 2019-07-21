@@ -2,7 +2,7 @@ from bddrest import response, when, status
 from nanohttp import context, json, RestController, HTTPNotFound, HTTPStatus
 from sqlalchemy import Unicode, Integer
 
-from restfulpy.controllers import JsonPatchControllerMixin
+from restfulpy.controllers import JSONPatchControllerMixin
 from restfulpy.orm import commit, DeclarativeBase, Field, DBSession
 from restfulpy.testing import ApplicableTestCase
 
@@ -21,7 +21,7 @@ class Person(DeclarativeBase):
     )
 
 
-class Root(JsonPatchControllerMixin, RestController):
+class Root(JSONPatchControllerMixin, RestController):
     __model__ = Person
 
     @json(prevent_empty_form=True)

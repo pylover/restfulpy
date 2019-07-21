@@ -2,7 +2,7 @@ from nanohttp import settings
 from sqlalchemy import Integer, ForeignKey, Unicode
 from sqlalchemy.ext.declarative import declared_attr
 
-from ..orm import Field, FakeJson,synonym
+from ..orm import Field, FakeJSON,synonym
 from ..taskqueue import RestfulpyTask
 from .providers import create_messenger
 
@@ -16,7 +16,7 @@ class Email(RestfulpyTask):
     subject = Field(Unicode(254), json='subject')
     cc = Field(Unicode(254), nullable=True, json='cc')
     bcc = Field(Unicode(254), nullable=True, json='bcc')
-    _body = Field('body', FakeJson)
+    _body = Field('body', FakeJSON)
 
     from_ = Field(
         Unicode(254),

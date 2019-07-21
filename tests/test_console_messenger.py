@@ -9,7 +9,7 @@ from restfulpy.messaging.providers import ConsoleMessenger
 HERE = abspath(dirname(__file__))
 
 
-class TestSmtpProvider:
+class TestSMTPProvider:
     __configuration__ = f'''
         messaging:
             mako_modules_directory: {join(HERE, '../../data', 'mako_modules')}

@@ -8,7 +8,7 @@ from nanohttp import Application as NanohttpApplication, Controller, \
 from .cli.main import EntryPoint
 from ..authentication import Authenticator
 from ..configuration import configure
-from ..exceptions import SqlError
+from ..exceptions import SQLError
 from ..orm import init_model, create_engine, DBSession
 from ..cryptography import AESCipher
 from .. import logger
@@ -41,7 +41,7 @@ class Application(NanohttpApplication):
 
     def _handle_exception(self, ex, start_response):
         if isinstance(ex, SQLAlchemyError):
-            ex = SqlError(ex)
+            ex = SQLError(ex)
             logger.error(ex)
         if not isinstance(ex, HTTPStatus):
             ex = HTTPInternalServerError('Internal server error')

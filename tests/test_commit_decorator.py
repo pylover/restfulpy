@@ -2,7 +2,7 @@ from bddrest import response, when
 from nanohttp import json, RestController, context, HTTPStatus
 from sqlalchemy import Unicode, Integer
 
-from restfulpy.controllers import JsonPatchControllerMixin
+from restfulpy.controllers import JSONPatchControllerMixin
 from restfulpy.orm import commit, DeclarativeBase, Field, DBSession
 from restfulpy.testing import ApplicableTestCase
 
@@ -13,7 +13,7 @@ class CommitCheckingModel(DeclarativeBase):
     title = Field(Unicode(50), unique=True)
 
 
-class Root(JsonPatchControllerMixin, RestController):
+class Root(JSONPatchControllerMixin, RestController):
 
     @json
     @commit

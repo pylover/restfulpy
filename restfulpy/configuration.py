@@ -49,7 +49,7 @@ jwt:
     #path: /
 
 messaging:
-  # default_messenger: restfulpy.messaging.providers.SmtpProvider
+  # default_messenger: restfulpy.messaging.providers.SMTPProvider
   default_messenger: restfulpy.messaging.ConsoleMessenger
   default_sender: restfulpy
   mako_modules_directory:

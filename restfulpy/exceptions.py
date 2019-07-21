@@ -18,7 +18,7 @@ class UnsupportedError(Exception):
     pass
 
 
-class SqlError(HTTPStatus):
+class SQLError(HTTPStatus):
 
     def __init__(self, sqlalchemy_error):
         super().__init__(self.map_exception(sqlalchemy_error))

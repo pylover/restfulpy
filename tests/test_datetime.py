@@ -8,7 +8,7 @@ from sqlalchemy import Integer, DateTime
 
 from freezegun import freeze_time
 from restfulpy.configuration import settings
-from restfulpy.controllers import JsonPatchControllerMixin, ModelRestController
+from restfulpy.controllers import JSONPatchControllerMixin, ModelRestController
 from restfulpy.datetimehelpers import parse_datetime, format_datetime, \
     localnow, parse_time, localtimezone
 from restfulpy.mockup import mockup_localtimezone
@@ -22,7 +22,7 @@ class Metting(DeclarativeBase):
     when = Field(DateTime)
 
 
-class Root(JsonPatchControllerMixin, ModelRestController):
+class Root(JSONPatchControllerMixin, ModelRestController):
     __model__ = 'metting'
 
     @json

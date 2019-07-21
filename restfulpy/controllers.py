@@ -30,7 +30,7 @@ class ModelRestController(RestController):
 
 
 
-class JsonPatchControllerMixin:
+class JSONPatchControllerMixin:
 
     @action(content_type='application/json', prevent_empty_form=True)
     def patch(self: Controller):

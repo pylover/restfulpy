@@ -17,7 +17,7 @@ from .mixins import ModifiedMixin, SoftDeleteMixin, TimestampMixin, \
     DeactivationMixin
 from .models import BaseModel
 from .fulltext_search import to_tsvector, fts_escape
-from .types import FakeJson
+from .types import FakeJSON
 
 # Global session manager: DBSession() returns the Thread-local
 # session object appropriate for the current web request.

@@ -346,7 +346,7 @@ class ApplicableTestCase:
         self._authentication_token = None
 
 
-class Uuid1Freeze:
+class UUID1Freeze:
     _original = None
 
     def __init__(self, uuid_):

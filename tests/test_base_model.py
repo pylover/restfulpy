@@ -4,7 +4,7 @@ from sqlalchemy import Unicode, Integer, Date, Float, ForeignKey, Boolean, \
     DateTime
 from sqlalchemy.ext.associationproxy import association_proxy
 
-from restfulpy.controllers import JsonPatchControllerMixin, ModelRestController
+from restfulpy.controllers import JSONPatchControllerMixin, ModelRestController
 from restfulpy.orm import commit, DeclarativeBase, Field, DBSession, \
     composite, FilteringMixin, PaginationMixin, OrderingMixin, relationship, \
     ModifiedMixin, ActivationMixin, synonym
@@ -163,7 +163,7 @@ class Member(ActivationMixin, ModifiedMixin, FilteringMixin, PaginationMixin,
     )
 
 
-class Root(JsonPatchControllerMixin, ModelRestController):
+class Root(JSONPatchControllerMixin, ModelRestController):
     __model__ = Member
 
     @json

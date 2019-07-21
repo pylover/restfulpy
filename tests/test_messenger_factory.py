@@ -3,7 +3,7 @@ from os.path import dirname, abspath
 from nanohttp import settings, configure
 
 from restfulpy.messaging.providers import create_messenger, ConsoleMessenger,\
-    SmtpProvider
+    SMTPProvider
 
 
 HERE = abspath(dirname(__file__))
@@ -21,7 +21,7 @@ def test_messenger_factory():
     assert isinstance(console_messenger, ConsoleMessenger)
 
     settings.messaging.default_messenger =\
-        'restfulpy.messaging.providers.SmtpProvider'
+        'restfulpy.messaging.providers.SMTPProvider'
     smtp_messenger = create_messenger()
-    assert isinstance(smtp_messenger, SmtpProvider)
+    assert isinstance(smtp_messenger, SMTPProvider)
 

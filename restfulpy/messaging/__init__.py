@@ -1,4 +1,4 @@
 
 from .models import Email
-from .providers import Messenger, create_messenger, SmtpProvider, \
+from .providers import Messenger, create_messenger, SMTPProvider, \
     ConsoleMessenger

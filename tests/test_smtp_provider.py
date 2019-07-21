@@ -3,7 +3,7 @@ from os.path import dirname, abspath, join
 
 from nanohttp import settings, configure
 
-from restfulpy.messaging.providers import SmtpProvider
+from restfulpy.messaging.providers import SMTPProvider
 from restfulpy.mockup import mockup_smtp_server
 
 
@@ -34,7 +34,7 @@ def test_smtp_provider():
         settings.smtp.port = bind[1]
 
         # Without templates
-        SmtpProvider().send(
+        SMTPProvider().send(
             'test@example.com',
             'test@example.com',
             'Simple test body',
@@ -43,7 +43,7 @@ def test_smtp_provider():
         )
 
         # With template
-        SmtpProvider().send(
+        SMTPProvider().send(
             'test@example.com',
             'test@example.com',
             {},
@@ -53,7 +53,7 @@ def test_smtp_provider():
         # With attachments
         attachment = io.BytesIO(b'This is test attachment file')
         attachment.name = 'path/to/file.txt'
-        SmtpProvider().send(
+        SMTPProvider().send(
             'test@example.com',
             'test@example.com',
             'email body with Attachment',
