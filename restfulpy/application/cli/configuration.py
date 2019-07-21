@@ -1,6 +1,5 @@
 import sys
 
-import yaml
 from easycli import SubCommand, Argument
 from nanohttp import settings
 

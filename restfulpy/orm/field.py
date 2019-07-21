@@ -1,6 +1,3 @@
-import re
-
-from nanohttp import HTTPBadRequest
 from sqlalchemy import Column, Unicode, String
 from sqlalchemy.orm import relationship as sa_relationship, \
     composite as sa_composite, synonym as sa_synonym

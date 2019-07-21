@@ -7,8 +7,8 @@ from .configuration import ConfigurationSubCommand
 from .database import DatabaseSubCommand
 from .jwttoken import JWTSubCommand
 from .migrate import MigrateSubCommand
-from .worker import WorkerSubCommand
 from .mule import MuleSubCommand
+from .worker import WorkerSubCommand
 
 
 class EntryPoint(Root):

@@ -1,17 +1,16 @@
 import time
-from os.path import abspath, exists, join, dirname
-
-from sqlalchemy.exc import SQLAlchemyError
+from os.path import abspath, join, dirname
 
 from nanohttp import Application as NanohttpApplication, Controller, \
     HTTPStatus, HTTPInternalServerError, settings, context as nanohttp_context
-from .cli.main import EntryPoint
-from ..authentication import Authenticator
+from sqlalchemy.exc import SQLAlchemyError
+
+from .. import logger
 from ..configuration import configure
+from ..cryptography import AESCipher
 from ..exceptions import SQLError
 from ..orm import init_model, create_engine, DBSession
-from ..cryptography import AESCipher
-from .. import logger
+from .cli.main import EntryPoint
 
 
 class Application(NanohttpApplication):
