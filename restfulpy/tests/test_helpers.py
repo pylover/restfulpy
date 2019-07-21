@@ -32,7 +32,7 @@ def test_import_python_module_by_filename():
 
 def test_construct_class_by_name():
     obj = construct_class_by_name(
-        'tests.test_helpers.MyClassToConstructByName',
+        'restfulpy.tests.test_helpers.MyClassToConstructByName',
         1
     )
     assert obj.a ==  1

@@ -41,7 +41,7 @@ def foo_main():
 
 app = Application(
     'foo',
-    'tests.test_appcli_db:foo_main'
+    'restfulpy.tests.test_appcli_db:foo_main'
 )
 
 

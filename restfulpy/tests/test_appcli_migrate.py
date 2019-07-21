@@ -9,7 +9,7 @@ def foo_main():
     return foo.cli_main()
 
 
-app = Application('foo', 'tests.test_appcli_migrate:foo_main')
+app = Application('foo', 'restfulpy.tests.test_appcli_migrate:foo_main')
 
 
 def test_migrate():

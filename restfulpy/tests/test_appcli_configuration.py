@@ -15,7 +15,7 @@ def foo_main():
 
 app = Application(
     'foo',
-    'tests.test_appcli_configuration:foo_main'
+    'restfulpy.tests.test_appcli_configuration:foo_main'
 )
 
 

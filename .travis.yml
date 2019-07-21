@@ -19,10 +19,9 @@ python:
 before_install:
 - pip install -U pip setuptools wheel
 - pip install -r requirements-ci.txt
-- pip install git+https://github.com/Carrene/nanohttp
 
 install: pip install -e .
-script: py.test --cov=restfulpy tests
+script: py.test --cov=restfulpy restfulpy/tests
 after_success: travis_retry coveralls
 deploy:
   provider: pypi

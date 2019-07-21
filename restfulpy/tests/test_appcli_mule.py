@@ -4,13 +4,13 @@ from bddcli import Given, stderr, Application, status, when, story, \
     given
 
 from restfulpy import Application as RestfulpyApplication
-from restfulpy.taskqueue import RestfulpyTask
+from restfulpy.mule import MuleTask
 
 
 DBURL = 'postgresql://postgres:postgres@localhost/restfulpy_test'
 
 
-class WorkerTask(RestfulpyTask):
+class WorkerTask(MuleTask):
 
     __mapper_args__ = {
         'polymorphic_identity': 'worker_task'
@@ -34,28 +34,22 @@ def foo_main():
     return foo.cli_main()
 
 
-app = Application('foo', 'tests.test_appcli_worker:foo_main')
+app = Application('foo', 'restfulpy.tests.test_appcli_mule:foo_main')
 
 
-def test_appcli_worker_cleanup(db):
-    with Given(app, 'worker cleanup'):
-        assert stderr == ''
-        assert status == 0
-
-
-def test_appcli_worker_start(db):
+def test_appcli_mule_start(db):
     session = db()
     task = WorkerTask()
     session.add(task)
     session.commit()
 
-    with Given(app, 'worker start', nowait=True):
+    with Given(app, 'mule start', nowait=True):
         time.sleep(2)
         story.kill()
         story.wait()
         assert status == -15
 
-        when(given + '--gap 1')
+        when(given + '--query-interval 1')
         time.sleep(2)
         story.kill()
         story.wait()
@@ -63,5 +57,5 @@ def test_appcli_worker_start(db):
 
 
 if __name__ == '__main__':  # pragma: no cover
-    foo.cli_main(['migrate', '--help'])
+    foo.cli_main(['mule', '--help'])
 

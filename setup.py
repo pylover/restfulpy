@@ -14,7 +14,7 @@ with open(join(dirname(__file__), 'restfulpy', '__init__.py')) as v_file:
 dependencies = [
     'pymlconf >= 1.1, < 3',
     'nanohttp >= 1.11, < 2',
-    'easycli >= 1.1, < 2',
+    'easycli >= 1.3.1, < 2',
     'argcomplete',
     'ujson',
     'appdirs',
