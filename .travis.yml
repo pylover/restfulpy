@@ -21,7 +21,7 @@ before_install:
 - pip install -r requirements-ci.txt
 
 install: pip install -e .
-script: py.test --cov=restfulpy restfulpy/tests
+script: py.test --cov=restfulpy tests
 after_success: travis_retry coveralls
 deploy:
   provider: pypi

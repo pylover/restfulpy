@@ -14,7 +14,7 @@ with open(join(dirname(__file__), 'restfulpy', '__init__.py')) as v_file:
 dependencies = [
     'pymlconf >= 1.1, < 3',
     'nanohttp >= 1.11, < 2',
-    'easycli >= 1.3.1, < 2',
+    'easycli >= 1.3, < 2',
     'argcomplete',
     'ujson',
     'appdirs',
@@ -34,7 +34,7 @@ dependencies = [
     'requests',
     'pytest',
     'bddrest >= 2.4.2, < 3',
-    'bddcli >= 2.4, < 3',
+    'bddcli >= 2.4, < 3'
 ]
 
 
@@ -45,7 +45,7 @@ setup(
     author='Vahid Mardani',
     author_email='vahid.mardani@gmail.com',
     install_requires=dependencies,
-    packages=find_packages(),
+    packages=find_packages(exclude=['tests']),
     include_package_data=True,
     license='MIT',
     entry_points={
