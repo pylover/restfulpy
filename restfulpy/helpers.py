@@ -4,6 +4,7 @@ import io
 import os
 import re
 import sys
+import functools
 from hashlib import md5
 from mimetypes import guess_type
 from os.path import dirname, abspath, split
@@ -133,4 +134,12 @@ def encode_multipart_data(fields, files, boundary=None):
     content_type = 'multipart/form-data; boundary=%s' % boundary
     return content_type, body, length
 
+
+def noneifnone(func):
+
+    @functools.wraps(func)
+    def wrapper(value):
+        return func(value) if value is not None else None
+
+    return wrapper
 

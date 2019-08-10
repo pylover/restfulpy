@@ -5,6 +5,7 @@ from dateutil.parser import parse as dateutil_parse
 from dateutil.tz import tzutc, tzstr, tzlocal
 
 from .configuration import settings
+from .helpers import noneifnone
 
 
 POSIX_TIME_PATTERN = re.compile('^\d+(\.\d+)?$')
@@ -33,6 +34,8 @@ def localnow():
     return datetime.now(timezone)
 
 
+
+@noneifnone
 def parse_datetime(value) -> datetime:
     """Parses a string a a datetime object
 
@@ -81,6 +84,7 @@ def parse_datetime(value) -> datetime:
     return parsed_value
 
 
+@noneifnone
 def parse_date(value) -> date:
     """Parses a string as a date object
 
@@ -98,6 +102,7 @@ def parse_date(value) -> date:
     return dateutil_parse(value).date()
 
 
+@noneifnone
 def parse_time(value) -> date:
     """Parses a string as a time object
 

@@ -5,7 +5,7 @@ from os.path import dirname, abspath, join, exists
 
 from restfulpy.helpers import import_python_module_by_filename, \
     construct_class_by_name, copy_stream, md5sum, to_camel_case, \
-    encode_multipart_data, split_url
+    encode_multipart_data, split_url, noneifnone
 
 
 HERE = abspath(dirname(__file__))
@@ -87,4 +87,14 @@ def test_split_url():
 
     assert path == 'https://www.example.com/id/1'
     assert query == dict(a='1', b='2')
+
+
+@noneifnone
+def func(name):
+    return name
+
+
+def test_noneifnone():
+    assert func('test') == 'test'
+    assert func(None) == None
 
