@@ -371,3 +371,6 @@ class StatefulAuthenticator(Authenticator):
         if info:
             return ujson.loads(info)
 
+    def isonline(self, session_id):
+        return self.redis.get(self.get_session_info_key(session_id)) is not None
+

@@ -195,6 +195,17 @@ class TestStatefulAuthenticator(ApplicableTestCase):
                     'lastActivity': test_case['expected_last_activity'],
                 }.items()
 
+    def test_isonline(self):
+        with Context(environ={}, application=self.__application__):
+            authenticator = self.__application__.__authenticator__
+            principal = authenticator.login(
+                ('test@example.com', 'test')
+            )
+            assert authenticator.isonline(principal.session_id) == True
+
+            authenticator.logout()
+            assert authenticator.isonline(principal.session_id) == False
+
 
 session_info_test_cases = [
     {
