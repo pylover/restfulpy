@@ -83,11 +83,11 @@ class TestStatefulAuthenticator(ApplicableTestCase):
 
     def test_invalidate_token(self):
         with self.given(
-                'Log in to get a token and refresh token cookie',
-                '/login',
-                'POST',
-                form=dict(email='test@example.com', password='test')
-            ):
+            'Log in to get a token and refresh token cookie',
+            '/login',
+            'POST',
+            form=dict(email='test@example.com', password='test')
+        ):
             assert status == 200
             assert 'token' in response.json
             refresh_token = response.headers['Set-Cookie'].split('; ')[0]
@@ -98,11 +98,11 @@ class TestStatefulAuthenticator(ApplicableTestCase):
             self._authentication_token = token
 
         with self.given(
-                'Request a protected resource to ensure authenticator is '
-                'working well',
-                '/me',
-                headers={'Cookie': refresh_token}
-            ):
+            'Request a protected resource to ensure authenticator is '
+            'working well',
+            '/me',
+            headers={'Cookie': refresh_token}
+        ):
             assert status == 200
             assert response.json['roles'] == roles
 
@@ -132,11 +132,11 @@ class TestStatefulAuthenticator(ApplicableTestCase):
 
     def test_logout(self):
         with self.given(
-                'Log in to get a token and refresh token cookie',
-                '/login',
-                'POST',
-                form=dict(email='test@example.com', password='test')
-            ):
+            'Log in to get a token and refresh token cookie',
+            '/login',
+            'POST',
+            form=dict(email='test@example.com', password='test')
+        ):
             assert status == 200
             assert 'token' in response.json
             assert response.headers['X-Identity'] == '1'
@@ -163,11 +163,11 @@ class TestStatefulAuthenticator(ApplicableTestCase):
     @freeze_time("2017-07-13T13:11:44", tz_offset=-4)
     def test_session_info(self):
         with self.given(
-                'Log in to get a token and refresh token cookie',
-                '/login',
-                'POST',
-                form=dict(email='test@example.com', password='test')
-            ):
+            'Log in to get a token and refresh token cookie',
+            '/login',
+            'POST',
+            form=dict(email='test@example.com', password='test')
+        ):
             assert status == 200
             assert 'token' in response.json
             assert response.headers['X-Identity'] == '1'
