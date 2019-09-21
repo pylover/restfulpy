@@ -20,20 +20,20 @@ timezone:
 
 db:
   # The main uri
-  url: postgresql://postgres:postgres@localhost/restfulpy_demo
+  url: postgresql://postgres:postgres@localhost/%(process_name)s
 
   # Will be used to create and drop database(s).
   administrative_url: postgresql://postgres:postgres@localhost/postgres
 
   # Will be used to run tests
-  test_url: postgresql://postgres:postgres@localhost/restfulpy_test
+  test_url: postgresql://postgres:postgres@localhost/%(process_name)s_test
 
   # Redirect all SQL Queries to std-out
   echo: false
 
 migration:
-  directory: migration
-  ini: alembic.ini
+  directory: %(root_path)s/migration
+  ini: %(root_path)s/alembic.ini
 
 jwt:
   secret: JWT-SECRET
