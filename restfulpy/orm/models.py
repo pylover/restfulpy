@@ -130,10 +130,7 @@ class BaseModel(object):
         mapper = inspect(cls)
         for k, c in mapper.all_orm_descriptors.items():
 
-            if k == '__mapper__':
-                continue
-
-            if c.extension_type == ASSOCIATION_PROXY:
+            if k == '__mapper__' or c.extension_type == ASSOCIATION_PROXY:
                 continue
 
             if (not hybrids and c.extension_type == HYBRID_PROPERTY) \

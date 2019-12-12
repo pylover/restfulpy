@@ -41,6 +41,10 @@ class Supervisor(DeclarativeBase):
         minimum=(18, '706 age must be greater than 17'),
         maximum=(99, '706 age must be less than 100')
     )
+    garbage = Field(
+        Unicode(50),
+        nullable=True,
+    )
 
 
 class Root(ModelRestController):
@@ -79,7 +83,7 @@ class Root(ModelRestController):
             not_none=False,
             required=False
         )
-    ))
+    ), ignore=['garbage'])
     def extra(self):
         m = Supervisor()
         m.update_from_request()
