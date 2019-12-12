@@ -24,7 +24,7 @@ def test_smtp_provider():
           ssl: false
         messaging:
           mako_modules_directory: {join(HERE, '../../data', 'mako_modules')}
-          template_dirs:
+          template_directories:
             - {join(HERE, 'templates')}
         ''',
     )

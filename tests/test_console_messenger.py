@@ -13,7 +13,7 @@ class TestSMTPProvider:
     __configuration__ = f'''
         messaging:
             mako_modules_directory: {join(HERE, '../../data', 'mako_modules')}
-            template_dirs:
+            template_directories:
               - {join(HERE, 'templates')}
         '''
 

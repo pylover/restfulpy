@@ -7,7 +7,7 @@ from restfulpy.db import PostgreSQLManager as DBManager
 from restfulpy.orm import DeclarativeBase, Field, DBSession
 
 
-DBURL = 'postgresql://postgres:postgres@localhost/restfulpy_test'
+DBURL = 'postgresql://postgres:postgres@localhost/restfulpy_db_test'
 
 
 class FooModel(DeclarativeBase):

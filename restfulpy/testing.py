@@ -9,9 +9,9 @@ from nanohttp import settings
 from sqlalchemy.orm.session import close_all_sessions
 
 import restfulpy
+from .application import Application
 from .configuration import configure
 from .db import PostgreSQLManager as DBManager
-from .mockup import MockupApplication
 from .orm import setup_schema, session_factory, create_engine, init_model, \
     DBSession
 
@@ -67,13 +67,7 @@ You can sort like this:
 
 @pytest.fixture(scope='function')
 def db():
-    _configuration = '''
-    db:
-      test_url: postgresql://postgres:postgres@localhost/restfulpy_test
-      administrative_url: postgresql://postgres:postgres@localhost/postgres
-    '''
-    configure(force=True)
-    settings.merge(_configuration)
+    configure(force=True, context=dict(dbname='restfulpy'))
 
     # Overriding the db uri becase this is a test session, so db.test_uri will
     # be used instead of the db.uri
@@ -132,7 +126,7 @@ class TestCase:
 
 class ApplicableTestCase:
     __application__ = None
-    __application_factory__ = MockupApplication
+    __application_factory__ = Application
     __controller_factory__ = None
     __configuration__ = None
     __story_directory__ = None
@@ -228,7 +222,7 @@ class ApplicableTestCase:
                 parameters['root'] = cls.__controller_factory__()
 
             cls.__application__ = cls.__application_factory__(
-                'Restfulpy testing application',
+                'restfulpytesting',
                 **parameters,
             )
 

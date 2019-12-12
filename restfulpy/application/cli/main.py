@@ -7,18 +7,12 @@ from .configuration import ConfigurationSubCommand
 from .database import DatabaseSubCommand
 from .jwttoken import JWTSubCommand
 from .migrate import MigrateSubCommand
-from .mule import MuleSubCommand
 from .worker import WorkerSubCommand
 
 
 class EntryPoint(Root):
     __completion__ = True
     __arguments__ = [
-        Argument(
-            '-V', '--version',
-            action='store_true',
-            help='Show application version',
-        ),
         Argument(
             '-p', '--process-name',
             metavar="PREFIX",
@@ -35,7 +29,6 @@ class EntryPoint(Root):
         JWTSubCommand,
         MigrateSubCommand,
         WorkerSubCommand,
-        MuleSubCommand,
     ]
 
     def __init__(self, application):
@@ -49,15 +42,8 @@ class EntryPoint(Root):
 
     def _execute_subcommand(self, args):
         args.application = self.application
-        self.application.process_name = args.process_name
+        self.application.name = args.process_name
         self.application.configure(filename=args.config_file)
         self.application.initialize_orm()
         return super()._execute_subcommand(args)
-
-    def __call__(self, args):
-        if args.version:
-            print(self.application.version)
-            return
-
-        return super().__call__(args)
 

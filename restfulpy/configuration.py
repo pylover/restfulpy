@@ -20,13 +20,13 @@ timezone:
 
 db:
   # The main uri
-  url: postgresql://postgres:postgres@localhost/restfulpy_demo
+  url: postgresql://postgres:postgres@localhost/%(dbname)s
 
   # Will be used to create and drop database(s).
   administrative_url: postgresql://postgres:postgres@localhost/postgres
 
   # Will be used to run tests
-  test_url: postgresql://postgres:postgres@localhost/restfulpy_test
+  test_url: postgresql://postgres:postgres@localhost/%(dbname)s_test
 
   # Redirect all SQL Queries to std-out
   echo: false
@@ -53,8 +53,7 @@ messaging:
   default_messenger: restfulpy.messaging.ConsoleMessenger
   default_sender: restfulpy
   mako_modules_directory:
-  template_dirs:
-    - %(restfulpy_root)s/messaging/templates
+  template_directories:
 
 templates:
   directories: []

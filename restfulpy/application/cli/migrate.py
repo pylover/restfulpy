@@ -20,8 +20,8 @@ class MigrateSubCommand(SubCommand):
     def __call__(self, args):
         current_directory = os.curdir
         try:
-            os.chdir(args.application.root_path)
-            alembic_ini = join(args.application.root_path, 'alembic.ini')
+            os.chdir(args.application.path)
+            alembic_ini = join(args.application.path, 'alembic.ini')
             alembic_main(argv=['--config', alembic_ini] + args.alembic_args)
 
         finally:

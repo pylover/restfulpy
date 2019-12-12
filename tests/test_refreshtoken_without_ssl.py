@@ -2,7 +2,7 @@ import time
 
 from bddrest.authoring import response
 
-from restfulpy.mockup import MockupApplication
+from restfulpy.application import Application
 from restfulpy.authentication import StatefulAuthenticator
 from restfulpy.principal import JWTPrincipal, JWTRefreshToken
 from restfulpy.testing import ApplicableTestCase
@@ -27,8 +27,8 @@ class MockupAuthenticator(StatefulAuthenticator):
 
 
 class TestRefreshTokenWithoutSSl(ApplicableTestCase):
-    __application__ = MockupApplication(
-        'MockupApplication',
+    __application__ = Application(
+        'Application',
         None,
         authenticator=MockupAuthenticator()
     )

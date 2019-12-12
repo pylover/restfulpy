@@ -67,12 +67,3 @@ def mockup_localtimezone(timezone):
 
     datetimehelpers.localtimezone = backup
 
-
-class MockupApplication(Application):
-    __configuration__ = '''
-     db:
-       url: postgresql://postgres:postgres@localhost/restfulpy_dev
-       test_url: postgresql://postgres:postgres@localhost/restfulpy_test
-       administrative_url: postgresql://postgres:postgres@localhost/postgres
-    '''
-

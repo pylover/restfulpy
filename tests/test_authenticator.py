@@ -1,9 +1,8 @@
-import itsdangerous
 from freezegun import freeze_time
 from bddrest.authoring import response, when, status
 from nanohttp import json, Controller, context, HTTPBadRequest, settings
 
-from restfulpy.mockup import MockupApplication
+from restfulpy.application import Application
 from restfulpy.authentication import Authenticator
 from restfulpy.authorization import authorize
 from restfulpy.principal import JWTPrincipal, JWTRefreshToken
@@ -71,8 +70,8 @@ class Root(Controller):
 
 
 class TestAuthenticator(ApplicableTestCase):
-    __application__ = MockupApplication(
-        'Authenticator Application',
+    __application__ = Application(
+        'Authenticator',
         Root(),
         authenticator=MockupStatelessAuthenticator()
     )

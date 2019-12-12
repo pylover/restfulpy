@@ -26,9 +26,15 @@ class Messenger(object):
 
     @LazyAttribute
     def lookup(self):
+        template_directories = settings.messaging.template_directories
+        if not template_directories:
+            raise ValueError(
+                'Please provide some mako template directoris via '
+                'configuration: settings.messaging.template_directories'
+            )
         return TemplateLookup(
             module_directory=settings.messaging.mako_modules_directory,
-            directories=settings.messaging.template_dirs,
+            directories=settings.messaging.template_directories,
             input_encoding='utf8'
         )
 
