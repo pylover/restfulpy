@@ -33,17 +33,7 @@ class FooApplication(RestfulpyApplication):
 
 
 foo = FooApplication(name='Foo')
-
-
-def foo_main():
-    return foo.cli_main()
-
-
-app = Application(
-    'foo',
-    'tests.test_appcli_db:foo_main'
-)
-
+app = Application('foo', 'tests.test_appcli_db:foo.cli_main')
 
 
 class TestDatabaseAdministrationCommandLine:

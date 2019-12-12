@@ -17,21 +17,14 @@ dependencies = [
     'easycli >= 1.5, < 2',
     'argcomplete',
     'ujson',
-    'appdirs',
     'sqlalchemy',
     'alembic',
     'itsdangerous',
-    'mako',
     'psycopg2-binary',
     'redis',
-    'pyyaml',
-    'ua-parser',
-    'user-agents',
-    'pycrypto',
     'python-dateutil',
 
     # Testing
-    'requests',
     'pytest',
     'bddrest >= 2.5.7, < 3',
     'bddcli >= 2.5, < 3'

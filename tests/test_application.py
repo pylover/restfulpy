@@ -44,14 +44,3 @@ class TestApplication(ApplicableTestCase):
         foo.configure(filename=filename, force=True)
         assert settings.foo.bar == 'baz'
 
-    def test_application_configure_encrypted_file(self):
-        filename = mktemp()
-        content = b'foo:\n  bar: baz\n'
-        content = foo.__configuration_cipher__.encrypt(content)
-        with open(filename, 'wb') as f:
-            f.write(b'#enc')
-            f.write(content)
-
-        foo.configure(filename=filename, context={'a': 1}, force=True)
-        assert settings.foo.bar == 'baz'
-

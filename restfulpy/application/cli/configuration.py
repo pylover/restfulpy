@@ -24,37 +24,10 @@ class ConfigurationDumperSubSubCommand(SubCommand):
             print(dump)
 
 
-class ConfigurationEncrptorSubSubCommand(SubCommand):
-    __command__ = 'encrypt'
-    __help__ = 'Encrypt configu file'
-
-    def __call__(self, args):
-        sys.stdout.buffer.write(b'#enc')
-        sys.stdout.buffer.write(
-            args.application.__configuration_cipher__.encrypt(
-                sys.stdin.buffer.read()
-            )
-        )
-
-
-class ConfigurationDecryptorSubSubCommand(SubCommand):
-    __command__ = 'decrypt'
-    __help__ = 'Decrypt the config file'
-
-    def __call__(self, args):
-        sys.stdout.buffer.write(
-            args.application.__configuration_cipher__.decrypt(
-                sys.stdin.buffer.read().lstrip(b'#enc')
-            )
-        )
-
-
 class ConfigurationSubCommand(SubCommand):
     __command__ = 'configuration'
     __help__ = 'Configuration tools'
     __arguments__ = [
         ConfigurationDumperSubSubCommand,
-        ConfigurationEncrptorSubSubCommand,
-        ConfigurationDecryptorSubSubCommand,
     ]
 

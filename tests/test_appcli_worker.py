@@ -28,13 +28,7 @@ class FooApplication(RestfulpyApplication):
 
 
 foo = FooApplication(name='Foo')
-
-
-def foo_main():
-    return foo.cli_main()
-
-
-app = Application('foo', 'tests.test_appcli_worker:foo_main')
+app = Application('foo', 'tests.test_appcli_worker:foo.cli_main')
 
 
 def test_appcli_worker_cleanup(db):

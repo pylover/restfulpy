@@ -7,7 +7,6 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from .. import logger
 from ..configuration import configure
-from ..cryptography import AESCipher
 from ..exceptions import SQLError
 from ..orm import init_model, create_engine, DBSession
 from .cli.main import EntryPoint
@@ -23,7 +22,6 @@ class Application(NanohttpApplication):
 
     __configuration__ = None
     __authenticator__ = None
-    __configuration_cipher__ = AESCipher(b'abcdefghijklmnop')
     __cli_arguments__ = []
     engine = None
 
@@ -61,13 +59,7 @@ class Application(NanohttpApplication):
             settings.merge(self.__configuration__)
 
         if filename is not None:
-            with open(filename, 'rb') as f:
-                header = f.read(4)
-                if header == b'#enc':
-                    content = self.__configuration_cipher__.decrypt(f.read())
-                else:
-                    content = header + f.read()
-                settings.merge(content.decode())
+            settings.loadfile(filename)
 
     def get_cli_arguments(self):
         """

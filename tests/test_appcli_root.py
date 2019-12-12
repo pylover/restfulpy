@@ -4,13 +4,7 @@ from restfulpy import Application as RestfulpyApplication
 
 
 foo = RestfulpyApplication(name='Foo')
-
-
-def foo_main():
-    return foo.cli_main()
-
-
-app = Application('foo', 'tests.test_appcli_jwt:foo_main')
+app = Application('foo', 'tests.test_appcli_jwt:foo.cli_main')
 
 
 def test_appcli_root():

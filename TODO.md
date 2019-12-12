@@ -1,3 +1,2 @@
-## V3.x TODO
+## TODO
 
-- remove configuration cipher

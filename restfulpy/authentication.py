@@ -3,7 +3,6 @@ from datetime import datetime
 import itsdangerous
 import redis
 import ujson
-import user_agents
 from nanohttp import context, HTTPBadRequest, settings
 
 from restfulpy.principal import JWTPrincipal, JWTRefreshToken
