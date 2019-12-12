@@ -230,7 +230,7 @@ class ApplicableTestCase:
         try:
             cls.initialize_orm()
             cls.mockup()
-        except:
+        except:  # pragma: no cover
             cls.teardown_class()
             raise
 
@@ -302,7 +302,6 @@ class ApplicableTestCase:
         for k in cls.__metadata__:
             if re.match(k, resource):
                 return cls.__metadata__[k].get(name)
-        return None
 
     def given(self, *a, autodoc=True, **kw):
         if self._authentication_token is not None:

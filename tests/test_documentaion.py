@@ -8,7 +8,7 @@ from restfulpy.testing import ApplicableTestCase
 
 
 HERE = path.abspath(path.dirname(__file__))
-DATA_DIRECTORY = path.abspath(path.join(HERE, '../../data'))
+DATA_DIRECTORY = path.abspath(path.join(HERE, '../data'))
 
 
 class Root(RegexRouteController):
