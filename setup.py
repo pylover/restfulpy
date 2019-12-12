@@ -12,9 +12,9 @@ with open(join(dirname(__file__), 'restfulpy', '__init__.py')) as v_file:
 
 
 dependencies = [
-    'pymlconf >= 1.1, < 3',
-    'nanohttp >= 1.11, < 2',
-    'easycli >= 1.3, < 2',
+    'pymlconf >= 2, < 3',
+    'nanohttp >= 1.11.10, < 2',
+    'easycli >= 1.5, < 2',
     'argcomplete',
     'ujson',
     'appdirs',
@@ -33,8 +33,8 @@ dependencies = [
     # Testing
     'requests',
     'pytest',
-    'bddrest >= 2.4.2, < 3',
-    'bddcli >= 2.4, < 3'
+    'bddrest >= 2.5.7, < 3',
+    'bddcli >= 2.5, < 3'
 ]
 
 

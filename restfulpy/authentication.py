@@ -241,7 +241,6 @@ class StatefulAuthenticator(Authenticator):
     _redis = None
     sessions_key = 'auth:sessions'
     members_key = 'auth:member:%s'
-    session_info_key = 'auth:sessions:%s:info'
     remote_address_key = 'REMOTE_ADDR'
     agent_key = 'HTTP_USER_AGENT'
 
@@ -264,10 +263,6 @@ class StatefulAuthenticator(Authenticator):
     def get_member_sessions_key(cls, member_id):
         return cls.members_key % member_id
 
-    @classmethod
-    def get_session_info_key(cls, session_id):
-        return cls.session_info_key % session_id
-
     def verify_token(self, encoded_token):
         principal = super().verify_token(encoded_token)
         if not self.validate_session(principal.session_id):
@@ -287,52 +282,15 @@ class StatefulAuthenticator(Authenticator):
         self.unregister_session(context.identity.session_id)
         super().logout()
 
-    def extract_agent_info(self):
-        remote_address = None
-        machine = None
-        os = None
-        agent = None
-
-        if self.remote_address_key in context.environ \
-                and context.environ[self.remote_address_key]:
-            remote_address = context.environ[self.remote_address_key]
-
-        if self.agent_key in context.environ:
-            agent_string = context.environ[self.agent_key]
-            user_agent = user_agents.parse(agent_string)
-
-            machine = user_agent.is_pc and 'PC' or user_agent.device.family
-            os = ' '.join([
-                user_agent.os.family,
-                user_agent.os.version_string
-            ]).strip()
-            agent = ' '.join([
-                user_agent.browser.family,
-                user_agent.browser.version_string
-            ]).strip()
-
-        return {
-            'remoteAddress': remote_address or 'NA',
-            'machine': machine or 'Other',
-            'os': os or 'Other',
-            'agent': agent or 'Other',
-            'lastActivity': datetime.utcnow().isoformat()
-        }
-
     def register_session(self, member_id, session_id):
         self.redis.hset(self.sessions_key, session_id, member_id)
         self.redis.sadd(self.get_member_sessions_key(member_id), session_id)
-        self.redis.set(
-            self.get_session_info_key(session_id),
-            ujson.dumps(self.extract_agent_info())
-        )
 
     def unregister_session(self, session_id=None):
         session_id = session_id or context.identity.session_id
         member_id = self.redis.hget(self.sessions_key, session_id)
         self.redis.srem(self.get_member_sessions_key(member_id), session_id)
         self.redis.hdel(self.sessions_key, session_id)
-        self.redis.delete(self.get_session_info_key(session_id))
 
     def invalidate_member(self, member_id=None):
         # store current session id if available
@@ -345,7 +303,6 @@ class StatefulAuthenticator(Authenticator):
             if not session_id:
                 break
             self.redis.hdel(self.sessions_key, session_id)
-            self.redis.delete(self.get_session_info_key(session_id))
         self.redis.delete(self.get_member_sessions_key(member_id))
         if current_session_id:
             self.try_refresh_token(current_session_id)
@@ -356,21 +313,6 @@ class StatefulAuthenticator(Authenticator):
     def get_member_id_by_session(self, session_id):
         return int(self.redis.hget(self.sessions_key, session_id))
 
-    def ok(self, principal, setup_header=False):
-        super().ok(principal, setup_header)
-        self.update_session_info(principal.session_id)
-
-    def update_session_info(self, session_id):
-        self.redis.set(
-            self.get_session_info_key(session_id),
-            ujson.dumps(self.extract_agent_info())
-        )
-
-    def get_session_info(self, session_id):
-        info = self.redis.get(self.get_session_info_key(session_id))
-        if info:
-            return ujson.loads(info)
-
     def isonline(self, session_id):
-        return self.redis.get(self.get_session_info_key(session_id)) is not None
+        return self.redis.hget(self.sessions_key, session_id) is not None
 

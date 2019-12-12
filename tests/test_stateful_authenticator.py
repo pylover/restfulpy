@@ -161,40 +161,6 @@ class TestStatefulAuthenticator(ApplicableTestCase):
             ) == 1
 
     @freeze_time("2017-07-13T13:11:44", tz_offset=-4)
-    def test_session_info(self):
-        with self.given(
-            'Log in to get a token and refresh token cookie',
-            '/login',
-            'POST',
-            form=dict(email='test@example.com', password='test')
-        ):
-            assert status == 200
-            assert 'token' in response.json
-            assert response.headers['X-Identity'] == '1'
-            self._authentication_token = response.json['token']
-
-            # Testing test cases
-            for test_case in session_info_test_cases:
-                # Our new session info should be updated
-                self.when(
-                    'Getting session info',
-                    '/me',
-                    extra_environ=test_case['environment']
-                )
-                assert status == 200
-                assert 'sessionId' in response.json
-
-                info = self.__application__.__authenticator__\
-                    .get_session_info(response.json['sessionId'])
-
-                assert info.items() == {
-                    'remoteAddress': test_case['expected_remote_address'],
-                    'machine': test_case['expected_machine'],
-                    'os': test_case['expected_os'],
-                    'agent': test_case['expected_agent'],
-                    'lastActivity': test_case['expected_last_activity'],
-                }.items()
-
     def test_isonline(self):
         with Context(environ={}, application=self.__application__):
             authenticator = self.__application__.__authenticator__
