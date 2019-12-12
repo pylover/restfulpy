@@ -35,9 +35,7 @@ class EntryPoint(Root):
         self.application = application
         self.__command__ = application.name
         self.__help__ = '%s command line interface.' % application.name
-        extra_arguments = self.application.get_cli_arguments()
-        if extra_arguments is not None:
-            self.__arguments__.extend(extra_arguments)
+        self.__arguments__.extend(self.application.__cli_arguments__)
         super().__init__()
 
     def _execute_subcommand(self, args):

@@ -1,6 +1,7 @@
 import io
 from os.path import dirname, abspath, join
 
+import pytest
 from nanohttp import configure, settings
 
 from restfulpy.messaging.providers import ConsoleMessenger
@@ -49,5 +50,15 @@ class TestSMTPProvider:
             'email body with Attachment',
             attachments=[attachment]
         )
+
+        settings.messaging.template_directories = None
+        with pytest.raises(ValueError):
+            ConsoleMessenger().send(
+                'test@example.com',
+                'test@example.com',
+                {},
+                template_filename='test-email-template.mako'
+            )
+
 
 

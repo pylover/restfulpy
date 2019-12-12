@@ -7,3 +7,4 @@
 - Abstract email length
 - Stateful authenticator
 - remove mule module
+- remove configuration cipher
